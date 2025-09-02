@@ -66,6 +66,35 @@ const HABITOS_OPCIONES = [
   'Toxicomanías',
 ];
 
+// Opciones: Antecedentes personales patológicos
+const PATOLOGICOS_OPCIONES = [
+  'Amigdalitis',
+  'Alérgicos',
+  'Enf. Venéreas',
+  'Traumatismos',
+  'Parasitosis',
+  'Transfusiones',
+  'Cirugías',
+  'Cáncer',
+  'Enf. Hígado',
+  'Enf. Riñones',
+  'Corazón',
+  'Varicela',
+  'Rubéola',
+  'Sarampión',
+  'Ojos',
+  'Gastrointestinal',
+  'Respiratorio',
+  'Piel',
+  'Migraña',
+  'Colesterol',
+  'Várices',
+  'Glucosa',
+  'Metabólico',
+  'Insomnio',
+  'Otros',
+];
+
 // Eliminado: DIETA_OPCIONES (componentes de la dieta)
 
 /* ---------- Estado inicial (solo nuevos campos) ---------- */
@@ -86,6 +115,7 @@ const initialState = {
   antecedentes_personales_habitos: [], // [{ tipo: 'Alcoholismo'|'Tabaquismo'|'Toxicomanías', campos: {...} }]
   // Eliminado: antecedentes_personales_dieta
   // Eliminado: vacunacion
+  antecedentes_personales_patologicos: [], // [{ nombre: string, descripcion: string }]
   alimentacion_calidad: '',
   alimentacion_descripcion: '',
   cambios_alimentacion: '',
@@ -105,6 +135,7 @@ const Add = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
+  const [nuevoPatologico, setNuevoPatologico] = useState('');
   // Eliminado: nuevoDieta
 
   const handleChange = ({ target: { name, value } }) =>
@@ -201,6 +232,31 @@ const Add = () => {
   };
 
   // Eliminado: lógica de componentes de la dieta (add/remove/update)
+
+  // ---- Antecedentes personales patológicos ----
+  const addPatologico = () => {
+    if (!nuevoPatologico) return;
+    setFormData(prev => ({
+      ...prev,
+      antecedentes_personales_patologicos: [
+        ...prev.antecedentes_personales_patologicos,
+        { nombre: nuevoPatologico, descripcion: '' },
+      ],
+    }));
+    setNuevoPatologico('');
+  };
+  const removePatologicoAt = (idx) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentes_personales_patologicos: prev.antecedentes_personales_patologicos.filter((_, i) => i !== idx),
+    }));
+  };
+  const updatePatologicoDesc = (idx, valor) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentes_personales_patologicos: prev.antecedentes_personales_patologicos.map((p, i) => i === idx ? { ...p, descripcion: valor } : p),
+    }));
+  };
   const Required = () => (
     <AiFillStar
       style={{
@@ -663,27 +719,97 @@ const Add = () => {
                     <option value="No">No</option>
                   </Select>
                 </FieldGroup>
+                {formData.cambios_alimentacion === 'Si' && (
+                  <FieldGroup>
+                    <Label htmlFor="cambio_tipo">Tipo de cambio</Label>
+                    <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
+                  </FieldGroup>
+                )}
               </TwoColumnRow>
 
               {formData.cambios_alimentacion === 'Si' && (
-                <>
-                  <TwoColumnRow>
-                    <FieldGroup>
-                      <Label htmlFor="cambio_tipo">Tipo de cambio</Label>
-                      <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
-                    </FieldGroup>
-                    <FieldGroup>
-                      <Label htmlFor="cambio_causa">Causa del cambio</Label>
-                      <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
-                    </FieldGroup>
-                  </TwoColumnRow>
-                  <TwoColumnRow>
-                    <FieldGroup>
-                      <Label htmlFor="cambio_tiempo">Tiempo</Label>
-                      <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
-                    </FieldGroup>
-                  </TwoColumnRow>
-                </>
+                <TwoColumnRow>
+                  <FieldGroup>
+                    <Label htmlFor="cambio_causa">Causa del cambio</Label>
+                    <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label htmlFor="cambio_tiempo">Tiempo</Label>
+                    <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
+                  </FieldGroup>
+                </TwoColumnRow>
+              )}
+            </details>
+
+            {/* Sección colapsable: Antecedentes personales patológicos */}
+            <details>
+              <Summary>Antecedentes personales patológicos</Summary>
+
+              {/* Selector para agregar patológico */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="select_patologico">Selecciona un antecedente</Label>
+                  <Select
+                    id="select_patologico"
+                    value={nuevoPatologico}
+                    onChange={e => setNuevoPatologico(e.target.value)}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {PATOLOGICOS_OPCIONES
+                      .filter(opt => !formData.antecedentes_personales_patologicos.some(p => p.nombre === opt))
+                      .map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                  </Select>
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>&nbsp;</Label>
+                  <SubmitButton type="button" onClick={addPatologico} disabled={!nuevoPatologico}>
+                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+                    Agregar
+                  </SubmitButton>
+                </FieldGroup>
+              </TwoColumnRow>
+
+              {/* Lista de patológicos agregados */}
+              {formData.antecedentes_personales_patologicos.length > 0 && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  {formData.antecedentes_personales_patologicos.map((p, idx) => (
+                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                      <TwoColumnRow>
+                        <FieldGroup>
+                          <Label>Antecedente</Label>
+                          <Input value={p.nombre} disabled />
+                        </FieldGroup>
+                        <FieldGroup>
+                          <Label>{`Descripción de antecedente: ${p.nombre.toLowerCase()}`}</Label>
+                          <TextArea
+                            value={p.descripcion}
+                            onChange={e => updatePatologicoDesc(idx, e.target.value)}
+                            rows={3}
+                            placeholder={`Detalle de ${p.nombre.toLowerCase()}`}
+                          />
+                        </FieldGroup>
+                      </TwoColumnRow>
+                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => removePatologicoAt(idx)}
+                          style={{
+                            background: 'transparent',
+                            border: `1px solid ${Palette.secondary}`,
+                            borderRadius: 4,
+                            padding: '0.35rem 0.65rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <FaTrash />
+                          <span style={{ marginLeft: 8 }}>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </details>
 
