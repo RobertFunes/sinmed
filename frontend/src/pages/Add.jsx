@@ -95,6 +95,24 @@ const PATOLOGICOS_OPCIONES = [
   'Otros',
 ];
 
+// Opciones: Interrogatorio por aparatos y sistemas
+const SISTEMAS_OPCIONES = [
+  'Síntomas generales',
+  'Endocrino',
+  'Órganos de los sentidos',
+  'Gastrointestinal',
+  'Cardiopulmonar',
+  'Genitourinario',
+  'Genital femenino',
+  'Sexualidad',
+  'Dermatológico',
+  'Neurológico',
+  'Hematológico',
+  'Reumatológico',
+  'Psiquiátrico',
+  'Medicamentos',
+];
+
 // Eliminado: DIETA_OPCIONES (componentes de la dieta)
 
 /* ---------- Estado inicial (solo nuevos campos) ---------- */
@@ -116,6 +134,9 @@ const initialState = {
   // Eliminado: antecedentes_personales_dieta
   // Eliminado: vacunacion
   antecedentes_personales_patologicos: [], // [{ nombre: string, descripcion: string }]
+  // Padecimiento actual e interrogatorio por aparatos y sistemas
+  padecimiento_actual: '',
+  interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
   alimentacion_calidad: '',
   alimentacion_descripcion: '',
   cambios_alimentacion: '',
@@ -136,6 +157,7 @@ const Add = () => {
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
+  const [nuevoSistema, setNuevoSistema] = useState('');
   // Eliminado: nuevoDieta
 
   const handleChange = ({ target: { name, value } }) =>
@@ -255,6 +277,31 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       antecedentes_personales_patologicos: prev.antecedentes_personales_patologicos.map((p, i) => i === idx ? { ...p, descripcion: valor } : p),
+    }));
+  };
+
+  // ---- Padecimiento actual e interrogatorio por aparatos y sistemas ----
+  const addSistema = () => {
+    if (!nuevoSistema) return;
+    setFormData(prev => ({
+      ...prev,
+      interrogatorio_aparatos: [
+        ...prev.interrogatorio_aparatos,
+        { nombre: nuevoSistema, descripcion: '' },
+      ],
+    }));
+    setNuevoSistema('');
+  };
+  const removeSistemaAt = (idx) => {
+    setFormData(prev => ({
+      ...prev,
+      interrogatorio_aparatos: prev.interrogatorio_aparatos.filter((_, i) => i !== idx),
+    }));
+  };
+  const updateSistemaDesc = (idx, valor) => {
+    setFormData(prev => ({
+      ...prev,
+      interrogatorio_aparatos: prev.interrogatorio_aparatos.map((s, i) => i === idx ? { ...s, descripcion: valor } : s),
     }));
   };
   const Required = () => (
@@ -576,6 +623,7 @@ const Add = () => {
                     <option value="">-- Selecciona --</option>
                     {HABITOS_OPCIONES
                       .filter(opt => !formData.antecedentes_personales_habitos.some(h => h.tipo === opt))
+                      .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
                       .map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
@@ -795,6 +843,91 @@ const Add = () => {
                         <button
                           type="button"
                           onClick={() => removePatologicoAt(idx)}
+                          style={{
+                            background: 'transparent',
+                            border: `1px solid ${Palette.secondary}`,
+                            borderRadius: 4,
+                            padding: '0.35rem 0.65rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <FaTrash />
+                          <span style={{ marginLeft: 8 }}>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </details>
+
+            {/* Sección colapsable: Padecimiento actual e interrogatorio por aparatos y sistemas */}
+            <details>
+              <Summary>Padecimiento actual e interrogatorio</Summary>
+
+              {/* Padecimiento actual (textarea grande) */}
+              <FieldGroup>
+                <Label htmlFor="padecimiento_actual">Padecimiento actual</Label>
+                <TextArea
+                  id="padecimiento_actual"
+                  name="padecimiento_actual"
+                  value={formData.padecimiento_actual}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Describe el padecimiento actual"
+                />
+              </FieldGroup>
+
+              {/* Selector para agregar sistemas */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="select_sistema">Selecciona un sistema</Label>
+                  <Select
+                    id="select_sistema"
+                    value={nuevoSistema}
+                    onChange={e => setNuevoSistema(e.target.value)}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {SISTEMAS_OPCIONES
+                      .filter(opt => !formData.interrogatorio_aparatos.some(s => s.nombre === opt))
+                      .map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                  </Select>
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>&nbsp;</Label>
+                  <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema}>
+                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+                    Agregar
+                  </SubmitButton>
+                </FieldGroup>
+              </TwoColumnRow>
+
+              {/* Lista de sistemas agregados */}
+              {formData.interrogatorio_aparatos.length > 0 && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  {formData.interrogatorio_aparatos.map((s, idx) => (
+                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                      <TwoColumnRow>
+                        <FieldGroup>
+                          <Label>Sistema</Label>
+                          <Input value={s.nombre} disabled />
+                        </FieldGroup>
+                        <FieldGroup>
+                          <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
+                          <TextArea
+                            value={s.descripcion}
+                            onChange={e => updateSistemaDesc(idx, e.target.value)}
+                            rows={3}
+                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
+                          />
+                        </FieldGroup>
+                      </TwoColumnRow>
+                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => removeSistemaAt(idx)}
                           style={{
                             background: 'transparent',
                             border: `1px solid ${Palette.secondary}`,
