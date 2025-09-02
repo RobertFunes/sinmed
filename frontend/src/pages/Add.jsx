@@ -9,12 +9,13 @@ import {
   FieldGroup,
   Label,
   Input,
+  TextArea,
   Select,
   ButtonRow,
   SubmitButton,
-  Palette,
   TwoColumnRow,
 } from './Add.styles';
+import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
 
 // iconos
@@ -194,7 +195,7 @@ const Add = () => {
                 </FieldGroup>
               </TwoColumnRow>
 
-              {/* Correo y Residencia */}
+              {/* Correo */}
               <TwoColumnRow>
                 <FieldGroup>
                   <Label htmlFor="correo_electronico">
@@ -211,22 +212,24 @@ const Add = () => {
                     placeholder="mail@ejemplo.com"
                   />
                 </FieldGroup>
-
-                <FieldGroup>
-                  <Label htmlFor="residencia">
-                    <FaHome style={{ marginRight: '0.5rem' }} />
-                    Residencia
-                  </Label>
-                  <Input
-                    id="residencia"
-                    name="residencia"
-                    value={formData.residencia}
-                    onChange={handleChange}
-                    maxLength={255}
-                    placeholder="Ciudad, colonia y/o dirección"
-                  />
-                </FieldGroup>
               </TwoColumnRow>
+
+              {/* Dirección Completa (full width) */}
+              <FieldGroup>
+                <Label htmlFor="residencia">
+                  <FaHome style={{ marginRight: '0.5rem' }} />
+                  Dirección Completa
+                </Label>
+                <TextArea
+                  id="residencia"
+                  name="residencia"
+                  value={formData.residencia}
+                  onChange={handleChange}
+                  maxLength={255}
+                  rows={4}
+                  placeholder="Calle, número, colonia, ciudad, CP"
+                />
+              </FieldGroup>
 
               {/* Ocupación y Escolaridad */}
               <TwoColumnRow>
@@ -327,4 +330,3 @@ const Add = () => {
 };
 
 export default Add;
-

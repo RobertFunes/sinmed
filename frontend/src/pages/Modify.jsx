@@ -5,8 +5,9 @@ import Header from '../components/Header';
 import {
   AddContainer, FormCard, Title, Form, FieldGroup, Label, Input,
   TextArea, Select, ButtonRow, SubmitButton, CancelButton,
-  Palette, TwoColumnRow,
+  TwoColumnRow,
 } from './Add.styles';
+import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
 
 // íconos
@@ -234,4 +235,3 @@ export default function Modify() {
     </>
   );
 }
-

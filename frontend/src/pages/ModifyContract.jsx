@@ -14,10 +14,10 @@ import {
   ButtonRow,
   SubmitButton,
   CancelButton,
-  Palette,
   TwoColumnRow,
   FullWidthSelect
 } from './Add.styles';
+import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
 import { useParams } from 'react-router-dom';
 

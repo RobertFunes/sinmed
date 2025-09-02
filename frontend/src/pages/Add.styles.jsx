@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 /* 🎨 Paleta centralizada para poder reutilizarla fácilmente */
 import { Palette } from '../helpers/theme';
-export { Palette };
 
 /* ---------- CONTENEDORES PRINCIPALES ---------- */
 
