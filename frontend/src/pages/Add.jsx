@@ -1,4 +1,4 @@
-// add.jsx
+// add.jsx (actualizado con nuevos campos y sección colapsable)
 import { useState } from 'react';
 import Header from '../components/Header';
 import {
@@ -9,55 +9,41 @@ import {
   FieldGroup,
   Label,
   Input,
-  TextArea,
   Select,
   ButtonRow,
   SubmitButton,
-  CancelButton,
-  Palette,  
-  TwoColumnRow           // <— IMPORTAMOS la paleta para usar el color
+  Palette,
+  TwoColumnRow,
 } from './Add.styles';
 import { url } from '../helpers/url';
 
 // iconos
 import { AiFillStar } from 'react-icons/ai';
 import {
+  FaUserCircle,
   FaVenusMars,
   FaEnvelope,
   FaPhoneAlt,
   FaHome,
   FaBirthdayCake,
   FaBriefcase,
-  FaCalendarAlt,
-  FaCar,
-  FaRegLightbulb,
-  FaMoneyCheckAlt,
-  FaLock,
-  FaStickyNote,
-  FaUserCircle,
-  
 } from 'react-icons/fa';
 
-/* ---------- Estado inicial ---------- */
+/* ---------- Estado inicial (solo nuevos campos) ---------- */
 const initialState = {
-  nombre: '',
-  genero: '',
-  correo_electronico: '',
-  telefono_movil: '',
-  direccion_completa: '',
-  fecha_nacimiento: '',
-  ocupacion: '',
-  ultima_fecha_contacto: '',
-  autos: '',
-  aspiraciones_suenos: '',
-  potenciales_seguros: '',
-  notas: '',
-  calle: '',
-  numero_int_ext: '',
-  colonia: '',
-  ciudad_municipio: '',
-  codigo_postal: '',
+  nombre: '',                 // varchar(100) NOT NULL
+  fecha_nacimiento: '',       // date NULL
+  genero: '',                 // enum('Hombre','Mujer','NA')
+  telefono_movil: '',         // varchar(20) NULL
+  correo_electronico: '',     // varchar(100) NULL
+  residencia: '',             // varchar(255) NULL
+  ocupacion: '',              // varchar(50) NULL
+  escolaridad: '',            // varchar(100) NULL
+  estado_civil: '',           // enum(...)
+  tipo_sangre: '',            // varchar(10) NULL
+  referido_por: '',           // varchar(100) NULL
 };
+
 const Add = () => {
   const [formData, setFormData] = useState(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,15 +55,15 @@ const Add = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // 🔹 Normaliza espacios en TODOS los strings
+    // Normaliza espacios en todos los strings
     const payload = Object.fromEntries(
       Object.entries(formData).map(([k, v]) => [
         k,
-        typeof v === 'string' ? v.trim() : v
+        typeof v === 'string' ? v.trim() : v,
       ])
     );
 
-    console.log('🛰️  Payload que viaja 👉', payload); // 👁️ Para verificar en consola
+    console.log('Payload enviado', payload);
 
     try {
       const res = await fetch(`${url}/api/add`, {
@@ -88,14 +74,14 @@ const Add = () => {
       });
 
       if (res.ok) {
-        alert('Cliente agregado correctamente');
+        alert('Perfil agregado correctamente');
         setFormData(initialState);
       } else {
-        alert('Ocurrió un error al agregar el cliente');
+        alert('Ocurrió un error al agregar el perfil');
       }
     } catch (err) {
       console.error(err);
-      alert('Error de red al intentar agregar el cliente');
+      alert('Error de red al intentar agregar el perfil');
     } finally {
       setIsSubmitting(false);
     }
@@ -116,264 +102,229 @@ const Add = () => {
 
   return (
     <>
-    <Header />
-    <AddContainer>
-      <FormCard>
-        
-        <Title>
-          <span>Añadir</span> perfil a la base de datos.
-        </Title>
+      <Header />
+      <AddContainer>
+        <FormCard>
+          <Title>
+            <span>Añadir</span> perfil a la base de datos.
+          </Title>
 
-        <Form onSubmit={handleSubmit}>
-          <TwoColumnRow>
-            <FieldGroup>
-              <Label htmlFor="nombre">
-                <FaUserCircle style={{ marginRight: '0.5rem' }} />
-                Nombre
-                <Required />
-              </Label>
-              <Input
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-                placeholder="Nombre completo"
-                />
-            </FieldGroup>
-            <FieldGroup>
-              <Label htmlFor="genero">
-                <FaVenusMars style={{ marginRight: '0.5rem' }} />
-                Género
-                <Required />
-              </Label>
-              <Select
-                id="genero"
-                name="genero"
-                value={formData.genero}
-                onChange={handleChange}
-                required
+          <Form onSubmit={handleSubmit}>
+            {/* Sección colapsable: Datos personales */}
+            <details open>
+              <summary
+                style={{
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  fontSize: '1.25rem',
+                  marginBottom: '0.75rem',
+                }}
               >
-                <option value="">-- Selecciona --</option>
-                <option value="Hombre">Masculino</option>
-                <option value="Mujer">Femenino</option>
-              </Select>
-            </FieldGroup>
-          </TwoColumnRow>
-          <TwoColumnRow>
+                Datos personales
+              </summary>
 
-          <FieldGroup>
-            <Label htmlFor="correo_electronico">
-              <FaEnvelope style={{ marginRight: '0.5rem' }} />
-              Correo electrónico
-            </Label>
-            <Input
-              id="correo_electronico"
-              type="email"
-              name="correo_electronico"
-              value={formData.correo_electronico}
-              onChange={handleChange}
-              placeholder="mail@ejemplo.com"
-              />
-          </FieldGroup>
+              {/* Nombre (requerido) y Género */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="nombre">
+                    <FaUserCircle style={{ marginRight: '0.5rem' }} />
+                    Nombre
+                    <Required />
+                  </Label>
+                  <Input
+                    id="nombre"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    required
+                    maxLength={100}
+                    placeholder="Nombre completo"
+                  />
+                </FieldGroup>
 
-          <FieldGroup>
-            <Label htmlFor="telefono_movil">
-              <FaPhoneAlt style={{ marginRight: '0.5rem' }} />
-              Teléfono móvil
-              <Required />
-            </Label>
-            <Input
-              id="telefono_movil"
-              type="tel"
-              name="telefono_movil"
-              value={formData.telefono_movil}
-              onChange={handleChange}
-              required
-              placeholder="Empieza con 52 para México"
-              />
-          </FieldGroup>
-          </TwoColumnRow>
-          <TwoColumnRow>
-            <FieldGroup>
-              <Label htmlFor="fecha_nacimiento">
-                <FaBirthdayCake style={{ marginRight: '0.5rem' }} />
-                Fecha de nacimiento
-              </Label>
-              <Input
-                id="fecha_nacimiento"
-                type="date"
-                name="fecha_nacimiento"
-                value={formData.fecha_nacimiento}
-                onChange={handleChange}
-              />
-            </FieldGroup>
-            <FieldGroup>
-              <Label htmlFor="ultima_fecha_contacto">
-                <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
-                Última fecha de contacto
-              </Label>
-              <Input
-                id="ultima_fecha_contacto"
-                type="date"
-                name="ultima_fecha_contacto"
-                value={formData.ultima_fecha_contacto}
-                onChange={handleChange}
-              />
-            </FieldGroup>
-          </TwoColumnRow>
-          {/* Campo de aseguradora eliminado del formulario de perfil */}
-          <TwoColumnRow>
-            {/* Calle */}
-            <FieldGroup>
-              <Label htmlFor="calle">
-                <FaHome style={{ marginRight: '0.5rem' }} />
-                Calle
-              </Label>
-              <Input
-                id="calle"
-                name="calle"
-                value={formData.calle}
-                onChange={handleChange}
-                placeholder="Nombre de la calle"
-              />
-            </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="genero">
+                    <FaVenusMars style={{ marginRight: '0.5rem' }} />
+                    Género
+                  </Label>
+                  <Select
+                    id="genero"
+                    name="genero"
+                    value={formData.genero}
+                    onChange={handleChange}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                    <option value="NA">NA</option>
+                  </Select>
+                </FieldGroup>
+              </TwoColumnRow>
 
-            {/* Número interior y exterior */}
-            <FieldGroup>
-              <Label htmlFor="numero_int_ext">
-                <FaLock style={{ marginRight: '0.5rem' }} />
-                Núm. interior/exterior
-              </Label>
-              <Input
-                id="numero_int_ext"
-                name="numero_int_ext"
-                value={formData.numero_int_ext}
-                onChange={handleChange}
-                placeholder="123 Int. 4 / 567 Ext."
-              />
-            </FieldGroup>
-          </TwoColumnRow>
+              {/* Fecha de nacimiento y Teléfono */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="fecha_nacimiento">
+                    <FaBirthdayCake style={{ marginRight: '0.5rem' }} />
+                    Fecha de nacimiento
+                  </Label>
+                  <Input
+                    id="fecha_nacimiento"
+                    type="date"
+                    name="fecha_nacimiento"
+                    value={formData.fecha_nacimiento}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
 
-          <TwoColumnRow>
-            {/* Colonia */}
-            <FieldGroup>
-              <Label htmlFor="colonia">
-                🏘️ Colonia
-              </Label>
-              <Input
-                id="colonia"
-                name="colonia"
-                value={formData.colonia}
-                onChange={handleChange}
-                placeholder="Nombre de la colonia"
-              />
-            </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="telefono_movil">
+                    <FaPhoneAlt style={{ marginRight: '0.5rem' }} />
+                    Teléfono móvil
+                  </Label>
+                  <Input
+                    id="telefono_movil"
+                    type="tel"
+                    name="telefono_movil"
+                    value={formData.telefono_movil}
+                    onChange={handleChange}
+                    maxLength={20}
+                    placeholder="Ej. +525512345678"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
 
-            {/* Ciudad / Municipio */}
-            <FieldGroup>
-              <Label htmlFor="ciudad_municipio">
-                🌆 Ciudad / Municipio
-              </Label>
-              <Input
-                id="ciudad_municipio"
-                name="ciudad_municipio"
-                value={formData.ciudad_municipio}
-                onChange={handleChange}
-                placeholder="Ciudad o municipio"
-              />
-            </FieldGroup>
-          </TwoColumnRow>
-          
-          <TwoColumnRow>
-            <FieldGroup>
-              <Label htmlFor="codigo_postal">
-                📫 Código Postal
-              </Label>
-              <Input
-                id="codigo_postal"
-                name="codigo_postal"
-                value={formData.codigo_postal}
-                onChange={handleChange}
-                placeholder="p.ej. 74160"
-              />
-            </FieldGroup>
-          </TwoColumnRow>
-          <FieldGroup>
-            <Label htmlFor="ocupacion">
-              <FaBriefcase style={{ marginRight: '0.5rem' }} />
-              Ocupación
-            </Label>
-            <Input
-              id="ocupacion"
-              name="ocupacion"
-              value={formData.ocupacion}
-              onChange={handleChange}
-            />
-          </FieldGroup>
-          <FieldGroup>
-            <Label htmlFor="autos">
-              <FaCar style={{ marginRight: '0.5rem' }} />
-              Datos de vehiculo
-            </Label>
-            <TextArea
-              id="autos"
-              name="autos"
-              value={formData.autos}
-              onChange={handleChange}
-            />
-          </FieldGroup>
+              {/* Correo y Residencia */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="correo_electronico">
+                    <FaEnvelope style={{ marginRight: '0.5rem' }} />
+                    Correo electrónico
+                  </Label>
+                  <Input
+                    id="correo_electronico"
+                    type="email"
+                    name="correo_electronico"
+                    value={formData.correo_electronico}
+                    onChange={handleChange}
+                    maxLength={100}
+                    placeholder="mail@ejemplo.com"
+                  />
+                </FieldGroup>
 
-          <FieldGroup>
-            <Label htmlFor="aspiraciones_suenos">
-              <FaRegLightbulb style={{ marginRight: '0.5rem' }} />
-              Aspiraciones / Sueños
-            </Label>
-            <TextArea
-              id="aspiraciones_suenos"
-              name="aspiraciones_suenos"
-              value={formData.aspiraciones_suenos}
-              onChange={handleChange}
-            />
-          </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="residencia">
+                    <FaHome style={{ marginRight: '0.5rem' }} />
+                    Residencia
+                  </Label>
+                  <Input
+                    id="residencia"
+                    name="residencia"
+                    value={formData.residencia}
+                    onChange={handleChange}
+                    maxLength={255}
+                    placeholder="Ciudad, colonia y/o dirección"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
 
-          <FieldGroup>
-            <Label htmlFor="potenciales_seguros">
-              <FaMoneyCheckAlt style={{ marginRight: '0.5rem' }} />
-              Seguros probables
-            </Label>
-            <TextArea
-              id="potenciales_seguros"
-              name="potenciales_seguros"
-              value={formData.potenciales_seguros}
-              onChange={handleChange}
-            />
-          </FieldGroup>
+              {/* Ocupación y Escolaridad */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="ocupacion">
+                    <FaBriefcase style={{ marginRight: '0.5rem' }} />
+                    Ocupación
+                  </Label>
+                  <Input
+                    id="ocupacion"
+                    name="ocupacion"
+                    value={formData.ocupacion}
+                    onChange={handleChange}
+                    maxLength={50}
+                  />
+                </FieldGroup>
 
-          <FieldGroup>
-            <Label htmlFor="notas">
-              <FaStickyNote style={{ marginRight: '0.5rem' }} />
-              Notas
-            </Label>
-            <TextArea
-              id="notas"
-              name="notas"
-              value={formData.notas}
-              onChange={handleChange}
-            />
-          </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="escolaridad">
+                    Escolaridad
+                  </Label>
+                  <Input
+                    id="escolaridad"
+                    name="escolaridad"
+                    value={formData.escolaridad}
+                    onChange={handleChange}
+                    maxLength={100}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
 
-          {/* Botonera */}
-          <ButtonRow>
-            <SubmitButton type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Grabando..' : 'Grabar en base de datos 💾'}
-            </SubmitButton>
-          </ButtonRow>
-        </Form>
-      </FormCard>
-    </AddContainer>
+              {/* Estado civil y Tipo de sangre */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="estado_civil">
+                    Estado civil
+                  </Label>
+                  <Select
+                    id="estado_civil"
+                    name="estado_civil"
+                    value={formData.estado_civil}
+                    onChange={handleChange}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    <option value="Soltero">Soltero</option>
+                    <option value="Casado">Casado</option>
+                    <option value="Divorciado">Divorciado</option>
+                    <option value="Viudo">Viudo</option>
+                    <option value="Union libre">Union libre</option>
+                    <option value="Otro">Otro</option>
+                  </Select>
+                </FieldGroup>
+
+                <FieldGroup>
+                  <Label htmlFor="tipo_sangre">
+                    Tipo de sangre
+                  </Label>
+                  <Input
+                    id="tipo_sangre"
+                    name="tipo_sangre"
+                    value={formData.tipo_sangre}
+                    onChange={handleChange}
+                    maxLength={10}
+                    placeholder="Ej. O+, A-"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+
+              {/* Referido por */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="referido_por">
+                    Referido por
+                  </Label>
+                  <Input
+                    id="referido_por"
+                    name="referido_por"
+                    value={formData.referido_por}
+                    onChange={handleChange}
+                    maxLength={100}
+                    placeholder="Persona o canal de referencia"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+            </details>
+
+            {/* Botonera */}
+            <ButtonRow>
+              <SubmitButton type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Grabando...' : 'Grabar en base de datos'}
+              </SubmitButton>
+            </ButtonRow>
+          </Form>
+        </FormCard>
+      </AddContainer>
     </>
   );
 };
 
 export default Add;
+

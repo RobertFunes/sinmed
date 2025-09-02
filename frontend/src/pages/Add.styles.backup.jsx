@@ -2,8 +2,13 @@
 import styled from 'styled-components';
 
 /* 🎨 Paleta centralizada para poder reutilizarla fácilmente */
-import { Palette } from '../helpers/theme';
-export { Palette };
+export const Palette = {
+  cyan: '#00ADB5',        // Botones primarios, acentos
+  lightGray: '#EEEEEE',   // Fondos de contenedores
+  darkGray: '#393E46',    // Sombras y detalles
+  black: '#222831',       // Texto principal
+  almostWhite: '#F0F0F0', // Fondos claros con transparencia
+};
 
 /* ---------- CONTENEDORES PRINCIPALES ---------- */
 
