@@ -66,19 +66,7 @@ const HABITOS_OPCIONES = [
   'Toxicomanías',
 ];
 
-const DIETA_OPCIONES = [
-  'Tortillas',
-  'Frijoles',
-  'Pan/Pastas',
-  'Carne',
-  'Pescado',
-  'Huevo',
-  'Verduras',
-  'Frutas',
-  'Refrescos',
-  'Comida chatarra',
-  'Agua (litros)',
-];
+// Eliminado: DIETA_OPCIONES (componentes de la dieta)
 
 /* ---------- Estado inicial (solo nuevos campos) ---------- */
 const initialState = {
@@ -96,10 +84,10 @@ const initialState = {
   antecedentes_familiares: [], // [{ nombre: string, descripcion: string, esOtro?: boolean }]
   // Antecedentes personales
   antecedentes_personales_habitos: [], // [{ tipo: 'Alcoholismo'|'Tabaquismo'|'Toxicomanías', campos: {...} }]
-  antecedentes_personales_dieta: [],   // [{ nombre: string, veces_por_semana?: string, agua_litros?: string }]
-  vacunacion: '',
+  // Eliminado: antecedentes_personales_dieta
+  // Eliminado: vacunacion
   alimentacion_calidad: '',
-  alimentacion_motivo: '',
+  alimentacion_descripcion: '',
   cambios_alimentacion: '',
   cambio_tipo: '',
   cambio_causa: '',
@@ -117,7 +105,7 @@ const Add = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
-  const [nuevoDieta, setNuevoDieta] = useState('');
+  // Eliminado: nuevoDieta
 
   const handleChange = ({ target: { name, value } }) =>
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -212,29 +200,7 @@ const Add = () => {
     }));
   };
 
-  // ---- Antecedentes personales: dieta ----
-  const addDieta = () => {
-    if (!nuevoDieta) return;
-    const isAgua = nuevoDieta === 'Agua (litros)';
-    const item = isAgua ? { nombre: nuevoDieta, agua_litros: '' } : { nombre: nuevoDieta, veces_por_semana: '' };
-    setFormData(prev => ({
-      ...prev,
-      antecedentes_personales_dieta: [...prev.antecedentes_personales_dieta, item],
-    }));
-    setNuevoDieta('');
-  };
-  const removeDietaAt = (idx) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentes_personales_dieta: prev.antecedentes_personales_dieta.filter((_, i) => i !== idx),
-    }));
-  };
-  const updateDietaCampo = (idx, campo, valor) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentes_personales_dieta: prev.antecedentes_personales_dieta.map((d, i) => i === idx ? { ...d, [campo]: valor } : d),
-    }));
-  };
+  // Eliminado: lógica de componentes de la dieta (add/remove/update)
   const Required = () => (
     <AiFillStar
       style={{
@@ -334,7 +300,7 @@ const Add = () => {
                 </FieldGroup>
               </TwoColumnRow>
 
-              {/* Correo */}
+              {/* Correo y Referido por */}
               <TwoColumnRow>
                 <FieldGroup>
                   <Label htmlFor="correo_electronico">
@@ -349,6 +315,19 @@ const Add = () => {
                     onChange={handleChange}
                     maxLength={100}
                     placeholder="mail@ejemplo.com"
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="referido_por">
+                    Referido por
+                  </Label>
+                  <Input
+                    id="referido_por"
+                    name="referido_por"
+                    value={formData.referido_por}
+                    onChange={handleChange}
+                    maxLength={100}
+                    placeholder="Persona o canal de referencia"
                   />
                 </FieldGroup>
               </TwoColumnRow>
@@ -437,22 +416,7 @@ const Add = () => {
                 </FieldGroup>
               </TwoColumnRow>
 
-              {/* Referido por */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="referido_por">
-                    Referido por
-                  </Label>
-                  <Input
-                    id="referido_por"
-                    name="referido_por"
-                    value={formData.referido_por}
-                    onChange={handleChange}
-                    maxLength={100}
-                    placeholder="Persona o canal de referencia"
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
+              {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
             {/* Sección colapsable: Antecedentes familiares */}
@@ -669,94 +633,11 @@ const Add = () => {
                 </div>
               )}
 
-              {/* Select dinámico: Componentes habituales de la dieta */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_dieta">Componente de la dieta</Label>
-                  <Select
-                    id="select_dieta"
-                    value={nuevoDieta}
-                    onChange={e => setNuevoDieta(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {DIETA_OPCIONES
-                      .filter(opt => !formData.antecedentes_personales_dieta.some(d => d.nombre === opt))
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addDieta} disabled={!nuevoDieta}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar componente
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {formData.antecedentes_personales_dieta.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
-                  {formData.antecedentes_personales_dieta.map((d, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.darkGray}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
-                      <strong style={{ display: 'block', marginBottom: '0.5rem' }}>{d.nombre}</strong>
-                      <TwoColumnRow>
-                        {d.nombre === 'Agua (litros)' ? (
-                          <FieldGroup>
-                            <Label htmlFor={`agua_${idx}`}>{`Agua (litros) — Litros por día`}</Label>
-                            <Input
-                              id={`agua_${idx}`}
-                              value={d.agua_litros}
-                              onChange={e => updateDietaCampo(idx, 'agua_litros', e.target.value)}
-                              inputMode="decimal"
-                              placeholder="Ej. 2"
-                            />
-                          </FieldGroup>
-                        ) : (
-                          <FieldGroup>
-                            <Label htmlFor={`veces_${idx}`}>{`${d.nombre} — Veces por semana`}</Label>
-                            <Input
-                              id={`veces_${idx}`}
-                              value={d.veces_por_semana}
-                              onChange={e => updateDietaCampo(idx, 'veces_por_semana', e.target.value)}
-                              inputMode="numeric"
-                              placeholder="Ej. 3"
-                            />
-                          </FieldGroup>
-                        )}
-                      </TwoColumnRow>
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeDietaAt(idx)}
-                          style={{
-                            background: 'transparent',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Eliminado: Select y lista de componentes de la dieta */}
 
               {/* Campos fijos */}
               <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="vacunacion">Vacunación</Label>
-                  <Select id="vacunacion" name="vacunacion" value={formData.vacunacion} onChange={handleChange}>
-                    <option value="">-- Selecciona --</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
-                  </Select>
-                </FieldGroup>
-
+                {/* Eliminado: Vacunación */}
                 <FieldGroup>
                   <Label htmlFor="alimentacion_calidad">Alimentación (calidad)</Label>
                   <Select id="alimentacion_calidad" name="alimentacion_calidad" value={formData.alimentacion_calidad} onChange={handleChange}>
@@ -769,8 +650,8 @@ const Add = () => {
               </TwoColumnRow>
 
               <FieldGroup>
-                <Label htmlFor="alimentacion_motivo">Motivo</Label>
-                <TextArea id="alimentacion_motivo" name="alimentacion_motivo" value={formData.alimentacion_motivo} onChange={handleChange} rows={3} placeholder="Explica brevemente" />
+                <Label htmlFor="alimentacion_descripcion">Descripción de la alimentación</Label>
+                <TextArea id="alimentacion_descripcion" name="alimentacion_descripcion" value={formData.alimentacion_descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
               </FieldGroup>
 
               <TwoColumnRow>
@@ -782,23 +663,28 @@ const Add = () => {
                     <option value="No">No</option>
                   </Select>
                 </FieldGroup>
-
-                <FieldGroup>
-                  <Label htmlFor="cambio_tipo">Tipo de cambio</Label>
-                  <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
-                </FieldGroup>
               </TwoColumnRow>
 
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="cambio_causa">Causa del cambio</Label>
-                  <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="cambio_tiempo">Tiempo</Label>
-                  <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
-                </FieldGroup>
-              </TwoColumnRow>
+              {formData.cambios_alimentacion === 'Si' && (
+                <>
+                  <TwoColumnRow>
+                    <FieldGroup>
+                      <Label htmlFor="cambio_tipo">Tipo de cambio</Label>
+                      <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
+                    </FieldGroup>
+                    <FieldGroup>
+                      <Label htmlFor="cambio_causa">Causa del cambio</Label>
+                      <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
+                    </FieldGroup>
+                  </TwoColumnRow>
+                  <TwoColumnRow>
+                    <FieldGroup>
+                      <Label htmlFor="cambio_tiempo">Tiempo</Label>
+                      <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
+                    </FieldGroup>
+                  </TwoColumnRow>
+                </>
+              )}
             </details>
 
             {/* Botonera */}

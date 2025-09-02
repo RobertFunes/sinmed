@@ -63,6 +63,7 @@ export const FieldGroup = styled.div`
 
 /* Etiquetas */
 export const Label = styled.label`
+  margin-top: 1rem;
   margin-bottom: 1rem;
   font-weight: 600;
   display: flex;
