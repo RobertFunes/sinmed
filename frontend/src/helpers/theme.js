@@ -1,11 +1,16 @@
-// frontend/src/helpers/theme.js
-// Paleta de colores centralizada para toda la app
-
 export const Palette = {
-  cyan: '#00ADB5',        // Botones primarios, acentos
-  lightGray: '#EEEEEE',   // Fondos de contenedores
-  darkGray: '#393E46',    // Sombras y detalles
-  black: '#222831',       // Texto principal
-  almostWhite: '#F0F0F0', // Fondos claros con transparencia
-};
+  // Roles principales
+  primary: '#67C090',     // Acción principal, acentos, focus
+  secondary: '#26667F',   // Superficies/oscuros, hovers fuertes, bordes fuertes
+  accent: '#DDF4E7',      // Color suave para resaltar fondos o secciones
+  dark: '#124170',        // Tonos más profundos, headers, contrastes
 
+  // Texto
+  text: '#000000',        // Texto principal
+  title: '#67C090',       // Encabezados, títulos
+  muted: '#393E46',       // Texto/íconos secundarios, placeholders
+
+  // Fondos y bordes
+  background: '#FFFFFF',  // Fondo principal
+  border: '#EEEEEE',      // Bordes suaves, separadores
+};

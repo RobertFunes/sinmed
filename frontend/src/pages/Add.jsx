@@ -1,11 +1,12 @@
 // add.jsx (actualizado con nuevos campos y sección colapsable)
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import {
   AddContainer,
   FormCard,
   Title,
   Form,
+  Summary,
   FieldGroup,
   Label,
   Input,
@@ -105,6 +106,12 @@ const initialState = {
   cambio_tiempo: '',
 };
 
+// Construye el payload normalizado tal como se envía al backend
+const buildPayload = (data) =>
+  Object.fromEntries(
+    Object.entries(data).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
+  );
+
 const Add = () => {
   const [formData, setFormData] = useState(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,17 +122,18 @@ const Add = () => {
   const handleChange = ({ target: { name, value } }) =>
     setFormData(prev => ({ ...prev, [name]: value }));
 
+  // Log en vivo: cada cambio del formulario imprime el payload completo
+  useEffect(() => {
+    const payload = buildPayload(formData);
+    console.log('Payload (en vivo)', payload);
+  }, [formData]);
+
   const handleSubmit = async e => {
     e.preventDefault();
     setIsSubmitting(true);
 
     // Normaliza espacios en todos los strings
-    const payload = Object.fromEntries(
-      Object.entries(formData).map(([k, v]) => [
-        k,
-        typeof v === 'string' ? v.trim() : v,
-      ])
-    );
+    const payload = buildPayload(formData);
 
     console.log('Payload enviado', payload);
 
@@ -232,7 +240,7 @@ const Add = () => {
       style={{
         marginLeft: '0.25rem',
         verticalAlign: 'middle',
-        color: Palette.cyan,
+        color: Palette.primary,
         fontSize: '2.2rem',
       }}
       title="Obligatorio"
@@ -245,22 +253,15 @@ const Add = () => {
       <AddContainer>
         <FormCard>
           <Title>
-            <span>Añadir</span> perfil a la base de datos.
+            <span>Nueva</span> historia clínica.
           </Title>
 
           <Form onSubmit={handleSubmit}>
             {/* Sección colapsable: Datos personales */}
             <details open>
-              <summary
-                style={{
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '1.25rem',
-                  marginBottom: '0.75rem',
-                }}
-              >
+              <Summary>
                 Datos personales
-              </summary>
+              </Summary>
 
               {/* Nombre (requerido) y Género */}
               <TwoColumnRow>
@@ -456,16 +457,7 @@ const Add = () => {
 
             {/* Sección colapsable: Antecedentes familiares */}
             <details>
-              <summary
-                style={{
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '1.25rem',
-                  margin: '1rem 0 0.75rem',
-                }}
-              >
-                Antecedentes familiares
-              </summary>
+              <Summary>Antecedentes familiares</Summary>
 
               {/* Selector para agregar antecedente */}
               <TwoColumnRow>
@@ -500,7 +492,7 @@ const Add = () => {
               {formData.antecedentes_familiares.length > 0 && (
                 <div style={{ marginTop: '0.75rem' }}>
                   {formData.antecedentes_familiares.map((a, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.darkGray}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
                       <TwoColumnRow>
                         <FieldGroup>
                           <Label>{a.esOtro ? 'Otra (especifique)' : 'Antecedente'}</Label>
@@ -531,7 +523,7 @@ const Add = () => {
                           onClick={() => removeAntecedenteAt(idx)}
                           style={{
                             background: 'transparent',
-                            border: `1px solid ${Palette.darkGray}`,
+                            border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
                             cursor: 'pointer'
@@ -549,17 +541,9 @@ const Add = () => {
 
             {/* Sección colapsable: Antecedentes personales */}
             <details>
-              <summary
-                style={{
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '1.25rem',
-                  margin: '1rem 0 0.75rem',
-                }}
-              >
+              <Summary>
                 Antecedentes personales
-              </summary>
-
+              </Summary>
               {/* Select dinámico: Alcoholismo / Tabaquismo / Toxicomanías */}
               <TwoColumnRow>
                 <FieldGroup>
@@ -589,7 +573,7 @@ const Add = () => {
               {formData.antecedentes_personales_habitos.length > 0 && (
                 <div style={{ marginTop: '0.75rem' }}>
                   {formData.antecedentes_personales_habitos.map((h, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.darkGray}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
                       <strong style={{ display: 'block', marginBottom: '0.5rem' }}>{h.tipo}</strong>
                       <TwoColumnRow>
                         {h.tipo === 'Alcoholismo' && (
@@ -670,7 +654,7 @@ const Add = () => {
                           onClick={() => removeHabitoAt(idx)}
                           style={{
                             background: 'transparent',
-                            border: `1px solid ${Palette.darkGray}`,
+                            border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
                             cursor: 'pointer'
@@ -747,7 +731,7 @@ const Add = () => {
                           onClick={() => removeDietaAt(idx)}
                           style={{
                             background: 'transparent',
-                            border: `1px solid ${Palette.darkGray}`,
+                            border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
                             cursor: 'pointer'

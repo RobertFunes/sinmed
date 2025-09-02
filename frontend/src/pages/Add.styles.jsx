@@ -23,8 +23,8 @@ export const FormCard = styled.div`
   max-width: 90%;
   background: rgba(240, 240, 240, 0.75); /* 85% opaco, 15% transparente */
 
-  border: 1px solid ${Palette.lightGray};
-  box-shadow: 0 4px 12px rgba(254, 254, 255, 0.15); /* sombra sutil en gris oscuro */
+
+  box-shadow: 0 0 12px 20px rgb(0 0 0 / 15%);
   border-radius: 8px;
   padding-bottom: 2rem;
 `;
@@ -36,12 +36,12 @@ export const Title = styled.h1`
   padding: 2.5rem;
   font-size: 2.5rem;
   text-align: center;
-  color: ${Palette.almostWhite};
-  background-color: ${Palette.black};
+  color: ${Palette.background};
+  background-color: ${Palette.muted};
   font-family: 'Nunito', sans-serif;
   border-radius: 8px 8px 0 0;
   span {
-    color: ${Palette.cyan};
+    color: ${Palette.primary};
   }
 `;
 
@@ -63,12 +63,12 @@ export const FieldGroup = styled.div`
 
 /* Etiquetas */
 export const Label = styled.label`
-  margin-bottom: 0.55rem;
+  margin-bottom: 1rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   font-size: 1.5rem;
-  color: ${Palette.black};
+  color: ${Palette.secondary};
 `;
 
 /* Mixin con estilos compartidos para inputs/selects/textarea */
@@ -83,12 +83,12 @@ const inputStyles = `
   transition: outline 0.15s ease-in-out;
 
   &:focus {
-    outline: 2px solid ${Palette.cyan};
+    outline: 4px solid ${Palette.primary};
     border-color: transparent;
   }
 
   &::placeholder {
-    color: ${Palette.darkGray};
+    color: ${Palette.secondary};
   }
 `;
 
@@ -108,9 +108,7 @@ export const TextArea = styled.textarea`
 export const Select = styled.select`
   ${inputStyles}
   appearance: none;
-  background: #fff
-    url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='${encodeURIComponent(Palette.darkGray)}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7L10 12L15 7'/%3E%3C/svg%3E")
-    no-repeat right 1rem center;
+  
 `;
 
 /* ---------- BOTONERA ---------- */
@@ -126,8 +124,8 @@ export const ButtonRow = styled.div`
 export const SubmitButton = styled.button`
   width: 25vw;
   padding: 0.75rem 1.5rem;
-  background: ${Palette.cyan};
-  color: #ffffff;
+  background: ${Palette.primary};
+  color: ${Palette.secondary};
   font-weight: 600;
   font-size: 1.2rem;
   border: none;
@@ -140,7 +138,7 @@ export const SubmitButton = styled.button`
   }
 
   &:disabled {
-    background: ${Palette.lightGray};
+    background: ${Palette.dark};
     cursor: not-allowed;
   }
 `;
@@ -167,4 +165,17 @@ export const TwoColumnRow = styled.div`
 `;
 export const FullWidthSelect = styled(Select)`
   width: 100%;
+`;
+
+// Resumen de las secciones dentro de <details>
+export const Summary = styled.summary`
+  cursor: pointer;
+  color: ${Palette.primary};
+  background-color: ${Palette.muted};
+  max-width: 350px;
+  font-weight: 700;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
 `;
