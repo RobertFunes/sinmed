@@ -302,12 +302,6 @@ const Add = () => {
     }
   };
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const handleFormInvalid = (e) => {
-    const { name } = e.target;
-    if (name === 'nombre') {
-      setOpenSection('datos');
-    }
-  };
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
@@ -318,10 +312,8 @@ const Add = () => {
   const handleChange = ({ target: { name, value } }) =>
     setFormData(prev => ({ ...prev, [name]: value }));
 
-  // Vista previa en vivo del objeto anidado
-  useEffect(() => {
-    console.log('Payload (en vivo)', buildNestedPayload(formData));
-  }, [formData]);
+  // (Opcional) Vista previa del objeto anidado en cambios
+  // useEffect(() => { console.log(buildNestedPayload(formData)); }, [formData]);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -503,7 +495,7 @@ const Add = () => {
             <span>Nueva</span> historia clínica.
           </Title>
 
-          <Form onSubmit={handleSubmit} onInvalid={handleFormInvalid}>
+          <Form onSubmit={handleSubmit}>
             {/* Sección colapsable: Datos personales */}
             <details open={openSection === 'datos'} onToggle={handleToggle('datos')}>
               <Summary>
@@ -681,7 +673,6 @@ const Add = () => {
                     <option value="Otro">Otro</option>
                   </Select>
                 </FieldGroup>
-
                 <FieldGroup>
                   <Label htmlFor="tipo_sangre">
                     Tipo de sangre
@@ -696,7 +687,6 @@ const Add = () => {
                   />
                 </FieldGroup>
               </TwoColumnRow>
-
               {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
