@@ -20,7 +20,6 @@ export const AddContainer = styled.div`
 /* Tarjeta que contiene el formulario */
 export const FormCard = styled.div`
   width: 100%;
-  max-width: 90%;
   background: rgba(240, 240, 240, 0.75); /* 85% opaco, 15% transparente */
 
 

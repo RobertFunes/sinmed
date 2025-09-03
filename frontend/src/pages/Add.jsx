@@ -113,6 +113,16 @@ const SISTEMAS_OPCIONES = [
   'Medicamentos',
 ];
 
+// Opciones: Inspección general en exploración física
+const INSPECCION_OPCIONES = [
+  'Cabeza',
+  'Cuello',
+  'Tórax',
+  'Abdomen',
+  'Genitales',
+  'Extremidades',
+];
+
 // Eliminado: DIETA_OPCIONES (componentes de la dieta)
 
 /* ---------- Estado inicial (solo nuevos campos) ---------- */
@@ -143,6 +153,27 @@ const initialState = {
   cambio_tipo: '',
   cambio_causa: '',
   cambio_tiempo: '',
+  // Exploración física - datos antropométricos y vitales
+  peso_actual: '',
+  peso_anterior: '',
+  peso_deseado: '',
+  peso_ideal: '',
+  talla_cm: '',
+  imc_porcentaje: '',
+  porcentaje_rtg: '',
+  ta_mmhg: '',
+  pulso: '',
+  frecuencia_cardiaca: '',
+  frecuencia_respiratoria: '',
+  temperatura_c: '',
+  cadera_cm: '',
+  cintura_cm: '',
+  inspeccion_general: [], // [{ nombre: string, descripcion: string }]
+  // Diagnóstico y tratamiento
+  diagnostico: '',
+  tratamiento: '',
+  pronostico: '',
+  notas: '',
 };
 
 // Construye el payload normalizado tal como se envía al backend
@@ -153,11 +184,23 @@ const buildPayload = (data) =>
 
 const Add = () => {
   const [formData, setFormData] = useState(initialState);
+  // Control de acordeón: solo una sección abierta a la vez
+  const [openSection, setOpenSection] = useState('datos');
+  const handleToggle = (key) => (e) => {
+    if (e.currentTarget.open) {
+      // Abrir esta sección y mantener cerradas las demás
+      setOpenSection(key);
+    } else {
+      // Solo cerrar si es la sección actualmente activa; ignorar cierres de otras
+      setOpenSection((prev) => (prev === key ? null : prev));
+    }
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
   const [nuevoSistema, setNuevoSistema] = useState('');
+  const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   // Eliminado: nuevoDieta
 
   const handleChange = ({ target: { name, value } }) =>
@@ -304,6 +347,31 @@ const Add = () => {
       interrogatorio_aparatos: prev.interrogatorio_aparatos.map((s, i) => i === idx ? { ...s, descripcion: valor } : s),
     }));
   };
+
+  // ---- Exploración física: inspección general ----
+  const addInspeccion = () => {
+    if (!nuevoInspeccion) return;
+    setFormData(prev => ({
+      ...prev,
+      inspeccion_general: [
+        ...prev.inspeccion_general,
+        { nombre: nuevoInspeccion, descripcion: '' },
+      ],
+    }));
+    setNuevoInspeccion('');
+  };
+  const removeInspeccionAt = (idx) => {
+    setFormData(prev => ({
+      ...prev,
+      inspeccion_general: prev.inspeccion_general.filter((_, i) => i !== idx),
+    }));
+  };
+  const updateInspeccionDesc = (idx, valor) => {
+    setFormData(prev => ({
+      ...prev,
+      inspeccion_general: prev.inspeccion_general.map((s, i) => i === idx ? { ...s, descripcion: valor } : s),
+    }));
+  };
   const Required = () => (
     <AiFillStar
       style={{
@@ -327,7 +395,7 @@ const Add = () => {
 
           <Form onSubmit={handleSubmit}>
             {/* Sección colapsable: Datos personales */}
-            <details open>
+            <details open={openSection === 'datos'} onToggle={handleToggle('datos')}>
               <Summary>
                 Datos personales
               </Summary>
@@ -523,7 +591,7 @@ const Add = () => {
             </details>
 
             {/* Sección colapsable: Antecedentes familiares */}
-            <details>
+            <details open={openSection === 'familiares'} onToggle={handleToggle('familiares')}>
               <Summary>Antecedentes familiares</Summary>
 
               {/* Selector para agregar antecedente */}
@@ -607,7 +675,7 @@ const Add = () => {
             </details>
 
             {/* Sección colapsable: Antecedentes personales */}
-            <details>
+            <details open={openSection === 'personales'} onToggle={handleToggle('personales')}>
               <Summary>
                 Antecedentes personales
               </Summary>
@@ -790,7 +858,7 @@ const Add = () => {
             </details>
 
             {/* Sección colapsable: Antecedentes personales patológicos */}
-            <details>
+            <details open={openSection === 'patologicos'} onToggle={handleToggle('patologicos')}>
               <Summary>Antecedentes personales patológicos</Summary>
 
               {/* Selector para agregar patológico */}
@@ -862,7 +930,7 @@ const Add = () => {
             </details>
 
             {/* Sección colapsable: Padecimiento actual e interrogatorio por aparatos y sistemas */}
-            <details>
+            <details open={openSection === 'padecimiento'} onToggle={handleToggle('padecimiento')}>
               <Summary>Padecimiento actual e interrogatorio</Summary>
 
               {/* Padecimiento actual (textarea grande) */}
@@ -944,6 +1012,202 @@ const Add = () => {
                   ))}
                 </div>
               )}
+            </details>
+
+            {/* Sección colapsable: Exploración física */}
+            <details open={openSection === 'exploracion'} onToggle={handleToggle('exploracion')}>
+              <Summary>Exploración física</Summary>
+
+              {/* Datos antropométricos y vitales */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="peso_actual">Peso actual (kg)</Label>
+                  <Input id="peso_actual" name="peso_actual" value={formData.peso_actual} onChange={handleChange} inputMode="decimal" placeholder="Ej. 72" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="peso_anterior">Peso anterior (kg)</Label>
+                  <Input id="peso_anterior" name="peso_anterior" value={formData.peso_anterior} onChange={handleChange} inputMode="decimal" placeholder="Ej. 75" />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="peso_deseado">Peso deseado (kg)</Label>
+                  <Input id="peso_deseado" name="peso_deseado" value={formData.peso_deseado} onChange={handleChange} inputMode="decimal" placeholder="Ej. 68" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="peso_ideal">Peso ideal (kg)</Label>
+                  <Input id="peso_ideal" name="peso_ideal" value={formData.peso_ideal} onChange={handleChange} inputMode="decimal" placeholder="Ej. 70" />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="talla_cm">Talla (cm)</Label>
+                  <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 170" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="imc_porcentaje">IMC (%)</Label>
+                  <Input id="imc_porcentaje" name="imc_porcentaje" value={formData.imc_porcentaje} onChange={handleChange} inputMode="decimal" placeholder="Ej. 24.9" />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="porcentaje_rtg">% RTG</Label>
+                  <Input id="porcentaje_rtg" name="porcentaje_rtg" value={formData.porcentaje_rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="ta_mmhg">TA (mmHg)</Label>
+                  <Input id="ta_mmhg" name="ta_mmhg" value={formData.ta_mmhg} onChange={handleChange} placeholder="Ej. 120/80" />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="pulso">Pulso</Label>
+                  <Input id="pulso" name="pulso" value={formData.pulso} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="frecuencia_cardiaca">FC (frecuencia cardiaca)</Label>
+                  <Input id="frecuencia_cardiaca" name="frecuencia_cardiaca" value={formData.frecuencia_cardiaca} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="frecuencia_respiratoria">FR (frecuencia respiratoria)</Label>
+                  <Input id="frecuencia_respiratoria" name="frecuencia_respiratoria" value={formData.frecuencia_respiratoria} onChange={handleChange} inputMode="numeric" placeholder="rpm" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="temperatura_c">Temp (°C)</Label>
+                  <Input id="temperatura_c" name="temperatura_c" value={formData.temperatura_c} onChange={handleChange} inputMode="decimal" placeholder="Ej. 36.7" />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="cadera_cm">Cadera (cm)</Label>
+                  <Input id="cadera_cm" name="cadera_cm" value={formData.cadera_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 95" />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="cintura_cm">Cintura (cm)</Label>
+                  <Input id="cintura_cm" name="cintura_cm" value={formData.cintura_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 80" />
+                </FieldGroup>
+              </TwoColumnRow>
+
+              {/* Inspección general (dinámica) */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="select_inspeccion">Inspección general</Label>
+                  <Select
+                    id="select_inspeccion"
+                    value={nuevoInspeccion}
+                    onChange={e => setNuevoInspeccion(e.target.value)}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {INSPECCION_OPCIONES
+                      .filter(opt => !formData.inspeccion_general.some(s => s.nombre === opt))
+                      .map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                  </Select>
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>&nbsp;</Label>
+                  <SubmitButton type="button" onClick={addInspeccion} disabled={!nuevoInspeccion}>
+                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+                    Agregar
+                  </SubmitButton>
+                </FieldGroup>
+              </TwoColumnRow>
+
+              {formData.inspeccion_general.length > 0 && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  {formData.inspeccion_general.map((s, idx) => (
+                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                      <TwoColumnRow>
+                        <FieldGroup>
+                          <Label>Área</Label>
+                          <Input value={s.nombre} disabled />
+                        </FieldGroup>
+                        <FieldGroup>
+                          <Label>{`Descripción de ${s.nombre.toLowerCase()}`}</Label>
+                          <TextArea
+                            value={s.descripcion}
+                            onChange={e => updateInspeccionDesc(idx, e.target.value)}
+                            rows={3}
+                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
+                          />
+                        </FieldGroup>
+                      </TwoColumnRow>
+                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => removeInspeccionAt(idx)}
+                          style={{
+                            background: 'transparent',
+                            border: `1px solid ${Palette.secondary}`,
+                            borderRadius: 4,
+                            padding: '0.35rem 0.65rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <FaTrash />
+                          <span style={{ marginLeft: 8 }}>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </details>
+
+            {/* Sección colapsable: Diagnóstico y tratamiento */}
+            <details open={openSection === 'diagnostico'} onToggle={handleToggle('diagnostico')}>
+              <Summary>Diagnóstico y tratamiento</Summary>
+
+              <FieldGroup>
+                <Label htmlFor="diagnostico">Diagnóstico</Label>
+                <TextArea
+                  id="diagnostico"
+                  name="diagnostico"
+                  value={formData.diagnostico}
+                  onChange={handleChange}
+                  rows={5}
+                  placeholder="Escribe el diagnóstico clínico"
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <Label htmlFor="tratamiento">Tratamiento</Label>
+                <TextArea
+                  id="tratamiento"
+                  name="tratamiento"
+                  value={formData.tratamiento}
+                  onChange={handleChange}
+                  rows={5}
+                  placeholder="Plan de tratamiento"
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <Label htmlFor="pronostico">Pronóstico</Label>
+                <TextArea
+                  id="pronostico"
+                  name="pronostico"
+                  value={formData.pronostico}
+                  onChange={handleChange}
+                  rows={3}
+                  placeholder="Pronóstico del paciente"
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <Label htmlFor="notas">Notas</Label>
+                <TextArea
+                  id="notas"
+                  name="notas"
+                  value={formData.notas}
+                  onChange={handleChange}
+                  rows={5}
+                  placeholder="Notas adicionales"
+                />
+              </FieldGroup>
             </details>
 
             {/* Botonera */}
