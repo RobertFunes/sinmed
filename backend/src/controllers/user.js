@@ -220,8 +220,29 @@ const add = async (req, res) => {
     }
     record.nombre = nombre; // asegura que nombre normalizado esté presente
 
-    // Inserta y responde con id_perfil
+    // Inserta perfil y obtiene id_perfil
     const id = await bd.add(record);
+
+    // Inserta antecedentes_familiares si llegaron
+    const lista = Array.isArray(payload.antecedentes_familiares)
+      ? payload.antecedentes_familiares
+      : [];
+    if (lista.length > 0) {
+      const norm = (v) => {
+        if (v == null) return v;
+        if (typeof v === 'string') {
+          const t = v.trim();
+          return t === '' ? null : t;
+        }
+        return v;
+      };
+      const items = lista.map((a) => ({
+        nombre: norm(a?.nombre),
+        descripcion: norm(a?.descripcion),
+      }));
+      await bd.addAntecedentesFamiliares(id, items);
+    }
+
     return res.status(201).json({ success: true, id_perfil: id });
   } catch (err) {
     console.error('Error en ADD perfil:', err);

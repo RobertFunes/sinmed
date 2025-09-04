@@ -8,6 +8,24 @@ async function add(data) {
   return result?.insertId;
 }
 
+// Inserta N filas en antecedentes_familiares para un perfil dado
+// items: array de objetos { nombre, descripcion? } ya normalizados ('' -> null)
+async function addAntecedentesFamiliares(id_perfil, items = []) {
+  if (!Array.isArray(items) || items.length === 0) return 0;
+  let inserted = 0;
+  for (const it of items) {
+    const nombre = it?.nombre;
+    if (!nombre) continue; // requiere nombre NOT NULL
+    const descripcion = it?.descripcion ?? null;
+    await db.query(
+      'INSERT INTO antecedentes_familiares (id_perfil, nombre, descripcion) VALUES (?, ?, ?)',
+      [id_perfil, nombre, descripcion]
+    );
+    inserted++;
+  }
+  return inserted;
+}
+
 async function getAll() {
   const [rows] = await db.query('SELECT * FROM clientes');
   return rows;
@@ -186,6 +204,7 @@ module.exports = {
   getById,
   removeById,
   modifyClient,
-  getNameById 
+  getNameById,
+  addAntecedentesFamiliares 
 };
   
