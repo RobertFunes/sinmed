@@ -312,8 +312,11 @@ const Add = () => {
   const handleChange = ({ target: { name, value } }) =>
     setFormData(prev => ({ ...prev, [name]: value }));
 
-  // (Opcional) Vista previa del objeto anidado en cambios
-  // useEffect(() => { console.log(buildNestedPayload(formData)); }, [formData]);
+  // Log en tiempo real cada vez que cambia el payload
+  useEffect(() => {
+    const livePayload = buildNestedPayload(formData);
+    console.log('[Add] Payload actualizado:', livePayload);
+  }, [formData]);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -376,7 +379,7 @@ const Add = () => {
   const addHabito = () => {
     if (!nuevoHabito) return;
     const base = { tipo: nuevoHabito, campos: {} };
-    if (nuevoHabito === 'Alcoholismo') base.campos = { vasos_por_dia: '', frecuencia: '' };
+    if (nuevoHabito === 'Alcoholismo') base.campos = { vasos_por_semana: '', tiempo_activo_alc: '' };
     if (nuevoHabito === 'Tabaquismo') base.campos = { cigarrillos_por_dia: '', tiempo_activo: '' };
     if (nuevoHabito === 'Toxicomanías') base.campos = { tipo_toxicomania: '', frecuencia: '' };
     setFormData(prev => ({
@@ -815,22 +818,22 @@ const Add = () => {
                         {h.tipo === 'Alcoholismo' && (
                           <>
                             <FieldGroup>
-                              <Label htmlFor={`vasos_${idx}`}>Alcohol: Vasos por día</Label>
+                              <Label htmlFor={`vasos_${idx}`}>Alcohol: Vasos por semana</Label>
                               <Input
                                 id={`vasos_${idx}`}
-                                value={h.campos.vasos_por_dia}
-                                onChange={e => updateHabitoCampo(idx, 'vasos_por_dia', e.target.value)}
+                                value={h.campos.vasos_por_semana}
+                                onChange={e => updateHabitoCampo(idx, 'vasos_por_semana', e.target.value)}
                                 inputMode="numeric"
                                 placeholder="Ej. 2"
                               />
                             </FieldGroup>
                             <FieldGroup>
-                              <Label htmlFor={`freq_${idx}`}>Frecuencia</Label>
+                              <Label htmlFor={`freq_${idx}`}>Tiempo activo</Label>
                               <Input
                                 id={`freq_${idx}`}
-                                value={h.campos.frecuencia}
-                                onChange={e => updateHabitoCampo(idx, 'frecuencia', e.target.value)}
-                                placeholder="Ej. diario, fines de semana"
+                                value={h.campos.tiempo_activo_alc}
+                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo_alc', e.target.value)}
+                                placeholder="Ej. 5 años"
                               />
                             </FieldGroup>
                           </>
