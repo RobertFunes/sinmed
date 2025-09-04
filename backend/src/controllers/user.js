@@ -176,25 +176,56 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const { nombre, genero, telefono_movil } = req.body;
-  console.log("Subiendo usuario a base de datos " + JSON.stringify(req.body));
-
-  // Validación básica
-  if (!nombre || !genero || !telefono_movil) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios' });
-  }
-  // 📅 Corrección de fecha inválida o futura
-  const hoy = new Date().toISOString().split('T')[0];
-  if (isInvalidOrFuture(req.body.ultima_fecha_contacto)) {
-    req.body.ultima_fecha_contacto = hoy;
-  }
-
   try {
-    await bd.add(req.body);
-    res.status(200).json({ msg: 'Perfil agregado a base de datos' });
+    const payload = req.body || {};
+    const dp = payload.datos_personales || {};
+
+    // Normaliza: trim a strings y '' -> null
+    const normalize = (v) => {
+      if (v == null) return v;
+      if (typeof v === 'string') {
+        const t = v.trim();
+        return t === '' ? null : t;
+      }
+      return v;
+    };
+
+    // Whitelist de campos permitidos en tabla `perfil`
+    const allowed = [
+      'nombre',
+      'fecha_nacimiento',
+      'genero',
+      'telefono_movil',
+      'correo_electronico',
+      'residencia',
+      'ocupacion',
+      'escolaridad',
+      'estado_civil',
+      'tipo_sangre',
+      'referido_por',
+    ];
+
+    // Construye objeto de inserción solo con llaves presentes
+    const record = {};
+    for (const k of allowed) {
+      if (Object.prototype.hasOwnProperty.call(dp, k)) {
+        record[k] = normalize(dp[k]);
+      }
+    }
+
+    // Validación: nombre obligatorio
+    const nombre = normalize(dp.nombre);
+    if (!nombre) {
+      return res.status(400).json({ ok: false, error: 'El campo nombre es obligatorio' });
+    }
+    record.nombre = nombre; // asegura que nombre normalizado esté presente
+
+    // Inserta y responde con id_perfil
+    const id = await bd.add(record);
+    return res.status(201).json({ success: true, id_perfil: id });
   } catch (err) {
-    res.status(500).json({ error: err.message });
-    console.error('Error al agregar perfil:', err);
+    console.error('Error en ADD perfil:', err);
+    return res.status(500).json({ ok: false, error: err.message });
   }
 }
 

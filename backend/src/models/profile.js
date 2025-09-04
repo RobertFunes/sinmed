@@ -1,22 +1,11 @@
 const db = require('./db'); // 👈 Aquí importas la conexión
 
 async function add(data) {
-  const record = { ...data };
-  delete record.aseguradora;
-  delete record.numero_poliza;
-  delete record.categoria_poliza;
-  delete record.subcategoria_poliza;
-  delete record.detalle_poliza;
-  delete record.fecha_inicio_poliza;
-  delete record.fecha_termino_poliza;
-  delete record.tipo_poliza;
-  delete record.seguros_contratados;
-  delete record.asegurados;
-  const [result] = await db.query(
-    'INSERT INTO clientes SET ?',
-    [record]
-  );
-  return result;
+  if (!data || typeof data !== 'object') {
+    throw new Error('Payload inválido para add(perfil)');
+  }
+  const [result] = await db.query('INSERT INTO perfil SET ?', [data]);
+  return result?.insertId;
 }
 
 async function getAll() {

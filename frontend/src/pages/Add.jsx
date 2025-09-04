@@ -1,5 +1,5 @@
 // add.jsx (actualizado con nuevos campos y sección colapsable)
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from '../components/Header';
 import {
   AddContainer,
@@ -143,13 +143,13 @@ const initialState = {
   antecedentes_personales_habitos: [], // [{ tipo: 'Alcoholismo'|'Tabaquismo'|'Toxicomanías', campos: {...} }]
   // Eliminado: antecedentes_personales_dieta
   // Eliminado: vacunacion
-  antecedentes_personales_patologicos: [], // [{ nombre: string, descripcion: string }]
+  antecedentes_personales_patologicos: [], // [{ antecedente: string, descripcion: string }]
   // Padecimiento actual e interrogatorio por aparatos y sistemas
   padecimiento_actual: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
-  alimentacion_calidad: '',
-  alimentacion_descripcion: '',
-  cambios_alimentacion: '',
+  calidad: '',
+  descripcion: '',
+  hay_cambios: '',
   cambio_tipo: '',
   cambio_causa: '',
   cambio_tiempo: '',
@@ -159,8 +159,8 @@ const initialState = {
   peso_deseado: '',
   peso_ideal: '',
   talla_cm: '',
-  imc_porcentaje: '',
-  porcentaje_rtg: '',
+  imc: '',
+  rtg: '',
   ta_mmhg: '',
   pulso: '',
   frecuencia_cardiaca: '',
@@ -212,25 +212,23 @@ const buildNestedPayload = (data) => {
 
   // Antecedentes personales: patológicos
   const patologicos = (data.antecedentes_personales_patologicos || []).map((p) => ({
-    nombre: trim(p.nombre),
+    antecedente: trim(p.antecedente),
     descripcion: trim(p.descripcion),
   }));
 
   // Alimentación
-  const hayCambios = trim(data.cambios_alimentacion);
-  const cambios =
-    hayCambios === 'Si'
+  const hayCambios = trim(data.hay_cambios);
+  const alimentacion = {
+    calidad: trim(data.calidad),
+    descripcion: trim(data.descripcion),
+    hay_cambios: hayCambios || '',
+    ...(hayCambios === 'Si'
       ? {
-          hay_cambios: 'Si',
           tipo: trim(data.cambio_tipo),
           causa: trim(data.cambio_causa),
           tiempo: trim(data.cambio_tiempo),
         }
-      : { hay_cambios: hayCambios || '' };
-  const alimentacion = {
-    calidad: trim(data.alimentacion_calidad),
-    descripcion: trim(data.alimentacion_descripcion),
-    cambios,
+      : {}),
   };
 
   const antecedentes_personales = {
@@ -255,8 +253,8 @@ const buildNestedPayload = (data) => {
     peso_deseado: trim(data.peso_deseado),
     peso_ideal: trim(data.peso_ideal),
     talla_cm: trim(data.talla_cm),
-    imc_porcentaje: trim(data.imc_porcentaje),
-    porcentaje_rtg: trim(data.porcentaje_rtg),
+    imc: trim(data.imc),
+    rtg: trim(data.rtg),
     ta_mmhg: trim(data.ta_mmhg),
     pulso: trim(data.pulso),
     frecuencia_cardiaca: trim(data.frecuencia_cardiaca),
@@ -290,6 +288,7 @@ const buildNestedPayload = (data) => {
 
 const Add = () => {
   const [formData, setFormData] = useState(initialState);
+  const nombreRef = useRef(null);
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
   const handleToggle = (key) => (e) => {
@@ -320,6 +319,17 @@ const Add = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
+
+    // Validación manual para evitar el error de controles no enfocables cuando <details> está cerrado
+    if (!formData.nombre.trim()) {
+      setOpenSection('datos');
+      setTimeout(() => {
+        if (nombreRef.current) nombreRef.current.focus();
+      }, 0);
+      alert('El nombre es obligatorio.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     // Construye objeto anidado y registra exactamente ese objeto
@@ -379,9 +389,9 @@ const Add = () => {
   const addHabito = () => {
     if (!nuevoHabito) return;
     const base = { tipo: nuevoHabito, campos: {} };
-    if (nuevoHabito === 'Alcoholismo') base.campos = { vasos_por_semana: '', tiempo_activo_alc: '' };
-    if (nuevoHabito === 'Tabaquismo') base.campos = { cigarrillos_por_dia: '', tiempo_activo: '' };
-    if (nuevoHabito === 'Toxicomanías') base.campos = { tipo_toxicomania: '', frecuencia: '' };
+    if (nuevoHabito === 'Alcoholismo') base.campos = { bebidas_por_dia: '', tiempo_activo_alc: '' };
+    if (nuevoHabito === 'Tabaquismo') base.campos = { cigarrillos_por_dia: '', tiempo_activo_tab: '' };
+    if (nuevoHabito === 'Toxicomanías') base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
     setFormData(prev => ({
       ...prev,
       antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],
@@ -410,7 +420,7 @@ const Add = () => {
       ...prev,
       antecedentes_personales_patologicos: [
         ...prev.antecedentes_personales_patologicos,
-        { nombre: nuevoPatologico, descripcion: '' },
+        { antecedente: nuevoPatologico, descripcion: '' },
       ],
     }));
     setNuevoPatologico('');
@@ -498,7 +508,7 @@ const Add = () => {
             <span>Nueva</span> historia clínica.
           </Title>
 
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit} noValidate>
             {/* Sección colapsable: Datos personales */}
             <details open={openSection === 'datos'} onToggle={handleToggle('datos')}>
               <Summary>
@@ -516,6 +526,7 @@ const Add = () => {
                   <Input
                     id="nombre"
                     name="nombre"
+                    ref={nombreRef}
                     value={formData.nombre}
                     onChange={handleChange}
                     required
@@ -818,11 +829,11 @@ const Add = () => {
                         {h.tipo === 'Alcoholismo' && (
                           <>
                             <FieldGroup>
-                              <Label htmlFor={`vasos_${idx}`}>Alcohol: Vasos por semana</Label>
+                              <Label htmlFor={`bebidas_${idx}`}>Alcohol: Bebidas por día</Label>
                               <Input
-                                id={`vasos_${idx}`}
-                                value={h.campos.vasos_por_semana}
-                                onChange={e => updateHabitoCampo(idx, 'vasos_por_semana', e.target.value)}
+                                id={`bebidas_${idx}`}
+                                value={h.campos.bebidas_por_dia}
+                                onChange={e => updateHabitoCampo(idx, 'bebidas_por_dia', e.target.value)}
                                 inputMode="numeric"
                                 placeholder="Ej. 2"
                               />
@@ -855,8 +866,8 @@ const Add = () => {
                               <Label htmlFor={`tiempo_${idx}`}>Tiempo activo</Label>
                               <Input
                                 id={`tiempo_${idx}`}
-                                value={h.campos.tiempo_activo}
-                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo', e.target.value)}
+                                value={h.campos.tiempo_activo_tab}
+                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo_tab', e.target.value)}
                                 placeholder="Ej. 5 años"
                               />
                             </FieldGroup>
@@ -875,11 +886,11 @@ const Add = () => {
                               />
                             </FieldGroup>
                             <FieldGroup>
-                              <Label htmlFor={`tox_freq_${idx}`}>Frecuencia</Label>
+                              <Label htmlFor={`tox_freq_${idx}`}>Tiempo activo</Label>
                               <Input
                                 id={`tox_freq_${idx}`}
-                                value={h.campos.frecuencia}
-                                onChange={e => updateHabitoCampo(idx, 'frecuencia', e.target.value)}
+                                value={h.campos.tiempo_activo_tox}
+                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo_tox', e.target.value)}
                                 placeholder="Ej. diario, esporádico"
                               />
                             </FieldGroup>
@@ -915,7 +926,7 @@ const Add = () => {
                 {/* Eliminado: Vacunación */}
                 <FieldGroup>
                   <Label htmlFor="alimentacion_calidad">Alimentación (calidad)</Label>
-                  <Select id="alimentacion_calidad" name="alimentacion_calidad" value={formData.alimentacion_calidad} onChange={handleChange}>
+                  <Select id="calidad" name="calidad" value={formData.calidad} onChange={handleChange}>
                     <option value="">-- Selecciona --</option>
                     <option value="Buena">Buena</option>
                     <option value="Regular">Regular</option>
@@ -926,19 +937,19 @@ const Add = () => {
 
               <FieldGroup>
                 <Label htmlFor="alimentacion_descripcion">Descripción de la alimentación</Label>
-                <TextArea id="alimentacion_descripcion" name="alimentacion_descripcion" value={formData.alimentacion_descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
+                <TextArea id="descripcion" name="descripcion" value={formData.descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
               </FieldGroup>
 
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="cambios_alimentacion">Cambios en la alimentación</Label>
-                  <Select id="cambios_alimentacion" name="cambios_alimentacion" value={formData.cambios_alimentacion} onChange={handleChange}>
+                  <Label htmlFor="hay_cambios">Cambios en la alimentación</Label>
+                  <Select id="hay_cambios" name="hay_cambios" value={formData.hay_cambios} onChange={handleChange}>
                     <option value="">-- Selecciona --</option>
                     <option value="Si">Sí</option>
                     <option value="No">No</option>
                   </Select>
                 </FieldGroup>
-                {formData.cambios_alimentacion === 'Si' && (
+                {formData.hay_cambios === 'Si' && (
                   <FieldGroup>
                     <Label htmlFor="cambio_tipo">Tipo de cambio</Label>
                     <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
@@ -946,7 +957,7 @@ const Add = () => {
                 )}
               </TwoColumnRow>
 
-              {formData.cambios_alimentacion === 'Si' && (
+              {formData.hay_cambios === 'Si' && (
                 <TwoColumnRow>
                   <FieldGroup>
                     <Label htmlFor="cambio_causa">Causa del cambio</Label>
@@ -975,7 +986,7 @@ const Add = () => {
                   >
                     <option value="">-- Selecciona --</option>
                     {PATOLOGICOS_OPCIONES
-                      .filter(opt => !formData.antecedentes_personales_patologicos.some(p => p.nombre === opt))
+                      .filter(opt => !formData.antecedentes_personales_patologicos.some(p => p.antecedente === opt))
                       .map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
@@ -998,15 +1009,15 @@ const Add = () => {
                       <TwoColumnRow>
                         <FieldGroup>
                           <Label>Antecedente</Label>
-                          <Input value={p.nombre} disabled />
+                          <Input value={p.antecedente} disabled />
                         </FieldGroup>
                         <FieldGroup>
-                          <Label>{`Descripción de antecedente: ${p.nombre.toLowerCase()}`}</Label>
+                          <Label>{`Descripción de antecedente: ${p.antecedente.toLowerCase()}`}</Label>
                           <TextArea
                             value={p.descripcion}
                             onChange={e => updatePatologicoDesc(idx, e.target.value)}
                             rows={3}
-                            placeholder={`Detalle de ${p.nombre.toLowerCase()}`}
+                            placeholder={`Detalle de ${p.antecedente.toLowerCase()}`}
                           />
                         </FieldGroup>
                       </TwoColumnRow>
@@ -1148,14 +1159,14 @@ const Add = () => {
                   <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 170" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="imc_porcentaje">IMC (%)</Label>
-                  <Input id="imc_porcentaje" name="imc_porcentaje" value={formData.imc_porcentaje} onChange={handleChange} inputMode="decimal" placeholder="Ej. 24.9" />
+                  <Label htmlFor="imc">IMC (%)</Label>
+                  <Input id="imc" name="imc" value={formData.imc} onChange={handleChange} inputMode="decimal" placeholder="Ej. 24.9" />
                 </FieldGroup>
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="porcentaje_rtg">% RTG</Label>
-                  <Input id="porcentaje_rtg" name="porcentaje_rtg" value={formData.porcentaje_rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
+                  <Label htmlFor="rtg">% RTG</Label>
+                  <Input id="rtg" name="rtg" value={formData.rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
                 </FieldGroup>
                 <FieldGroup>
                   <Label htmlFor="ta_mmhg">TA (mmHg)</Label>
