@@ -151,6 +151,55 @@ async function getSummary(limit = 50, offset = 0) {
 
   return { rows, total };
 }
+// Versión sobre perfil con actualizado máximo y edad (solo DATE)
+async function getSummary(limit = 50, offset = 0) {
+  const [rows] = await db.query(
+    `SELECT
+       p.id_perfil,
+       p.nombre,
+       p.telefono_movil,
+       CASE
+         WHEN p.fecha_nacimiento IS NULL THEN NULL
+         ELSE TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE())
+       END AS edad,
+       DATE_FORMAT(p.creado, '%Y-%m-%d') AS creado,
+       DATE_FORMAT(GREATEST(
+         COALESCE(p.actualizado,       DATE '1970-01-01'),
+         COALESCE(af.max_actualizado,  DATE '1970-01-01'),
+         COALESCE(ap.actualizado,      DATE '1970-01-01'),
+         COALESCE(app.max_actualizado, DATE '1970-01-01'),
+         COALESCE(pai.max_actualizado, DATE '1970-01-01'),
+         COALESCE(ef.max_actualizado,  DATE '1970-01-01'),
+         COALESCE(dt.max_actualizado,  DATE '1970-01-01')
+       ), '%Y-%m-%d') AS actualizado
+     FROM perfil p
+     LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
+                FROM antecedentes_familiares GROUP BY id_perfil) af
+       ON af.id_perfil = p.id_perfil
+     LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
+                FROM antecedentes_personales_patologicos GROUP BY id_perfil) app
+       ON app.id_perfil = p.id_perfil
+     LEFT JOIN (SELECT id_perfil, actualizado FROM antecedentes_personales) ap
+       ON ap.id_perfil = p.id_perfil
+     LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
+                FROM padecimiento_actual_interrogatorio GROUP BY id_perfil) pai
+       ON pai.id_perfil = p.id_perfil
+     LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
+                FROM exploracion_fisica GROUP BY id_perfil) ef
+       ON ef.id_perfil = p.id_perfil
+     LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
+                FROM diagnostico_tratamiento GROUP BY id_perfil) dt
+       ON dt.id_perfil = p.id_perfil
+     ORDER BY actualizado DESC
+     LIMIT ? OFFSET ?`,
+    [limit, offset]
+  );
+
+  const [[{ total }]] = await db.query('SELECT COUNT(*) AS total FROM perfil');
+  return { rows, total };
+}
+
+
 async function getById(id) {
   const [rows] = await db.query(
     'SELECT * FROM clientes WHERE id_cliente = ?',
