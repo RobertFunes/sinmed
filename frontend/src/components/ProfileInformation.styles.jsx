@@ -1,13 +1,10 @@
 // src/components/ProfileInformation.styles.jsx
 import styled from 'styled-components';
-
-const darkGray  = '#393e46';
-const inkSoft   = '#2b2b2b';
-const divider   = 'rgba(0, 173, 181, 0.15)';
+import { Palette } from '../helpers/theme.js';
 
 export const Section = styled.section`
-  background: rgba(255,255,255,0.74);
-  border: 1px solid ${divider};
+  background: ${Palette.background};
+  border: 1px solid ${Palette.border};
   border-radius: 0 0 14px 14px;
   padding: 28px 28px;
 `;
@@ -24,7 +21,7 @@ export const FieldRow = styled.div`
   align-items: center;
   gap: 14px;
   padding: 10px 0;
-  border-bottom: 1px solid ${divider};
+  border-bottom: 1px solid ${Palette.border};
   &:last-child {
     border-bottom: 0;
     padding-bottom: 0;
@@ -32,7 +29,7 @@ export const FieldRow = styled.div`
 `;
 
 export const Label = styled.span`
-  color: ${darkGray};
+  color: ${Palette.muted};
   font-weight: 700;
   font-size: 0.95rem;
   line-height: 1.3;
@@ -40,9 +37,9 @@ export const Label = styled.span`
 
 export const Value = styled.span`
   white-space: pre-line;
-  color: ${inkSoft};
-  background: #ffffff;
-  border: 1px solid ${divider};
+  color: ${Palette.text};
+  background: ${Palette.background};
+  border: 1px solid ${Palette.border};
   border-radius: 8px;
   padding: 10px 12px;
   line-height: 1.5;

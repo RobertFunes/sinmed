@@ -21,7 +21,7 @@ export default function Nav() {
       const res = await fetch(`${url}/api/profile/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('No se pudo eliminar');
 
-      setProfiles(prev => prev.filter(p => p.id_cliente !== id));
+      setProfiles(prev => prev.filter(p => p.id_perfil !== id));
       alert(`✅ ${nombre} eliminado`);
     } catch (err) {
       console.error('Error al eliminar:', err);
@@ -62,13 +62,14 @@ export default function Nav() {
       <ContactListContainer>
         {profiles.map(p => (
           <ContactCard
-            key={p.id_cliente}
-            id={p.id_cliente}
+            key={p.id_perfil}
+            id={p.id_perfil}
             name={p.nombre}
             phone={p.telefono_movil}
-            lastContact={p.ultima_fecha_contacto}
-            birthDate={p.fecha_nacimiento}
-            onDelete={() => askDelete(p.id_cliente, p.nombre)}
+            age={p.edad}
+            created={p.creado}
+            updated={p.actualizado}
+            onDelete={() => askDelete(p.id_perfil, p.nombre)}
           />
         ))}
       </ContactListContainer>

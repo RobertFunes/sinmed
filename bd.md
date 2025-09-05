@@ -1,167 +1,171 @@
-# 🗄️ Esquema de Base de Datos Clínica  
+# 📊 Documentación de la Base de Datos
 
-La base está compuesta por **7 tablas**.  
-Cada sección del expediente clínico tiene su propia tabla y todas están ligadas a **`perfil`** mediante llaves foráneas.  
-
----
-
-## 👤 perfil  
-Tabla principal con los **datos personales** del paciente.  
-
-| Campo              | Tipo                                       | Nulo | Extra              |
-|--------------------|--------------------------------------------|------|--------------------|
-| id_perfil          | int(11)                                    | NO   | PK, auto_increment |
-| nombre             | varchar(100)                               | NO   |                    |
-| fecha_nacimiento   | date                                       | SÍ   |                    |
-| genero             | enum('Hombre','Mujer','NA')                | SÍ   | default 'NA'       |
-| telefono_movil     | varchar(20)                                | SÍ   |                    |
-| correo_electronico | varchar(100)                               | SÍ   |                    |
-| residencia         | varchar(255)                               | SÍ   |                    |
-| ocupacion          | varchar(50)                                | SÍ   |                    |
-| escolaridad        | varchar(100)                               | SÍ   |                    |
-| estado_civil       | enum('Soltero','Casado','Divorciado','Viudo','Union libre','Otro') | SÍ | |
-| tipo_sangre        | varchar(10)                                | SÍ   |                    |
-| referido_por       | varchar(100)                               | SÍ   |                    |
-| actualizado        | timestamp                                  | SÍ   | auto-update        |
+Este esquema está diseñado para registrar perfiles de pacientes y toda su información clínica asociada.  
+Consta de **7 tablas**: `perfil`, `antecedentes_familiares`, `antecedentes_personales`, `antecedentes_personales_patologicos`, `diagnostico_tratamiento`, `exploracion_fisica` y `padecimiento_actual_interrogatorio`.
 
 ---
 
-## 🧬 antecedentes_familiares  
-**Varios registros por perfil.**  
+## 🧑 Tabla `perfil`
+Contiene los datos generales de cada paciente.
 
-| Campo                   | Tipo        | Nulo | Extra              |
-|--------------------------|-------------|------|--------------------|
-| id_antecedente_familiar | int(11)     | NO   | PK, auto_increment |
-| id_perfil               | int(11)     | NO   | FK → perfil        |
-| nombre                  | varchar(100)| NO   |                    |
-| descripcion             | text        | SÍ   |                    |
-| creado                  | timestamp   | NO   | default now        |
-| actualizado             | timestamp   | NO   | auto-update        |
-
----
-
-## 🍷🚬 antecedentes_personales  
-**Hábitos y alimentación.**  
-Un registro único por perfil.  
-
-| Campo              | Tipo                    | Nulo |
-|--------------------|-------------------------|------|
-| id_ap              | int(11) PK              | NO   |
-| id_perfil          | int(11) FK → perfil, **UNIQUE** | NO |
-| bebidas_por_dia    | decimal(4,1)            | SÍ   |
-| tiempo_activo_alc  | varchar(50)             | SÍ   |
-| cigarrillos_por_dia| varchar(10)             | SÍ   |
-| tiempo_activo_tab  | varchar(50)             | SÍ   |
-| tipo_toxicomania   | varchar(100)            | SÍ   |
-| tiempo_activo_tox  | varchar(50)             | SÍ   |
-| calidad            | enum('Buena','Regular','Mala') | SÍ |
-| descripcion        | text                    | SÍ   |
-| hay_cambios        | enum('Si','No') default 'No' | SÍ |
-| cambio_tipo        | varchar(120)            | SÍ   |
-| cambio_causa       | varchar(120)            | SÍ   |
-| cambio_tiempo      | varchar(60)             | SÍ   |
-| creado             | timestamp               | NO   |
-| actualizado        | timestamp               | NO   |
+| Columna           | Tipo                                                        | Null | Key | Default     | Extra          | Descripción                                |
+|-------------------|-------------------------------------------------------------|------|-----|-------------|----------------|--------------------------------------------|
+| id_perfil         | int(11)                                                     | NO   | PRI | NULL        | auto_increment | Identificador único del perfil             |
+| nombre            | varchar(100)                                                | NO   |     | NULL        |                | Nombre completo del paciente               |
+| fecha_nacimiento  | date                                                        | YES  |     | NULL        |                | Fecha de nacimiento                        |
+| genero            | enum('Hombre','Mujer','NA')                                | YES  |     | NA          |                | Género del paciente                        |
+| telefono_movil    | varchar(20)                                                 | YES  |     | NULL        |                | Teléfono móvil                             |
+| correo_electronico| varchar(100)                                                | YES  |     | NULL        |                | Correo electrónico                         |
+| residencia        | varchar(255)                                                | YES  |     | NULL        |                | Domicilio o residencia                     |
+| ocupacion         | varchar(50)                                                 | YES  |     | NULL        |                | Ocupación                                  |
+| escolaridad       | varchar(100)                                                | YES  |     | NULL        |                | Nivel educativo                            |
+| estado_civil      | enum('Soltero','Casado','Divorciado','Viudo','Union libre','Otro') | YES  |     | NULL        |                | Estado civil                               |
+| tipo_sangre       | varchar(10)                                                 | YES  |     | NULL        |                | Grupo y tipo sanguíneo                     |
+| referido_por      | varchar(100)                                                | YES  |     | NULL        |                | Fuente de referencia                       |
+| actualizado       | date                                                        | NO   |     | curdate()   |                | Fecha de última modificación               |
+| creado            | date                                                        | NO   |     | curdate()   |                | Fecha de creación                          |
 
 ---
 
-## 🏥 antecedentes_personales_patologicos  
-**Patologías previas.**  
-Un perfil puede tener **muchos antecedentes patológicos**.  
+## 👨‍👩 Tabla `antecedentes_familiares`
+Almacena antecedentes médicos relevantes en la familia del paciente.
 
-| Campo        | Tipo         | Nulo |
-|--------------|--------------|------|
-| id_app       | int(11) PK   | NO   |
-| id_perfil    | int(11) FK → perfil | NO   |
-| antecedente  | varchar(100) | NO   |
-| descripcion  | text         | SÍ   |
-| creado       | timestamp    | NO   |
-| actualizado  | timestamp    | NO   |
-
----
-
-## 🩺 padecimiento_actual_interrogatorio  
-**Una sola fila por perfil**, con todos los aparatos y sistemas.  
-
-| Campo              | Tipo   |
-|--------------------|--------|
-| id_pai             | int(11) PK |
-| id_perfil          | int(11) FK, **UNIQUE** |
-| padecimiento_actual| text   |
-| sintomas_generales | text   |
-| endocrino          | text   |
-| organos_sentidos   | text   |
-| gastrointestinal   | text   |
-| cardiopulmonar     | text   |
-| genitourinario     | text   |
-| genital_femenino   | text   |
-| sexualidad         | text   |
-| dermatologico      | text   |
-| neurologico        | text   |
-| hematologico       | text   |
-| reumatologico      | text   |
-| psiquiatrico       | text   |
-| medicamentos       | text   |
-| creado             | timestamp |
-| actualizado        | timestamp |
+| Columna               | Tipo        | Null | Key | Default   | Extra          |
+|-----------------------|-------------|------|-----|-----------|----------------|
+| id_antecedente_familiar | int(11)   | NO   | PRI | NULL      | auto_increment |
+| id_perfil             | int(11)     | NO   | MUL | NULL      |                |
+| nombre                | varchar(100)| NO   |     | NULL      |                |
+| descripcion           | text        | YES  |     | NULL      |                |
+| creado                | date        | NO   |     | curdate() |                |
+| actualizado           | date        | NO   |     | curdate() |                |
 
 ---
 
-## ⚖️ exploracion_fisica  
-**Una sola fila por perfil.**  
-Contiene mediciones antropométricas, vitales y exploración general.  
+## 🚬 Tabla `antecedentes_personales`
+Registra hábitos y estilo de vida del paciente.  
+**Nota**: relación 1:1 con `perfil` (`id_perfil` es único).
 
-| Campo                  | Tipo       |
-|------------------------|------------|
-| id_exploracion         | int(11) PK |
-| id_perfil              | int(11) FK, **UNIQUE** |
-| peso_actual            | decimal(5,2) |
-| peso_anterior          | decimal(5,2) |
-| peso_deseado           | decimal(5,2) |
-| peso_ideal             | decimal(5,2) |
-| talla_cm               | decimal(5,2) |
-| imc                    | decimal(5,2) |
-| rtg                    | decimal(5,2) |
-| ta_mmhg                | varchar(15) |
-| pulso                  | int(11)    |
-| frecuencia_cardiaca    | int(11)    |
-| frecuencia_respiratoria| int(11)    |
-| temperatura_c          | decimal(4,1) |
-| cadera_cm              | decimal(5,2) |
-| cintura_cm             | decimal(5,2) |
-| cabeza                 | text       |
-| cuello                 | text       |
-| torax                  | text       |
-| abdomen                | text       |
-| genitales              | text       |
-| extremidades           | text       |
-| creado                 | timestamp  |
-| actualizado            | timestamp  |
+| Columna           | Tipo              | Null | Key | Default   | Extra          |
+|-------------------|-------------------|------|-----|-----------|----------------|
+| id_ap             | int(11)           | NO   | PRI | NULL      | auto_increment |
+| id_perfil         | int(11)           | NO   | UNI | NULL      |                |
+| bebidas_por_dia   | decimal(4,1)      | YES  |     | NULL      |                |
+| tiempo_activo_alc | varchar(50)       | YES  |     | NULL      |                |
+| cigarrillos_por_dia| varchar(10)      | YES  |     | NULL      |                |
+| tiempo_activo_tab | varchar(50)       | YES  |     | NULL      |                |
+| tipo_toxicomania  | varchar(100)      | YES  |     | NULL      |                |
+| tiempo_activo_tox | varchar(50)       | YES  |     | NULL      |                |
+| calidad           | enum('Buena','Regular','Mala') | YES |     | NULL |        |
+| descripcion       | text              | YES  |     | NULL      |                |
+| hay_cambios       | enum('Si','No')   | YES  |     | No        |                |
+| cambio_tipo       | varchar(120)      | YES  |     | NULL      |                |
+| cambio_causa      | varchar(120)      | YES  |     | NULL      |                |
+| cambio_tiempo     | varchar(60)       | YES  |     | NULL      |                |
+| creado            | date              | NO   |     | curdate() |                |
+| actualizado       | date              | NO   |     | curdate() |                |
 
 ---
 
-## 🧾 diagnostico_tratamiento  
-**Diagnóstico final y plan de acción.**  
-Una fila por perfil.  
+## 🩺 Tabla `antecedentes_personales_patologicos`
+Antecedentes de enfermedades, cirugías o condiciones previas.
 
-| Campo        | Tipo      |
-|--------------|-----------|
-| id_dt        | int(11) PK |
-| id_perfil    | int(11) FK, **UNIQUE** |
-| diagnostico  | text      |
-| tratamiento  | text      |
-| pronostico   | text      |
-| notas        | text      |
-| creado       | timestamp |
-| actualizado  | timestamp |
+| Columna     | Tipo        | Null | Key | Default   | Extra          |
+|-------------|-------------|------|-----|-----------|----------------|
+| id_app      | int(11)     | NO   | PRI | NULL      | auto_increment |
+| id_perfil   | int(11)     | NO   | MUL | NULL      |                |
+| antecedente | varchar(100)| NO   |     | NULL      |                |
+| descripcion | text        | YES  |     | NULL      |                |
+| creado      | date        | NO   |     | curdate() |                |
+| actualizado | date        | NO   |     | curdate() |                |
 
 ---
 
-## 🔗 Relaciones  
+## 💊 Tabla `diagnostico_tratamiento`
+Guarda diagnósticos médicos, tratamientos y pronósticos.
 
-- `perfil (1) —— (N)` `antecedentes_familiares`  
-- `perfil (1) —— (1)` `antecedentes_personales`  
-- `perfil (1) —— (N)` `antecedentes_personales_patologicos`  
-- `perfil (1) —— (1)` `padecimiento_actual_interrogatorio`  
-- `perfil (1) —— (1)` `exploracion_fisica`  
-- `perfil (1) —— (1)` `diagnostico_tratamiento`  
+| Columna     | Tipo    | Null | Key | Default   | Extra          |
+|-------------|---------|------|-----|-----------|----------------|
+| id_dt       | int(11) | NO   | PRI | NULL      | auto_increment |
+| id_perfil   | int(11) | NO   | MUL | NULL      |                |
+| diagnostico | text    | YES  |     | NULL      |                |
+| tratamiento | text    | YES  |     | NULL      |                |
+| pronostico  | text    | YES  |     | NULL      |                |
+| notas       | text    | YES  |     | NULL      |                |
+| creado      | date    | NO   |     | curdate() |                |
+| actualizado | date    | NO   |     | curdate() |                |
+
+---
+
+## ⚖️ Tabla `exploracion_fisica`
+Resultados de exploraciones físicas del paciente.
+
+| Columna              | Tipo        | Null | Key | Default   | Extra          |
+|----------------------|-------------|------|-----|-----------|----------------|
+| id_exploracion       | int(11)     | NO   | PRI | NULL      | auto_increment |
+| id_perfil            | int(11)     | NO   | MUL | NULL      |                |
+| peso_actual          | decimal(5,2)| YES  |     | NULL      |                |
+| peso_anterior        | decimal(5,2)| YES  |     | NULL      |                |
+| peso_deseado         | decimal(5,2)| YES  |     | NULL      |                |
+| peso_ideal           | decimal(5,2)| YES  |     | NULL      |                |
+| talla_cm             | decimal(5,2)| YES  |     | NULL      |                |
+| imc                  | decimal(5,2)| YES  |     | NULL      |                |
+| rtg                  | decimal(5,2)| YES  |     | NULL      |                |
+| ta_mmhg              | varchar(15) | YES  |     | NULL      |                |
+| pulso                | int(11)     | YES  |     | NULL      |                |
+| frecuencia_cardiaca  | int(11)     | YES  |     | NULL      |                |
+| frecuencia_respiratoria| int(11)   | YES  |     | NULL      |                |
+| temperatura_c        | decimal(4,1)| YES  |     | NULL      |                |
+| cadera_cm            | decimal(5,2)| YES  |     | NULL      |                |
+| cintura_cm           | decimal(5,2)| YES  |     | NULL      |                |
+| cabeza               | text        | YES  |     | NULL      |                |
+| cuello               | text        | YES  |     | NULL      |                |
+| torax                | text        | YES  |     | NULL      |                |
+| abdomen              | text        | YES  |     | NULL      |                |
+| genitales            | text        | YES  |     | NULL      |                |
+| extremidades         | text        | YES  |     | NULL      |                |
+| creado               | date        | NO   |     | curdate() |                |
+| actualizado          | date        | NO   |     | curdate() |                |
+
+---
+
+## 🧠 Tabla `padecimiento_actual_interrogatorio`
+Información sobre el padecimiento actual y síntomas por sistemas.
+
+| Columna           | Tipo | Null | Key | Default   | Extra          |
+|-------------------|------|------|-----|-----------|----------------|
+| id_pai            | int(11) | NO | PRI | NULL      | auto_increment |
+| id_perfil         | int(11) | NO | MUL | NULL      |                |
+| padecimiento_actual | text | YES |     | NULL      |                |
+| sintomas_generales  | text | YES |     | NULL      |                |
+| endocrino           | text | YES |     | NULL      |                |
+| organos_sentidos    | text | YES |     | NULL      |                |
+| gastrointestinal    | text | YES |     | NULL      |                |
+| cardiopulmonar      | text | YES |     | NULL      |                |
+| genitourinario      | text | YES |     | NULL      |                |
+| genital_femenino    | text | YES |     | NULL      |                |
+| sexualidad          | text | YES |     | NULL      |                |
+| dermatologico       | text | YES |     | NULL      |                |
+| neurologico         | text | YES |     | NULL      |                |
+| hematologico        | text | YES |     | NULL      |                |
+| reumatologico       | text | YES |     | NULL      |                |
+| psiquiatrico        | text | YES |     | NULL      |                |
+| medicamentos        | text | YES |     | NULL      |                |
+| creado              | date | NO  |     | curdate() |                |
+| actualizado         | date | NO  |     | curdate() |                |
+
+---
+
+# 🔗 Relaciones
+
+- `perfil` es la tabla **principal**.  
+- Todas las demás tablas tienen `id_perfil` como **clave foránea** (aunque no se ve explícitamente con `FOREIGN KEY`, la relación lógica existe).  
+- **antecedentes_personales** es **1:1** con `perfil`.  
+- Las demás (`familiares`, `patológicos`, `exploracion_fisica`, `diagnostico_tratamiento`, `padecimiento_actual_interrogatorio`) son **1:N**: un perfil puede tener varios registros.  
+
+---
+
+# 📅 Manejo de fechas
+
+- Todas las tablas tienen campos `creado` y `actualizado` de tipo **DATE** con `DEFAULT curdate()`.  
+- Los triggers implementados hacen que `actualizado` se ponga en la fecha del día automáticamente en cada `UPDATE`.  
+- No se almacenan horas, evitando problemas de UTC o husos horarios.

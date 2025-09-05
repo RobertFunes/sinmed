@@ -12,5 +12,5 @@ export const Palette = {
 
   // Fondos y bordes
   background: '#FFFFFF',  // Fondo principal
-  border: '#EEEEEE',      // Bordes suaves, separadores
+  border: '#000000ff',      // Bordes suaves, separadores
 };

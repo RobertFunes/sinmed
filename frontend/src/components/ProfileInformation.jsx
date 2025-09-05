@@ -25,53 +25,131 @@ import {
   Actions,
 } from './ProfileInformation.styles.jsx';
 
-export default function ProfileInformation({ data, onEditProfile, onDeleteProfile }) {
+// Helper: valor presente (no null/undefined ni string vacío)
+const present = (v) => {
+  if (v == null) return false;
+  if (typeof v === 'string') return v.trim().length > 0;
+  return true;
+};
+
+const Row = ({ icon, label, value }) => {
+  if (!present(value)) return null;
   return (
-    <Section>
-      {/* IDENTIFICACIÓN BÁSICA */}
-      <FieldRow><Label><FiHome /> Nombre:</Label><Value>{data.nombre}</Value></FieldRow>
-      <TwoRow>
-        <FieldRow><Label><FiLayers /> Género:</Label><Value>{data.genero || '-'}</Value></FieldRow>
-        <FieldRow><Label><FiCalendar /> Fecha de nacimiento:</Label><Value>{data.fecha_nacimiento || '-'}</Value></FieldRow>
-        <FieldRow><Label><FiPhone /> Teléfono:</Label><Value>{data.telefono_movil || '-'}</Value></FieldRow>
-        <FieldRow><Label><FiMail /> Correo:</Label><Value>{data.correo_electronico || '-'}</Value></FieldRow>
-      </TwoRow>
+    <FieldRow>
+      <Label>{icon} {label}</Label>
+      <Value>{value}</Value>
+    </FieldRow>
+  );
+};
 
-      {/* CONTACTO */}
-      <FieldRow><Label><FiCalendar /> Último contacto:</Label><Value>{data.ultima_fecha_contacto || '-'}</Value></FieldRow>
+// Filtro: ocultar cualquier id_* salvo id_perfil (pero no lo mostraremos en secciones)
+const notSecondaryId = (key) => !(key.startsWith('id_') && key !== 'id_perfil');
 
-      {/* DIRECCIÓN DETALLADA */}
-      <FieldRow><Label><FiHome style={{opacity:0.7}} /> Calle:</Label><Value>{data.calle || '-'}</Value></FieldRow>
-      <TwoRow>
-        <FieldRow><Label><FiSlash style={{opacity:0.7}} /> Núm. int/ext:</Label><Value>{data.numero_int_ext || '-'}</Value></FieldRow>
-        <FieldRow><Label><FiMapPin style={{opacity:0.7}} /> Colonia:</Label><Value>{data.colonia || '-'}</Value></FieldRow>
-      </TwoRow>
-      <TwoRow>
-        <FieldRow><Label><FiMapPin style={{opacity:0.7}} /> Ciudad/Municipio:</Label><Value>{data.ciudad_municipio || '-'}</Value></FieldRow>
-        <FieldRow><Label><FiMapPin style={{opacity:0.7}} /> C.P.:</Label><Value>{data.codigo_postal || '-'}</Value></FieldRow>
-      </TwoRow>
+export default function ProfileInformation({ data, onEditProfile, onDeleteProfile }) {
+  if (!data || data.ok !== true) return null;
 
-      {/* OCUPACIÓN */}
-      <FieldRow><Label><FiBriefcase /> Ocupación:</Label><Value>{data.ocupacion || '-'}</Value></FieldRow>
+  // Sección: Datos Personales (en orden)
+  const personalFields = [
+    { key: 'nombre', label: 'Nombre:', icon: <FiHome /> },
+    { key: 'genero', label: 'Género:', icon: <FiLayers /> },
+    { key: 'fecha_nacimiento', label: 'Fecha de nacimiento:', icon: <FiCalendar /> },
+    { key: 'telefono_movil', label: 'Teléfono:', icon: <FiPhone /> },
+    { key: 'correo_electronico', label: 'Correo:', icon: <FiMail /> },
+    { key: 'residencia', label: 'Residencia:', icon: <FiHome /> },
+    { key: 'ocupacion', label: 'Ocupación:', icon: <FiBriefcase /> },
+    { key: 'escolaridad', label: 'Escolaridad:', icon: <FiLayers /> },
+    { key: 'estado_civil', label: 'Estado civil:', icon: <FiLayers /> },
+    { key: 'tipo_sangre', label: 'Tipo de sangre:', icon: <FiLayers /> },
+    { key: 'referido_por', label: 'Referido por:', icon: <FiLayers /> },
+    { key: 'creado', label: 'Creado:', icon: <FiCalendar /> },
+    { key: 'actualizado', label: 'Actualizado:', icon: <FiCalendar /> },
+  ];
+  const personalRows = personalFields
+    .filter(({ key }) => present(data[key]))
+    .map(({ key, label, icon }) => (
+      <Row key={key} icon={icon} label={label} value={data[key]} />
+    ));
+  const showPersonal = personalRows.length > 0;
 
-      {/* Campo de aseguradora eliminado del perfil; ahora pertenece a pólizas */}
+  // 1:1: Antecedentes Personales
+  let apBlock = null;
+  if (data.antecedentes_personales && typeof data.antecedentes_personales === 'object') {
+    const entries = Object.entries(data.antecedentes_personales)
+      .filter(([k, v]) => notSecondaryId(k) && present(v));
+    if (entries.length > 0) {
+      apBlock = (
+        <Section>
+          <h3>Antecedentes Personales</h3>
+          {entries.map(([k, v]) => (
+            <FieldRow key={`ap_${k}`}>
+              <Label><FiLayers /> {k}:</Label>
+              <Value>{v}</Value>
+            </FieldRow>
+          ))}
+        </Section>
+      );
+    }
+  }
 
-      {/* SEGUROS Y POTENCIALES */}
-      <FieldRow><Label><FiCheckCircle /> Seguros probables:</Label><Value>{data.potenciales_seguros || '-'}</Value></FieldRow>
+  // 1:N genérico con encabezado
+  const renderArrayBlock = (arr, prefix, heading) => {
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    const rows = [];
+    arr.forEach((item, idx) => {
+      Object.entries(item || {}).forEach(([k, v]) => {
+        if (notSecondaryId(k) && present(v)) {
+          rows.push(
+            <FieldRow key={`${prefix}_${idx}_${k}`}>
+              <Label><FiLayers /> {k}:</Label>
+              <Value>{v}</Value>
+            </FieldRow>
+          );
+        }
+      });
+    });
+    if (rows.length === 0) return null;
+    return (
+      <Section>
+        <h3>{heading}</h3>
+        {rows}
+      </Section>
+    );
+  };
 
-      {/* EXTRAS */}
-      <FieldRow><Label><FiTruck /> Datos de vehículo:</Label><Value>{data.autos || '-'}</Value></FieldRow>
-      <FieldRow><Label><FiTarget /> Aspiraciones / Sueños:</Label><Value>{data.aspiraciones_suenos || '-'}</Value></FieldRow>
-      <FieldRow><Label><PiNoteFill /> Notas:</Label><Value>{data.notas || '-'}</Value></FieldRow>
-      <Actions>
-        <ActionButton onClick={onEditProfile} title="Editar perfil">
-          <FaEdit /> Editar perfil
-        </ActionButton>
-        <ActionButton className="delete" onClick={onDeleteProfile} title="Eliminar perfil">
-          <FaTrashAlt /> Eliminar
-        </ActionButton>
-      </Actions>
-    </Section>
+  const afBlock  = renderArrayBlock(data.antecedentes_familiares, 'af', 'Antecedentes Familiares');
+  const appBlock = renderArrayBlock(data.antecedentes_personales_patologicos, 'app', 'Antecedentes Personales Patológicos');
+  const paiBlock = renderArrayBlock(data.padecimiento_actual_interrogatorio, 'pai', 'Padecimiento Actual Interrogatorio');
+  const efBlock  = renderArrayBlock(data.exploracion_fisica, 'ef', 'Exploración Física');
+  const dtBlock  = renderArrayBlock(data.diagnostico_tratamiento, 'dt', 'Diagnóstico y Tratamiento');
+
+  return (
+    <>
+      
+      {showPersonal && (
+        <Section>
+          <h3>Datos Personales</h3>
+          {personalRows}
+        </Section>
+      )}
+
+      {afBlock}
+      {apBlock}
+      {appBlock}
+      {paiBlock}
+      {efBlock}
+      {dtBlock}
+
+      <Section>
+        <Actions>
+          <ActionButton onClick={onEditProfile} title="Editar perfil">
+            <FaEdit /> Editar perfil
+          </ActionButton>
+          <ActionButton className="delete" onClick={onDeleteProfile} title="Eliminar perfil">
+            <FaTrashAlt /> Eliminar
+          </ActionButton>
+        </Actions>
+      </Section>
+    </>
   );
 }
 

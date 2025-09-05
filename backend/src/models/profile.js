@@ -200,13 +200,19 @@ async function getSummary(limit = 50, offset = 0) {
 }
 
 
-async function getById(id) {
-  const [rows] = await db.query(
-    'SELECT * FROM clientes WHERE id_cliente = ?',
+async function getById(id_perfil) {
+  const id = Number(id_perfil);
+  if (!Number.isInteger(id) || id <= 0) {
+    return { ok: false, error: { code: 'BAD_REQUEST', message: 'id_perfil inválido' } };
+  }
+  const [pRows] = await db.query(
+    'SELECT * FROM perfil WHERE id_perfil = ? LIMIT 1',
     [id]
   );
-  const row = rows?.[0];
-  if (!row) return null;
+  const perfil = pRows?.[0];
+  if (!perfil) {
+    return { ok: false, error: { code: 'NOT_FOUND', message: 'Perfil no encontrado' } };
+  }
 
   const toYMD = (v) => {
     if (v == null) return v;
@@ -220,23 +226,79 @@ async function getById(id) {
     return v;
   };
 
+  // Nueva construcción de respuesta según reglas
+  const compactRow = (obj) => {
+    const out = {};
+    for (const [k, v] of Object.entries(obj || {})) {
+      const val = toYMD(v);
+      if (val != null && val !== '') out[k] = val;
+    }
+    return out;
+  };
+
+  const result = { ok: true, ...compactRow(perfil) };
+
+  // 1:1 antecedentes_personales
+  const [apRows] = await db.query('SELECT * FROM antecedentes_personales WHERE id_perfil = ? LIMIT 1', [id]);
+  if (apRows?.length) {
+    const ap = compactRow(apRows[0]);
+    if (Object.keys(ap).length > 0) result.antecedentes_personales = ap;
+  }
+
+  // 1:N colecciones
+  const tables1N = [
+    'antecedentes_familiares',
+    'antecedentes_personales_patologicos',
+    'diagnostico_tratamiento',
+    'exploracion_fisica',
+    'padecimiento_actual_interrogatorio',
+  ];
+  const includedDateStrings = [];
+  if (result.actualizado) includedDateStrings.push(result.actualizado);
+
+  for (const t of tables1N) {
+    const [rows] = await db.query(`SELECT * FROM ${t} WHERE id_perfil = ? ORDER BY creado DESC`, [id]);
+    if (Array.isArray(rows) && rows.length > 0) {
+      const items = rows.map((r) => compactRow(r)).filter((o) => Object.keys(o).length > 0);
+      if (items.length > 0) {
+        result[t] = items;
+        for (const it of items) {
+          if (it.actualizado) includedDateStrings.push(it.actualizado);
+        }
+      }
+    }
+  }
+
+  // actualizado_max
+  const toDate = (s) => {
+    if (!s) return null;
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  };
+  let max = null;
+  for (const s of includedDateStrings) {
+    const d = toDate(s);
+    if (d && (!max || d > max)) max = d;
+  }
+  if (max) result.actualizado_max = toYMD(max);
+
   // ✂️ Fechas
-  row.fecha_nacimiento      = toYMD(row.fecha_nacimiento);
-  row.ultima_fecha_contacto = toYMD(row.ultima_fecha_contacto);
+  // row.fecha_nacimiento      = toYMD(row.fecha_nacimiento);
+  // row.ultima_fecha_contacto = toYMD(row.ultima_fecha_contacto);
 
   // 🗑️ Campos de póliza descartados
-  delete row.aseguradora;
-  delete row.numero_poliza;
-  delete row.categoria_poliza;
-  delete row.subcategoria_poliza;
-  delete row.detalle_poliza;
-  delete row.fecha_inicio_poliza;
-  delete row.fecha_termino_poliza;
-  delete row.tipo_poliza;
-  delete row.seguros_contratados;
-  delete row.asegurados;
+  // delete row.aseguradora;
+  // delete row.numero_poliza;
+  // delete row.categoria_poliza;
+  // delete row.subcategoria_poliza;
+  // delete row.detalle_poliza;
+  // delete row.fecha_inicio_poliza;
+  // delete row.fecha_termino_poliza;
+  // delete row.tipo_poliza;
+  // delete row.seguros_contratados;
+  // delete row.asegurados;
 
-  return row;
+  return result;
 }
 async function updateUltimaFechaContacto(id, fecha) {
   const [result] = await db.query(
