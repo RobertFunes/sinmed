@@ -381,6 +381,78 @@ const add = async (req, res) => {
       await bd.upsertPadecimientoActualInterrogatorio(id, recordPI);
     }
 
+    // 1:1 exploracion_fisica
+    const ef = payload.exploracion_fisica || {};
+    const allowedEF = [
+      'peso_actual',
+      'peso_anterior',
+      'peso_deseado',
+      'peso_ideal',
+      'talla_cm',
+      'imc',
+      'rtg',
+      'ta_mmhg',
+      'pulso',
+      'frecuencia_cardiaca',
+      'frecuencia_respiratoria',
+      'temperatura_c',
+      'cadera_cm',
+      'cintura_cm',
+    ];
+    const recordEF = {};
+    for (const k of allowedEF) {
+      if (Object.prototype.hasOwnProperty.call(ef, k)) {
+        const v = normalize(ef[k]);
+        if (v != null) recordEF[k] = v;
+      }
+    }
+
+    // Inspección general -> columnas específicas
+    const mapIG = {
+      'cabeza': 'cabeza',
+      'cuello': 'cuello',
+      'torax': 'torax',
+      'abdomen': 'abdomen',
+      'genitales': 'genitales',
+      'extremidades': 'extremidades',
+    };
+    const normNameIG = (s) => {
+      if (!s || typeof s !== 'string') return '';
+      return s
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    };
+    const ig = Array.isArray(ef.inspeccion_general) ? ef.inspeccion_general : [];
+    for (const it of ig) {
+      const nombre = normNameIG(it?.nombre || '');
+      // normaliza tórax -> torax
+      const key = nombre === 'torax' || nombre === 'tórax' ? 'torax' : nombre;
+      const col = mapIG[key];
+      if (!col) continue;
+      const desc = normalize(it?.descripcion);
+      if (desc != null) recordEF[col] = desc;
+    }
+
+    if (Object.keys(recordEF).length > 0) {
+      await bd.upsertExploracionFisica(id, recordEF);
+    }
+
+    // 1:1 diagnostico_tratamiento
+    const dt = payload.diagnostico_y_tratamiento || {};
+    const allowedDT = ['diagnostico', 'tratamiento', 'pronostico', 'notas'];
+    const recordDT = {};
+    for (const k of allowedDT) {
+      if (Object.prototype.hasOwnProperty.call(dt, k)) {
+        const v = normalize(dt[k]);
+        if (v != null) recordDT[k] = v;
+      }
+    }
+    if (Object.keys(recordDT).length > 0) {
+      await bd.upsertDiagnosticoTratamiento(id, recordDT);
+    }
+
     return res.status(201).json({ success: true, id_perfil: id });
   } catch (err) {
     console.error('Error en ADD perfil:', err);

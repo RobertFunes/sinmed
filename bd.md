@@ -1,12 +1,12 @@
-# 🗄️ Esquema de Base de Datos Clínica
+# 🗄️ Esquema de Base de Datos Clínica  
 
-La base está compuesta por 7 tablas.  
-Cada sección del expediente clínico tiene su propia tabla y todas están ligadas a **perfil** mediante llaves foráneas.
+La base está compuesta por **7 tablas**.  
+Cada sección del expediente clínico tiene su propia tabla y todas están ligadas a **`perfil`** mediante llaves foráneas.  
 
 ---
 
-## 👤 perfil
-Tabla principal con los datos personales del paciente.
+## 👤 perfil  
+Tabla principal con los **datos personales** del paciente.  
 
 | Campo              | Tipo                                       | Nulo | Extra              |
 |--------------------|--------------------------------------------|------|--------------------|
@@ -26,8 +26,8 @@ Tabla principal con los datos personales del paciente.
 
 ---
 
-## 🧬 antecedentes_familiares
-Varios registros por perfil.
+## 🧬 antecedentes_familiares  
+**Varios registros por perfil.**  
 
 | Campo                   | Tipo        | Nulo | Extra              |
 |--------------------------|-------------|------|--------------------|
@@ -40,13 +40,14 @@ Varios registros por perfil.
 
 ---
 
-## 🍷🚬 antecedentes_personales
-Hábitos y alimentación.
+## 🍷🚬 antecedentes_personales  
+**Hábitos y alimentación.**  
+Un registro único por perfil.  
 
 | Campo              | Tipo                    | Nulo |
 |--------------------|-------------------------|------|
 | id_ap              | int(11) PK              | NO   |
-| id_perfil          | int(11) FK → perfil     | NO   |
+| id_perfil          | int(11) FK → perfil, **UNIQUE** | NO |
 | bebidas_por_dia    | decimal(4,1)            | SÍ   |
 | tiempo_activo_alc  | varchar(50)             | SÍ   |
 | cigarrillos_por_dia| varchar(10)             | SÍ   |
@@ -64,13 +65,14 @@ Hábitos y alimentación.
 
 ---
 
-## 🏥 antecedentes_personales_patologicos
-Patologías previas.
+## 🏥 antecedentes_personales_patologicos  
+**Patologías previas.**  
+Un perfil puede tener **muchos antecedentes patológicos**.  
 
 | Campo        | Tipo         | Nulo |
 |--------------|--------------|------|
 | id_app       | int(11) PK   | NO   |
-| id_perfil    | int(11) FK   | NO   |
+| id_perfil    | int(11) FK → perfil | NO   |
 | antecedente  | varchar(100) | NO   |
 | descripcion  | text         | SÍ   |
 | creado       | timestamp    | NO   |
@@ -78,13 +80,13 @@ Patologías previas.
 
 ---
 
-## 🩺 padecimiento_actual_interrogatorio
-Una fila por perfil con todos los sistemas.
+## 🩺 padecimiento_actual_interrogatorio  
+**Una sola fila por perfil**, con todos los aparatos y sistemas.  
 
 | Campo              | Tipo   |
 |--------------------|--------|
 | id_pai             | int(11) PK |
-| id_perfil          | int(11) FK |
+| id_perfil          | int(11) FK, **UNIQUE** |
 | padecimiento_actual| text   |
 | sintomas_generales | text   |
 | endocrino          | text   |
@@ -105,13 +107,14 @@ Una fila por perfil con todos los sistemas.
 
 ---
 
-## ⚖️ exploracion_fisica
-Mediciones y exploración.
+## ⚖️ exploracion_fisica  
+**Una sola fila por perfil.**  
+Contiene mediciones antropométricas, vitales y exploración general.  
 
 | Campo                  | Tipo       |
 |------------------------|------------|
 | id_exploracion         | int(11) PK |
-| id_perfil              | int(11) FK |
+| id_perfil              | int(11) FK, **UNIQUE** |
 | peso_actual            | decimal(5,2) |
 | peso_anterior          | decimal(5,2) |
 | peso_deseado           | decimal(5,2) |
@@ -137,13 +140,14 @@ Mediciones y exploración.
 
 ---
 
-## 🧾 diagnostico_tratamiento
-Diagnóstico final, plan y notas.
+## 🧾 diagnostico_tratamiento  
+**Diagnóstico final y plan de acción.**  
+Una fila por perfil.  
 
 | Campo        | Tipo      |
 |--------------|-----------|
 | id_dt        | int(11) PK |
-| id_perfil    | int(11) FK |
+| id_perfil    | int(11) FK, **UNIQUE** |
 | diagnostico  | text      |
 | tratamiento  | text      |
 | pronostico   | text      |
@@ -153,9 +157,10 @@ Diagnóstico final, plan y notas.
 
 ---
 
-## 🔗 Relaciones
+## 🔗 Relaciones  
+
 - `perfil (1) —— (N)` `antecedentes_familiares`  
-- `perfil (1) —— (N)` `antecedentes_personales`  
+- `perfil (1) —— (1)` `antecedentes_personales`  
 - `perfil (1) —— (N)` `antecedentes_personales_patologicos`  
 - `perfil (1) —— (1)` `padecimiento_actual_interrogatorio`  
 - `perfil (1) —— (1)` `exploracion_fisica`  
