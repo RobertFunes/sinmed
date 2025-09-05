@@ -65,6 +65,27 @@ async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
   return inserted;
 }
 
+// Inserta/actualiza (1:1) padecimiento_actual_interrogatorio por id_perfil
+// data: objeto parcial con columnas válidas (sin id_perfil)
+async function upsertPadecimientoActualInterrogatorio(id_perfil, data = {}) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  const payload = { ...data };
+
+  // Filtra null/undefined para no sobrescribir con null innecesariamente
+  const cols = Object.keys(payload).filter((k) => payload[k] != null);
+  if (cols.length === 0) return { affectedRows: 0 };
+
+  const fields = ['id_perfil', ...cols];
+  const placeholders = fields.map(() => '?').join(', ');
+  const values = [id_perfil, ...cols.map((k) => payload[k])];
+
+  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
+  const sql = `INSERT INTO padecimiento_actual_interrogatorio (${fields.join(', ')}) VALUES (${placeholders})
+               ON DUPLICATE KEY UPDATE ${updates}`;
+  const [result] = await db.query(sql, values);
+  return result;
+}
+
 async function getAll() {
   const [rows] = await db.query('SELECT * FROM clientes');
   return rows;
@@ -246,6 +267,7 @@ module.exports = {
   getNameById,
   addAntecedentesFamiliares,
   upsertAntecedentesPersonales,
-  addAntecedentesPersonalesPatologicos 
+  addAntecedentesPersonalesPatologicos,
+  upsertPadecimientoActualInterrogatorio 
 };
   

@@ -329,6 +329,58 @@ const add = async (req, res) => {
       await bd.addAntecedentesPersonalesPatologicos(id, itemsAPP);
     }
 
+    // 1:1 padecimiento_actual_interrogatorio
+    // Si no hay datos útiles, no insertes nada
+    const pe = payload.padecimiento_e_interrogatorio || {};
+    const pa = normalize(pe.padecimiento_actual);
+    const interrogatorio = Array.isArray(pe.interrogatorio_aparatos)
+      ? pe.interrogatorio_aparatos
+      : [];
+
+    // Mapeo de nombre -> columna (normalizado sin acentos)
+    const mapCols = {
+      'sintomas generales': 'sintomas_generales',
+      'endocrino': 'endocrino',
+      'organos de los sentidos': 'organos_sentidos',
+      'gastrointestinal': 'gastrointestinal',
+      'cardiopulmonar': 'cardiopulmonar',
+      'genitourinario': 'genitourinario',
+      'genital femenino': 'genital_femenino',
+      'sexualidad': 'sexualidad',
+      'dermatologico': 'dermatologico',
+      'neurologico': 'neurologico',
+      'hematologico': 'hematologico',
+      'reumatologico': 'reumatologico',
+      'psiquiatrico': 'psiquiatrico',
+      'medicamentos': 'medicamentos',
+    };
+    const normName = (s) => {
+      if (!s || typeof s !== 'string') return '';
+      return s
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    };
+
+    const recordPI = {};
+    if (pa != null) {
+      recordPI.padecimiento_actual = pa;
+    }
+    for (const it of interrogatorio) {
+      const nombre = normName(it?.nombre || '');
+      const col = mapCols[nombre];
+      if (!col) continue; // ignora nombres desconocidos
+      const desc = normalize(it?.descripcion);
+      if (desc != null) {
+        recordPI[col] = desc;
+      }
+    }
+
+    if (Object.keys(recordPI).length > 0) {
+      await bd.upsertPadecimientoActualInterrogatorio(id, recordPI);
+    }
+
     return res.status(201).json({ success: true, id_perfil: id });
   } catch (err) {
     console.error('Error en ADD perfil:', err);
