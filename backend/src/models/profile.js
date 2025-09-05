@@ -26,6 +26,45 @@ async function addAntecedentesFamiliares(id_perfil, items = []) {
   return inserted;
 }
 
+// Inserta/actualiza (1:1) antecedentes_personales por id_perfil
+// data: objeto parcial con columnas válidas (sin id_perfil)
+async function upsertAntecedentesPersonales(id_perfil, data = {}) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  const payload = { ...data };
+
+  // Filtra null/undefined para no sobrescribir con null innecesariamente
+  const cols = Object.keys(payload).filter((k) => payload[k] != null);
+  if (cols.length === 0) return { affectedRows: 0 };
+
+  const fields = ['id_perfil', ...cols];
+  const placeholders = fields.map(() => '?').join(', ');
+  const values = [id_perfil, ...cols.map((k) => payload[k])];
+
+  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
+  const sql = `INSERT INTO antecedentes_personales (${fields.join(', ')}) VALUES (${placeholders})
+               ON DUPLICATE KEY UPDATE ${updates}`;
+  const [result] = await db.query(sql, values);
+  return result;
+}
+
+// Inserta N filas en antecedentes_personales_patologicos para un perfil dado
+// items: array de objetos { antecedente, descripcion? } ya normalizados ('' -> null)
+async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
+  if (!Array.isArray(items) || items.length === 0) return 0;
+  let inserted = 0;
+  for (const it of items) {
+    const antecedente = it?.antecedente;
+    if (!antecedente) continue; // requiere antecedente NOT NULL
+    const descripcion = it?.descripcion ?? null;
+    await db.query(
+      'INSERT INTO antecedentes_personales_patologicos (id_perfil, antecedente, descripcion) VALUES (?, ?, ?)',
+      [id_perfil, antecedente, descripcion]
+    );
+    inserted++;
+  }
+  return inserted;
+}
+
 async function getAll() {
   const [rows] = await db.query('SELECT * FROM clientes');
   return rows;
@@ -205,6 +244,8 @@ module.exports = {
   removeById,
   modifyClient,
   getNameById,
-  addAntecedentesFamiliares 
+  addAntecedentesFamiliares,
+  upsertAntecedentesPersonales,
+  addAntecedentesPersonalesPatologicos 
 };
   

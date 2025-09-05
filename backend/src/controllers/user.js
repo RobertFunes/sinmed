@@ -243,6 +243,92 @@ const add = async (req, res) => {
       await bd.addAntecedentesFamiliares(id, items);
     }
 
+    // Inserta/actualiza antecedentes_personales (1:1) si hay datos
+    const ap = payload.antecedentes_personales || {};
+    const norm = (v) => {
+      if (v == null) return v;
+      if (typeof v === 'string') {
+        const t = v.trim();
+        return t === '' ? null : t;
+      }
+      return v;
+    };
+    const recordAP = {
+      bebidas_por_dia: null,
+      tiempo_activo_alc: null,
+      cigarrillos_por_dia: null,
+      tiempo_activo_tab: null,
+      tipo_toxicomania: null,
+      tiempo_activo_tox: null,
+      calidad: null,
+      descripcion: null,
+      hay_cambios: null,
+      cambio_tipo: null,
+      cambio_causa: null,
+      cambio_tiempo: null,
+    };
+
+    // Habitos: toma el primero por tipo si existe
+    if (Array.isArray(ap.habitos)) {
+      const byTipo = (t) => ap.habitos.find((h) => h?.tipo === t);
+      const alc = byTipo('Alcoholismo');
+      const tab = byTipo('Tabaquismo');
+      const tox = byTipo('Toxicomanías') || byTipo('Toxicomanias');
+      if (alc) {
+        recordAP.bebidas_por_dia = norm(alc.campos?.bebidas_por_dia);
+        recordAP.tiempo_activo_alc = norm(alc.campos?.tiempo_activo_alc);
+      }
+      if (tab) {
+        recordAP.cigarrillos_por_dia = norm(tab.campos?.cigarrillos_por_dia);
+        recordAP.tiempo_activo_tab = norm(tab.campos?.tiempo_activo_tab);
+      }
+      if (tox) {
+        recordAP.tipo_toxicomania = norm(tox.campos?.tipo_toxicomania);
+        recordAP.tiempo_activo_tox = norm(tox.campos?.tiempo_activo_tox);
+      }
+    }
+
+    // Alimentación
+    if (ap.alimentacion && typeof ap.alimentacion === 'object') {
+      const al = ap.alimentacion;
+      recordAP.calidad = norm(al.calidad);
+      recordAP.descripcion = norm(al.descripcion);
+      recordAP.hay_cambios = norm(al.hay_cambios);
+      if (recordAP.hay_cambios === 'Si') {
+        recordAP.cambio_tipo = norm(al.tipo);
+        recordAP.cambio_causa = norm(al.causa);
+        recordAP.cambio_tiempo = norm(al.tiempo);
+      }
+    }
+
+    // Quita claves que quedaron null para no insertar basura
+    const compactAP = Object.fromEntries(
+      Object.entries(recordAP).filter(([, v]) => v != null)
+    );
+    if (Object.keys(compactAP).length > 0) {
+      await bd.upsertAntecedentesPersonales(id, compactAP);
+    }
+
+    // Inserta antecedentes_personales_patologicos (1:N) si llegaron
+    const app = Array.isArray(payload.antecedentes_personales_patologicos)
+      ? payload.antecedentes_personales_patologicos
+      : [];
+    if (app.length > 0) {
+      const normalize = (v) => {
+        if (v == null) return v;
+        if (typeof v === 'string') {
+          const t = v.trim();
+          return t === '' ? null : t;
+        }
+        return v;
+      };
+      const itemsAPP = app.map((p) => ({
+        antecedente: normalize(p?.antecedente),
+        descripcion: normalize(p?.descripcion),
+      }));
+      await bd.addAntecedentesPersonalesPatologicos(id, itemsAPP);
+    }
+
     return res.status(201).json({ success: true, id_perfil: id });
   } catch (err) {
     console.error('Error en ADD perfil:', err);

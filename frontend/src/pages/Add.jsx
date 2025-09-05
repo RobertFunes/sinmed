@@ -233,7 +233,6 @@ const buildNestedPayload = (data) => {
 
   const antecedentes_personales = {
     habitos,
-    patologicos,
     alimentacion,
   };
 
@@ -280,6 +279,7 @@ const buildNestedPayload = (data) => {
     datos_personales,
     antecedentes_familiares,
     antecedentes_personales,
+    antecedentes_personales_patologicos: patologicos,
     padecimiento_e_interrogatorio,
     exploracion_fisica,
     diagnostico_y_tratamiento,
