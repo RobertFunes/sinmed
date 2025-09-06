@@ -5,8 +5,12 @@ import { Palette } from '../helpers/theme.js';
 export const Section = styled.section`
   background: ${Palette.background};
   border: 1px solid ${Palette.border};
-  border-radius: 0 0 14px 14px;
+  
   padding: 28px 28px;
+  h3{
+    font-size: 1.9rem;
+    color: ${Palette.title}; 
+  }
 `;
 
 export const TwoRow = styled.div`

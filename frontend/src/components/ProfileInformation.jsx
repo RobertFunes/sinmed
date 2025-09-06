@@ -5,13 +5,8 @@ import {
   FiMail,
   FiCalendar,
   FiBriefcase,
-  FiMapPin,
   FiHome,
-  FiCheckCircle,
-  FiTruck,
-  FiTarget,
   FiLayers,
-  FiSlash,
 } from 'react-icons/fi';
 import { PiNoteFill } from 'react-icons/pi';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
@@ -21,11 +16,10 @@ import {
   FieldRow,
   Label,
   Value,
-  TwoRow,
   Actions,
 } from './ProfileInformation.styles.jsx';
 
-// Helper: valor presente (no null/undefined ni string vacío)
+// Valor presente: distinto de null/undefined y strings no vacíos
 const present = (v) => {
   if (v == null) return false;
   if (typeof v === 'string') return v.trim().length > 0;
@@ -42,32 +36,120 @@ const Row = ({ icon, label, value }) => {
   );
 };
 
-// Filtro: ocultar cualquier id_* salvo id_perfil (pero no lo mostraremos en secciones)
+// Oculta cualquier id_* excepto id_perfil (que solo se muestra en Datos Personales)
 const notSecondaryId = (key) => !(key.startsWith('id_') && key !== 'id_perfil');
+
+// Etiquetas legibles y fallback
+const LABELS = {
+  // Perfil
+  id_perfil: 'ID de perfil',
+  nombre: 'Nombre',
+  genero: 'Género',
+  fecha_nacimiento: 'Fecha de nacimiento',
+  telefono_movil: 'Teléfono',
+  correo_electronico: 'Correo',
+  residencia: 'Residencia',
+  ocupacion: 'Ocupación',
+  escolaridad: 'Escolaridad',
+  estado_civil: 'Estado civil',
+  tipo_sangre: 'Tipo de sangre',
+  referido_por: 'Referido por',
+  creado: 'Creado',
+  actualizado: 'Actualizado',
+
+  // Antecedentes personales (1:1)
+  bebidas_por_dia: 'Bebidas por día',
+  tiempo_activo_alc: 'Tiempo activo alcohol',
+  cigarrillos_por_dia: 'Cigarrillos por día',
+  tiempo_activo_tab: 'Tiempo activo tabaco',
+  tipo_toxicomania: 'Tipo de toxicomanía',
+  tiempo_activo_tox: 'Tiempo activo toxicomanía',
+  calidad: 'Calidad del sueño',
+  descripcion: 'Descripción',
+  hay_cambios: '¿Hay cambios?',
+  cambio_tipo: 'Tipo de cambio',
+  cambio_causa: 'Causa del cambio',
+  cambio_tiempo: 'Tiempo del cambio',
+
+  // Familiares / Patológicos
+  antecedente: 'Antecedente',
+  nombre_familiar: 'Nombre',
+  nombre: 'Nombre',
+
+  // Padecimiento/interrogatorio
+  padecimiento_actual: 'Padecimiento actual',
+  sintomas_generales: 'Síntomas generales',
+  endocrino: 'Endocrino',
+  organos_sentidos: 'Órganos de los sentidos',
+  gastrointestinal: 'Gastrointestinal',
+  cardiopulmonar: 'Cardiopulmonar',
+  genitourinario: 'Genitourinario',
+  genital_femenino: 'Genital femenino',
+  sexualidad: 'Sexualidad',
+  dermatologico: 'Dermatológico',
+  neurologico: 'Neurológico',
+  hematologico: 'Hematológico',
+  reumatologico: 'Reumatológico',
+  psiquiatrico: 'Psiquiátrico',
+  medicamentos: 'Medicamentos',
+
+  // Exploración física
+  peso_actual: 'Peso actual (kg)',
+  peso_anterior: 'Peso anterior (kg)',
+  peso_deseado: 'Peso deseado (kg)',
+  peso_ideal: 'Peso ideal (kg)',
+  talla_cm: 'Talla (cm)',
+  imc: 'IMC',
+  rtg: 'RTG',
+  ta_mmhg: 'TA (mmHg)',
+  pulso: 'Pulso',
+  frecuencia_cardiaca: 'Frecuencia cardiaca',
+  frecuencia_respiratoria: 'Frecuencia respiratoria',
+  temperatura_c: 'Temperatura (°C)',
+  cadera_cm: 'Cadera (cm)',
+  cintura_cm: 'Cintura (cm)',
+  cabeza: 'Cabeza',
+  cuello: 'Cuello',
+  torax: 'Tórax',
+  abdomen: 'Abdomen',
+  genitales: 'Genitales',
+  extremidades: 'Extremidades',
+};
+const prettify = (key) => key.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+const labelFor = (key) => LABELS[key] || prettify(key);
 
 export default function ProfileInformation({ data, onEditProfile, onDeleteProfile }) {
   if (!data || data.ok !== true) return null;
 
-  // Sección: Datos Personales (en orden)
-  const personalFields = [
-    { key: 'nombre', label: 'Nombre:', icon: <FiHome /> },
-    { key: 'genero', label: 'Género:', icon: <FiLayers /> },
-    { key: 'fecha_nacimiento', label: 'Fecha de nacimiento:', icon: <FiCalendar /> },
-    { key: 'telefono_movil', label: 'Teléfono:', icon: <FiPhone /> },
-    { key: 'correo_electronico', label: 'Correo:', icon: <FiMail /> },
-    { key: 'residencia', label: 'Residencia:', icon: <FiHome /> },
-    { key: 'ocupacion', label: 'Ocupación:', icon: <FiBriefcase /> },
-    { key: 'escolaridad', label: 'Escolaridad:', icon: <FiLayers /> },
-    { key: 'estado_civil', label: 'Estado civil:', icon: <FiLayers /> },
-    { key: 'tipo_sangre', label: 'Tipo de sangre:', icon: <FiLayers /> },
-    { key: 'referido_por', label: 'Referido por:', icon: <FiLayers /> },
-    { key: 'creado', label: 'Creado:', icon: <FiCalendar /> },
-    { key: 'actualizado', label: 'Actualizado:', icon: <FiCalendar /> },
+  // Datos Personales (id_perfil + campos raíz en orden)
+  const personalOrder = [
+    'id_perfil', 'nombre', 'genero', 'fecha_nacimiento', 'telefono_movil', 'correo_electronico',
+    'residencia', 'ocupacion', 'escolaridad', 'estado_civil', 'tipo_sangre', 'referido_por',
+    'creado', 'actualizado'
   ];
-  const personalRows = personalFields
-    .filter(({ key }) => present(data[key]))
-    .map(({ key, label, icon }) => (
-      <Row key={key} icon={icon} label={label} value={data[key]} />
+  const iconFor = (k) => {
+    switch (k) {
+      case 'id_perfil': return <FiLayers />;
+      case 'nombre': return <FiHome />;
+      case 'genero':
+      case 'escolaridad':
+      case 'estado_civil':
+      case 'tipo_sangre':
+      case 'referido_por': return <FiLayers />;
+      case 'fecha_nacimiento':
+      case 'creado':
+      case 'actualizado': return <FiCalendar />;
+      case 'telefono_movil': return <FiPhone />;
+      case 'correo_electronico': return <FiMail />;
+      case 'residencia': return <FiHome />;
+      case 'ocupacion': return <FiBriefcase />;
+      default: return <FiLayers />;
+    }
+  };
+  const personalRows = personalOrder
+    .filter((k) => present(data[k]))
+    .map((k) => (
+      <Row key={k} icon={iconFor(k)} label={`${labelFor(k)}:`} value={data[k]} />
     ));
   const showPersonal = personalRows.length > 0;
 
@@ -75,14 +157,14 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   let apBlock = null;
   if (data.antecedentes_personales && typeof data.antecedentes_personales === 'object') {
     const entries = Object.entries(data.antecedentes_personales)
-      .filter(([k, v]) => notSecondaryId(k) && present(v));
+      .filter(([k, v]) => !k.startsWith('id_') && present(v));
     if (entries.length > 0) {
       apBlock = (
         <Section>
           <h3>Antecedentes Personales</h3>
           {entries.map(([k, v]) => (
             <FieldRow key={`ap_${k}`}>
-              <Label><FiLayers /> {k}:</Label>
+              <Label><FiLayers /> {labelFor(k)}:</Label>
               <Value>{v}</Value>
             </FieldRow>
           ))}
@@ -91,27 +173,31 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     }
   }
 
-  // 1:N genérico con encabezado
+  // 1:N helper con agrupación por "Registro N"
   const renderArrayBlock = (arr, prefix, heading) => {
     if (!Array.isArray(arr) || arr.length === 0) return null;
-    const rows = [];
-    arr.forEach((item, idx) => {
-      Object.entries(item || {}).forEach(([k, v]) => {
-        if (notSecondaryId(k) && present(v)) {
-          rows.push(
-            <FieldRow key={`${prefix}_${idx}_${k}`}>
-              <Label><FiLayers /> {k}:</Label>
-              <Value>{v}</Value>
-            </FieldRow>
-          );
-        }
-      });
-    });
-    if (rows.length === 0) return null;
+    const groups = arr.map((item, idx) => {
+      const rows = Object.entries(item || {})
+        .filter(([k, v]) => !k.startsWith('id_') && present(v))
+        .map(([k, v]) => (
+          <FieldRow key={`${prefix}_${idx}_${k}`}>
+            <Label><FiLayers /> {labelFor(k)}:</Label>
+            <Value>{v}</Value>
+          </FieldRow>
+        ));
+      if (rows.length === 0) return null;
+      return (
+        <div key={`${prefix}_${idx}`}>
+          
+          {rows}
+        </div>
+      );
+    }).filter(Boolean);
+    if (groups.length === 0) return null;
     return (
       <Section>
         <h3>{heading}</h3>
-        {rows}
+        {groups}
       </Section>
     );
   };
@@ -124,7 +210,6 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
 
   return (
     <>
-      
       {showPersonal && (
         <Section>
           <h3>Datos Personales</h3>
@@ -158,4 +243,3 @@ ProfileInformation.propTypes = {
   onEditProfile: PropTypes.func,
   onDeleteProfile: PropTypes.func,
 };
-

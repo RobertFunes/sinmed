@@ -11,6 +11,6 @@ export const Palette = {
   muted: '#393E46',       // Texto/íconos secundarios, placeholders
 
   // Fondos y bordes
-  background: '#FFFFFF',  // Fondo principal
+  background: '#e3e3e3ff',  // Fondo principal
   border: '#000000ff',      // Bordes suaves, separadores
 };
