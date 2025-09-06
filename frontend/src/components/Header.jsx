@@ -1,7 +1,6 @@
 // Header.jsx
 import { useEffect, useState } from 'react';
-import { FaUserPlus, FaComments, FaUser , FaLink, FaPlusCircle, FaSearch  } from 'react-icons/fa';
-import { RiContractFill } from "react-icons/ri";
+import { FaUserPlus, FaComments, FaUser , FaLink, FaPlusCircle, FaSearch, FaCalendarAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { NavBar, NavButton,LogoLink } from './Header.styles.jsx';
 import { url } from '../helpers/url.js';
@@ -9,7 +8,7 @@ import { LiaFileContractSolid } from "react-icons/lia";
 // Header.jsx
 
 const Header = () => {
-  const [isConnected, setIsConnected] = useState(null); // null = sin saber todavía 🤔
+  const [isConnected, setIsConnected] = useState(null); // null = sin saber todavía ??
   useEffect(() => {
     const getStatus = async () => {
       try {
@@ -19,15 +18,15 @@ const Header = () => {
         });
 
         const data = await res.json();
-        setIsConnected(data?.isAuth === true); // true ✅  | false ❌
+        setIsConnected(data?.isAuth === true); // true ?  | false ?
       } catch (err) {
         console.error('Error consultando estado de WhatsApp:', err);
-        setIsConnected(false); // asumimos desconectado si algo falla 🚨
+        setIsConnected(false); // asumimos desconectado si algo falla ??
       }
     };
 
     getStatus();          // primer chequeo
-    const interval = setInterval(getStatus, 60_000); // refresco cada 60 s 🔄
+    const interval = setInterval(getStatus, 60_000); // refresco cada 60 s ??
 
     return () => clearInterval(interval); // limpiar al desmontar
   }, []);
@@ -36,8 +35,8 @@ const Header = () => {
     isConnected === null
       ? ''                      // aún cargando
       : isConnected
-      ? 'connected'            // verde 🍀
-      : 'disconnected';        // rojo 🛑
+      ? 'connected'            // verde ??
+      : 'disconnected';        // rojo ??
 
   return (
     <header>
@@ -61,8 +60,8 @@ const Header = () => {
         <NavButton as={Link} to="/" className="agenda">
           <FaUser  /> Perfiles
         </NavButton>
-        <NavButton as={Link} to="/contracts" className="agenda">
-          <RiContractFill /> Pólizas
+        <NavButton as={Link} to="/calendar" className="agenda">
+          <FaCalendarAlt /> Calendario
         </NavButton>
         <NavButton as={Link} to="/search" className="agenda">
           <FaSearch style={{ fontSize: '1.5rem' }} />
@@ -81,3 +80,4 @@ const Header = () => {
 };
 
 export default Header;
+

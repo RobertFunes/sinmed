@@ -14,6 +14,7 @@ import AddContract from './pages/AddContract.jsx';
 import Contracts from './pages/Contracts.jsx';
 import ModifyContract from './pages/ModifyContract.jsx';
 import Search from './pages/Search.jsx';
+import Calendar from './pages/Calendar.jsx';
 
 export function NotFound() {           // ← agrega "export" y se acabó el drama
   return <h2>Página no encontrada 🚫</h2>;
@@ -88,6 +89,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <RequireAuth>
               <Contracts />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <RequireAuth>
+              <Calendar />
             </RequireAuth>
           }
         />

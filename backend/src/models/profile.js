@@ -216,27 +216,35 @@ async function getById(id_perfil) {
 
   const toYMD = (v) => {
     if (v == null) return v;
-    if (typeof v === 'string') return v.slice(0, 10);
     if (v instanceof Date) {
       const y = v.getUTCFullYear();
       const m = String(v.getUTCMonth() + 1).padStart(2, '0');
       const d = String(v.getUTCDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
     }
+    // Si ya viene como string fecha ISO, normaliza a YYYY-MM-DD
+    if (typeof v === 'string' && /\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
     return v;
   };
 
+  // Campos fecha por tabla (solo estos se formatean a YYYY-MM-DD)
+  const DATE_KEYS = {
+    perfil: new Set(['fecha_nacimiento', 'actualizado', 'creado']),
+    default: new Set(['creado', 'actualizado'])
+  };
+
   // Nueva construcción de respuesta según reglas
-  const compactRow = (obj) => {
+  const compactRow = (obj, scope = 'default') => {
     const out = {};
+    const dateKeys = DATE_KEYS[scope] || DATE_KEYS.default;
     for (const [k, v] of Object.entries(obj || {})) {
-      const val = toYMD(v);
+      const val = dateKeys.has(k) ? toYMD(v) : v;
       if (val != null && val !== '') out[k] = val;
     }
     return out;
   };
 
-  const result = { ok: true, ...compactRow(perfil) };
+  const result = { ok: true, ...compactRow(perfil, 'perfil') };
 
   // 1:1 antecedentes_personales
   const [apRows] = await db.query('SELECT * FROM antecedentes_personales WHERE id_perfil = ? LIMIT 1', [id]);
@@ -259,7 +267,7 @@ async function getById(id_perfil) {
   for (const t of tables1N) {
     const [rows] = await db.query(`SELECT * FROM ${t} WHERE id_perfil = ? ORDER BY creado DESC`, [id]);
     if (Array.isArray(rows) && rows.length > 0) {
-      const items = rows.map((r) => compactRow(r)).filter((o) => Object.keys(o).length > 0);
+      const items = rows.map((r) => compactRow(r, t)).filter((o) => Object.keys(o).length > 0);
       if (items.length > 0) {
         result[t] = items;
         for (const it of items) {

@@ -19,6 +19,17 @@ export const TwoRow = styled.div`
   gap: 14px;
 `;
 
+// Dos columnas balanceadas para filas de información
+export const TwoColumnRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 export const FieldRow = styled.div`
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
