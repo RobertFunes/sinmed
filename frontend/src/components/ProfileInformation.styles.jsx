@@ -15,7 +15,7 @@ export const Section = styled.section`
 
 export const TwoRow = styled.div`
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
 `;
 
@@ -40,13 +40,17 @@ export const Label = styled.span`
 `;
 
 export const Value = styled.span`
-  white-space: pre-line;
+  white-space: pre-wrap;
   color: ${Palette.text};
   background: ${Palette.background};
   border: 1px solid ${Palette.border};
   border-radius: 8px;
   padding: 10px 12px;
   line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  text-overflow: unset;
 `;
 
 export const Actions = styled.div`
