@@ -3,6 +3,10 @@ import { Palette } from '../helpers/theme';
 
 export const Page = styled.div`
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
 `;
 
 export const HeaderRow = styled.div`
@@ -14,12 +18,12 @@ export const HeaderRow = styled.div`
 
 export const Title = styled.h2`
   margin: 0;
-  color: ${Palette.secondary};
+  color: ${Palette.primary};
 `;
 
 export const Form = styled.form`
   margin-top: 16px;
-  max-width: 420px;
+  width: 520px;
   display: grid;
   gap: 14px;
 `;
@@ -27,15 +31,35 @@ export const Form = styled.form`
 export const Field = styled.label`
   display: grid;
   gap: 6px;
-  color: ${Palette.secondary};
+  color: ${Palette.primary};
   font-weight: 600;
+  font-size: 1.2rem;
 `;
 
 export const Input = styled.input`
+  background-color: ${Palette.background};
+  color: ${Palette.dark};
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid ${Palette.border};
+  border: 1px solid ${Palette.primary};
   font-size: 1rem;
+
+  /* Quitar decoraciones raras en algunos navegadores */
+  &::-webkit-inner-spin-button,
+  &::-webkit-clear-button {
+    display: none;
+  }
+
+  /* El icono del calendario/reloj */
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1); /* Ajusta el valor: 0 = negro, 1 = blanco */
+  }
+
+  /* Para Firefox (más limitado) */
+  &::-moz-focus-inner {
+    border: 0;
+  }
 `;
 
 export const Actions = styled.div`

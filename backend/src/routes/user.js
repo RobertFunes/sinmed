@@ -15,7 +15,6 @@ const {
   modify,
   getNameMin
 } = require('../controllers/user');
-const {addBundle, listPreview, listSummary, getOne, editBundle, deleteOne, listByClient}=  require('../controllers/policy');
 const e = require('express');
 // Ruta pública: login
 // POST /login
@@ -29,13 +28,6 @@ router.get('/profile/:id/min', checkAuth, getNameMin);
 router.post('/postpone',checkAuth, postpone);
 router.delete('/profile/:id', checkAuth,removeById);
 
-router.get('/getOne/:id', checkAuth, getOne);
-router.get('/preview', checkAuth, listPreview);
-router.get('/polizas', checkAuth, listSummary); // Resumen de pólizas
-router.get('/profile/:id/polizas', checkAuth, listByClient);
-router.post('/bundle', addBundle);
-router.patch('/update/:id', editBundle);
-router.delete('/delete/:id', deleteOne);
 
 // Ruta que devuelve el estado (auth/no auth)
 // GET /status
