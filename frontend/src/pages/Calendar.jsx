@@ -3,6 +3,7 @@ import Header from '../components/Header.jsx';
 import { useEffect } from 'react';
 import { url } from '../helpers/url.js';
 import { Page, HeaderRow, Title, NewButtonLink } from './Calendar.styles.jsx';
+import { scheduleBuilder } from '../helpers/adminSqueduleBuilder.js';
 
 export default function Calendar() {
   useEffect(() => {
@@ -14,7 +15,9 @@ export default function Calendar() {
           throw new Error(`HTTP ${res.status} ${res.statusText}${txt ? ` - ${txt}` : ''}`);
         }
         const data = await res.json().catch(() => null);
-        console.log('Citas del backend (/api/calendar):', data);
+        const items = Array.isArray(data?.items) ? data.items : [];
+        const events = scheduleBuilder(items);
+        console.log('Eventos construidos (scheduleBuilder):', events);
       } catch (err) {
         console.error('Error obteniendo citas:', err);
       }
