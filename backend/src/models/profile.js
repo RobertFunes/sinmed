@@ -433,6 +433,21 @@ async function addAppointment({ inicio_utc, fin_utc, nombre, telefono }) {
   return { id_cita: r.insertId };
 }
 
+// Lista todas las citas registradas
+async function listAppointments() {
+  const [rows] = await db.query(
+    `SELECT 
+       id_cita,
+       nombre,
+       telefono,
+       DATE_FORMAT(inicio_utc, '%Y-%m-%d %H:%i:%s') AS inicio_utc,
+       DATE_FORMAT(fin_utc, '%Y-%m-%d %H:%i:%s')     AS fin_utc
+     FROM citas
+     ORDER BY inicio_utc DESC, id_cita DESC`
+  );
+  return rows;
+}
+
 module.exports = {
   add,
   getAll,
@@ -451,6 +466,7 @@ module.exports = {
   upsertExploracionFisica,
   upsertDiagnosticoTratamiento 
   ,
-  addAppointment
+  addAppointment,
+  listAppointments
 };
   

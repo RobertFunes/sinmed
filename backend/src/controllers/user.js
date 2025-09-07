@@ -85,6 +85,18 @@ const createCalendar = async (req, res) => {
   }
 };
 
+// GET /calendar
+// Devuelve todas las citas registradas
+const listCalendar = async (_req, res) => {
+  try {
+    const items = await bd.listAppointments();
+    return res.status(200).json({ ok: true, items });
+  } catch (err) {
+    console.error('Error al listar citas:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 // ───────────────────────────────────────────────────────────────────────────────
 // Limitador simple de intentos de login (memoria local)
 // Clave: combinación IP + usuario para evitar bombardeo sostenido
@@ -574,6 +586,7 @@ module.exports = {
   postpone,
   checkAuth,
   modify,
-  createCalendar
+  createCalendar,
+  listCalendar
 };
 
