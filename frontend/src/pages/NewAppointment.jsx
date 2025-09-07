@@ -1,7 +1,8 @@
 // src/pages/NewAppointment.jsx
 import Header from '../components/Header.jsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { url } from '../helpers/url.js';
 import { Page, Title, Form, Field, Input, Actions, PrimaryButton, GhostButton } from './NewAppointment.styles.jsx';
 
 export default function NewAppointment() {
@@ -9,6 +10,7 @@ export default function NewAppointment() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [endDayOffset, setEndDayOffset] = useState(0);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
 
@@ -16,25 +18,73 @@ export default function NewAppointment() {
     setTime(val);
     if (!val) {
       setEndTime('');
+      setEndDayOffset(0);
       return;
     }
     const [hh, mm] = val.split(':').map(Number);
     if (Number.isInteger(hh) && Number.isInteger(mm)) {
-      const total = (hh * 60 + mm + 45) % (24 * 60);
+      const startTotal = hh * 60 + mm;
+      const sum = startTotal + 45;
+      const carry = sum >= 1440 ? 1 : 0;
+      const total = sum % (24 * 60);
       const endH = String(Math.floor(total / 60)).padStart(2, '0');
       const endM = String(total % 60).padStart(2, '0');
       setEndTime(`${endH}:${endM}`);
+      setEndDayOffset(carry);
     } else {
       setEndTime('');
+      setEndDayOffset(0);
     }
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    // Por ahora solo mostramos los datos. Aquí podrías llamar a tu backend.
-    alert(`Cita creada\nHora: ${time}\nNombre: ${name}\nNúmero: ${phone}`);
-    navigate('/calendar');
+  const toUtcIso = (dStr, tStr, dayOffset = 0) => {
+    if (!dStr || !tStr) return null;
+    const base = new Date(`${dStr}T${tStr}:00`);
+    if (Number.isNaN(base.getTime())) return null;
+    if (dayOffset) base.setDate(base.getDate() + dayOffset);
+    return base.toISOString();
   };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        nombre: name,
+        telefono: phone || null,
+        inicio_utc: toUtcIso(date, time, 0),
+        fin_utc: toUtcIso(date, endTime, endDayOffset),
+      };
+      if (!payload.nombre || !payload.inicio_utc || !payload.fin_utc) {
+        alert('Faltan campos obligatorios: nombre, fecha u horas');
+        return;
+      }
+      const res = await fetch(`${url}/api/calendar`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} ${res.statusText}${errText ? ` - ${errText}` : ''}`);
+      }
+      const data = await res.json().catch(() => null);
+      alert(`Cita guardada correctamente${data?.id_cita ? ` (ID ${data.id_cita})` : ''}`);
+      navigate('/calendar');
+    } catch (err) {
+      alert(`Error al guardar cita: ${err?.message || String(err)}`);
+    }
+  };
+
+  useEffect(() => {
+    const payload = {
+      nombre: name || '',
+      inicio_utc: toUtcIso(date, time, 0),
+      fin_utc: toUtcIso(date, endTime, endDayOffset),
+      telefono: phone || ''
+    };
+    console.log('Nueva cita (payload UTC):', payload);
+  }, [name, date, time, endTime, endDayOffset, phone]);
 
   return (
     <>
@@ -91,7 +141,7 @@ export default function NewAppointment() {
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Ej. 5512345678"
               required
-              pattern="[0-9\s+()-]{7,}"
+              pattern="[- 0-9()+]{7,}"
             />
           </Field>
 

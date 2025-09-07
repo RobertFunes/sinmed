@@ -413,6 +413,26 @@ async function getNameById(id) {
 }
 
 
+// Calendar
+async function addAppointment({ inicio_utc, fin_utc, nombre, telefono }) {
+  if (!inicio_utc || !fin_utc || !nombre) {
+    throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
+  }
+  const toDatetime = (iso) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) throw new Error('Fecha inválida');
+    return d.toISOString().slice(0, 19).replace('T', ' ');
+  };
+  const payload = {
+    inicio_utc: toDatetime(inicio_utc),
+    fin_utc: toDatetime(fin_utc),
+    nombre: nombre || null,
+    telefono: telefono || null,
+  };
+  const [r] = await db.query('INSERT INTO citas SET ?', [payload]);
+  return { id_cita: r.insertId };
+}
+
 module.exports = {
   add,
   getAll,
@@ -430,5 +450,7 @@ module.exports = {
   upsertPadecimientoActualInterrogatorio,
   upsertExploracionFisica,
   upsertDiagnosticoTratamiento 
+  ,
+  addAppointment
 };
   

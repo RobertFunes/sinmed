@@ -68,6 +68,23 @@ const modify = async (req, res) => {
   }
 };
 
+// POST /calendar
+// Body: { inicio_utc, fin_utc, nombre, telefono? }
+const createCalendar = async (req, res) => {
+  try {
+    const { inicio_utc, fin_utc, nombre, telefono } = req.body || {};
+    if (!inicio_utc || !fin_utc || !nombre) {
+      return res.status(400).json({ ok: false, error: 'inicio_utc, fin_utc y nombre son obligatorios' });
+    }
+
+    const result = await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono });
+    return res.status(201).json({ ok: true, id_cita: result.id_cita });
+  } catch (err) {
+    console.error('Error al crear cita:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 // ───────────────────────────────────────────────────────────────────────────────
 // Limitador simple de intentos de login (memoria local)
 // Clave: combinación IP + usuario para evitar bombardeo sostenido
@@ -556,6 +573,7 @@ module.exports = {
   removeById,
   postpone,
   checkAuth,
-  modify
+  modify,
+  createCalendar
 };
 

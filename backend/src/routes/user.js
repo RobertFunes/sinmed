@@ -13,7 +13,8 @@ const {
   postpone,
   checkAuth,
   modify,
-  getNameMin
+  getNameMin,
+  createCalendar
 } = require('../controllers/user');
 const e = require('express');
 // Ruta pública: login
@@ -30,6 +31,9 @@ router.delete('/profile/:id', checkAuth,removeById);
 
 
 // Ruta que devuelve el estado (auth/no auth)
+router.post('/calendar', checkAuth, createCalendar);
+
+
 // GET /status
 router.get('/status', (req, res) => {
   const isAuth = req.cookies.auth === '1';

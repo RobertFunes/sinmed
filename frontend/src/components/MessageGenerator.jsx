@@ -32,7 +32,7 @@ const blobToBase64 = (blob) =>
     reader.readAsDataURL(blob);
   });
 
-export default function MessageGenerator({ profile = {}, polizas = [] }) {
+export default function MessageGenerator({ profile = {} }) {
   /* ------ Estado de disponibilidad del servicio ------ */
   const [serviceReady, setServiceReady] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
@@ -71,36 +71,9 @@ export default function MessageGenerator({ profile = {}, polizas = [] }) {
   }, []);
 
   /* ------ Contexto (perfil + pólizas) y prompt minimalista ------ */
-  const policyContext = useMemo(() => {
-    try {
-      return (polizas || []).map(p => ({
-        id_poliza: p.id_poliza,
-        aseguradora: p.aseguradora,
-        numero_poliza: p.numero_poliza,
-        categoria: p.categoria_poliza,
-        subcategoria: p.subcategoria_poliza,
-        detalle: p.detalle_poliza,
-        fecha_inicio: p.fecha_inicio_poliza,
-        fecha_termino: p.fecha_termino_poliza,
-        forma_pago: p.forma_pago,
-        periodicidad_pago: p.periodicidad_pago,
-        prima: p.prima,
-        notas: p.notas,
-        notas_participantes: p.notas_participantes,
-        participantes: Array.isArray(p.participantes)
-          ? p.participantes.map(part => ({
-              id: part.cliente_id,
-              nombre: part.nombre,
-              rol: part.rol,
-              porcentaje: part.porcentaje,
-            }))
-          : []
-      }));
-    } catch {
-      return [];
-    }
-  }, [polizas]);
+  // Eliminado contexto de pólizas: ahora solo usamos datos del paciente
 
+  const policyContext = [];
   const prompt = useMemo(() => {
     const datosPerfil = JSON.stringify(profile || {}, null, 2);
     const datosPolizas = JSON.stringify(policyContext || [], null, 2);
@@ -393,5 +366,6 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 
 MessageGenerator.propTypes = {
   profile: PropTypes.object,
-  polizas: PropTypes.array,
 };
+
+

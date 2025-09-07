@@ -75,7 +75,6 @@ const LABELS = {
   // Familiares / Patológicos
   antecedente: 'Antecedente',
   nombre_familiar: 'Nombre',
-  nombre: 'Nombre',
 
   // Padecimiento/interrogatorio
   padecimiento_actual: 'Padecimiento actual',
