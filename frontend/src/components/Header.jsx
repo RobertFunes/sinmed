@@ -4,7 +4,6 @@ import { FaUserPlus, FaComments, FaUser , FaLink, FaPlusCircle, FaSearch, FaCale
 import { Link } from 'react-router-dom';
 import { NavBar, NavButton,LogoLink } from './Header.styles.jsx';
 import { url } from '../helpers/url.js';
-import { LiaFileContractSolid } from "react-icons/lia";
 // Header.jsx
 
 const Header = () => {
@@ -49,10 +48,6 @@ const Header = () => {
           <FaUserPlus fontSize={"1.5rem"}/> 
           <FaPlusCircle />
         </NavButton>
-        <NavButton as={Link} to="/addContract">
-          <LiaFileContractSolid fontSize={"1.5rem"}/>
-          <FaPlusCircle />
-        </NavButton>
         <NavButton as={Link} to="/pending" className="agenda">
           <FaComments /> Pendientes
         </NavButton>
@@ -80,4 +75,3 @@ const Header = () => {
 };
 
 export default Header;
-

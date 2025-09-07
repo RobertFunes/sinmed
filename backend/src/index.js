@@ -37,11 +37,11 @@ app.use(express.static(frontendPath));
 // Sirve el index.html para /, /add y /pending
 const indexFile = path.join(frontendPath, 'index.html');
 
-app.get(['/', '/add', '/pending', '/login', '/link', '/profile/:id'], (req, res) => {
+app.get(['/', '/add', '/pending', '/login', '/link', '/profile/:id', '/calendar', '/calendar/new'], (req, res) => {
   res.sendFile(indexFile);
 });
 
-app.get(['/contracts','/addContract'], (req, res) => {
+app.get(['/contracts'], (req, res) => {
   res.sendFile(indexFile);
 });
 const PORT = process.env.PORT || 5000;

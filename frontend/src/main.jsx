@@ -10,11 +10,11 @@ import Link from './pages/Link.jsx';
 import Interact from './pages/Pending.jsx';
 import Profile from './pages/Profile.jsx';
 import Modify from './pages/Modify.jsx';
-import AddContract from './pages/AddContract.jsx';
 import Contracts from './pages/Contracts.jsx';
 import ModifyContract from './pages/ModifyContract.jsx';
 import Search from './pages/Search.jsx';
 import Calendar from './pages/Calendar.jsx';
+import NewAppointment from './pages/NewAppointment.jsx';
 
 export function NotFound() {           // ← agrega "export" y se acabó el drama
   return <h2>Página no encontrada 🚫</h2>;
@@ -41,14 +41,6 @@ createRoot(document.getElementById('root')).render(
           element={
             <RequireAuth>
               <Add />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/addContract"
-          element={
-            <RequireAuth>
-              <AddContract />
             </RequireAuth>
           }
         />
@@ -97,6 +89,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <RequireAuth>
               <Calendar />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/calendar/new"
+          element={
+            <RequireAuth>
+              <NewAppointment />
             </RequireAuth>
           }
         />
