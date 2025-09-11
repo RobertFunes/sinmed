@@ -13,6 +13,8 @@ export default function NewAppointment() {
   const [endDayOffset, setEndDayOffset] = useState(0);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const COLOR_OPTIONS = ['#1976D2', '#2E7D32', '#D32F2F', '#F57C00', '#6A1B9A'];
+  const [color, setColor] = useState(COLOR_OPTIONS[0]);
 
   const onTimeChange = (val) => {
     setTime(val);
@@ -53,6 +55,7 @@ export default function NewAppointment() {
         telefono: phone || null,
         inicio_utc: toUtcIso(date, time, 0),
         fin_utc: toUtcIso(date, endTime, endDayOffset),
+        color: color || null,
       };
       if (!payload.nombre || !payload.inicio_utc || !payload.fin_utc) {
         alert('Faltan campos obligatorios: nombre, fecha u horas');
@@ -69,6 +72,14 @@ export default function NewAppointment() {
         throw new Error(`HTTP ${res.status} ${res.statusText}${errText ? ` - ${errText}` : ''}`);
       }
       const data = await res.json().catch(() => null);
+      try {
+        const key = 'calendarColors';
+        const map = JSON.parse(localStorage.getItem(key) || '{}');
+        if (data?.id_cita) {
+          map[String(data.id_cita)] = color;
+          localStorage.setItem(key, JSON.stringify(map));
+        }
+      } catch (_) { /* noop */ }
       alert(`Cita guardada correctamente${data?.id_cita ? ` (ID ${data.id_cita})` : ''}`);
       navigate('/calendar');
     } catch (err) {
@@ -121,6 +132,30 @@ export default function NewAppointment() {
               readOnly
               disabled
             />
+          </Field>
+          <Field>
+            <span>Color</span>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {COLOR_OPTIONS.map((c) => (
+                <button
+                  type="button"
+                  key={c}
+                  onClick={() => setColor(c)}
+                  title={c}
+                  aria-label={`Elegir color ${c}`}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    backgroundColor: c,
+                    border: color === c ? '2px solid #111' : '2px solid transparent',
+                    boxShadow: color === c ? '0 0 0 2px rgba(0,0,0,0.15)' : '0 0 0 1px rgba(0,0,0,0.1)',
+                    cursor: 'pointer'
+                  }}
+                />
+              ))}
+              <input type="hidden" name="color" value={color} />
+            </div>
           </Field>
           <Field>
             <span>Nombre</span>
