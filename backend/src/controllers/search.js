@@ -16,19 +16,11 @@ function compact(str) {
 
 const ALLOWED = {
   perfil: {
-    table: 'clientes',
+    table: 'perfil',
     fields: {
-      name:   { column: 'nombre',           type: 'text' },
-      id:     { column: 'id_cliente',       type: 'id'   },
-      number: { column: 'telefono_movil',   type: 'id'   }
-    }
-  },
-  poliza: {
-    table: 'polizas',
-    fields: {
-      policyId:     { column: 'id_poliza',      type: 'id'   },
-      holder:       { column: 'titular_nombre', type: 'text' },
-      policyNumber: { column: 'numero_poliza',  type: 'id'   }
+      name:   { column: 'nombre',         type: 'text' },
+      id:     { column: 'id_perfil',      type: 'id'   },
+      number: { column: 'telefono_movil', type: 'id'   }
     }
   }
 };
@@ -70,121 +62,78 @@ async function search(req, res) {
     let sql = '';
     let params = [];
 
-    if (type === 'perfil') {
-      // Alias updated_at para mantener tu ordenamiento
-      sql = `
-        SELECT
-          id_cliente,
-          nombre,
-          telefono_movil,
-          ultima_fecha_contacto,
-          fecha_nacimiento,
-          COALESCE(ultima_fecha_contacto, fecha_nacimiento, '1970-01-01') AS updated_at
-        FROM clientes
-      `;
-      if (field === 'name') {
-        // Cambiado a utf8mb4_general_ci
-        sql += ' WHERE nombre COLLATE utf8mb4_general_ci LIKE ?';
-        params = [`%${qNorm}%`];
-      } else if (field === 'id') {
-        sql += ' WHERE CAST(id_cliente AS CHAR) LIKE ?';
-        params = [`%${qNorm}%`];
-      } else if (field === 'number') {
-        sql += " WHERE REPLACE(REPLACE(REPLACE(IFNULL(telefono_movil,''),' ',''),'-',''),'.','') LIKE ?";
-        params = [`%${qCompact}%`];
-      }
-      sql += ' ORDER BY updated_at DESC LIMIT 500';
-    } else {
-      sql = `
-        SELECT
-          p.id_poliza,
-          p.numero_poliza,
-          p.aseguradora,
-          p.fecha_inicio_poliza,
-          p.fecha_termino_poliza,
-          p.titular_id_cliente,
-          p.updated_at,
-          c.nombre AS titular_nombre
-        FROM polizas p
-        JOIN clientes c ON p.titular_id_cliente = c.id_cliente
-      `;
-      if (field === 'policyId') {
-        sql += ' WHERE CAST(p.id_poliza AS CHAR) LIKE ?';
-        params = [`%${qNorm}%`];
-      } else if (field === 'holder') {
-        // Cambiado a utf8mb4_general_ci
-        sql += ' WHERE c.nombre COLLATE utf8mb4_general_ci LIKE ?';
-        params = [`%${qNorm}%`];
-      } else if (field === 'policyNumber') {
-        sql += " WHERE REPLACE(REPLACE(REPLACE(IFNULL(p.numero_poliza,''),' ',''),'-',''),'.','') LIKE ?";
-        params = [`%${qCompact}%`];
-      }
-      sql += ' ORDER BY p.updated_at DESC LIMIT 500';
+    // Solo búsqueda de perfiles en tabla `perfil`
+    // Alias updated_at para mantener tu ordenamiento
+    sql = `
+      SELECT
+        id_perfil,
+        nombre,
+        telefono_movil,
+        fecha_nacimiento,
+        creado,
+        actualizado,
+        COALESCE(actualizado, creado, fecha_nacimiento, '1970-01-01') AS updated_at
+      FROM perfil
+    `;
+    if (field === 'name') {
+      sql += ' WHERE nombre COLLATE utf8mb4_general_ci LIKE ?';
+      params = [`%${qNorm}%`];
+    } else if (field === 'id') {
+      sql += ' WHERE CAST(id_perfil AS CHAR) LIKE ?';
+      params = [`%${qNorm}%`];
+    } else if (field === 'number') {
+      sql += " WHERE REPLACE(REPLACE(REPLACE(IFNULL(telefono_movil,''),' ',''),'-',''),'.','') LIKE ?";
+      params = [`%${qCompact}%`];
     }
+    sql += ' ORDER BY updated_at DESC LIMIT 500';
 
     const [rows] = await db.query(sql, params);
 
     const items = [];
     for (const row of rows) {
       let rawValue = '';
-      if (type === 'perfil') {
-        if (field === 'name') rawValue = row.nombre;
-        else if (field === 'id') rawValue = String(row.id_cliente);
-        else if (field === 'number') rawValue = row.telefono_movil || '';
+      if (field === 'name') rawValue = row.nombre;
+      else if (field === 'id') rawValue = String(row.id_perfil);
+      else if (field === 'number') rawValue = row.telefono_movil || '';
 
-        const valNorm = normalize(rawValue);
-        const valComp = compact(rawValue);
+      const valNorm = normalize(rawValue);
+      const valComp = compact(rawValue);
 
-        let pos = valNorm.indexOf(qNorm);
-        let match = pos >= 0;
-        if (!match) {
-          pos = valComp.indexOf(qCompact);
-          if (pos >= 0) match = true;
-        }
-        if (!match) continue;
-
-        const exact = cfgField.type === 'id' && isNumericQ && valComp === qCompact;
-        items.push({
-          id: row.id_cliente,
-          name: row.nombre,
-          phone: row.telefono_movil,
-          lastContact: row.ultima_fecha_contacto,
-          birthDate: row.fecha_nacimiento,
-          updated_at: row.updated_at,
-          __pos: pos,
-          __exact: exact,
-          __title: row.nombre,
-        });
-      } else {
-        if (field === 'policyId') rawValue = String(row.id_poliza);
-        else if (field === 'holder') rawValue = row.titular_nombre || '';
-        else if (field === 'policyNumber') rawValue = row.numero_poliza || '';
-
-        const valNorm = normalize(rawValue);
-        const valComp = compact(rawValue);
-
-        let pos = valNorm.indexOf(qNorm);
-        let match = pos >= 0;
-        if (!match) {
-          pos = valComp.indexOf(qCompact);
-          if (pos >= 0) match = true;
-        }
-        if (!match) continue;
-
-        const exact = cfgField.type === 'id' && isNumericQ && valComp === qCompact;
-        items.push({
-          id_poliza: row.id_poliza,
-          numero_poliza: row.numero_poliza,
-          aseguradora: row.aseguradora,
-          fecha_inicio_poliza: row.fecha_inicio_poliza,
-          fecha_termino_poliza: row.fecha_termino_poliza,
-          titular_id_cliente: row.titular_id_cliente,
-          updated_at: row.updated_at,
-          __pos: pos,
-          __exact: exact,
-          __title: row.numero_poliza,
-        });
+      let pos = valNorm.indexOf(qNorm);
+      let match = pos >= 0;
+      if (!match) {
+        pos = valComp.indexOf(qCompact);
+        if (pos >= 0) match = true;
       }
+      if (!match) continue;
+
+      const exact = cfgField.type === 'id' && isNumericQ && valComp === qCompact;
+
+      // calcular edad si hay fecha_nacimiento
+      let age = null;
+      if (row.fecha_nacimiento) {
+        const dob = new Date(row.fecha_nacimiento);
+        if (!Number.isNaN(dob.getTime())) {
+          const today = new Date();
+          let a = today.getFullYear() - dob.getFullYear();
+          const m = today.getMonth() - dob.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) a--;
+          age = a;
+        }
+      }
+
+      items.push({
+        id: row.id_perfil,
+        name: row.nombre,
+        phone: row.telefono_movil,
+        age,
+        created: row.creado,
+        updated: row.actualizado,
+        updated_at: row.updated_at,
+        __pos: pos,
+        __exact: exact,
+        __title: row.nombre,
+      });
     }
 
     items.sort((a, b) => {

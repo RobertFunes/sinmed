@@ -43,9 +43,9 @@ export const CalendarContainer = styled.div`
     display: none;
   }
   .rbc-day-slot.rbc-time-column.rbc-now.rbc-today{
-    background-color: ${Palette.dark};
+    background-color: ${Palette.muted};
   }
   .rbc-today{
-    background-color: ${Palette.dark};
+    background-color: ${Palette.muted};
   }
 `;

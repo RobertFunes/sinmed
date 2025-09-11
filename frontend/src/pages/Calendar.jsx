@@ -55,6 +55,17 @@ export default function Calendar() {
     return <span>{title}</span>;
   };
 
+  // En vista semanal, ocultar la hora dentro del bloque del evento
+  const formats = useMemo(() => (
+    view === 'week'
+      ? {
+          eventTimeRangeFormat: () => '',
+          eventTimeRangeStart: () => '',
+          eventTimeRangeEnd: () => '',
+        }
+      : undefined
+  ), [view]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -112,6 +123,7 @@ export default function Calendar() {
             return { style };
           }}
             components={{ event: EventContent }}
+            formats={formats}
           />
         </CalendarContainer>
       </Page>
