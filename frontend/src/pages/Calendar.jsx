@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { url } from '../helpers/url.js';
 import { Page, HeaderRow, Title, NewButtonLink,CalendarContainer } from './Calendar.styles.jsx';
 import { scheduleBuilder } from '../helpers/adminSqueduleBuilder.js';
-import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
+import { Calendar as BigCalendar, momentLocalizer, Navigate } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/es';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -55,16 +55,128 @@ export default function Calendar() {
     return <span>{title}</span>;
   };
 
-  // En vista semanal, ocultar la hora dentro del bloque del evento
-  const formats = useMemo(() => (
-    view === 'week'
-      ? {
-          eventTimeRangeFormat: () => '',
-          eventTimeRangeStart: () => '',
-          eventTimeRangeEnd: () => '',
-        }
-      : undefined
-  ), [view]);
+  // Toolbar personalizada para asegurar etiqueta en español
+  const CustomToolbar = ({ date: currentDate, view: currentView, views, label, localizer, onNavigate, onView }) => {
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    const formatoDia = (d) => `${dias[d.getDay()]} ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+    const formatoMes = (d) => `${meses[d.getMonth()]} de ${d.getFullYear()}`;
+    const formatoRango = (start, end) => {
+      const mismoMes = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+      const mismoAnio = start.getFullYear() === end.getFullYear();
+      if (mismoMes) {
+        return `${start.getDate()}–${end.getDate()} de ${meses[start.getMonth()]} de ${start.getFullYear()}`;
+      }
+      if (mismoAnio) {
+        return `${start.getDate()} de ${meses[start.getMonth()]} – ${end.getDate()} de ${meses[end.getMonth()]} de ${start.getFullYear()}`;
+      }
+      return `${start.getDate()} de ${meses[start.getMonth()]} de ${start.getFullYear()} – ${end.getDate()} de ${meses[end.getMonth()]} de ${end.getFullYear()}`;
+    };
+
+    const computeLabel = () => {
+      if (currentView === 'day') {
+        return formatoDia(currentDate);
+      }
+      if (currentView === 'week') {
+        const start = localizer.startOf(currentDate, 'week');
+        const end = localizer.endOf(currentDate, 'week');
+        return formatoRango(start, end);
+      }
+      if (currentView === 'agenda' || currentView === 'month') {
+        return formatoMes(currentDate);
+      }
+      return label;
+    };
+
+    const msgs = localizer.messages;
+    return (
+      <div className="rbc-toolbar">
+        <span className="rbc-btn-group">
+          <button type="button" onClick={() => onNavigate(Navigate.TODAY)}>{msgs.today}</button>
+          <button type="button" onClick={() => onNavigate(Navigate.PREVIOUS)}>{msgs.previous}</button>
+          <button type="button" onClick={() => onNavigate(Navigate.NEXT)}>{msgs.next}</button>
+        </span>
+        <span className="rbc-toolbar-label">{computeLabel()}</span>
+        <span className="rbc-btn-group">
+          {views && views.length > 1 && views.map((name) => (
+            <button
+              type="button"
+              key={name}
+              className={currentView === name ? 'rbc-active' : ''}
+              onClick={() => onView(name)}
+            >
+              {msgs[name] ?? name}
+            </button>
+          ))}
+        </span>
+      </div>
+    );
+  };
+
+  // Formatos en español para encabezados (toolbar) y rangos
+  const baseFormats = useMemo(() => ({
+    // Encabezado de cada columna en vista semanal: "21 Dom"
+    dayFormat: (date) => {
+      const diasAbrev = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      return `${date.getDate()} ${diasAbrev[date.getDay()]}`;
+    },
+    // Encabezados de días abreviados (vista mensual y otros): "Dom"
+    weekdayFormat: (date) => {
+      const diasAbrev = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      return diasAbrev[date.getDay()];
+    },
+    // Encabezado de rango para vista semanal: "7–13 de septiembre de 2025"
+    dayRangeHeaderFormat: ({ start, end }) => {
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const mismoMes = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+      const mismoAnio = start.getFullYear() === end.getFullYear();
+      if (mismoMes) {
+        return `${start.getDate()}–${end.getDate()} de ${meses[start.getMonth()]} de ${start.getFullYear()}`;
+      }
+      if (mismoAnio) {
+        return `${start.getDate()} de ${meses[start.getMonth()]} – ${end.getDate()} de ${meses[end.getMonth()]} de ${start.getFullYear()}`;
+      }
+      return `${start.getDate()} de ${meses[start.getMonth()]} de ${start.getFullYear()} – ${end.getDate()} de ${meses[end.getMonth()]} de ${end.getFullYear()}`;
+    },
+    // Encabezado para vista diaria: "miércoles 8 de septiembre de 2025"
+    dayHeaderFormat: (date) => {
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return `${dias[date.getDay()]} ${date.getDate()} de ${meses[date.getMonth()]} de ${date.getFullYear()}`;
+    },
+    // Encabezado para vista mensual: "septiembre de 2025"
+    monthHeaderFormat: (date) => {
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return `${meses[date.getMonth()]} de ${date.getFullYear()}`;
+    },
+    // Encabezado de agenda: usar el mismo estilo de rango en español
+    agendaHeaderFormat: ({ start, end }) => {
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const mismoMes = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+      const mismoAnio = start.getFullYear() === end.getFullYear();
+      if (mismoMes) {
+        return `${start.getDate()}–${end.getDate()} de ${meses[start.getMonth()]} de ${start.getFullYear()}`;
+      }
+      if (mismoAnio) {
+        return `${start.getDate()} de ${meses[start.getMonth()]} – ${end.getDate()} de ${meses[end.getMonth()]} de ${start.getFullYear()}`;
+      }
+      return `${start.getDate()} de ${meses[start.getMonth()]} de ${start.getFullYear()} – ${end.getDate()} de ${meses[end.getMonth()]} de ${end.getFullYear()}`;
+    },
+  }), []);
+
+  // En vista semanal, ocultar la hora dentro del bloque del evento, manteniendo encabezados en español
+  const formats = useMemo(() => {
+    if (view === 'week') {
+      return {
+        ...baseFormats,
+        eventTimeRangeFormat: () => '',
+        eventTimeRangeStart: () => '',
+        eventTimeRangeEnd: () => '',
+      };
+    }
+    return baseFormats;
+  }, [view, baseFormats]);
 
   useEffect(() => {
     (async () => {
@@ -94,6 +206,7 @@ export default function Calendar() {
         <CalendarContainer>
           <BigCalendar
             localizer={localizer}
+            culture="es"
             events={events}
             startAccessor="start"
             endAccessor="end"
@@ -122,7 +235,7 @@ export default function Calendar() {
               }
             return { style };
           }}
-            components={{ event: EventContent }}
+            components={{ event: EventContent, toolbar: CustomToolbar }}
             formats={formats}
           />
         </CalendarContainer>
