@@ -15,6 +15,7 @@ import ModifyContract from './pages/ModifyContract.jsx';
 import Search from './pages/Search.jsx';
 import Calendar from './pages/Calendar.jsx';
 import NewAppointment from './pages/NewAppointment.jsx';
+import ModifyAppointment from './pages/ModifyAppointment.jsx';
 
 export function NotFound() {           // ← agrega "export" y se acabó el drama
   return <h2>Página no encontrada 🚫</h2>;
@@ -97,6 +98,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <RequireAuth>
               <NewAppointment />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/calendar/modify"
+          element={
+            <RequireAuth>
+              <ModifyAppointment />
             </RequireAuth>
           }
         />

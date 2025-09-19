@@ -2,6 +2,7 @@
 import Header from '../components/Header.jsx';
 import CalendarModal from '../components/CalendarModal.jsx';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { url } from '../helpers/url.js';
 import { Page, HeaderRow, Title, NewButtonLink,CalendarContainer } from './Calendar.styles.js';
 import { scheduleBuilder } from '../helpers/adminSqueduleBuilder.js';
@@ -51,6 +52,7 @@ const messagesEs = {
 };
 
 export default function Calendar() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('week'); // controla la vista activa
   const [date, setDate] = useState(() => new Date()); // controla la fecha visible
@@ -67,6 +69,16 @@ export default function Calendar() {
     setSelectedEvent(null);
   };
 
+  const toIsoString = (value) => {
+    if (!value) return null;
+    if (value instanceof Date) return value.toISOString();
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return typeof value === 'string' ? value : null;
+    }
+    return parsed.toISOString();
+  };
+
   const handleDeleteEvent = () => {
     if (selectedEvent) {
       console.log('TODO eliminar cita', selectedEvent);
@@ -75,9 +87,21 @@ export default function Calendar() {
   };
 
   const handleModifyEvent = () => {
-    if (selectedEvent) {
-      console.log('TODO modificar cita', selectedEvent);
+    if (!selectedEvent) {
+      closeModal();
+      return;
     }
+
+    const payload = {
+      id: selectedEvent.id ?? selectedEvent.raw?.id_cita ?? null,
+      nombre: selectedEvent.nombre ?? selectedEvent.title ?? selectedEvent.raw?.nombre ?? '',
+      telefono: selectedEvent.telefono ?? selectedEvent.phone ?? selectedEvent.raw?.telefono ?? '',
+      color: selectedEvent.color ?? selectedEvent.raw?.color ?? '',
+      inicio_utc: toIsoString(selectedEvent.start ?? selectedEvent.inicio_utc ?? selectedEvent.raw?.inicio_utc),
+      fin_utc: toIsoString(selectedEvent.end ?? selectedEvent.fin_utc ?? selectedEvent.raw?.fin_utc),
+    };
+
+    navigate('/calendar/modify', { state: { appointment: payload } });
     closeModal();
   };
 
@@ -295,3 +319,4 @@ export default function Calendar() {
     </>
   );
 }
+

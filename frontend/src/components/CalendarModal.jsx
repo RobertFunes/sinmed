@@ -57,7 +57,8 @@ export default function CalendarModal({
     onModify?.(appointment);
   };
 
-  const name = appointment?.nombre || appointment?.title || "Cita";
+  const eventId = appointment?.id ?? appointment?.raw?.id_cita ?? null;
+  const name = appointment?.nombre || appointment?.title || 'Cita';
   const phone = appointment?.telefono || appointment?.phone || appointment?.contact;
   const start = appointment?.inicio_utc || appointment?.start;
   const end = appointment?.fin_utc || appointment?.end;
@@ -76,6 +77,10 @@ export default function CalendarModal({
         </Header>
 
         <Content>
+          <Field>
+            <Label>ID</Label>
+            <Value>{eventId ?? 'Sin ID'}</Value>
+          </Field>
           <Field>
             <Label>Paciente</Label>
             <Value>{name}</Value>

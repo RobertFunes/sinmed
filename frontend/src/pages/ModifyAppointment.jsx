@@ -1,18 +1,13 @@
-// src/pages/NewAppointment.jsx
+// src/pages/ModifyAppointment.jsx
 import Header from '../components/Header.jsx';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { url } from '../helpers/url.js';
 import { Page, Title, Form, Field, Input, Actions, PrimaryButton, GhostButton } from './NewAppointment.styles.jsx';
 
 export default function ModifyAppointment() {
   const navigate = useNavigate();
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [endDayOffset, setEndDayOffset] = useState(0);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const location = useLocation();
   const COLOR_OPTIONS = [
     { name: 'Blue', hex: '#1976D2' },
     { name: 'Green', hex: '#2E7D32' },
@@ -20,7 +15,90 @@ export default function ModifyAppointment() {
     { name: 'Orange', hex: '#F57C00' },
     { name: 'Purple', hex: '#6A1B9A' },
   ];
-  const [color, setColor] = useState(COLOR_OPTIONS[0].name);
+
+  const initialAppointment = location.state?.appointment ?? null;
+
+  const parseDateValue = (value) => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof value === 'string') {
+      const base = value.replace(' ', 'T');
+      const attempts = [value, base, `${base}Z`];
+      for (const attempt of attempts) {
+        const parsedAttempt = new Date(attempt);
+        if (!Number.isNaN(parsedAttempt.getTime())) return parsedAttempt;
+      }
+      return null;
+    }
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const pad = (value) => String(value).padStart(2, '0');
+
+  const toDateInput = (date) => (date ? `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` : '');
+  const toTimeInput = (date) => (date ? `${pad(date.getHours())}:${pad(date.getMinutes())}` : '');
+
+  const computeOffset = (startDate, endDate) => {
+    if (!startDate || !endDate) return 0;
+    const startMidnight = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const endMidnight = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    const diff = Math.round((endMidnight - startMidnight) / 86400000);
+    return diff > 0 ? diff : 0;
+  };
+
+  const normalizeColor = (raw) => {
+    if (typeof raw !== 'string') return COLOR_OPTIONS[0].name;
+    const trimmed = raw.trim();
+    if (!trimmed) return COLOR_OPTIONS[0].name;
+    const nameMatch = COLOR_OPTIONS.find((option) => option.name.toLowerCase() === trimmed.toLowerCase());
+    if (nameMatch) return nameMatch.name;
+    const hexMatch = COLOR_OPTIONS.find((option) => option.hex.toLowerCase() === trimmed.toLowerCase());
+    if (hexMatch) return hexMatch.name;
+    return trimmed;
+  };
+
+  const deriveFormValues = (appointment) => {
+    const startValue = appointment?.inicio_utc ?? appointment?.start ?? null;
+    const endValue = appointment?.fin_utc ?? appointment?.end ?? null;
+    const startDate = parseDateValue(startValue);
+    const endDate = parseDateValue(endValue);
+
+    return {
+      date: toDateInput(startDate),
+      time: toTimeInput(startDate),
+      endTime: toTimeInput(endDate),
+      endOffset: computeOffset(startDate, endDate),
+      name: appointment?.nombre ?? appointment?.title ?? '',
+      phone: appointment?.telefono ?? appointment?.phone ?? '',
+      color: normalizeColor(appointment?.color),
+      id: appointment?.id ?? null,
+    };
+  };
+
+  const initialForm = deriveFormValues(initialAppointment ?? {});
+
+  const [date, setDate] = useState(initialForm.date);
+  const [time, setTime] = useState(initialForm.time);
+  const [endTime, setEndTime] = useState(initialForm.endTime);
+  const [endDayOffset, setEndDayOffset] = useState(initialForm.endOffset);
+  const [name, setName] = useState(initialForm.name);
+  const [phone, setPhone] = useState(initialForm.phone);
+  const [color, setColor] = useState(initialForm.color);
+  const [appointmentId, setAppointmentId] = useState(initialForm.id);
+
+  useEffect(() => {
+    if (!initialAppointment) return;
+    const next = deriveFormValues(initialAppointment);
+    setDate(next.date);
+    setTime(next.time);
+    setEndTime(next.endTime);
+    setEndDayOffset(next.endOffset);
+    setName(next.name);
+    setPhone(next.phone);
+    setColor(next.color);
+    setAppointmentId(next.id);
+  }, [initialAppointment]);
 
   const onTimeChange = (val) => {
     setTime(val);
@@ -95,22 +173,32 @@ export default function ModifyAppointment() {
 
   useEffect(() => {
     const payload = {
+      id: appointmentId ?? null,
       nombre: name || '',
       inicio_utc: toUtcIso(date, time, 0),
       fin_utc: toUtcIso(date, endTime, endDayOffset),
       telefono: phone || '',
       color: color || ''
     };
-    console.log('Nueva cita (payload UTC):', payload);
-  }, [name, date, time, endTime, endDayOffset, phone, color]);
+    console.log('Cita a enviar (payload UTC):', payload);
+  }, [appointmentId, name, date, time, endTime, endDayOffset, phone, color]);
 
   return (
     <>
       <Header />
       <Page>
-        <Title>Nueva cita</Title>
+        <Title>Modificar cita</Title>
         <Form onSubmit={onSubmit}>
-          
+          {appointmentId ? (
+            <Field>
+              <span>ID cita</span>
+              <Input
+                type="text"
+                value={appointmentId}
+                readOnly
+              />
+            </Field>
+          ) : null}
 
           <Field>
             <span>Fecha</span>
