@@ -414,7 +414,7 @@ async function getNameById(id) {
 
 
 // Calendar
-async function addAppointment({ inicio_utc, fin_utc, nombre, telefono }) {
+async function addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }) {
   if (!inicio_utc || !fin_utc || !nombre) {
     throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
   }
@@ -428,6 +428,7 @@ async function addAppointment({ inicio_utc, fin_utc, nombre, telefono }) {
     fin_utc: toDatetime(fin_utc),
     nombre: nombre || null,
     telefono: telefono || null,
+    color: color || null,
   };
   const [r] = await db.query('INSERT INTO citas SET ?', [payload]);
   return { id_cita: r.insertId };
@@ -441,7 +442,8 @@ async function listAppointments() {
        nombre,
        telefono,
        DATE_FORMAT(inicio_utc, '%Y-%m-%d %H:%i:%s') AS inicio_utc,
-       DATE_FORMAT(fin_utc, '%Y-%m-%d %H:%i:%s')     AS fin_utc
+       DATE_FORMAT(fin_utc, '%Y-%m-%d %H:%i:%s')     AS fin_utc,
+       color
      FROM citas
      ORDER BY inicio_utc DESC, id_cita DESC`
   );

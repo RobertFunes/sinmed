@@ -13,8 +13,14 @@ export default function NewAppointment() {
   const [endDayOffset, setEndDayOffset] = useState(0);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const COLOR_OPTIONS = ['#1976D2', '#2E7D32', '#D32F2F', '#F57C00', '#6A1B9A'];
-  const [color, setColor] = useState(COLOR_OPTIONS[0]);
+  const COLOR_OPTIONS = [
+    { name: 'Blue', hex: '#1976D2' },
+    { name: 'Green', hex: '#2E7D32' },
+    { name: 'Red', hex: '#D32F2F' },
+    { name: 'Orange', hex: '#F57C00' },
+    { name: 'Purple', hex: '#6A1B9A' },
+  ];
+  const [color, setColor] = useState(COLOR_OPTIONS[0].name);
 
   const onTimeChange = (val) => {
     setTime(val);
@@ -92,10 +98,11 @@ export default function NewAppointment() {
       nombre: name || '',
       inicio_utc: toUtcIso(date, time, 0),
       fin_utc: toUtcIso(date, endTime, endDayOffset),
-      telefono: phone || ''
+      telefono: phone || '',
+      color: color || ''
     };
     console.log('Nueva cita (payload UTC):', payload);
-  }, [name, date, time, endTime, endDayOffset, phone]);
+  }, [name, date, time, endTime, endDayOffset, phone, color]);
 
   return (
     <>
@@ -136,20 +143,20 @@ export default function NewAppointment() {
           <Field>
             <span>Color</span>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              {COLOR_OPTIONS.map((c) => (
+              {COLOR_OPTIONS.map(({ name, hex }) => (
                 <button
                   type="button"
-                  key={c}
-                  onClick={() => setColor(c)}
-                  title={c}
-                  aria-label={`Elegir color ${c}`}
+                  key={name}
+                  onClick={() => setColor(name)}
+                  title={name}
+                  aria-label={`Elegir color ${name}`}
                   style={{
                     width: 28,
                     height: 28,
                     borderRadius: '50%',
-                    backgroundColor: c,
-                    border: color === c ? '2px solid #111' : '2px solid transparent',
-                    boxShadow: color === c ? '0 0 0 2px rgba(0,0,0,0.15)' : '0 0 0 1px rgba(0,0,0,0.1)',
+                    backgroundColor: hex,
+                    border: color === name ? '2px solid #111' : '2px solid transparent',
+                    boxShadow: color === name ? '0 0 0 2px rgba(0,0,0,0.15)' : '0 0 0 1px rgba(0,0,0,0.1)',
                     cursor: 'pointer'
                   }}
                 />

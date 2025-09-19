@@ -14,6 +14,22 @@ moment.locale('es');
 
 const localizer = momentLocalizer(moment);
 
+const COLOR_SWATCH = {
+  blue: '#1976D2',
+  green: '#2E7D32',
+  red: '#D32F2F',
+  orange: '#F57C00',
+  purple: '#6A1B9A',
+};
+
+const resolveEventColor = (raw) => {
+  if (!raw || typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const norm = trimmed.toLowerCase();
+  return COLOR_SWATCH[norm] || trimmed;
+};
+
 const messagesEs = {
   date: 'Fecha',
   time: 'Hora',
@@ -228,13 +244,14 @@ export default function Calendar() {
             style={{ height: 'calc(110vh)', marginTop: 16 }}
             eventPropGetter={(event) => {
               const style = {};
-              if (event && event.color) {
-                style.backgroundColor = event.color;
-                style.borderColor = event.color;
+              const resolved = event ? resolveEventColor(event.color) : null;
+              if (resolved) {
+                style.backgroundColor = resolved;
+                style.borderColor = resolved;
                 style.color = '#fff';
               }
-            return { style };
-          }}
+              return { style };
+            }}
             components={{ event: EventContent, toolbar: CustomToolbar }}
             formats={formats}
           />
