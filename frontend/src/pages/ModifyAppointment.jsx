@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { url } from '../helpers/url.js';
 import { Page, Title, Form, Field, Input, Actions, PrimaryButton, GhostButton } from './NewAppointment.styles.jsx';
 
-export default function NewAppointment() {
+export default function ModifyAppointment() {
   const navigate = useNavigate();
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');

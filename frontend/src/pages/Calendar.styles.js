@@ -48,4 +48,10 @@ export const CalendarContainer = styled.div`
   .rbc-today{
     background-color: ${Palette.muted};
   }
+  .rbc-time-slot{
+    border-top:0;
+  }
+  .rbc-toolbar-label{
+    font-size:22px;
+  }
 `;

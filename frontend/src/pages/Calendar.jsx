@@ -1,8 +1,9 @@
 // src/pages/Calendar.jsx
 import Header from '../components/Header.jsx';
+import CalendarModal from '../components/CalendarModal.jsx';
 import { useEffect, useMemo, useState } from 'react';
 import { url } from '../helpers/url.js';
-import { Page, HeaderRow, Title, NewButtonLink,CalendarContainer } from './Calendar.styles.jsx';
+import { Page, HeaderRow, Title, NewButtonLink,CalendarContainer } from './Calendar.styles.js';
 import { scheduleBuilder } from '../helpers/adminSqueduleBuilder.js';
 import { Calendar as BigCalendar, momentLocalizer, Navigate } from 'react-big-calendar';
 import moment from 'moment';
@@ -53,6 +54,32 @@ export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('week'); // controla la vista activa
   const [date, setDate] = useState(() => new Date()); // controla la fecha visible
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModalForEvent = (event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  const handleDeleteEvent = () => {
+    if (selectedEvent) {
+      console.log('TODO eliminar cita', selectedEvent);
+    }
+    closeModal();
+  };
+
+  const handleModifyEvent = () => {
+    if (selectedEvent) {
+      console.log('TODO modificar cita', selectedEvent);
+    }
+    closeModal();
+  };
 
   const minTime = useMemo(() => {
     const d = new Date();
@@ -252,10 +279,18 @@ export default function Calendar() {
               }
               return { style };
             }}
+            onSelectEvent={openModalForEvent}
             components={{ event: EventContent, toolbar: CustomToolbar }}
             formats={formats}
           />
         </CalendarContainer>
+        <CalendarModal
+          visible={isModalOpen}
+          appointment={selectedEvent}
+          onClose={closeModal}
+          onDelete={handleDeleteEvent}
+          onModify={handleModifyEvent}
+        />
       </Page>
     </>
   );
