@@ -17,6 +17,16 @@ export const initialState = {
   gineco_ciclo: '',                 // descripción de ciclo/días
   gineco_cantidad: '',             // cantidad del sangrado
   gineco_dolor: '',                // presencia de dolor (Si/No)
+  gineco_fecha_ultima_menstruacion: '', // fecha de la ultima menstruacion (YYYY-MM-DD)
+  gineco_vida_sexual_activa: '',    // vida sexual activa (Si/No)
+  gineco_anticoncepcion: '',        // anticoncepcion (Si/No)
+  gineco_tipo_anticonceptivo: '',   // descripcion del anticonceptivo
+  gineco_gestas: '',               // numero de gestas
+  gineco_partos: '',               // numero de partos
+  gineco_cesareas: '',             // numero de cesareas
+  gineco_abortos: '',              // numero de abortos
+  gineco_fecha_ultimo_parto: '',   // fecha del ultimo parto
+  gineco_fecha_menopausia: '',     // fecha de menopausia
   // Eliminado: antecedentes_personales_dieta
   // Eliminado: vacunacion
   antecedentes_personales_patologicos: [], // [{ antecedente: string, descripcion: string }]

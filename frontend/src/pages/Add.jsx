@@ -782,6 +782,130 @@ const Add = () => {
                   </Select>
                 </FieldGroup>
               </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="gineco_fecha_ultima_menstruacion">Fecha de la ultima menstruacion</Label>
+                  <Input
+                    id="gineco_fecha_ultima_menstruacion"
+                    name="gineco_fecha_ultima_menstruacion"
+                    type="date"
+                    value={formData.gineco_fecha_ultima_menstruacion}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="gineco_vida_sexual_activa">Vida sexual activa</Label>
+                  <Select
+                    id="gineco_vida_sexual_activa"
+                    name="gineco_vida_sexual_activa"
+                    value={formData.gineco_vida_sexual_activa}
+                    onChange={handleChange}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                  </Select>
+                </FieldGroup>
+              </TwoColumnRow>
+              {formData.gineco_vida_sexual_activa === 'Si' ? (
+                <TwoColumnRow>
+                  <FieldGroup>
+                    <Label htmlFor="gineco_anticoncepcion">Anticoncepcion</Label>
+                    <Select
+                      id="gineco_anticoncepcion"
+                      name="gineco_anticoncepcion"
+                      value={formData.gineco_anticoncepcion}
+                      onChange={handleChange}
+                    >
+                      <option value="">-- Selecciona --</option>
+                      <option value="Si">Si</option>
+                      <option value="No">No</option>
+                    </Select>
+                  </FieldGroup>
+                  {formData.gineco_anticoncepcion === 'Si' ? (
+                    <FieldGroup>
+                      <Label htmlFor="gineco_tipo_anticonceptivo">Tipo de anticonceptivo</Label>
+                      <Input
+                        id="gineco_tipo_anticonceptivo"
+                        name="gineco_tipo_anticonceptivo"
+                        value={formData.gineco_tipo_anticonceptivo}
+                        onChange={handleChange}
+                        placeholder="Ej. DIU, Implante, Pastillas"
+                      />
+                    </FieldGroup>
+                  ) : null}
+                </TwoColumnRow>
+              ) : null}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="gineco_gestas">Gestas</Label>
+                  <Input
+                    id="gineco_gestas"
+                    name="gineco_gestas"
+                    value={formData.gineco_gestas}
+                    onChange={handleChange}
+                    inputMode="numeric"
+                    placeholder="Ej. 2"
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="gineco_partos">Partos</Label>
+                  <Input
+                    id="gineco_partos"
+                    name="gineco_partos"
+                    value={formData.gineco_partos}
+                    onChange={handleChange}
+                    inputMode="numeric"
+                    placeholder="Ej. 1"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="gineco_cesareas">Cesareas</Label>
+                  <Input
+                    id="gineco_cesareas"
+                    name="gineco_cesareas"
+                    value={formData.gineco_cesareas}
+                    onChange={handleChange}
+                    inputMode="numeric"
+                    placeholder="Ej. 0"
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="gineco_abortos">Abortos</Label>
+                  <Input
+                    id="gineco_abortos"
+                    name="gineco_abortos"
+                    value={formData.gineco_abortos}
+                    onChange={handleChange}
+                    inputMode="numeric"
+                    placeholder="Ej. 0"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="gineco_fecha_ultimo_parto">Fecha del ultimo parto</Label>
+                  <Input
+                    id="gineco_fecha_ultimo_parto"
+                    name="gineco_fecha_ultimo_parto"
+                    type="date"
+                    value={formData.gineco_fecha_ultimo_parto}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="gineco_fecha_menopausia">Fecha de menopausia</Label>
+                  <Input
+                    id="gineco_fecha_menopausia"
+                    name="gineco_fecha_menopausia"
+                    type="date"
+                    value={formData.gineco_fecha_menopausia}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
             </details>
 
             {/* Seccion colapsable: Antecedentes personales patológicos */}
@@ -1136,6 +1260,13 @@ const Add = () => {
                 />
               </FieldGroup>
             </details>
+
+            {/* Seccion colapsable: Consultas */}
+            <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
+              <Summary>Consultas</Summary>
+              <p style={{ marginTop: '0.75rem', color: '#777' }}>Sin campos configurados por ahora.</p>
+            </details>
+
 
             {/* Botonera */}
             <ButtonRow>

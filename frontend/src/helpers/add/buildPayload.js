@@ -58,6 +58,16 @@ export const buildNestedPayload = (data) => {
     ciclo_dias: trim(data.gineco_ciclo),
     cantidad: trim(data.gineco_cantidad),
     dolor: trim(data.gineco_dolor),
+    fecha_ultima_menstruacion: trim(data.gineco_fecha_ultima_menstruacion),
+    vida_sexual_activa: trim(data.gineco_vida_sexual_activa),
+    anticoncepcion: trim(data.gineco_anticoncepcion),
+    tipo_anticonceptivo: trim(data.gineco_tipo_anticonceptivo),
+    gestas: trim(data.gineco_gestas),
+    partos: trim(data.gineco_partos),
+    cesareas: trim(data.gineco_cesareas),
+    abortos: trim(data.gineco_abortos),
+    fecha_ultimo_parto: trim(data.gineco_fecha_ultimo_parto),
+    fecha_menopausia: trim(data.gineco_fecha_menopausia),
   };
 
   const antecedentes_personales = {
