@@ -15,6 +15,7 @@ const {
   modify,
   getNameMin,
   createCalendar,
+  updateCalendar,
   listCalendar,
   deleteCalendar
 } = require('../controllers/user');
@@ -34,6 +35,7 @@ router.delete('/profile/:id', checkAuth,removeById);
 
 // Ruta que devuelve el estado (auth/no auth)
 router.post('/calendar', checkAuth, createCalendar);
+router.put('/calendar', checkAuth, updateCalendar);
 router.get('/calendar', checkAuth, listCalendar);
 router.delete('/calendar/:id', checkAuth, deleteCalendar);
 
@@ -47,3 +49,4 @@ router.get('/status', (req, res) => {
 
 
 module.exports = router;
+

@@ -414,22 +414,26 @@ async function getNameById(id) {
 
 
 // Calendar
-async function addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }) {
-  if (!inicio_utc || !fin_utc || !nombre) {
-    throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
-  }
+function normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, color }) {
   const toDatetime = (iso) => {
     const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) throw new Error('Fecha inválida');
+    if (Number.isNaN(d.getTime())) throw new Error('Fecha invalida');
     return d.toISOString().slice(0, 19).replace('T', ' ');
   };
-  const payload = {
+  return {
     inicio_utc: toDatetime(inicio_utc),
     fin_utc: toDatetime(fin_utc),
     nombre: nombre || null,
     telefono: telefono || null,
     color: color || null,
   };
+}
+
+async function addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }) {
+  if (!inicio_utc || !fin_utc || !nombre) {
+    throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
+  }
+  const payload = normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, color });
   const [r] = await db.query('INSERT INTO citas SET ?', [payload]);
   return { id_cita: r.insertId };
 }
@@ -448,6 +452,19 @@ async function listAppointments() {
      ORDER BY inicio_utc DESC, id_cita DESC`
   );
   return rows;
+}
+
+async function updateAppointment({ id_cita, inicio_utc, fin_utc, nombre, telefono, color }) {
+  const id = Number(id_cita);
+  if (!id || Number.isNaN(id)) {
+    throw new Error('ID de cita invalido');
+  }
+  if (!inicio_utc || !fin_utc || !nombre) {
+    throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
+  }
+  const payload = normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, color });
+  const [result] = await db.query('UPDATE citas SET ? WHERE id_cita = ?', [payload, id]);
+  return result;
 }
 
 async function deleteAppointment(id) {
@@ -477,6 +494,7 @@ module.exports = {
   upsertDiagnosticoTratamiento,
   addAppointment,
   listAppointments,
+  updateAppointment,
   deleteAppointment
 };
   

@@ -134,7 +134,13 @@ export default function ModifyAppointment() {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
+      const targetId = Number(appointmentId);
+      if (!Number.isInteger(targetId) || targetId <= 0) {
+        alert('No se encontró un ID válido de cita para modificar.');
+        return;
+      }
       const payload = {
+        id_cita: targetId,
         nombre: name,
         telefono: phone || null,
         inicio_utc: toUtcIso(date, time, 0),
@@ -146,7 +152,7 @@ export default function ModifyAppointment() {
         return;
       }
       const res = await fetch(`${url}/api/calendar`, {
-        method: 'POST',
+        method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -156,24 +162,25 @@ export default function ModifyAppointment() {
         throw new Error(`HTTP ${res.status} ${res.statusText}${errText ? ` - ${errText}` : ''}`);
       }
       const data = await res.json().catch(() => null);
+      if (data?.ok === false) {
+        throw new Error(data.error || 'No fue posible actualizar la cita');
+      }
       try {
         const key = 'calendarColors';
         const map = JSON.parse(localStorage.getItem(key) || '{}');
-        if (data?.id_cita) {
-          map[String(data.id_cita)] = color;
-          localStorage.setItem(key, JSON.stringify(map));
-        }
+        map[String(targetId)] = color;
+        localStorage.setItem(key, JSON.stringify(map));
       } catch (_) { /* noop */ }
-      alert(`Cita guardada correctamente${data?.id_cita ? ` (ID ${data.id_cita})` : ''}`);
+      alert('Cita modificada correctamente');
       navigate('/calendar');
     } catch (err) {
-      alert(`Error al guardar cita: ${err?.message || String(err)}`);
+      alert(`Error al modificar cita: ${err?.message || String(err)}`);
     }
   };
 
   useEffect(() => {
     const payload = {
-      id: appointmentId ?? null,
+      id_cita: appointmentId ?? null,
       nombre: name || '',
       inicio_utc: toUtcIso(date, time, 0),
       fin_utc: toUtcIso(date, endTime, endDayOffset),
@@ -196,6 +203,7 @@ export default function ModifyAppointment() {
                 type="text"
                 value={appointmentId}
                 readOnly
+                style={{ backgroundColor: '#5e5e5e', color: '#ffffff' }}
               />
             </Field>
           ) : null}
@@ -274,7 +282,7 @@ export default function ModifyAppointment() {
             />
           </Field>
 
-          <Actions>
+          <Actions style={{ gridColumn: 'span 2', justifyContent: 'center' }}>
             <PrimaryButton type="submit">Guardar cita</PrimaryButton>
             <GhostButton type="button" onClick={() => navigate(-1)}>Cancelar</GhostButton>
           </Actions>

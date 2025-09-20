@@ -13,7 +13,7 @@ export const HeaderRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
 `;
 
 export const Title = styled.h2`
@@ -22,10 +22,12 @@ export const Title = styled.h2`
 `;
 
 export const Form = styled.form`
-  margin-top: 16px;
-  width: 520px;
+  margin-top: 26px;
+  max-width: 1720px;
+  width: 70%;
   display: grid;
-  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
 `;
 
 export const Field = styled.label`

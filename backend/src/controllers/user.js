@@ -85,6 +85,29 @@ const createCalendar = async (req, res) => {
   }
 };
 
+const updateCalendar = async (req, res) => {
+  try {
+    const { id_cita, id, inicio_utc, fin_utc, nombre, telefono, color } = req.body || {};
+    const targetId = Number(id_cita ?? id);
+    if (!targetId || Number.isNaN(targetId)) {
+      return res.status(400).json({ ok: false, error: 'ID de cita invalido' });
+    }
+    if (!inicio_utc || !fin_utc || !nombre) {
+      return res.status(400).json({ ok: false, error: 'inicio_utc, fin_utc y nombre son obligatorios' });
+    }
+
+    const result = await bd.updateAppointment({ id_cita: targetId, inicio_utc, fin_utc, nombre, telefono, color });
+    if (!result || result.affectedRows === 0) {
+      return res.status(404).json({ ok: false, error: 'Cita no encontrada' });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('Error al actualizar cita:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 // GET /calendar
 // Devuelve todas las citas registradas
 const listCalendar = async (_req, res) => {
@@ -606,6 +629,7 @@ module.exports = {
   checkAuth,
   modify,
   createCalendar,
+  updateCalendar,
   listCalendar,
   deleteCalendar
 };
