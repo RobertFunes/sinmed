@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Backdrop,
@@ -15,6 +15,7 @@ import {
   Actions,
   ActionButton,
 } from "./CalendarModal.styles";
+import { url } from "../helpers/url.js";
 
 const COLOR_HEX = {
   blue: "#1976D2",
@@ -43,21 +44,66 @@ export default function CalendarModal({
 }) {
   if (!visible) return null;
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!visible) {
+      setConfirmDelete(false);
+      setIsDeleting(false);
+    }
+  }, [visible, appointment]);
+
+  const eventId = appointment?.id ?? appointment?.raw?.id_cita ?? null;
+
+  const handleClose = () => {
+    setConfirmDelete(false);
+    setIsDeleting(false);
+    onClose?.();
+  };
+
   const handleBackdropClick = (event) => {
     if (event.target === event.currentTarget) {
-      onClose?.();
+      handleClose();
     }
   };
 
-  const handleDelete = () => {
-    onDelete?.(appointment);
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    if (!eventId) {
+      alert('No se pudo determinar el ID de la cita.');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`${url}/api/calendar/${eventId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        throw new Error(errorText || `HTTP ${response.status}`);
+      }
+      alert('Cita eliminada correctamente.');
+      onDelete?.(eventId);
+      handleClose();
+    } catch (err) {
+      alert(`No se pudo eliminar la cita: ${err?.message || String(err)}`);
+    } finally {
+      setIsDeleting(false);
+      setConfirmDelete(false);
+    }
   };
 
   const handleModify = () => {
     onModify?.(appointment);
   };
 
-  const eventId = appointment?.id ?? appointment?.raw?.id_cita ?? null;
   const name = appointment?.nombre || appointment?.title || 'Cita';
   const phone = appointment?.telefono || appointment?.phone || appointment?.contact;
   const start = appointment?.inicio_utc || appointment?.start;
@@ -71,7 +117,7 @@ export default function CalendarModal({
       <Container role="dialog" aria-modal="true">
         <Header>
           <Title>{name}</Title>
-          <CloseButton type="button" aria-label="Cerrar" onClick={() => onClose?.()}>
+          <CloseButton type="button" aria-label="Cerrar" onClick={handleClose}>
             x
           </CloseButton>
         </Header>
@@ -116,8 +162,14 @@ export default function CalendarModal({
           <ActionButton type="button" $variant="default" onClick={handleModify}>
             Modificar
           </ActionButton>
-          <ActionButton type="button" $variant="danger" onClick={handleDelete}>
-            Eliminar
+          <ActionButton
+            type="button"
+            $variant="danger"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            style={confirmDelete ? { background: '#D32F2F', borderColor: '#D32F2F', color: '#fff' } : undefined}
+          >
+            {confirmDelete ? 'Confirmar eliminacion' : 'Eliminar'}
           </ActionButton>
         </Actions>
       </Container>

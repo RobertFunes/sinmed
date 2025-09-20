@@ -15,7 +15,8 @@ const {
   modify,
   getNameMin,
   createCalendar,
-  listCalendar
+  listCalendar,
+  deleteCalendar
 } = require('../controllers/user');
 const e = require('express');
 // Ruta pública: login
@@ -34,6 +35,7 @@ router.delete('/profile/:id', checkAuth,removeById);
 // Ruta que devuelve el estado (auth/no auth)
 router.post('/calendar', checkAuth, createCalendar);
 router.get('/calendar', checkAuth, listCalendar);
+router.delete('/calendar/:id', checkAuth, deleteCalendar);
 
 
 // GET /status

@@ -450,6 +450,14 @@ async function listAppointments() {
   return rows;
 }
 
+async function deleteAppointment(id) {
+  if (!id || Number.isNaN(Number(id))) {
+    throw new Error('ID de cita inválido');
+  }
+  const [result] = await db.query('DELETE FROM citas WHERE id_cita = ?', [id]);
+  return result;
+}
+
 module.exports = {
   add,
   getAll,
@@ -466,9 +474,9 @@ module.exports = {
   addAntecedentesPersonalesPatologicos,
   upsertPadecimientoActualInterrogatorio,
   upsertExploracionFisica,
-  upsertDiagnosticoTratamiento 
-  ,
+  upsertDiagnosticoTratamiento,
   addAppointment,
-  listAppointments
+  listAppointments,
+  deleteAppointment
 };
   

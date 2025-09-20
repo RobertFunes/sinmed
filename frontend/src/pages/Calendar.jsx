@@ -79,9 +79,12 @@ export default function Calendar() {
     return parsed.toISOString();
   };
 
-  const handleDeleteEvent = () => {
-    if (selectedEvent) {
-      console.log('TODO eliminar cita', selectedEvent);
+  const handleDeleteEvent = (deletedId) => {
+    if (deletedId != null) {
+      setEvents((prev) => prev.filter((event) => {
+        const currentId = event.id ?? event.raw?.id_cita ?? null;
+        return String(currentId ?? '') !== String(deletedId ?? '');
+      }));
     }
     closeModal();
   };
@@ -217,7 +220,14 @@ export default function Calendar() {
       const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       return `${meses[date.getMonth()]} de ${date.getFullYear()}`;
     },
-    // Encabezado de agenda: usar el mismo estilo de rango en espaÃ±ol
+    // Fecha por fila en vista de agenda: 'viernes 19 de septiembre'
+    agendaDateFormat: (date) => {
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return `${dias[date.getDay()]} ${date.getDate()} de ${meses[date.getMonth()]}`;
+    },
+
+    // Encabezado de agenda: usar el mismo estilo de rango en español
     agendaHeaderFormat: ({ start, end }) => {
       const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       const mismoMes = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();

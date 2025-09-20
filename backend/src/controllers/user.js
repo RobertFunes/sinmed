@@ -97,6 +97,25 @@ const listCalendar = async (_req, res) => {
   }
 };
 
+const deleteCalendar = async (req, res) => {
+  try {
+    const id = Number(req.params?.id);
+    if (!id || Number.isNaN(id)) {
+      return res.status(400).json({ ok: false, error: 'ID de cita inválido' });
+    }
+
+    const result = await bd.deleteAppointment(id);
+    if (!result || result.affectedRows === 0) {
+      return res.status(404).json({ ok: false, error: 'Cita no encontrada' });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('Error al eliminar cita:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 // ───────────────────────────────────────────────────────────────────────────────
 // Limitador simple de intentos de login (memoria local)
 // Clave: combinación IP + usuario para evitar bombardeo sostenido
@@ -587,6 +606,7 @@ module.exports = {
   checkAuth,
   modify,
   createCalendar,
-  listCalendar
+  listCalendar,
+  deleteCalendar
 };
 

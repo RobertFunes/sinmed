@@ -77,7 +77,7 @@ const inputStyles = `
   padding: 0.75rem 1rem;
   border: 1px solid ${Palette.darkGray};
   background: #fff;
-  color: ${Palette.black};
+  color: ${Palette.text};
   border-radius: 4px;
   font-size: 1rem;
   transition: outline 0.15s ease-in-out;
