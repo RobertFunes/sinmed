@@ -69,14 +69,30 @@ export default function Calendar() {
     setSelectedEvent(null);
   };
 
-  const toIsoString = (value) => {
+  const toNaiveString = (value) => {
     if (!value) return null;
-    if (value instanceof Date) return value.toISOString();
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      return typeof value === 'string' ? value : null;
+    const pad = (v) => String(v).padStart(2, '0');
+    const formatDate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    if (value instanceof Date) {
+      return formatDate(value);
     }
-    return parsed.toISOString();
+    const str = String(value).trim();
+    if (!str) return null;
+    let sanitized = str.replace('T', ' ');
+    sanitized = sanitized.replace(/Z$/i, '');
+    sanitized = sanitized.replace(/([+-]\d{2}:?\d{2})$/i, '');
+    sanitized = sanitized.replace(/\.\d+$/, '');
+    sanitized = sanitized.trim();
+    const parts = sanitized.split(' ');
+    if (parts.length === 1) {
+      return sanitized;
+    }
+    const [datePart, timePartRaw] = parts;
+    const timePieces = (timePartRaw || '').split(':');
+    const h = pad(timePieces[0] ?? '00');
+    const m = pad(timePieces[1] ?? '00');
+    const s = pad(timePieces[2] ?? '00');
+    return `${datePart} ${h}:${m}:${s}`;
   };
 
   const handleDeleteEvent = (deletedId) => {
@@ -100,8 +116,8 @@ export default function Calendar() {
       nombre: selectedEvent.nombre ?? selectedEvent.title ?? selectedEvent.raw?.nombre ?? '',
       telefono: selectedEvent.telefono ?? selectedEvent.phone ?? selectedEvent.raw?.telefono ?? '',
       color: selectedEvent.color ?? selectedEvent.raw?.color ?? '',
-      inicio_utc: toIsoString(selectedEvent.start ?? selectedEvent.inicio_utc ?? selectedEvent.raw?.inicio_utc),
-      fin_utc: toIsoString(selectedEvent.end ?? selectedEvent.fin_utc ?? selectedEvent.raw?.fin_utc),
+      inicio_utc: toNaiveString(selectedEvent.start ?? selectedEvent.inicio_utc ?? selectedEvent.raw?.inicio_utc),
+      fin_utc: toNaiveString(selectedEvent.end ?? selectedEvent.fin_utc ?? selectedEvent.raw?.fin_utc),
     };
 
     navigate('/calendar/modify', { state: { appointment: payload } });

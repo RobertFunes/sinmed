@@ -45,12 +45,22 @@ export default function NewAppointment() {
     }
   };
 
-  const toUtcIso = (dStr, tStr, dayOffset = 0) => {
+  const buildNaiveDateTime = (dStr, tStr, dayOffset = 0) => {
     if (!dStr || !tStr) return null;
-    const base = new Date(`${dStr}T${tStr}:00`);
+    const [yearStr, monthStr, dayStr] = dStr.split('-');
+    const [hourStr, minuteStr] = tStr.split(':');
+    if (!yearStr || !monthStr || !dayStr || !hourStr || !minuteStr) return null;
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    const hour = Number(hourStr);
+    const minute = Number(minuteStr);
+    if ([year, month, day, hour, minute].some((n) => Number.isNaN(n))) return null;
+    const base = new Date(year, month - 1, day, hour, minute, 0, 0);
     if (Number.isNaN(base.getTime())) return null;
     if (dayOffset) base.setDate(base.getDate() + dayOffset);
-    return base.toISOString();
+    const pad = (v) => String(v).padStart(2, '0');
+    return `${base.getFullYear()}-${pad(base.getMonth() + 1)}-${pad(base.getDate())} ${pad(base.getHours())}:${pad(base.getMinutes())}:00`;
   };
 
   const onSubmit = async (e) => {
@@ -59,8 +69,8 @@ export default function NewAppointment() {
       const payload = {
         nombre: name,
         telefono: phone || null,
-        inicio_utc: toUtcIso(date, time, 0),
-        fin_utc: toUtcIso(date, endTime, endDayOffset),
+        inicio_utc: buildNaiveDateTime(date, time, 0),
+        fin_utc: buildNaiveDateTime(date, endTime, endDayOffset),
         color: color || null,
       };
       if (!payload.nombre || !payload.inicio_utc || !payload.fin_utc) {
@@ -96,12 +106,12 @@ export default function NewAppointment() {
   useEffect(() => {
     const payload = {
       nombre: name || '',
-      inicio_utc: toUtcIso(date, time, 0),
-      fin_utc: toUtcIso(date, endTime, endDayOffset),
+      inicio_utc: buildNaiveDateTime(date, time, 0),
+      fin_utc: buildNaiveDateTime(date, endTime, endDayOffset),
       telefono: phone || '',
       color: color || ''
     };
-    console.log('Nueva cita (payload UTC):', payload);
+    console.log('Nueva cita (payload naive):', payload);
   }, [name, date, time, endTime, endDayOffset, phone, color]);
 
   return (

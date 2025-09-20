@@ -1,15 +1,15 @@
 // helpers/scheduleBuilder.js
 
 /**
- * Transforma citas del backend (UTC) en eventos para react-big-calendar.
+ * Transforma citas del backend (fechas naive) en eventos para react-big-calendar.
  *
  * Entrada (ejemplo de cada item):
  * {
  *   id_cita: 42,
- *   nombre: "Consulta Juan Pérez",
+ *   nombre: "Consulta Juan Perez",
  *   telefono: "5512345678",
- *   inicio_utc: "2025-09-07T19:00:00.000Z", // o "2025-09-07 19:00:00" (UTC)
- *   fin_utc: "2025-09-07T19:45:00.000Z",
+ *   inicio_utc: "2025-09-07 19:00:00",
+ *   fin_utc: "2025-09-07 19:45:00",
  *   notas: "Traer estudios",
  *   color: "#2ECC71",
  *   type: "consulta",
@@ -20,7 +20,7 @@
  * {
  *   id,         // number | string
  *   title,      // string
- *   start,      // Date (instante UTC mostrado en local por el localizer)
+ *   start,      // Date interpretada en la zona local del navegador
  *   end,        // Date
  *   ...extras   // nombre, telefono, notas, color, type, edad, raw, etc.
  * }
@@ -28,37 +28,34 @@
 export function scheduleBuilder(citas = []) {
   if (!Array.isArray(citas) || citas.length === 0) return [];
 
-  // Convierte un string UTC a Date robustamente (acepta ISO con Z o "YYYY-MM-DD HH:MM:SS")
-  const parseUtc = (s) => {
-    if (!s || typeof s !== "string") return null;
-
-    // ISO con Z o con T: Date lo entiende como UTC si trae 'Z'
-    if (s.includes("T")) {
-      const d = new Date(s);
-      return isNaN(d.getTime()) ? null : d;
+  // Convierte un string naive (sin zona) a Date en la zona local del navegador
+  const parseNaive = (s) => {
+    if (!s) return null;
+    if (s instanceof Date) {
+      return Number.isNaN(s.getTime()) ? null : s;
     }
-
-    // Formato "YYYY-MM-DD HH:MM:SS" (asumir UTC)
-    // Lo convertimos a "YYYY-MM-DDTHH:MM:SSZ"
-    const parts = s.trim().split(" ");
-    if (parts.length === 2) {
-      const [datePart, timePart] = parts;
-      const iso = `${datePart}T${timePart}Z`;
-      const d = new Date(iso);
-      return isNaN(d.getTime()) ? null : d;
-    }
-
-    // Cualquier otra cosa, último intento directo
-    const d = new Date(s);
-    return isNaN(d.getTime()) ? null : d;
+    const str = typeof s === 'string' ? s.trim() : '';
+    if (!str) return null;
+    let sanitized = str.replace('T', ' ');
+    sanitized = sanitized.replace(/Z$/i, '');
+    sanitized = sanitized.replace(/([+-]\d{2}:?\d{2})$/i, '');
+    sanitized = sanitized.replace(/\.\d+$/, '');
+    sanitized = sanitized.trim();
+    const [datePart, timePart = '00:00:00'] = sanitized.split(' ');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart || '')) return null;
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour = 0, minute = 0, second = 0] = timePart.split(':').map((v) => Number(v || 0));
+    if ([year, month, day, hour, minute, second].some((n) => Number.isNaN(n))) return null;
+    const result = new Date(year, month - 1, day, hour, minute, second, 0);
+    return Number.isNaN(result.getTime()) ? null : result;
   };
 
   const events = [];
 
   for (let i = 0; i < citas.length; i++) {
     const raw = citas[i] || {};
-    const start = parseUtc(raw.inicio_utc);
-    const end = parseUtc(raw.fin_utc);
+    const start = parseNaive(raw.inicio_utc);
+    const end = parseNaive(raw.fin_utc);
 
     // Validación mínima: fechas válidas y rango positivo
     if (!start || !end || end <= start) continue;
@@ -74,8 +71,8 @@ export function scheduleBuilder(citas = []) {
     events.push({
       id,
       title,
-      start,   // Date en UTC; el localizer del calendario lo mostrará en hora local
-      end,     // Date en UTC
+      start,   // Date interpretada en la zona del cliente
+      end,     // Date interpretada en la zona del cliente
       // Extras opcionales para tu UI (no los usa react-big-calendar, pero tú sí)
       nombre,
       telefono: telefono ?? null,

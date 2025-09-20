@@ -69,7 +69,7 @@ const modify = async (req, res) => {
 };
 
 // POST /calendar
-// Body: { inicio_utc, fin_utc, nombre, telefono? }
+// Body: { inicio_utc, fin_utc, nombre, telefono? } (horas naive, sin zona)
 const createCalendar = async (req, res) => {
   try {
     const { inicio_utc, fin_utc, nombre, telefono, color } = req.body || {};

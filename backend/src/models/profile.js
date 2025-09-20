@@ -415,14 +415,37 @@ async function getNameById(id) {
 
 // Calendar
 function normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, color }) {
-  const toDatetime = (iso) => {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) throw new Error('Fecha invalida');
-    return d.toISOString().slice(0, 19).replace('T', ' ');
+  const pad = (value) => String(value).padStart(2, '0');
+  const parseNumber = (segment, max, field) => {
+    if (segment == null || segment === '') return 0;
+    if (!/^\d+$/.test(segment)) throw new Error(`Hora invalida (${field})`);
+    const num = Number(segment);
+    if (Number.isNaN(num) || num < 0 || num > max) throw new Error(`Hora invalida (${field})`);
+    return num;
+  };
+  const toNaive = (raw, field) => {
+    if (raw == null) throw new Error(`${field} es obligatorio`);
+    const value = String(raw).trim();
+    if (!value) throw new Error(`${field} es obligatorio`);
+    let sanitized = value.replace('T', ' ');
+    sanitized = sanitized.replace(/Z$/i, '');
+    sanitized = sanitized.replace(/([+-]\d{2}:?\d{2})$/i, '');
+    sanitized = sanitized.replace(/\.\d+$/, '');
+    sanitized = sanitized.trim();
+    const parts = sanitized.split(' ');
+    if (parts.length === 0) throw new Error(`Fecha invalida (${field})`);
+    const datePart = parts[0];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) throw new Error(`Fecha invalida (${field})`);
+    const timePart = parts[1] || '00:00:00';
+    const timePieces = timePart.split(':');
+    const hours = parseNumber(timePieces[0], 23, field);
+    const minutes = parseNumber(timePieces[1] ?? '0', 59, field);
+    const seconds = parseNumber(timePieces[2] ?? '0', 59, field);
+    return `${datePart} ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   };
   return {
-    inicio_utc: toDatetime(inicio_utc),
-    fin_utc: toDatetime(fin_utc),
+    inicio_utc: toNaive(inicio_utc, 'inicio_utc'),
+    fin_utc: toNaive(fin_utc, 'fin_utc'),
     nombre: nombre || null,
     telefono: telefono || null,
     color: color || null,
