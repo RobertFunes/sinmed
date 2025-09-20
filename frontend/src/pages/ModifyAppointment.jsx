@@ -206,18 +206,6 @@ export default function ModifyAppointment() {
       <Page>
         <Title>Modificar cita</Title>
         <Form onSubmit={onSubmit}>
-          {appointmentId ? (
-            <Field>
-              <span>ID cita</span>
-              <Input
-                type="text"
-                value={appointmentId}
-                readOnly
-                style={{ backgroundColor: '#5e5e5e', color: '#ffffff' }}
-              />
-            </Field>
-          ) : null}
-
           <Field>
             <span>Fecha</span>
             <Input

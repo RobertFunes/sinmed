@@ -53,9 +53,17 @@ export const buildNestedPayload = (data) => {
       : {}),
   };
 
+  const gineco_obstetricos = {
+    edad_primera_menstruacion: trim(data.gineco_edad_menarca),
+    ciclo_dias: trim(data.gineco_ciclo),
+    cantidad: trim(data.gineco_cantidad),
+    dolor: trim(data.gineco_dolor),
+  };
+
   const antecedentes_personales = {
     habitos,
     alimentacion,
+    gineco_obstetricos,
   };
 
   // Padecimiento actual e interrogatorio

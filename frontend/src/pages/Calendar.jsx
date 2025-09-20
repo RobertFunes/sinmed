@@ -238,12 +238,12 @@ export default function Calendar() {
     },
     // Fecha por fila en vista de agenda: 'viernes 19 de septiembre'
     agendaDateFormat: (date) => {
-      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const dias = ['Domingo', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado'];
       const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       return `${dias[date.getDay()]} ${date.getDate()} de ${meses[date.getMonth()]}`;
     },
 
-    // Encabezado de agenda: usar el mismo estilo de rango en español
+    // Encabezado de agenda: usar el mismo estilo de rango en espaÃ±ol
     agendaHeaderFormat: ({ start, end }) => {
       const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       const mismoMes = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();

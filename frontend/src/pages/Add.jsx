@@ -268,7 +268,7 @@ const Add = () => {
           </Title>
 
           <Form onSubmit={handleSubmit} noValidate>
-            {/* Sección colapsable: Datos personales */}
+            {/* Seccion colapsable: Datos personales */}
             <details open={openSection === 'datos'} onToggle={handleToggle('datos')}>
               <Summary>
                 Datos personales
@@ -463,7 +463,7 @@ const Add = () => {
               {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
-            {/* Sección colapsable: Antecedentes familiares */}
+            {/* Seccion colapsable: Antecedentes familiares */}
             <details open={openSection === 'familiares'} onToggle={handleToggle('familiares')}>
               <Summary>Antecedentes familiares</Summary>
 
@@ -547,7 +547,7 @@ const Add = () => {
               )}
             </details>
 
-            {/* Sección colapsable: Antecedentes personales */}
+            {/* Seccion colapsable: Antecedentes personales */}
             <details open={openSection === 'personales'} onToggle={handleToggle('personales')}>
               <Summary>
                 Antecedentes personales
@@ -730,7 +730,61 @@ const Add = () => {
               )}
             </details>
 
-            {/* Sección colapsable: Antecedentes personales patológicos */}
+            {/* Seccion colapsable: Gineco-Obstetricos */}
+            <details open={openSection === 'gineco'} onToggle={handleToggle('gineco')}>
+              <Summary>Gineco-Obstetricos</Summary>
+
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="gineco_edad_menarca">Edad de la primera menstruacion</Label>
+                  <Input
+                    id="gineco_edad_menarca"
+                    name="gineco_edad_menarca"
+                    value={formData.gineco_edad_menarca}
+                    onChange={handleChange}
+                    placeholder="Ej. 12"
+                    inputMode="numeric"
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="gineco_ciclo">Ciclo/Dias</Label>
+                  <Input
+                    id="gineco_ciclo"
+                    name="gineco_ciclo"
+                    value={formData.gineco_ciclo}
+                    onChange={handleChange}
+                    placeholder="Ej. 28 dias"
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="gineco_cantidad">Cantidad</Label>
+                  <Input
+                    id="gineco_cantidad"
+                    name="gineco_cantidad"
+                    value={formData.gineco_cantidad}
+                    onChange={handleChange}
+                    placeholder="Ej. Moderado"
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="gineco_dolor">Dolor</Label>
+                  <Select
+                    id="gineco_dolor"
+                    name="gineco_dolor"
+                    value={formData.gineco_dolor}
+                    onChange={handleChange}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                  </Select>
+                </FieldGroup>
+              </TwoColumnRow>
+            </details>
+
+            {/* Seccion colapsable: Antecedentes personales patológicos */}
             <details open={openSection === 'patologicos'} onToggle={handleToggle('patologicos')}>
               <Summary>Antecedentes personales patológicos</Summary>
 
@@ -802,7 +856,7 @@ const Add = () => {
               )}
             </details>
 
-            {/* Sección colapsable: Padecimiento actual e interrogatorio por aparatos y sistemas */}
+            {/* Seccion colapsable: Padecimiento actual e interrogatorio por aparatos y sistemas */}
             <details open={openSection === 'padecimiento'} onToggle={handleToggle('padecimiento')}>
               <Summary>Padecimiento actual e interrogatorio</Summary>
 
@@ -887,7 +941,7 @@ const Add = () => {
               )}
             </details>
 
-            {/* Sección colapsable: Exploración física */}
+            {/* Seccion colapsable: Exploración física */}
             <details open={openSection === 'exploracion'} onToggle={handleToggle('exploracion')}>
               <Summary>Exploración física</Summary>
 
@@ -1030,7 +1084,7 @@ const Add = () => {
               )}
             </details>
 
-            {/* Sección colapsable: Diagnóstico y tratamiento */}
+            {/* Seccion colapsable: Diagnóstico y tratamiento */}
             <details open={openSection === 'diagnostico'} onToggle={handleToggle('diagnostico')}>
               <Summary>Diagnóstico y tratamiento</Summary>
 

@@ -124,16 +124,12 @@ export default function CalendarModal({
 
         <Content>
           <Field>
-            <Label>ID</Label>
-            <Value>{eventId ?? 'Sin ID'}</Value>
-          </Field>
-          <Field>
             <Label>Paciente</Label>
             <Value>{name}</Value>
           </Field>
           <Field>
             <Label>Telefono</Label>
-            <Value>{phone || "Sin numero"}</Value>
+            <Value>{phone || "Sin número registrado"}</Value>
           </Field>
           <Field>
             <Label>Inicio</Label>

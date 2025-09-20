@@ -13,6 +13,10 @@ export const initialState = {
   antecedentes_familiares: [], // [{ nombre: string, descripcion: string, esOtro?: boolean }]
   // Antecedentes personales
   antecedentes_personales_habitos: [], // [{ tipo: 'Alcoholismo'|'Tabaquismo'|'Toxicomanías', campos: {...} }]
+  gineco_edad_menarca: '',          // edad de menarca (años)
+  gineco_ciclo: '',                 // descripción de ciclo/días
+  gineco_cantidad: '',             // cantidad del sangrado
+  gineco_dolor: '',                // presencia de dolor (Si/No)
   // Eliminado: antecedentes_personales_dieta
   // Eliminado: vacunacion
   antecedentes_personales_patologicos: [], // [{ antecedente: string, descripcion: string }]
