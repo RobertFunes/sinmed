@@ -315,6 +315,7 @@ const add = async (req, res) => {
     }
 
     // Inserta/actualiza antecedentes_personales (1:1) si hay datos
+    const gineco = payload.gineco_obstetricos || {};
     const ap = payload.antecedentes_personales || {};
     const norm = (v) => {
       if (v == null) return v;
@@ -324,6 +325,23 @@ const add = async (req, res) => {
       }
       return v;
     };
+    const recordGO = {
+      edad_primera_menstruacion: null,
+      ciclo_dias: null,
+      cantidad: null,
+      dolor: null,
+      fecha_ultima_menstruacion: null,
+      vida_sexual_activa: null,
+      anticoncepcion: null,
+      tipo_anticonceptivo: null,
+      gestas: null,
+      partos: null,
+      cesareas: null,
+      abortos: null,
+      fecha_ultimo_parto: null,
+      fecha_menopausia: null,
+    };
+
     const recordAP = {
       bebidas_por_dia: null,
       tiempo_activo_alc: null,
@@ -372,12 +390,47 @@ const add = async (req, res) => {
       }
     }
 
+    const toInt = (value) => {
+      const normalized = norm(value);
+      if (normalized == null) return null;
+      const n = Number(normalized);
+      return Number.isFinite(n) ? n : null;
+    };
+    const toDate = (value) => {
+      const normalized = norm(value);
+      return normalized ? normalized.slice(0, 10) : null;
+    };
+
+    if (gineco && typeof gineco === 'object') {
+      recordGO.edad_primera_menstruacion = norm(gineco.edad_primera_menstruacion);
+      recordGO.ciclo_dias = norm(gineco.ciclo_dias);
+      recordGO.cantidad = norm(gineco.cantidad);
+      recordGO.dolor = norm(gineco.dolor);
+      recordGO.fecha_ultima_menstruacion = toDate(gineco.fecha_ultima_menstruacion);
+      recordGO.vida_sexual_activa = norm(gineco.vida_sexual_activa);
+      recordGO.anticoncepcion = norm(gineco.anticoncepcion);
+      recordGO.tipo_anticonceptivo = norm(gineco.tipo_anticonceptivo);
+      recordGO.gestas = toInt(gineco.gestas);
+      recordGO.partos = toInt(gineco.partos);
+      recordGO.cesareas = toInt(gineco.cesareas);
+      recordGO.abortos = toInt(gineco.abortos);
+      recordGO.fecha_ultimo_parto = toDate(gineco.fecha_ultimo_parto);
+      recordGO.fecha_menopausia = toDate(gineco.fecha_menopausia);
+    }
+
     // Quita claves que quedaron null para no insertar basura
     const compactAP = Object.fromEntries(
       Object.entries(recordAP).filter(([, v]) => v != null)
     );
     if (Object.keys(compactAP).length > 0) {
       await bd.upsertAntecedentesPersonales(id, compactAP);
+    }
+
+    const compactGO = Object.fromEntries(
+      Object.entries(recordGO).filter(([, v]) => v != null)
+    );
+    if (Object.keys(compactGO).length > 0) {
+      await bd.upsertGinecoObstetricos(id, compactGO);
     }
 
     // Inserta antecedentes_personales_patologicos (1:N) si llegaron

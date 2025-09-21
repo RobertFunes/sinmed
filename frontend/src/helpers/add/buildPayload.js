@@ -73,7 +73,6 @@ export const buildNestedPayload = (data) => {
   const antecedentes_personales = {
     habitos,
     alimentacion,
-    gineco_obstetricos,
   };
 
   // Padecimiento actual e interrogatorio
@@ -118,6 +117,7 @@ export const buildNestedPayload = (data) => {
   return {
     datos_personales,
     antecedentes_familiares,
+    gineco_obstetricos,
     antecedentes_personales,
     antecedentes_personales_patologicos: patologicos,
     padecimiento_e_interrogatorio,

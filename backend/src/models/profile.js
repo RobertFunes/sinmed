@@ -47,6 +47,21 @@ async function upsertAntecedentesPersonales(id_perfil, data = {}) {
   return result;
 }
 
+async function upsertGinecoObstetricos(id_perfil, data = {}) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  const payload = { ...data };
+  const cols = Object.keys(payload).filter((k) => payload[k] != null);
+  if (cols.length === 0) return { affectedRows: 0 };
+  const fields = ['id_perfil', ...cols];
+  const placeholders = fields.map(() => '?').join(', ');
+  const values = [id_perfil, ...cols.map((k) => payload[k])];
+  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
+  const sql = `INSERT INTO gineco_obstetricos (${fields.join(', ')}) VALUES (${placeholders})
+               ON DUPLICATE KEY UPDATE ${updates}`;
+  const [result] = await db.query(sql, values);
+  return result;
+}
+
 // Inserta N filas en antecedentes_personales_patologicos para un perfil dado
 // items: array de objetos { antecedente, descripcion? } ya normalizados ('' -> null)
 async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
@@ -511,6 +526,7 @@ module.exports = {
   getNameById,
   addAntecedentesFamiliares,
   upsertAntecedentesPersonales,
+  upsertGinecoObstetricos,
   addAntecedentesPersonalesPatologicos,
   upsertPadecimientoActualInterrogatorio,
   upsertExploracionFisica,
