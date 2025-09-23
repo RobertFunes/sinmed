@@ -184,3 +184,41 @@ export const Summary = styled.summary`
   font-size: 1.25rem;
   margin-bottom: 0.75rem;
 `;
+
+/* ---------- TARJETAS DE LISTA DINÁMICAS ---------- */
+
+/* Contenedor de cada ítem agregado (familiares, hábitos, patológicos, inspección, sistemas) */
+export const ItemCard = styled.div`
+  border: 1px solid ${Palette.secondary};
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: ${Palette.background};
+`;
+
+/* Contenedor para separar la lista del selector superior */
+export const ListContainer = styled.div`
+  margin-top: 0.75rem;
+`;
+
+/* Fila de acciones al final de cada tarjeta (botón eliminar) */
+export const ItemActions = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+/* Botón de eliminar dentro de las tarjetas */
+export const DangerButton = styled.button`
+  background: black;
+  border: 1px solid ${Palette.secondary};
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+  color: inherit;
+`;
+
+/* Texto al lado del icono dentro de botones */
+export const ButtonLabel = styled.span`
+  margin-left: 8px;
+`;

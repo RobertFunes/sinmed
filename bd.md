@@ -178,3 +178,37 @@ Registra cada consulta médica realizada a un paciente, con diagnóstico, tratam
 | creado                  | date        | NO   |     | curdate() |                | Fecha de creación del registro                                          |
 | actualizado             | date        | NO   |     | curdate() |                | Fecha de última modificación (actualizada automáticamente por trigger)  |
 
+## Relaciones
+
+- Tabla raíz: `perfil` (`id_perfil` PK). Todas las demás tablas clínicas cuelgan de este ID.
+- Relaciones 1:1 con `perfil` (una fila por perfil, `id_perfil` único):
+  - `antecedentes_personales`
+  - `gineco_obstetricos`
+  - `exploracion_fisica`
+  - `consultas`
+  - Implementación: el backend usa UPSERT (`INSERT ... ON DUPLICATE KEY UPDATE`) sobre `id_perfil`, lo que implica un índice UNIQUE en `id_perfil` en estas tablas.
+- Relaciones 1:N con `perfil` (múltiples filas por perfil):
+  - `antecedentes_familiares`
+  - `antecedentes_personales_patologicos`
+  - Implementación: el backend inserta una fila por cada elemento del arreglo recibido, con `id_perfil` como FK.
+
+Diagrama (cardinalidad):
+
+  perfil (1) ─── (1) antecedentes_personales
+        │
+        ├──── (1) gineco_obstetricos
+        │
+        ├──── (1) exploracion_fisica
+        │
+        ├──── (1) consultas
+        │
+        ├──── (N) antecedentes_familiares
+        │
+        └──── (N) antecedentes_personales_patologicos
+
+Notas de mapeo según add():
+- El endpoint de alta primero crea el `perfil` y obtiene `id_perfil`; luego pobla las tablas relacionadas usando ese ID.
+- En `exploracion_fisica`, el arreglo `inspeccion_general[]` se desnormaliza a columnas de texto: `cabeza`, `cuello`, `torax`, `abdomen`, `genitales`, `extremidades`.
+- En `consultas`, además de `fecha_consulta`, `recordatorio`, `padecimiento_actual`, `diagnostico`, `tratamiento`, `notas`, el arreglo `interrogatorio_aparatos[]` se desnormaliza a columnas `*_desc` (por ejemplo: `sintomas_generales_desc`, `endocrino_desc`, `gastrointestinal_desc`, etc.).
+- Los strings vacíos se normalizan como `NULL`; las fechas se recortan a `YYYY-MM-DD`.
+- Recomendación de integridad referencial: definir `FOREIGN KEY (id_perfil) REFERENCES perfil(id_perfil)` en todas las tablas hijas; para las tablas 1:1, además `UNIQUE (id_perfil)`. Opcionalmente `ON DELETE CASCADE` para limpiar dependencias al borrar un perfil.

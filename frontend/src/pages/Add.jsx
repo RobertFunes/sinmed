@@ -16,6 +16,11 @@ import {
   SubmitButton,
   TwoColumnRow,
   ThreeColumnRow,
+  ItemCard,
+  ItemActions,
+  DangerButton,
+  ButtonLabel,
+  ListContainer,
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
@@ -32,16 +37,52 @@ import { buildNestedPayload } from '../helpers/add/buildPayload';
 // iconos
 import { AiFillStar } from 'react-icons/ai';
 import {
-  FaUserCircle,
-  FaVenusMars,
-  FaEnvelope,
-  FaPhoneAlt,
-  FaHome,
+  FaUser,
   FaBirthdayCake,
-  FaBriefcase,
+  FaPhone,
+  FaUserPlus,
+  FaGraduationCap,
+  FaTint,
+  FaUsers,
+  FaBeer,
+  FaClock,
+  FaSmoking,
+  FaPills,
+  FaUtensils,
+  FaExchangeAlt,
+  FaExclamationCircle,
+  FaFemale,
+  FaCalendarAlt,
+  FaCalendarCheck,
+  FaBaby,
+  FaBabyCarriage,
+  FaProcedures,
+  FaHeartbeat,
+  FaCalendarDay,
+  FaCalendarTimes,
+  FaFileMedical,
+  FaWeight,
+  FaHistory,
+  FaRulerVertical,
+  FaRulerCombined,
+  FaRulerHorizontal,
+  FaBullseye,
+  FaBalanceScale,
+  FaChartBar,
+  FaHeart,
+  FaThermometerHalf,
+  FaStethoscope,
+  FaBell,
+  FaNotesMedical,
+  FaDiagnoses,
+  FaPrescriptionBottleAlt,
+  FaStickyNote,
+  FaClipboardCheck,
   FaTrash,
   FaPlusCircle,
 } from 'react-icons/fa';
+import { MdEmail, MdHome, MdWork, MdDescription } from 'react-icons/md';
+import { GiLungs } from 'react-icons/gi';
 
 
 
@@ -307,7 +348,7 @@ const Add = () => {
               <TwoColumnRow>
                 <FieldGroup>
                   <Label htmlFor="nombre">
-                    <FaUserCircle style={{ marginRight: '0.5rem' }} />
+                    <FaUser style={{ marginRight: '0.5rem' }} />
                     Nombre
                     <Required />
                   </Label>
@@ -325,7 +366,7 @@ const Add = () => {
 
                 <FieldGroup>
                   <Label htmlFor="genero">
-                    <FaVenusMars style={{ marginRight: '0.5rem' }} />
+                    {/* icon removed */}
                     Género
                   </Label>
                   <Select
@@ -360,7 +401,7 @@ const Add = () => {
 
                 <FieldGroup>
                   <Label htmlFor="telefono_movil">
-                    <FaPhoneAlt style={{ marginRight: '0.5rem' }} />
+                    <FaPhone style={{ marginRight: '0.5rem' }} />
                     Teléfono móvil
                   </Label>
                   <Input
@@ -379,7 +420,7 @@ const Add = () => {
               <TwoColumnRow>
                 <FieldGroup>
                   <Label htmlFor="correo_electronico">
-                    <FaEnvelope style={{ marginRight: '0.5rem' }} />
+                    <MdEmail style={{ marginRight: '0.5rem' }} />
                     Correo electrónico
                   </Label>
                   <Input
@@ -394,6 +435,7 @@ const Add = () => {
                 </FieldGroup>
                 <FieldGroup>
                   <Label htmlFor="referido_por">
+                    <FaUserPlus style={{ marginRight: '0.5rem' }} />
                     Referido por
                   </Label>
                   <Input
@@ -410,7 +452,7 @@ const Add = () => {
               {/* Dirección Completa (full width) */}
               <FieldGroup>
                 <Label htmlFor="residencia">
-                  <FaHome style={{ marginRight: '0.5rem' }} />
+                  <MdHome style={{ marginRight: '0.5rem' }} />
                   Dirección Completa
                 </Label>
                 <TextArea
@@ -428,7 +470,7 @@ const Add = () => {
               <TwoColumnRow>
                 <FieldGroup>
                   <Label htmlFor="ocupacion">
-                    <FaBriefcase style={{ marginRight: '0.5rem' }} />
+                    <MdWork style={{ marginRight: '0.5rem' }} />
                     Ocupación
                   </Label>
                   <Input
@@ -442,6 +484,7 @@ const Add = () => {
 
                 <FieldGroup>
                   <Label htmlFor="escolaridad">
+                    <FaGraduationCap style={{ marginRight: '0.5rem' }} />
                     Escolaridad
                   </Label>
                   <Input
@@ -477,6 +520,7 @@ const Add = () => {
                 </FieldGroup>
                 <FieldGroup>
                   <Label htmlFor="tipo_sangre">
+                    <FaTint style={{ marginRight: '0.5rem' }} />
                     Tipo de sangre
                   </Label>
                   <Input
@@ -527,12 +571,12 @@ const Add = () => {
 
               {/* Lista de antecedentes seleccionados */}
               {formData.antecedentes_familiares.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
+                <ListContainer>
                   {formData.antecedentes_familiares.map((a, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                    <ItemCard key={idx}>
                       <TwoColumnRow>
                         <FieldGroup>
-                          <Label>{a.esOtro ? 'Otra (especifique)' : 'Antecedente'}</Label>
+                          <Label><FaUsers style={{ marginRight: '0.5rem' }} />{a.esOtro ? 'Otra (especifique)' : 'Antecedente'}</Label>
                           {a.esOtro ? (
                             <Input
                               value={a.nombre}
@@ -554,25 +598,15 @@ const Add = () => {
                           />
                         </FieldGroup>
                       </TwoColumnRow>
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeAntecedenteAt(idx)}
-                          style={{
-                            background: 'black',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removeAntecedenteAt(idx)}>
                           <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
                   ))}
-                </div>
+                </ListContainer>
               )}
             </details>
 
@@ -609,9 +643,9 @@ const Add = () => {
               </TwoColumnRow>
 
               {formData.antecedentes_personales_habitos.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
+                <ListContainer>
                   {formData.antecedentes_personales_habitos.map((h, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                    <ItemCard key={idx}>
                       <strong style={{ display: 'block', marginBottom: '0.5rem' }}>{h.tipo}</strong>
                       <TwoColumnRow>
                         {h.tipo === 'Alcoholismo' && (
@@ -686,25 +720,15 @@ const Add = () => {
                         )}
                       </TwoColumnRow>
 
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeHabitoAt(idx)}
-                          style={{
-                            background: 'black',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removeHabitoAt(idx)}>
                           <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
                   ))}
-                </div>
+                </ListContainer>
               )}
 
               {/* Eliminado: Select y lista de componentes de la dieta */}
@@ -724,7 +748,7 @@ const Add = () => {
               </TwoColumnRow>
 
               <FieldGroup>
-                <Label htmlFor="alimentacion_descripcion">Descripción de la alimentación</Label>
+                <Label htmlFor="alimentacion_descripcion"><FaUtensils style={{ marginRight: '0.5rem' }} />Descripción de la alimentación</Label>
                 <TextArea id="descripcion" name="descripcion" value={formData.descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
               </FieldGroup>
 
@@ -739,7 +763,7 @@ const Add = () => {
                 </FieldGroup>
                 {formData.hay_cambios === 'Si' && (
                   <FieldGroup>
-                    <Label htmlFor="cambio_tipo">Tipo de cambio</Label>
+                    <Label htmlFor="cambio_tipo"><FaExchangeAlt style={{ marginRight: '0.5rem' }} />Tipo de cambio</Label>
                     <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
                   </FieldGroup>
                 )}
@@ -748,11 +772,11 @@ const Add = () => {
               {formData.hay_cambios === 'Si' && (
                 <TwoColumnRow>
                   <FieldGroup>
-                    <Label htmlFor="cambio_causa">Causa del cambio</Label>
+                    <Label htmlFor="cambio_causa"><FaExclamationCircle style={{ marginRight: '0.5rem' }} />Causa del cambio</Label>
                     <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
                   </FieldGroup>
                   <FieldGroup>
-                    <Label htmlFor="cambio_tiempo">Tiempo</Label>
+                    <Label htmlFor="cambio_tiempo"><FaClock style={{ marginRight: '0.5rem' }} />Tiempo</Label>
                     <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
                   </FieldGroup>
                 </TwoColumnRow>
@@ -766,7 +790,7 @@ const Add = () => {
 
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="gineco_edad_menarca">Edad de la primera menstruacion</Label>
+                  <Label htmlFor="gineco_edad_menarca"><FaFemale style={{ marginRight: '0.5rem' }} />Edad de la primera menstruacion</Label>
                   <Input
                     id="gineco_edad_menarca"
                     name="gineco_edad_menarca"
@@ -777,7 +801,7 @@ const Add = () => {
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="gineco_ciclo">Ciclo/Dias</Label>
+                  <Label htmlFor="gineco_ciclo"><FaCalendarAlt style={{ marginRight: '0.5rem' }} />Ciclo/Dias</Label>
                   <Input
                     id="gineco_ciclo"
                     name="gineco_ciclo"
@@ -789,7 +813,7 @@ const Add = () => {
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="gineco_cantidad">Cantidad</Label>
+                  <Label htmlFor="gineco_cantidad"><FaTint style={{ marginRight: '0.5rem' }} />Cantidad</Label>
                   <Input
                     id="gineco_cantidad"
                     name="gineco_cantidad"
@@ -814,7 +838,7 @@ const Add = () => {
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="gineco_fecha_ultima_menstruacion">Fecha de la ultima menstruacion</Label>
+                  <Label htmlFor="gineco_fecha_ultima_menstruacion"><FaCalendarCheck style={{ marginRight: '0.5rem' }} />Fecha de la ultima menstruacion</Label>
                   <Input
                     id="gineco_fecha_ultima_menstruacion"
                     name="gineco_fecha_ultima_menstruacion"
@@ -854,7 +878,7 @@ const Add = () => {
                   </FieldGroup>
                   {formData.gineco_anticoncepcion === 'Si' ? (
                     <FieldGroup>
-                      <Label htmlFor="gineco_tipo_anticonceptivo">Tipo de anticonceptivo</Label>
+                      <Label htmlFor="gineco_tipo_anticonceptivo"><FaPills style={{ marginRight: '0.5rem' }} />Tipo de anticonceptivo</Label>
                       <Input
                         id="gineco_tipo_anticonceptivo"
                         name="gineco_tipo_anticonceptivo"
@@ -868,7 +892,7 @@ const Add = () => {
               ) : null}
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="gineco_gestas">Gestas</Label>
+                  <Label htmlFor="gineco_gestas"><FaBaby style={{ marginRight: '0.5rem' }} />Gestas</Label>
                   <Input
                     id="gineco_gestas"
                     name="gineco_gestas"
@@ -879,7 +903,7 @@ const Add = () => {
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="gineco_partos">Partos</Label>
+                  <Label htmlFor="gineco_partos"><FaBabyCarriage style={{ marginRight: '0.5rem' }} />Partos</Label>
                   <Input
                     id="gineco_partos"
                     name="gineco_partos"
@@ -892,7 +916,7 @@ const Add = () => {
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="gineco_cesareas">Cesareas</Label>
+                  <Label htmlFor="gineco_cesareas"><FaProcedures style={{ marginRight: '0.5rem' }} />Cesareas</Label>
                   <Input
                     id="gineco_cesareas"
                     name="gineco_cesareas"
@@ -903,7 +927,7 @@ const Add = () => {
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="gineco_abortos">Abortos</Label>
+                  <Label htmlFor="gineco_abortos"><FaHeartbeat style={{ marginRight: '0.5rem' }} />Abortos</Label>
                   <Input
                     id="gineco_abortos"
                     name="gineco_abortos"
@@ -916,7 +940,7 @@ const Add = () => {
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="gineco_fecha_ultimo_parto">Fecha del ultimo parto</Label>
+                  <Label htmlFor="gineco_fecha_ultimo_parto"><FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha del ultimo parto</Label>
                   <Input
                     id="gineco_fecha_ultimo_parto"
                     name="gineco_fecha_ultimo_parto"
@@ -926,7 +950,7 @@ const Add = () => {
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="gineco_fecha_menopausia">Fecha de menopausia</Label>
+                  <Label htmlFor="gineco_fecha_menopausia"><FaCalendarTimes style={{ marginRight: '0.5rem' }} />Fecha de menopausia</Label>
                   <Input
                     id="gineco_fecha_menopausia"
                     name="gineco_fecha_menopausia"
@@ -971,12 +995,12 @@ const Add = () => {
 
               {/* Lista de patológicos agregados */}
               {formData.antecedentes_personales_patologicos.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
+                <ListContainer>
                   {formData.antecedentes_personales_patologicos.map((p, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                    <ItemCard key={idx}>
                       <TwoColumnRow>
                         <FieldGroup>
-                          <Label>Antecedente</Label>
+                          <Label><FaFileMedical style={{ marginRight: '0.5rem' }} />Antecedente</Label>
                           <Input value={p.antecedente} disabled />
                         </FieldGroup>
                         <FieldGroup>
@@ -989,25 +1013,15 @@ const Add = () => {
                           />
                         </FieldGroup>
                       </TwoColumnRow>
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removePatologicoAt(idx)}
-                          style={{
-                            background: 'black',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removePatologicoAt(idx)}>
                           <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
                   ))}
-                </div>
+                </ListContainer>
               )}
             </details>
 
@@ -1018,44 +1032,44 @@ const Add = () => {
               {/* Datos antropométricos y vitales */}
               <TwoColumnRow $cols={3}>
                 <FieldGroup>
-                  <Label htmlFor="peso_actual">Peso actual (kg)</Label>
+                  <Label htmlFor="peso_actual"><FaWeight style={{ marginRight: '0.5rem' }} />Peso actual (kg)</Label>
                   <Input id="peso_actual" name="peso_actual" value={formData.peso_actual} onChange={handleChange} inputMode="decimal" placeholder="Ej. 72" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="peso_anterior">Peso anterior (kg)</Label>
+                  <Label htmlFor="peso_anterior"><FaHistory style={{ marginRight: '0.5rem' }} />Peso anterior (kg)</Label>
                   <Input id="peso_anterior" name="peso_anterior" value={formData.peso_anterior} onChange={handleChange} inputMode="decimal" placeholder="Ej. 75" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="talla_cm">Talla (cm)</Label>
+                  <Label htmlFor="talla_cm"><FaRulerVertical style={{ marginRight: '0.5rem' }} />Talla (cm)</Label>
                   <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 170" />
                 </FieldGroup>
               </TwoColumnRow>
               <TwoColumnRow $cols={3}>
                 <FieldGroup>
-                  <Label htmlFor="peso_deseado">Peso deseado (kg)</Label>
+                  <Label htmlFor="peso_deseado"><FaBullseye style={{ marginRight: '0.5rem' }} />Peso deseado (kg)</Label>
                   <Input id="peso_deseado" name="peso_deseado" value={formData.peso_deseado} onChange={handleChange} inputMode="decimal" placeholder="Ej. 68" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="peso_ideal">Peso ideal (kg)</Label>
+                  <Label htmlFor="peso_ideal"><FaBalanceScale style={{ marginRight: '0.5rem' }} />Peso ideal (kg)</Label>
                   <Input id="peso_ideal" name="peso_ideal" value={formData.peso_ideal} onChange={handleChange} inputMode="decimal" placeholder="Ej. 70" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="imc">IMC</Label>
+                  <Label htmlFor="imc"><FaChartBar style={{ marginRight: '0.5rem' }} />IMC</Label>
                   <Input id="imc" name="imc" value={formData.imc} readOnly placeholder="Ej. 24.90" />
                 </FieldGroup>
               </TwoColumnRow>
               
               <TwoColumnRow $cols={3}>
                 <FieldGroup>
-                  <Label htmlFor="rtg">% RTG</Label>
+                  <Label htmlFor="rtg"><FaHeartbeat style={{ marginRight: '0.5rem' }} />% RTG</Label>
                   <Input id="rtg" name="rtg" value={formData.rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="ta_mmhg">TA (mmHg)</Label>
+                  <Label htmlFor="ta_mmhg"><FaHeart style={{ marginRight: '0.5rem' }} />TA (mmHg)</Label>
                   <Input id="ta_mmhg" name="ta_mmhg" value={formData.ta_mmhg} onChange={handleChange} placeholder="Ej. 120/80" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="frecuencia_cardiaca">FC (frecuencia cardiaca)</Label>
+                  <Label htmlFor="frecuencia_cardiaca"><FaHeart style={{ marginRight: '0.5rem' }} />FC (frecuencia cardiaca)</Label>
                   <Input id="frecuencia_cardiaca" name="frecuencia_cardiaca" value={formData.frecuencia_cardiaca} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
                 </FieldGroup>
                 
@@ -1063,22 +1077,22 @@ const Add = () => {
               
               <TwoColumnRow $cols={3}>
                 <FieldGroup>
-                  <Label htmlFor="frecuencia_respiratoria">FR (frecuencia respiratoria)</Label>
+                  <Label htmlFor="frecuencia_respiratoria"><GiLungs style={{ marginRight: '0.5rem' }} />FR (frecuencia respiratoria)</Label>
                   <Input id="frecuencia_respiratoria" name="frecuencia_respiratoria" value={formData.frecuencia_respiratoria} onChange={handleChange} inputMode="numeric" placeholder="rpm" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="temperatura_c">Temp (°C)</Label>
+                  <Label htmlFor="temperatura_c"><FaThermometerHalf style={{ marginRight: '0.5rem' }} />Temp (°C)</Label>
                   <Input id="temperatura_c" name="temperatura_c" value={formData.temperatura_c} onChange={handleChange} inputMode="decimal" placeholder="Ej. 36.7" />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="cadera_cm">Cadera (cm)</Label>
+                  <Label htmlFor="cadera_cm"><FaRulerCombined style={{ marginRight: '0.5rem' }} />Cadera (cm)</Label>
                   <Input id="cadera_cm" name="cadera_cm" value={formData.cadera_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 95" />
                 </FieldGroup>
               </TwoColumnRow>
               <TwoColumnRow $cols={4}>
                 
                 <FieldGroup>
-                  <Label htmlFor="cintura_cm">Cintura (cm)</Label>
+                  <Label htmlFor="cintura_cm"><FaRulerHorizontal style={{ marginRight: '0.5rem' }} />Cintura (cm)</Label>
                   <Input id="cintura_cm" name="cintura_cm" value={formData.cintura_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 80" />
                 </FieldGroup>
               </TwoColumnRow>
@@ -1110,12 +1124,12 @@ const Add = () => {
               </TwoColumnRow>
 
               {formData.inspeccion_general.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
+                <ListContainer>
                   {formData.inspeccion_general.map((s, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
+                    <ItemCard key={idx}>
                       <TwoColumnRow>
                         <FieldGroup>
-                          <Label>Área</Label>
+                          <Label><FaStethoscope style={{ marginRight: '0.5rem' }} />Área</Label>
                           <Input value={s.nombre} disabled />
                         </FieldGroup>
                         <FieldGroup>
@@ -1128,25 +1142,15 @@ const Add = () => {
                           />
                         </FieldGroup>
                       </TwoColumnRow>
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeInspeccionAt(idx)}
-                          style={{
-                            background: 'black',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removeInspeccionAt(idx)}>
                           <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
                   ))}
-                </div>
+                </ListContainer>
               )}
             </details>
 
@@ -1157,7 +1161,7 @@ const Add = () => {
               {/* Subgrid 2 columnas: Fecha de consulta + Recordatorio */}
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="fecha_consulta">Fecha de consulta</Label>
+                  <Label htmlFor="fecha_consulta"><FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha de consulta</Label>
                   <Input
                     type="date"
                     id="fecha_consulta"
@@ -1167,7 +1171,7 @@ const Add = () => {
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor="recordatorio">Recordatorio</Label>
+                  <Label htmlFor="recordatorio"><FaBell style={{ marginRight: '0.5rem' }} />Recordatorio</Label>
                   <Input
                     type="date"
                     id="recordatorio"
@@ -1179,7 +1183,7 @@ const Add = () => {
               </TwoColumnRow>
 
               <FieldGroup>
-                <Label htmlFor="consulta_padecimiento_actual">Padecimiento actual</Label>
+                <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
                 <TextArea
                   id="consulta_padecimiento_actual"
                   name="padecimiento_actual"
@@ -1191,7 +1195,7 @@ const Add = () => {
               </FieldGroup>
 
               <FieldGroup>
-                <Label htmlFor="consulta_diagnostico">Diagnóstico</Label>
+                <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
                 <TextArea
                   id="consulta_diagnostico"
                   name="diagnostico"
@@ -1203,7 +1207,7 @@ const Add = () => {
               </FieldGroup>
 
               <FieldGroup>
-                <Label htmlFor="consulta_tratamiento">Tratamiento</Label>
+                <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
                 <TextArea
                   id="consulta_tratamiento"
                   name="tratamiento"
@@ -1215,7 +1219,7 @@ const Add = () => {
               </FieldGroup>
 
               <FieldGroup>
-                <Label htmlFor="consulta_notas">Notas</Label>
+                <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
                 <TextArea
                   id="consulta_notas"
                   name="notas"
@@ -1254,21 +1258,12 @@ const Add = () => {
 
               {/* Lista de sistemas agregados */}
               {formData.interrogatorio_aparatos.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
+                <ListContainer>
                   {formData.interrogatorio_aparatos.map((s, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        border: `1px solid ${Palette.secondary}`,
-                        borderRadius: 6,
-                        padding: '0.75rem',
-                        marginBottom: '0.75rem',
-                        background: '#fff'
-                      }}
-                    >
+                    <ItemCard key={idx}>
                       <TwoColumnRow>
                         <FieldGroup>
-                          <Label>Sistema</Label>
+                          <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
                           <Input value={s.nombre} disabled />
                         </FieldGroup>
                         <FieldGroup>
@@ -1281,25 +1276,15 @@ const Add = () => {
                           />
                         </FieldGroup>
                       </TwoColumnRow>
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeSistemaAt(idx)}
-                          style={{
-                            background: 'black',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removeSistemaAt(idx)}>
                           <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
                   ))}
-                </div>
+                </ListContainer>
               )}
             </details>
 
