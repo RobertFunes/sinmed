@@ -75,9 +75,13 @@ export const buildNestedPayload = (data) => {
     alimentacion,
   };
 
-  // Padecimiento actual e interrogatorio
-  const padecimiento_e_interrogatorio = {
+  // Consultas
+  const consultas = {
+    fecha_consulta: trim(data.fecha_consulta),
     padecimiento_actual: trim(data.padecimiento_actual),
+    diagnostico: trim(data.diagnostico),
+    tratamiento: trim(data.tratamiento),
+    notas: trim(data.notas),
     interrogatorio_aparatos: (data.interrogatorio_aparatos || []).map((s) => ({
       nombre: trim(s.nombre),
       descripcion: trim(s.descripcion),
@@ -120,7 +124,7 @@ export const buildNestedPayload = (data) => {
     gineco_obstetricos,
     antecedentes_personales,
     antecedentes_personales_patologicos: patologicos,
-    padecimiento_e_interrogatorio,
+    consultas,
     exploracion_fisica,
     diagnostico_y_tratamiento,
   };

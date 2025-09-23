@@ -45,8 +45,19 @@ import {
 
 
 
+const todayISO = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().split('T')[0];
+};
+
+const buildInitialForm = () => ({
+  ...initialState,
+  fecha_consulta: todayISO(),
+});
+
 const Add = () => {
-  const [formData, setFormData] = useState(initialState);
+  const [formData, setFormData] = useState(() => buildInitialForm());
   const nombreRef = useRef(null);
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
@@ -105,7 +116,7 @@ const Add = () => {
 
       if (res.ok) {
         alert('Perfil agregado correctamente');
-        setFormData(initialState);
+        setFormData(buildInitialForm());
       } else {
         alert('Ocurrió un error al agregar el perfil');
       }
@@ -117,7 +128,7 @@ const Add = () => {
     }
   };
 
-  const handleCancel = () => setFormData(initialState);
+  const handleCancel = () => setFormData(buildInitialForm());
   const addAntecedente = () => {
     if (!nuevoAntecedente) return;
     setFormData(prev => ({
@@ -980,91 +991,6 @@ const Add = () => {
               )}
             </details>
 
-            {/* Seccion colapsable: Padecimiento actual e interrogatorio por aparatos y sistemas */}
-            <details open={openSection === 'padecimiento'} onToggle={handleToggle('padecimiento')}>
-              <Summary>Padecimiento actual e interrogatorio</Summary>
-
-              {/* Padecimiento actual (textarea grande) */}
-              <FieldGroup>
-                <Label htmlFor="padecimiento_actual">Padecimiento actual</Label>
-                <TextArea
-                  id="padecimiento_actual"
-                  name="padecimiento_actual"
-                  value={formData.padecimiento_actual}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Describe el padecimiento actual"
-                />
-              </FieldGroup>
-
-              {/* Selector para agregar sistemas */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_sistema">Selecciona un sistema</Label>
-                  <Select
-                    id="select_sistema"
-                    value={nuevoSistema}
-                    onChange={e => setNuevoSistema(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {SISTEMAS_OPCIONES
-                      .filter(opt => !formData.interrogatorio_aparatos.some(s => s.nombre === opt))
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {/* Lista de sistemas agregados */}
-              {formData.interrogatorio_aparatos.length > 0 && (
-                <div style={{ marginTop: '0.75rem' }}>
-                  {formData.interrogatorio_aparatos.map((s, idx) => (
-                    <div key={idx} style={{ border: `1px solid ${Palette.secondary}`, borderRadius: 6, padding: '0.75rem', marginBottom: '0.75rem', background: '#fff' }}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label>Sistema</Label>
-                          <Input value={s.nombre} disabled />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
-                          <TextArea
-                            value={s.descripcion}
-                            onChange={e => updateSistemaDesc(idx, e.target.value)}
-                            rows={3}
-                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button
-                          type="button"
-                          onClick={() => removeSistemaAt(idx)}
-                          style={{
-                            background: 'transparent',
-                            border: `1px solid ${Palette.secondary}`,
-                            borderRadius: 4,
-                            padding: '0.35rem 0.65rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <FaTrash />
-                          <span style={{ marginLeft: 8 }}>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </details>
-
             {/* Seccion colapsable: Exploración física */}
             <details open={openSection === 'exploracion'} onToggle={handleToggle('exploracion')}>
               <Summary>Exploración física</Summary>
@@ -1208,65 +1134,145 @@ const Add = () => {
               )}
             </details>
 
-            {/* Seccion colapsable: Diagnóstico y tratamiento */}
-            <details open={openSection === 'diagnostico'} onToggle={handleToggle('diagnostico')}>
-              <Summary>Diagnóstico y tratamiento</Summary>
+            {/* Seccion colapsable: Consultas */}
+            <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
+              <Summary>Consultas</Summary>
 
               <FieldGroup>
-                <Label htmlFor="diagnostico">Diagnóstico</Label>
+                <Label htmlFor="fecha_consulta">Fecha de consulta</Label>
+                <Input
+                  type="date"
+                  id="fecha_consulta"
+                  name="fecha_consulta"
+                  value={formData.fecha_consulta}
+                  onChange={handleChange}
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <Label htmlFor="consulta_padecimiento_actual">Padecimiento actual</Label>
                 <TextArea
-                  id="diagnostico"
+                  id="consulta_padecimiento_actual"
+                  name="padecimiento_actual"
+                  value={formData.padecimiento_actual}
+                  onChange={handleChange}
+                  rows={6}
+                  placeholder="Describe el padecimiento actual"
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <Label htmlFor="consulta_diagnostico">Diagnóstico</Label>
+                <TextArea
+                  id="consulta_diagnostico"
                   name="diagnostico"
                   value={formData.diagnostico}
                   onChange={handleChange}
-                  rows={5}
+                  rows={6}
                   placeholder="Escribe el diagnóstico clínico"
                 />
               </FieldGroup>
 
               <FieldGroup>
-                <Label htmlFor="tratamiento">Tratamiento</Label>
+                <Label htmlFor="consulta_tratamiento">Tratamiento</Label>
                 <TextArea
-                  id="tratamiento"
+                  id="consulta_tratamiento"
                   name="tratamiento"
                   value={formData.tratamiento}
                   onChange={handleChange}
-                  rows={5}
+                  rows={6}
                   placeholder="Plan de tratamiento"
                 />
               </FieldGroup>
 
               <FieldGroup>
-                <Label htmlFor="pronostico">Pronóstico</Label>
+                <Label htmlFor="consulta_notas">Notas</Label>
                 <TextArea
-                  id="pronostico"
-                  name="pronostico"
-                  value={formData.pronostico}
-                  onChange={handleChange}
-                  rows={3}
-                  placeholder="Pronóstico del paciente"
-                />
-              </FieldGroup>
-
-              <FieldGroup>
-                <Label htmlFor="notas">Notas</Label>
-                <TextArea
-                  id="notas"
+                  id="consulta_notas"
                   name="notas"
                   value={formData.notas}
                   onChange={handleChange}
-                  rows={5}
-                  placeholder="Notas adicionales"
+                  rows={6}
+                  placeholder="Notas de la consulta"
                 />
               </FieldGroup>
-            </details>
 
-            {/* Seccion colapsable: Consultas */}
-            <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
-              <Summary>Consultas</Summary>
-              <p style={{ marginTop: '0.75rem', color: '#777' }}>Sin campos configurados por ahora.</p>
-            </details>
+              {/* Selector para agregar sistemas */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="select_sistema">Selecciona un sistema</Label>
+                  <Select
+                    id="select_sistema"
+                    value={nuevoSistema}
+                    onChange={e => setNuevoSistema(e.target.value)}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {SISTEMAS_OPCIONES
+                      .filter(opt => !formData.interrogatorio_aparatos.some(s => s.nombre === opt))
+                      .map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                  </Select>
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>&nbsp;</Label>
+                  <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema}>
+                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+                    Agregar
+                  </SubmitButton>
+                </FieldGroup>
+              </TwoColumnRow>
 
+              {/* Lista de sistemas agregados */}
+              {formData.interrogatorio_aparatos.length > 0 && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  {formData.interrogatorio_aparatos.map((s, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        border: `1px solid ${Palette.secondary}`,
+                        borderRadius: 6,
+                        padding: '0.75rem',
+                        marginBottom: '0.75rem',
+                        background: '#fff'
+                      }}
+                    >
+                      <TwoColumnRow>
+                        <FieldGroup>
+                          <Label>Sistema</Label>
+                          <Input value={s.nombre} disabled />
+                        </FieldGroup>
+                        <FieldGroup>
+                          <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
+                          <TextArea
+                            value={s.descripcion}
+                            onChange={e => updateSistemaDesc(idx, e.target.value)}
+                            rows={3}
+                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
+                          />
+                        </FieldGroup>
+                      </TwoColumnRow>
+                      <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => removeSistemaAt(idx)}
+                          style={{
+                            background: 'transparent',
+                            border: `1px solid ${Palette.secondary}`,
+                            borderRadius: 4,
+                            padding: '0.35rem 0.65rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <FaTrash />
+                          <span style={{ marginLeft: 8 }}>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </details>
 
             {/* Botonera */}
             <ButtonRow>
@@ -1282,3 +1288,4 @@ const Add = () => {
 };
 
 export default Add;
+

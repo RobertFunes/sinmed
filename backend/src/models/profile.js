@@ -80,27 +80,6 @@ async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
   return inserted;
 }
 
-// Inserta/actualiza (1:1) padecimiento_actual_interrogatorio por id_perfil
-// data: objeto parcial con columnas válidas (sin id_perfil)
-async function upsertPadecimientoActualInterrogatorio(id_perfil, data = {}) {
-  if (!id_perfil) throw new Error('id_perfil requerido');
-  const payload = { ...data };
-
-  // Filtra null/undefined para no sobrescribir con null innecesariamente
-  const cols = Object.keys(payload).filter((k) => payload[k] != null);
-  if (cols.length === 0) return { affectedRows: 0 };
-
-  const fields = ['id_perfil', ...cols];
-  const placeholders = fields.map(() => '?').join(', ');
-  const values = [id_perfil, ...cols.map((k) => payload[k])];
-
-  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
-  const sql = `INSERT INTO padecimiento_actual_interrogatorio (${fields.join(', ')}) VALUES (${placeholders})
-               ON DUPLICATE KEY UPDATE ${updates}`;
-  const [result] = await db.query(sql, values);
-  return result;
-}
-
 // Inserta/actualiza (1:1) exploracion_fisica por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
 async function upsertExploracionFisica(id_perfil, data = {}) {
@@ -183,7 +162,6 @@ async function getSummary(limit = 50, offset = 0) {
          COALESCE(af.max_actualizado,  DATE '1970-01-01'),
          COALESCE(ap.actualizado,      DATE '1970-01-01'),
          COALESCE(app.max_actualizado, DATE '1970-01-01'),
-         COALESCE(pai.max_actualizado, DATE '1970-01-01'),
          COALESCE(ef.max_actualizado,  DATE '1970-01-01'),
          COALESCE(dt.max_actualizado,  DATE '1970-01-01')
        ), '%Y-%m-%d') AS actualizado
@@ -196,9 +174,6 @@ async function getSummary(limit = 50, offset = 0) {
        ON app.id_perfil = p.id_perfil
      LEFT JOIN (SELECT id_perfil, actualizado FROM antecedentes_personales) ap
        ON ap.id_perfil = p.id_perfil
-     LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
-                FROM padecimiento_actual_interrogatorio GROUP BY id_perfil) pai
-       ON pai.id_perfil = p.id_perfil
      LEFT JOIN (SELECT id_perfil, MAX(actualizado) AS max_actualizado
                 FROM exploracion_fisica GROUP BY id_perfil) ef
        ON ef.id_perfil = p.id_perfil
@@ -274,7 +249,6 @@ async function getById(id_perfil) {
     'antecedentes_personales_patologicos',
     'diagnostico_tratamiento',
     'exploracion_fisica',
-    'padecimiento_actual_interrogatorio',
   ];
   const includedDateStrings = [];
   if (result.actualizado) includedDateStrings.push(result.actualizado);
@@ -528,9 +502,8 @@ module.exports = {
   upsertAntecedentesPersonales,
   upsertGinecoObstetricos,
   addAntecedentesPersonalesPatologicos,
-  upsertPadecimientoActualInterrogatorio,
-  upsertExploracionFisica,
   upsertDiagnosticoTratamiento,
+  upsertExploracionFisica,
   addAppointment,
   listAppointments,
   updateAppointment,

@@ -248,339 +248,94 @@ const getById = async (req, res) => {
 
 const add = async (req, res) => {
   try {
-    const payload = req.body || {};
-    const dp = payload.datos_personales || {};
+    // =====================
+    // 0) Payload de entrada
+    // =====================
+    // El front envía un objeto con varias secciones anidadas:
+    // - datos_personales
+    // - antecedentes_familiares
+    // - antecedentes_personales
+    const body = req.body || {};
 
-    // Normaliza: trim a strings y '' -> null
-    const normalize = (v) => {
-      if (v == null) return v;
-      if (typeof v === 'string') {
-        const t = v.trim();
-        return t === '' ? null : t;
-      }
-      return v;
+    // Utilidades de normalización
+    const clean = (v) => (v === '' || v == null ? null : v);
+    const toYMD = (v) => (typeof v === 'string' && v.length >= 10 ? v.slice(0, 10) : null);
+    const norm = (v) => (typeof v === 'string' ? v.trim() : v);
+
+    // ==================================================
+    // 1) datos_personales -> INSERT en tabla `perfil`
+    //     - Guarda el perfil base y obtenemos id_perfil
+    //     - Campos vacíos -> NULL; nombre por defecto si falta
+    // ==================================================
+    const dp = body.datos_personales || {};
+    const perfil = {
+      nombre: dp.nombre && String(dp.nombre).trim() ? dp.nombre.trim() : 'Sin nombre',
+      fecha_nacimiento: clean(toYMD(dp.fecha_nacimiento)),
+      genero: clean(dp.genero),
+      telefono_movil: clean(dp.telefono_movil),
+      correo_electronico: clean(dp.correo_electronico),
+      residencia: clean(dp.residencia),
+      ocupacion: clean(dp.ocupacion),
+      escolaridad: clean(dp.escolaridad),
+      estado_civil: clean(dp.estado_civil),
+      tipo_sangre: clean(dp.tipo_sangre),
+      referido_por: clean(dp.referido_por),
     };
+    const id_perfil = await bd.add(perfil); // id del perfil recién creado
 
-    // Whitelist de campos permitidos en tabla `perfil`
-    const allowed = [
-      'nombre',
-      'fecha_nacimiento',
-      'genero',
-      'telefono_movil',
-      'correo_electronico',
-      'residencia',
-      'ocupacion',
-      'escolaridad',
-      'estado_civil',
-      'tipo_sangre',
-      'referido_por',
-    ];
+    // ==================================================================
+    // 2) antecedentes_familiares -> INSERT 1:N en `antecedentes_familiares`
+    //     - Inserta una fila por cada elemento del array (si tiene nombre)
+    // ==================================================================
+    const afRaw = Array.isArray(body.antecedentes_familiares) ? body.antecedentes_familiares : [];
+    const afItems = afRaw.map((it) => ({
+      nombre: norm(it?.nombre) || null,
+      descripcion: norm(it?.descripcion) || null,
+    }));
+    const af_inserted = await bd.addAntecedentesFamiliares(id_perfil, afItems);
 
-    // Construye objeto de inserción solo con llaves presentes
-    const record = {};
-    for (const k of allowed) {
-      if (Object.prototype.hasOwnProperty.call(dp, k)) {
-        record[k] = normalize(dp[k]);
-      }
-    }
+    // ============================================================================
+    // 3) antecedentes_personales -> UPSERT 1:1 en `antecedentes_personales`
+    //     - Habitos (alcohol, tabaco, toxicomanías) mapean a columnas específicas
+    //     - Alimentación (calidad/descripcion/hay_cambios y cambios si aplica)
+    // ============================================================================
+    const apRaw = body.antecedentes_personales || {};
+    const apPayload = {};
 
-    // Validación: nombre obligatorio
-    const nombre = normalize(dp.nombre);
-    if (!nombre) {
-      return res.status(400).json({ ok: false, error: 'El campo nombre es obligatorio' });
-    }
-    record.nombre = nombre; // asegura que nombre normalizado esté presente
-
-    // Inserta perfil y obtiene id_perfil
-    const id = await bd.add(record);
-
-    // Inserta antecedentes_familiares si llegaron
-    const lista = Array.isArray(payload.antecedentes_familiares)
-      ? payload.antecedentes_familiares
-      : [];
-    if (lista.length > 0) {
-      const norm = (v) => {
-        if (v == null) return v;
-        if (typeof v === 'string') {
-          const t = v.trim();
-          return t === '' ? null : t;
-        }
-        return v;
-      };
-      const items = lista.map((a) => ({
-        nombre: norm(a?.nombre),
-        descripcion: norm(a?.descripcion),
-      }));
-      await bd.addAntecedentesFamiliares(id, items);
-    }
-
-    // Inserta/actualiza antecedentes_personales (1:1) si hay datos
-    const gineco = payload.gineco_obstetricos || {};
-    const ap = payload.antecedentes_personales || {};
-    const norm = (v) => {
-      if (v == null) return v;
-      if (typeof v === 'string') {
-        const t = v.trim();
-        return t === '' ? null : t;
-      }
-      return v;
-    };
-    const recordGO = {
-      edad_primera_menstruacion: null,
-      ciclo_dias: null,
-      cantidad: null,
-      dolor: null,
-      fecha_ultima_menstruacion: null,
-      vida_sexual_activa: null,
-      anticoncepcion: null,
-      tipo_anticonceptivo: null,
-      gestas: null,
-      partos: null,
-      cesareas: null,
-      abortos: null,
-      fecha_ultimo_parto: null,
-      fecha_menopausia: null,
-    };
-
-    const recordAP = {
-      bebidas_por_dia: null,
-      tiempo_activo_alc: null,
-      cigarrillos_por_dia: null,
-      tiempo_activo_tab: null,
-      tipo_toxicomania: null,
-      tiempo_activo_tox: null,
-      calidad: null,
-      descripcion: null,
-      hay_cambios: null,
-      cambio_tipo: null,
-      cambio_causa: null,
-      cambio_tiempo: null,
-    };
-
-    // Habitos: toma el primero por tipo si existe
-    if (Array.isArray(ap.habitos)) {
-      const byTipo = (t) => ap.habitos.find((h) => h?.tipo === t);
-      const alc = byTipo('Alcoholismo');
-      const tab = byTipo('Tabaquismo');
-      const tox = byTipo('Toxicomanías') || byTipo('Toxicomanias');
-      if (alc) {
-        recordAP.bebidas_por_dia = norm(alc.campos?.bebidas_por_dia);
-        recordAP.tiempo_activo_alc = norm(alc.campos?.tiempo_activo_alc);
-      }
-      if (tab) {
-        recordAP.cigarrillos_por_dia = norm(tab.campos?.cigarrillos_por_dia);
-        recordAP.tiempo_activo_tab = norm(tab.campos?.tiempo_activo_tab);
-      }
-      if (tox) {
-        recordAP.tipo_toxicomania = norm(tox.campos?.tipo_toxicomania);
-        recordAP.tiempo_activo_tox = norm(tox.campos?.tiempo_activo_tox);
+    // Hábitos -> columnas dedicadas
+    const habitos = Array.isArray(apRaw.habitos) ? apRaw.habitos : [];
+    for (const h of habitos) {
+      const tipo = (h?.tipo || '').trim().toLowerCase();
+      const c = h?.campos || {};
+      if (tipo.startsWith('alcohol')) {
+        apPayload.bebidas_por_dia = clean(c.bebidas_por_dia);
+        apPayload.tiempo_activo_alc = clean(c.tiempo_activo_alc);
+      } else if (tipo.includes('taba')) {
+        apPayload.cigarrillos_por_dia = clean(c.cigarrillos_por_dia);
+        apPayload.tiempo_activo_tab = clean(c.tiempo_activo_tab);
+      } else if (tipo.includes('toxico')) {
+        apPayload.tipo_toxicomania = clean(c.tipo_toxicomania);
+        apPayload.tiempo_activo_tox = clean(c.tiempo_activo_tox);
       }
     }
 
     // Alimentación
-    if (ap.alimentacion && typeof ap.alimentacion === 'object') {
-      const al = ap.alimentacion;
-      recordAP.calidad = norm(al.calidad);
-      recordAP.descripcion = norm(al.descripcion);
-      recordAP.hay_cambios = norm(al.hay_cambios);
-      if (recordAP.hay_cambios === 'Si') {
-        recordAP.cambio_tipo = norm(al.tipo);
-        recordAP.cambio_causa = norm(al.causa);
-        recordAP.cambio_tiempo = norm(al.tiempo);
-      }
+    const alim = apRaw.alimentacion || {};
+    apPayload.calidad = clean(alim.calidad);
+    apPayload.descripcion = clean(alim.descripcion);
+    apPayload.hay_cambios = clean(alim.hay_cambios);
+    if (apPayload.hay_cambios === 'Si') {
+      apPayload.cambio_tipo = clean(alim.tipo);
+      apPayload.cambio_causa = clean(alim.causa);
+      apPayload.cambio_tiempo = clean(alim.tiempo);
     }
+    const ap_result = await bd.upsertAntecedentesPersonales(id_perfil, apPayload);
 
-    const toInt = (value) => {
-      const normalized = norm(value);
-      if (normalized == null) return null;
-      const n = Number(normalized);
-      return Number.isFinite(n) ? n : null;
-    };
-    const toDate = (value) => {
-      const normalized = norm(value);
-      return normalized ? normalized.slice(0, 10) : null;
-    };
-
-    if (gineco && typeof gineco === 'object') {
-      recordGO.edad_primera_menstruacion = norm(gineco.edad_primera_menstruacion);
-      recordGO.ciclo_dias = norm(gineco.ciclo_dias);
-      recordGO.cantidad = norm(gineco.cantidad);
-      recordGO.dolor = norm(gineco.dolor);
-      recordGO.fecha_ultima_menstruacion = toDate(gineco.fecha_ultima_menstruacion);
-      recordGO.vida_sexual_activa = norm(gineco.vida_sexual_activa);
-      recordGO.anticoncepcion = norm(gineco.anticoncepcion);
-      recordGO.tipo_anticonceptivo = norm(gineco.tipo_anticonceptivo);
-      recordGO.gestas = toInt(gineco.gestas);
-      recordGO.partos = toInt(gineco.partos);
-      recordGO.cesareas = toInt(gineco.cesareas);
-      recordGO.abortos = toInt(gineco.abortos);
-      recordGO.fecha_ultimo_parto = toDate(gineco.fecha_ultimo_parto);
-      recordGO.fecha_menopausia = toDate(gineco.fecha_menopausia);
-    }
-
-    // Quita claves que quedaron null para no insertar basura
-    const compactAP = Object.fromEntries(
-      Object.entries(recordAP).filter(([, v]) => v != null)
-    );
-    if (Object.keys(compactAP).length > 0) {
-      await bd.upsertAntecedentesPersonales(id, compactAP);
-    }
-
-    const compactGO = Object.fromEntries(
-      Object.entries(recordGO).filter(([, v]) => v != null)
-    );
-    if (Object.keys(compactGO).length > 0) {
-      await bd.upsertGinecoObstetricos(id, compactGO);
-    }
-
-    // Inserta antecedentes_personales_patologicos (1:N) si llegaron
-    const app = Array.isArray(payload.antecedentes_personales_patologicos)
-      ? payload.antecedentes_personales_patologicos
-      : [];
-    if (app.length > 0) {
-      const normalize = (v) => {
-        if (v == null) return v;
-        if (typeof v === 'string') {
-          const t = v.trim();
-          return t === '' ? null : t;
-        }
-        return v;
-      };
-      const itemsAPP = app.map((p) => ({
-        antecedente: normalize(p?.antecedente),
-        descripcion: normalize(p?.descripcion),
-      }));
-      await bd.addAntecedentesPersonalesPatologicos(id, itemsAPP);
-    }
-
-    // 1:1 padecimiento_actual_interrogatorio
-    // Si no hay datos útiles, no insertes nada
-    const pe = payload.padecimiento_e_interrogatorio || {};
-    const pa = normalize(pe.padecimiento_actual);
-    const interrogatorio = Array.isArray(pe.interrogatorio_aparatos)
-      ? pe.interrogatorio_aparatos
-      : [];
-
-    // Mapeo de nombre -> columna (normalizado sin acentos)
-    const mapCols = {
-      'sintomas generales': 'sintomas_generales',
-      'endocrino': 'endocrino',
-      'organos de los sentidos': 'organos_sentidos',
-      'gastrointestinal': 'gastrointestinal',
-      'cardiopulmonar': 'cardiopulmonar',
-      'genitourinario': 'genitourinario',
-      'genital femenino': 'genital_femenino',
-      'sexualidad': 'sexualidad',
-      'dermatologico': 'dermatologico',
-      'neurologico': 'neurologico',
-      'hematologico': 'hematologico',
-      'reumatologico': 'reumatologico',
-      'psiquiatrico': 'psiquiatrico',
-      'medicamentos': 'medicamentos',
-    };
-    const normName = (s) => {
-      if (!s || typeof s !== 'string') return '';
-      return s
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim();
-    };
-
-    const recordPI = {};
-    if (pa != null) {
-      recordPI.padecimiento_actual = pa;
-    }
-    for (const it of interrogatorio) {
-      const nombre = normName(it?.nombre || '');
-      const col = mapCols[nombre];
-      if (!col) continue; // ignora nombres desconocidos
-      const desc = normalize(it?.descripcion);
-      if (desc != null) {
-        recordPI[col] = desc;
-      }
-    }
-
-    if (Object.keys(recordPI).length > 0) {
-      await bd.upsertPadecimientoActualInterrogatorio(id, recordPI);
-    }
-
-    // 1:1 exploracion_fisica
-    const ef = payload.exploracion_fisica || {};
-    const allowedEF = [
-      'peso_actual',
-      'peso_anterior',
-      'peso_deseado',
-      'peso_ideal',
-      'talla_cm',
-      'imc',
-      'rtg',
-      'ta_mmhg',
-      'pulso',
-      'frecuencia_cardiaca',
-      'frecuencia_respiratoria',
-      'temperatura_c',
-      'cadera_cm',
-      'cintura_cm',
-    ];
-    const recordEF = {};
-    for (const k of allowedEF) {
-      if (Object.prototype.hasOwnProperty.call(ef, k)) {
-        const v = normalize(ef[k]);
-        if (v != null) recordEF[k] = v;
-      }
-    }
-
-    // Inspección general -> columnas específicas
-    const mapIG = {
-      'cabeza': 'cabeza',
-      'cuello': 'cuello',
-      'torax': 'torax',
-      'abdomen': 'abdomen',
-      'genitales': 'genitales',
-      'extremidades': 'extremidades',
-    };
-    const normNameIG = (s) => {
-      if (!s || typeof s !== 'string') return '';
-      return s
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim();
-    };
-    const ig = Array.isArray(ef.inspeccion_general) ? ef.inspeccion_general : [];
-    for (const it of ig) {
-      const nombre = normNameIG(it?.nombre || '');
-      // normaliza tórax -> torax
-      const key = nombre === 'torax' || nombre === 'tórax' ? 'torax' : nombre;
-      const col = mapIG[key];
-      if (!col) continue;
-      const desc = normalize(it?.descripcion);
-      if (desc != null) recordEF[col] = desc;
-    }
-
-    if (Object.keys(recordEF).length > 0) {
-      await bd.upsertExploracionFisica(id, recordEF);
-    }
-
-    // 1:1 diagnostico_tratamiento
-    const dt = payload.diagnostico_y_tratamiento || {};
-    const allowedDT = ['diagnostico', 'tratamiento', 'pronostico', 'notas'];
-    const recordDT = {};
-    for (const k of allowedDT) {
-      if (Object.prototype.hasOwnProperty.call(dt, k)) {
-        const v = normalize(dt[k]);
-        if (v != null) recordDT[k] = v;
-      }
-    }
-    if (Object.keys(recordDT).length > 0) {
-      await bd.upsertDiagnosticoTratamiento(id, recordDT);
-    }
-
-    return res.status(201).json({ success: true, id_perfil: id });
+    // Respuesta minimal con los ids/efectos clave para continuar el flujo
+    return res.status(201).json({ ok: true, id_perfil, af_inserted, ap_upserted: ap_result?.affectedRows ?? 0 });
   } catch (err) {
-    console.error('Error en ADD perfil:', err);
-    return res.status(500).json({ ok: false, error: err.message });
+    console.error('Error al agregar perfil:', err);
+    return res.status(500).json({ error: err.message });
   }
 }
 
@@ -686,4 +441,5 @@ module.exports = {
   listCalendar,
   deleteCalendar
 };
+
 
