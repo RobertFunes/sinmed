@@ -15,6 +15,7 @@ import {
   ButtonRow,
   SubmitButton,
   TwoColumnRow,
+  ThreeColumnRow,
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
@@ -86,6 +87,19 @@ const Add = () => {
     const livePayload = buildNestedPayload(formData);
     console.log('[Add] Payload actualizado:', livePayload);
   }, [formData]);
+
+  // 🧮 Auto-cálculo de IMC cuando hay peso y talla
+  useEffect(() => {
+    const w = parseFloat(formData.peso_actual);
+    const hcm = parseFloat(formData.talla_cm);
+    if (Number.isFinite(w) && w > 0 && Number.isFinite(hcm) && hcm > 0) {
+      const hm = hcm / 100;
+      const bmi = w / (hm * hm);
+      setFormData(prev => ({ ...prev, imc: bmi.toFixed(2) }));
+    } else {
+      setFormData(prev => ({ ...prev, imc: '' }));
+    }
+  }, [formData.peso_actual, formData.talla_cm]);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -269,6 +283,10 @@ const Add = () => {
     />
   );
 
+  // 👩‍⚕️ Visibilidad Gineco-Obstétricos
+  // Muestra la sección solo si el género NO es "Hombre" ("", "Mujer", etc.)
+  const showGineco = (formData.genero || '').trim() !== 'Hombre';
+
   return (
     <>
       <Header />
@@ -279,7 +297,7 @@ const Add = () => {
           </Title>
 
           <Form onSubmit={handleSubmit} noValidate>
-            {/* Seccion colapsable: Datos personales */}
+            {/* 🧍 Datos personales -> payload.datos_personales */}
             <details open={openSection === 'datos'} onToggle={handleToggle('datos')}>
               <Summary>
                 Datos personales
@@ -474,7 +492,7 @@ const Add = () => {
               {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
-            {/* Seccion colapsable: Antecedentes familiares */}
+            {/* 👪 Antecedentes familiares -> payload.antecedentes_familiares[] */}
             <details open={openSection === 'familiares'} onToggle={handleToggle('familiares')}>
               <Summary>Antecedentes familiares</Summary>
 
@@ -541,7 +559,7 @@ const Add = () => {
                           type="button"
                           onClick={() => removeAntecedenteAt(idx)}
                           style={{
-                            background: 'transparent',
+                            background: 'black',
                             border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
@@ -558,7 +576,7 @@ const Add = () => {
               )}
             </details>
 
-            {/* Seccion colapsable: Antecedentes personales */}
+            {/* 🧗 Hábitos y alimentación -> payload.antecedentes_personales */}
             <details open={openSection === 'personales'} onToggle={handleToggle('personales')}>
               <Summary>
                 Antecedentes personales
@@ -673,7 +691,7 @@ const Add = () => {
                           type="button"
                           onClick={() => removeHabitoAt(idx)}
                           style={{
-                            background: 'transparent',
+                            background: 'black',
                             border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
@@ -741,7 +759,8 @@ const Add = () => {
               )}
             </details>
 
-            {/* Seccion colapsable: Gineco-Obstetricos */}
+            {/* 👶 Gineco-Obstétricos -> payload.gineco_obstetricos (solo si no es Hombre) */}
+            {showGineco && (
             <details open={openSection === 'gineco'} onToggle={handleToggle('gineco')}>
               <Summary>Gineco-Obstetricos</Summary>
 
@@ -918,8 +937,9 @@ const Add = () => {
                 </FieldGroup>
               </TwoColumnRow>
             </details>
+            )}
 
-            {/* Seccion colapsable: Antecedentes personales patológicos */}
+            {/* 🧬 Patológicos -> payload.antecedentes_personales_patologicos[] */}
             <details open={openSection === 'patologicos'} onToggle={handleToggle('patologicos')}>
               <Summary>Antecedentes personales patológicos</Summary>
 
@@ -974,7 +994,7 @@ const Add = () => {
                           type="button"
                           onClick={() => removePatologicoAt(idx)}
                           style={{
-                            background: 'transparent',
+                            background: 'black',
                             border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
@@ -991,12 +1011,12 @@ const Add = () => {
               )}
             </details>
 
-            {/* Seccion colapsable: Exploración física */}
+            {/* 🩺 Exploración física -> payload.exploracion_fisica */}
             <details open={openSection === 'exploracion'} onToggle={handleToggle('exploracion')}>
               <Summary>Exploración física</Summary>
 
               {/* Datos antropométricos y vitales */}
-              <TwoColumnRow>
+              <TwoColumnRow $cols={3}>
                 <FieldGroup>
                   <Label htmlFor="peso_actual">Peso actual (kg)</Label>
                   <Input id="peso_actual" name="peso_actual" value={formData.peso_actual} onChange={handleChange} inputMode="decimal" placeholder="Ej. 72" />
@@ -1005,8 +1025,12 @@ const Add = () => {
                   <Label htmlFor="peso_anterior">Peso anterior (kg)</Label>
                   <Input id="peso_anterior" name="peso_anterior" value={formData.peso_anterior} onChange={handleChange} inputMode="decimal" placeholder="Ej. 75" />
                 </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="talla_cm">Talla (cm)</Label>
+                  <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 170" />
+                </FieldGroup>
               </TwoColumnRow>
-              <TwoColumnRow>
+              <TwoColumnRow $cols={3}>
                 <FieldGroup>
                   <Label htmlFor="peso_deseado">Peso deseado (kg)</Label>
                   <Input id="peso_deseado" name="peso_deseado" value={formData.peso_deseado} onChange={handleChange} inputMode="decimal" placeholder="Ej. 68" />
@@ -1015,18 +1039,13 @@ const Add = () => {
                   <Label htmlFor="peso_ideal">Peso ideal (kg)</Label>
                   <Input id="peso_ideal" name="peso_ideal" value={formData.peso_ideal} onChange={handleChange} inputMode="decimal" placeholder="Ej. 70" />
                 </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor="talla_cm">Talla (cm)</Label>
-                  <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 170" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="imc">IMC (%)</Label>
-                  <Input id="imc" name="imc" value={formData.imc} onChange={handleChange} inputMode="decimal" placeholder="Ej. 24.9" />
+                  <Label htmlFor="imc">IMC</Label>
+                  <Input id="imc" name="imc" value={formData.imc} readOnly placeholder="Ej. 24.90" />
                 </FieldGroup>
               </TwoColumnRow>
-              <TwoColumnRow>
+              
+              <TwoColumnRow $cols={3}>
                 <FieldGroup>
                   <Label htmlFor="rtg">% RTG</Label>
                   <Input id="rtg" name="rtg" value={formData.rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
@@ -1035,18 +1054,14 @@ const Add = () => {
                   <Label htmlFor="ta_mmhg">TA (mmHg)</Label>
                   <Input id="ta_mmhg" name="ta_mmhg" value={formData.ta_mmhg} onChange={handleChange} placeholder="Ej. 120/80" />
                 </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="pulso">Pulso</Label>
-                  <Input id="pulso" name="pulso" value={formData.pulso} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
-                </FieldGroup>
                 <FieldGroup>
                   <Label htmlFor="frecuencia_cardiaca">FC (frecuencia cardiaca)</Label>
                   <Input id="frecuencia_cardiaca" name="frecuencia_cardiaca" value={formData.frecuencia_cardiaca} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
                 </FieldGroup>
+                
               </TwoColumnRow>
-              <TwoColumnRow>
+              
+              <TwoColumnRow $cols={3}>
                 <FieldGroup>
                   <Label htmlFor="frecuencia_respiratoria">FR (frecuencia respiratoria)</Label>
                   <Input id="frecuencia_respiratoria" name="frecuencia_respiratoria" value={formData.frecuencia_respiratoria} onChange={handleChange} inputMode="numeric" placeholder="rpm" />
@@ -1055,12 +1070,13 @@ const Add = () => {
                   <Label htmlFor="temperatura_c">Temp (°C)</Label>
                   <Input id="temperatura_c" name="temperatura_c" value={formData.temperatura_c} onChange={handleChange} inputMode="decimal" placeholder="Ej. 36.7" />
                 </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
                 <FieldGroup>
                   <Label htmlFor="cadera_cm">Cadera (cm)</Label>
                   <Input id="cadera_cm" name="cadera_cm" value={formData.cadera_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 95" />
                 </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow $cols={4}>
+                
                 <FieldGroup>
                   <Label htmlFor="cintura_cm">Cintura (cm)</Label>
                   <Input id="cintura_cm" name="cintura_cm" value={formData.cintura_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 80" />
@@ -1117,7 +1133,7 @@ const Add = () => {
                           type="button"
                           onClick={() => removeInspeccionAt(idx)}
                           style={{
-                            background: 'transparent',
+                            background: 'black',
                             border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
@@ -1134,7 +1150,7 @@ const Add = () => {
               )}
             </details>
 
-            {/* Seccion colapsable: Consultas */}
+            {/* 📅 Consultas (padecimiento + interrogatorio) -> payload.consultas */}
             <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
               <Summary>Consultas</Summary>
 
@@ -1257,7 +1273,7 @@ const Add = () => {
                           type="button"
                           onClick={() => removeSistemaAt(idx)}
                           style={{
-                            background: 'transparent',
+                            background: 'black',
                             border: `1px solid ${Palette.secondary}`,
                             borderRadius: 4,
                             padding: '0.35rem 0.65rem',
@@ -1288,4 +1304,3 @@ const Add = () => {
 };
 
 export default Add;
-

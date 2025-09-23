@@ -331,8 +331,51 @@ const add = async (req, res) => {
     }
     const ap_result = await bd.upsertAntecedentesPersonales(id_perfil, apPayload);
 
+    // ============================================================================
+    // 4) gineco_obstetricos -> UPSERT 1:1 en `gineco_obstetricos`
+    //     - Solo fechas a YYYY-MM-DD; vacíos -> NULL
+    // ============================================================================
+    const goRaw = body.gineco_obstetricos || {};
+    const goPayload = {
+      edad_primera_menstruacion: clean(goRaw.edad_primera_menstruacion),
+      ciclo_dias: clean(goRaw.ciclo_dias),
+      cantidad: clean(goRaw.cantidad),
+      dolor: clean(goRaw.dolor),
+      fecha_ultima_menstruacion: clean(toYMD(goRaw.fecha_ultima_menstruacion)),
+      vida_sexual_activa: clean(goRaw.vida_sexual_activa),
+      anticoncepcion: clean(goRaw.anticoncepcion),
+      tipo_anticonceptivo: clean(goRaw.tipo_anticonceptivo),
+      gestas: clean(goRaw.gestas),
+      partos: clean(goRaw.partos),
+      cesareas: clean(goRaw.cesareas),
+      abortos: clean(goRaw.abortos),
+      fecha_ultimo_parto: clean(toYMD(goRaw.fecha_ultimo_parto)),
+      fecha_menopausia: clean(toYMD(goRaw.fecha_menopausia)),
+    };
+    const go_result = await bd.upsertGinecoObstetricos(id_perfil, goPayload);
+
+    // ============================================================================
+    // 5) antecedentes_personales_patologicos -> INSERT 1:N
+    //     - Inserta una fila por cada elemento con antecedente válido
+    // ============================================================================
+    const appRaw = Array.isArray(body.antecedentes_personales_patologicos)
+      ? body.antecedentes_personales_patologicos
+      : [];
+    const appItems = appRaw.map((it) => ({
+      antecedente: norm(it?.antecedente) || null,
+      descripcion: norm(it?.descripcion) || null,
+    }));
+    const app_inserted = await bd.addAntecedentesPersonalesPatologicos(id_perfil, appItems);
+
     // Respuesta minimal con los ids/efectos clave para continuar el flujo
-    return res.status(201).json({ ok: true, id_perfil, af_inserted, ap_upserted: ap_result?.affectedRows ?? 0 });
+    return res.status(201).json({
+      ok: true,
+      id_perfil,
+      af_inserted,
+      ap_upserted: ap_result?.affectedRows ?? 0,
+      go_upserted: go_result?.affectedRows ?? 0,
+      app_inserted,
+    });
   } catch (err) {
     console.error('Error al agregar perfil:', err);
     return res.status(500).json({ error: err.message });

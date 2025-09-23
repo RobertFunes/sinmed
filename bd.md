@@ -65,6 +65,30 @@ Registra hábitos y estilo de vida del paciente.
 | actualizado       | date              | NO   |     | curdate() |                |
 
 ---
+## 🌸 Tabla `gineco_obstetricos`
+Registra antecedentes ginecológicos y obstétricos del perfil.  
+**Nota**: relación 1:1 con `perfil` (`id_perfil` es único).
+
+| Columna                  | Tipo                         | Null | Key | Default   | Extra          | Descripción                                         |
+|--------------------------|------------------------------|------|-----|-----------|----------------|-----------------------------------------------------|
+| id_gineco                | int(11)                      | NO   | PRI | NULL      | auto_increment | Identificador único del registro                    |
+| id_perfil                | int(11)                      | NO   | UNI | NULL      |                | Clave foránea a `perfil.id_perfil`                 |
+| edad_primera_menstruacion| tinyint(4)                   | YES  |     | NULL      |                | Edad de la primera menstruación                     |
+| ciclo_dias               | tinyint(4)                   | YES  |     | NULL      |                | Duración promedio del ciclo (en días)               |
+| cantidad                 | varchar(50)                  | YES  |     | NULL      |                | Cantidad o volumen de sangrado                      |
+| dolor                    | varchar(50)                  | YES  |     | NULL      |                | Presencia e intensidad de dolor menstrual           |
+| fecha_ultima_menstruacion| date                          | YES  |     | NULL      |                | Fecha de la última menstruación                     |
+| vida_sexual_activa       | enum('Si','No')              | YES  |     | NULL      |                | Si mantiene vida sexual activa                      |
+| anticoncepcion           | enum('Si','No')              | YES  |     | NULL      |                | Si usa métodos anticonceptivos                      |
+| tipo_anticonceptivo      | varchar(100)                 | YES  |     | NULL      |                | Tipo de método anticonceptivo                       |
+| gestas                   | tinyint(4)                   | YES  |     | NULL      |                | Número de embarazos                                 |
+| partos                   | tinyint(4)                   | YES  |     | NULL      |                | Número de partos                                    |
+| cesareas                 | tinyint(4)                   | YES  |     | NULL      |                | Número de cesáreas                                  |
+| abortos                  | tinyint(4)                   | YES  |     | NULL      |                | Número de abortos                                   |
+| fecha_ultimo_parto       | date                          | YES  |     | NULL      |                | Fecha del último parto                               |
+| fecha_menopausia         | date                          | YES  |     | NULL      |                | Fecha de inicio de menopausia (si aplica)           |
+| creado                   | date                          | NO   |     | curdate() |                | Fecha de creación del registro                       |
+| actualizado              | date                          | NO   |     | curdate() |                | Fecha de última modificación (se actualiza por trigger)|
 
 ## 🩺 Tabla `antecedentes_personales_patologicos`
 Antecedentes de enfermedades, cirugías o condiciones previas.
@@ -80,21 +104,6 @@ Antecedentes de enfermedades, cirugías o condiciones previas.
 
 ---
 
-## 💊 Tabla `diagnostico_tratamiento`
-Guarda diagnósticos médicos, tratamientos y pronósticos.
-
-| Columna     | Tipo    | Null | Key | Default   | Extra          |
-|-------------|---------|------|-----|-----------|----------------|
-| id_dt       | int(11) | NO   | PRI | NULL      | auto_increment |
-| id_perfil   | int(11) | NO   | MUL | NULL      |                |
-| diagnostico | text    | YES  |     | NULL      |                |
-| tratamiento | text    | YES  |     | NULL      |                |
-| pronostico  | text    | YES  |     | NULL      |                |
-| notas       | text    | YES  |     | NULL      |                |
-| creado      | date    | NO   |     | curdate() |                |
-| actualizado | date    | NO   |     | curdate() |                |
-
----
 
 ## ⚖️ Tabla `exploracion_fisica`
 Resultados de exploraciones físicas del paciente.
@@ -111,7 +120,6 @@ Resultados de exploraciones físicas del paciente.
 | imc                  | decimal(5,2)| YES  |     | NULL      |                |
 | rtg                  | decimal(5,2)| YES  |     | NULL      |                |
 | ta_mmhg              | varchar(15) | YES  |     | NULL      |                |
-| pulso                | int(11)     | YES  |     | NULL      |                |
 | frecuencia_cardiaca  | int(11)     | YES  |     | NULL      |                |
 | frecuencia_respiratoria| int(11)   | YES  |     | NULL      |                |
 | temperatura_c        | decimal(4,1)| YES  |     | NULL      |                |

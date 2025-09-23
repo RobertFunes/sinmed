@@ -160,7 +160,12 @@ export const CancelButton = styled.button`
 `;
 export const TwoColumnRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: ${({ $cols }) => `repeat(${Number($cols) || 2}, 1fr)`};
+  gap: 1.25rem;
+`;
+export const ThreeColumnRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.25rem;
 `;
 export const FullWidthSelect = styled(Select)`
