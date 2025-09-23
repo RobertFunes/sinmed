@@ -78,6 +78,7 @@ export const buildNestedPayload = (data) => {
   // Consultas
   const consultas = {
     fecha_consulta: trim(data.fecha_consulta),
+    recordatorio: trim(data.recordatorio),
     padecimiento_actual: trim(data.padecimiento_actual),
     diagnostico: trim(data.diagnostico),
     tratamiento: trim(data.tratamiento),

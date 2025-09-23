@@ -1154,16 +1154,29 @@ const Add = () => {
             <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
               <Summary>Consultas</Summary>
 
-              <FieldGroup>
-                <Label htmlFor="fecha_consulta">Fecha de consulta</Label>
-                <Input
-                  type="date"
-                  id="fecha_consulta"
-                  name="fecha_consulta"
-                  value={formData.fecha_consulta}
-                  onChange={handleChange}
-                />
-              </FieldGroup>
+              {/* Subgrid 2 columnas: Fecha de consulta + Recordatorio */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="fecha_consulta">Fecha de consulta</Label>
+                  <Input
+                    type="date"
+                    id="fecha_consulta"
+                    name="fecha_consulta"
+                    value={formData.fecha_consulta}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="recordatorio">Recordatorio</Label>
+                  <Input
+                    type="date"
+                    id="recordatorio"
+                    name="recordatorio"
+                    value={formData.recordatorio}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
 
               <FieldGroup>
                 <Label htmlFor="consulta_padecimiento_actual">Padecimiento actual</Label>

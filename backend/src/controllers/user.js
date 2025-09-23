@@ -367,6 +367,102 @@ const add = async (req, res) => {
     }));
     const app_inserted = await bd.addAntecedentesPersonalesPatologicos(id_perfil, appItems);
 
+    // ============================================================================
+    // 6) exploracion_fisica -> UPSERT 1:1 en `exploracion_fisica`
+    //     - Recibe valores básicos y un array inspeccion_general[] que mapeamos a
+    //       columnas de texto: cabeza, cuello, torax, abdomen, genitales, extremidades
+    //     - Si hay peso_actual y talla_cm, calculamos IMC (kg/m^2) con 2 decimales
+    // ============================================================================
+    const efRaw = body.exploracion_fisica || {};
+    const efPayload = {
+      peso_actual: clean(efRaw.peso_actual),
+      peso_anterior: clean(efRaw.peso_anterior),
+      peso_deseado: clean(efRaw.peso_deseado),
+      peso_ideal: clean(efRaw.peso_ideal),
+      talla_cm: clean(efRaw.talla_cm),
+      imc: clean(efRaw.imc),
+      rtg: clean(efRaw.rtg),
+      ta_mmhg: clean(efRaw.ta_mmhg),
+      frecuencia_cardiaca: clean(efRaw.frecuencia_cardiaca),
+      frecuencia_respiratoria: clean(efRaw.frecuencia_respiratoria),
+      temperatura_c: clean(efRaw.temperatura_c),
+      cadera_cm: clean(efRaw.cadera_cm),
+      cintura_cm: clean(efRaw.cintura_cm),
+    };
+    // Mapea inspeccion_general[] -> columnas específicas
+    const areas = Array.isArray(efRaw.inspeccion_general) ? efRaw.inspeccion_general : [];
+    const pick = (name) => {
+      const it = areas.find((a) => (a?.nombre || '').toLowerCase() === name);
+      return it ? (it.descripcion ?? null) : null;
+    };
+    efPayload.cabeza = pick('cabeza');
+    efPayload.cuello = pick('cuello');
+    // soporta "tórax" y "torax"
+    const torax = areas.find((a) => {
+      const n = (a?.nombre || '').toLowerCase();
+      return n === 'tórax' || n === 'torax';
+    });
+    efPayload.torax = torax ? (torax.descripcion ?? null) : null;
+    efPayload.abdomen = pick('abdomen');
+    efPayload.genitales = pick('genitales');
+    efPayload.extremidades = pick('extremidades');
+
+    // Autocálculo de IMC si viene peso y talla (si no se calculó en front)
+    const parseNum = (v) => (v == null || v === '' ? NaN : Number(v));
+    const w = parseNum(efPayload.peso_actual);
+    const hcm = parseNum(efPayload.talla_cm);
+    if ((!efPayload.imc || efPayload.imc === '') && Number.isFinite(w) && w > 0 && Number.isFinite(hcm) && hcm > 0) {
+      const hm = hcm / 100;
+      const bmi = w / (hm * hm);
+      efPayload.imc = Number.isFinite(bmi) ? bmi.toFixed(2) : null;
+    }
+
+    const ef_result = await bd.upsertExploracionFisica(id_perfil, efPayload);
+
+    // ============================================================================
+    // 7) consultas -> UPSERT 1:1 en `consultas`
+    //     - Base: fecha_consulta, recordatorio, padecimiento_actual, diagnostico,
+    //       tratamiento, notas
+    //     - Interrogatorio por sistemas (array) -> *_desc (estado se usa en modify)
+    // ============================================================================
+    const consRaw = body.consultas || {};
+    const consPayload = {
+      fecha_consulta: clean(toYMD(consRaw.fecha_consulta)),
+      recordatorio: clean(toYMD(consRaw.recordatorio)),
+      padecimiento_actual: clean(consRaw.padecimiento_actual),
+      diagnostico: clean(consRaw.diagnostico),
+      tratamiento: clean(consRaw.tratamiento),
+      notas: clean(consRaw.notas),
+    };
+    const arr = Array.isArray(consRaw.interrogatorio_aparatos)
+      ? consRaw.interrogatorio_aparatos
+      : [];
+    const strip = (s) => (typeof s === 'string' ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '');
+    const mapNameToCol = (raw) => {
+      const k = strip(String(raw || '')).toLowerCase().trim();
+      if (!k) return null;
+      if (k === 'sintomas generales') return 'sintomas_generales_desc';
+      if (k === 'endocrino') return 'endocrino_desc';
+      if (k === 'organos de los sentidos') return 'organos_sentidos_desc';
+      if (k === 'gastrointestinal') return 'gastrointestinal_desc';
+      if (k === 'cardiopulmonar') return 'cardiopulmonar_desc';
+      if (k === 'genitourinario') return 'genitourinario_desc';
+      if (k === 'genital femenino') return 'genital_femenino_desc';
+      if (k === 'sexualidad') return 'sexualidad_desc';
+      if (k === 'dermatologico') return 'dermatologico_desc';
+      if (k === 'neurologico') return 'neurologico_desc';
+      if (k === 'hematologico') return 'hematologico_desc';
+      if (k === 'reumatologico') return 'reumatologico_desc';
+      if (k === 'psiquiatrico') return 'psiquiatrico_desc';
+      if (k === 'medicamentos') return 'medicamentos_desc';
+      return null;
+    };
+    for (const it of arr) {
+      const col = mapNameToCol(it?.nombre);
+      if (col) consPayload[col] = clean(it?.descripcion);
+    }
+    const cons_result = await bd.upsertConsultas(id_perfil, consPayload);
+
     // Respuesta minimal con los ids/efectos clave para continuar el flujo
     return res.status(201).json({
       ok: true,
@@ -374,6 +470,8 @@ const add = async (req, res) => {
       af_inserted,
       ap_upserted: ap_result?.affectedRows ?? 0,
       go_upserted: go_result?.affectedRows ?? 0,
+      ef_upserted: ef_result?.affectedRows ?? 0,
+      cons_upserted: cons_result?.affectedRows ?? 0,
       app_inserted,
     });
   } catch (err) {

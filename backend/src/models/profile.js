@@ -100,6 +100,25 @@ async function upsertExploracionFisica(id_perfil, data = {}) {
   return result;
 }
 
+// Inserta/actualiza (1:1) consultas por id_perfil
+// data: objeto parcial con columnas válidas (sin id_perfil)
+async function upsertConsultas(id_perfil, data = {}) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  const payload = { ...data };
+
+  const cols = Object.keys(payload).filter((k) => payload[k] != null);
+  if (cols.length === 0) return { affectedRows: 0 };
+
+  const fields = ['id_perfil', ...cols];
+  const placeholders = fields.map(() => '?').join(', ');
+  const values = [id_perfil, ...cols.map((k) => payload[k])];
+
+  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
+  const sql = `INSERT INTO consultas (${fields.join(', ')}) VALUES (${placeholders})
+               ON DUPLICATE KEY UPDATE ${updates}`;
+  const [result] = await db.query(sql, values);
+  return result;
+}
 // Inserta/actualiza (1:1) diagnostico_tratamiento por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
 async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
@@ -504,6 +523,7 @@ module.exports = {
   addAntecedentesPersonalesPatologicos,
   upsertDiagnosticoTratamiento,
   upsertExploracionFisica,
+  upsertConsultas,
   addAppointment,
   listAppointments,
   updateAppointment,

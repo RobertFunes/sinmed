@@ -134,46 +134,47 @@ Resultados de exploraciones físicas del paciente.
 | creado               | date        | NO   |     | curdate() |                |
 | actualizado          | date        | NO   |     | curdate() |                |
 
----
+## 📝 Tabla `consultas`
+Registra cada consulta médica realizada a un paciente, con diagnóstico, tratamiento y síntomas por sistemas.
 
-## 🧠 Tabla `padecimiento_actual_interrogatorio`
-Información sobre el padecimiento actual y síntomas por sistemas.
+| Columna                  | Tipo        | Null | Key | Default   | Extra          | Descripción                                                           |
+|--------------------------|------------|------|-----|-----------|----------------|------------------------------------------------------------------------|
+| id_consulta             | int(11)     | NO   | PRI | NULL      | auto_increment | Identificador único de la consulta                                     |
+| id_perfil               | int(11)     | NO   | MUL | NULL      |                | Clave foránea a `perfil.id_perfil`                                    |
+| fecha_consulta          | date        | NO   |     | NULL      |                | Fecha en la que se realizó la consulta                                 |
+| padecimiento_actual     | text        | YES  |     | NULL      |                | Descripción del padecimiento o motivo de la consulta                   |
+| diagnostico             | text        | YES  |     | NULL      |                | Diagnóstico médico principal                                           |
+| tratamiento             | text        | YES  |     | NULL      |                | Tratamiento prescrito                                                  |
+| notas                   | text        | YES  |     | NULL      |                | Notas adicionales                                                     |
+| sintomas_generales_desc | text        | YES  |     | NULL      |                | Descripción de síntomas generales                                      |
+| sintomas_generales_estado| varchar(15)| YES  |     | NULL      |                | Estado de síntomas generales (por ejemplo: Normal, Alterado)           |
+| endocrino_desc          | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema endocrino                          |
+| endocrino_estado        | varchar(15) | YES  |     | NULL      |                | Estado del sistema endocrino                                           |
+| organos_sentidos_desc   | text        | YES  |     | NULL      |                | Descripción de hallazgos en órganos de los sentidos                    |
+| organos_sentidos_estado | varchar(15) | YES  |     | NULL      |                | Estado de órganos de los sentidos                                      |
+| gastrointestinal_desc   | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema gastrointestinal                   |
+| gastrointestinal_estado | varchar(15) | YES  |     | NULL      |                | Estado del sistema gastrointestinal                                    |
+| cardiopulmonar_desc     | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema cardiopulmonar                     |
+| cardiopulmonar_estado   | varchar(15) | YES  |     | NULL      |                | Estado del sistema cardiopulmonar                                     |
+| genitourinario_desc     | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema genitourinario                     |
+| genitourinario_estado   | varchar(15) | YES  |     | NULL      |                | Estado del sistema genitourinario                                      |
+| genital_femenino_desc   | text        | YES  |     | NULL      |                | Descripción de hallazgos en genitales femeninos                        |
+| genital_femenino_estado | varchar(15) | YES  |     | NULL      |                | Estado de genitales femeninos                                          |
+| sexualidad_desc         | text        | YES  |     | NULL      |                | Descripción de hallazgos en sexualidad                                 |
+| sexualidad_estado       | varchar(15) | YES  |     | NULL      |                | Estado de sexualidad                                                   |
+| dermatologico_desc      | text        | YES  |     | NULL      |                | Descripción de hallazgos en piel y anexos                              |
+| dermatologico_estado    | varchar(15) | YES  |     | NULL      |                | Estado dermatológico                                                   |
+| neurologico_desc        | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema neurológico                         |
+| neurologico_estado      | varchar(15) | YES  |     | NULL      |                | Estado del sistema neurológico                                         |
+| hematologico_desc       | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema hematológico                        |
+| hematologico_estado     | varchar(15) | YES  |     | NULL      |                | Estado del sistema hematológico                                        |
+| reumatologico_desc      | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema reumatológico                       |
+| reumatologico_estado    | varchar(15) | YES  |     | NULL      |                | Estado del sistema reumatológico                                       |
+| psiquiatrico_desc       | text        | YES  |     | NULL      |                | Descripción de hallazgos en sistema psiquiátrico                        |
+| psiquiatrico_estado     | varchar(15) | YES  |     | NULL      |                | Estado del sistema psiquiátrico                                        |
+| medicamentos_desc       | text        | YES  |     | NULL      |                | Descripción de medicamentos en uso o administrados                      |
+| medicamentos_estado     | varchar(15) | YES  |     | NULL      |                | Estado o control de medicamentos                                       |
+| recordatorio            | date        | YES  |     | NULL      |                | Fecha de recordatorio para seguimiento o próxima revisión               |
+| creado                  | date        | NO   |     | curdate() |                | Fecha de creación del registro                                          |
+| actualizado             | date        | NO   |     | curdate() |                | Fecha de última modificación (actualizada automáticamente por trigger)  |
 
-| Columna           | Tipo | Null | Key | Default   | Extra          |
-|-------------------|------|------|-----|-----------|----------------|
-| id_pai            | int(11) | NO | PRI | NULL      | auto_increment |
-| id_perfil         | int(11) | NO | MUL | NULL      |                |
-| padecimiento_actual | text | YES |     | NULL      |                |
-| sintomas_generales  | text | YES |     | NULL      |                |
-| endocrino           | text | YES |     | NULL      |                |
-| organos_sentidos    | text | YES |     | NULL      |                |
-| gastrointestinal    | text | YES |     | NULL      |                |
-| cardiopulmonar      | text | YES |     | NULL      |                |
-| genitourinario      | text | YES |     | NULL      |                |
-| genital_femenino    | text | YES |     | NULL      |                |
-| sexualidad          | text | YES |     | NULL      |                |
-| dermatologico       | text | YES |     | NULL      |                |
-| neurologico         | text | YES |     | NULL      |                |
-| hematologico        | text | YES |     | NULL      |                |
-| reumatologico       | text | YES |     | NULL      |                |
-| psiquiatrico        | text | YES |     | NULL      |                |
-| medicamentos        | text | YES |     | NULL      |                |
-| creado              | date | NO  |     | curdate() |                |
-| actualizado         | date | NO  |     | curdate() |                |
-
----
-
-# 🔗 Relaciones
-
-- `perfil` es la tabla **principal**.  
-- Todas las demás tablas tienen `id_perfil` como **clave foránea** (aunque no se ve explícitamente con `FOREIGN KEY`, la relación lógica existe).  
-- **antecedentes_personales** es **1:1** con `perfil`.  
-- Las demás (`familiares`, `patológicos`, `exploracion_fisica`, `diagnostico_tratamiento`, `padecimiento_actual_interrogatorio`) son **1:N**: un perfil puede tener varios registros.  
-
----
-
-# 📅 Manejo de fechas
-
-- Todas las tablas tienen campos `creado` y `actualizado` de tipo **DATE** con `DEFAULT curdate()`.  
-- Los triggers implementados hacen que `actualizado` se ponga en la fecha del día automáticamente en cada `UPDATE`.  
-- No se almacenan horas, evitando problemas de UTC o husos horarios.

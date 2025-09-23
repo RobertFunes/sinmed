@@ -31,6 +31,7 @@ export const initialState = {
   // Eliminado: vacunacion
   antecedentes_personales_patologicos: [], // [{ antecedente: string, descripcion: string }]
   fecha_consulta: '',          // fecha de la consulta (YYYY-MM-DD)
+  recordatorio: '',            // fecha de recordatorio (YYYY-MM-DD)
   // Padecimiento actual e interrogatorio por aparatos y sistemas
   padecimiento_actual: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
