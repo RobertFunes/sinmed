@@ -79,6 +79,7 @@ import {
   FaDiagnoses,
   FaPrescriptionBottleAlt,
   FaStickyNote,
+  FaClipboardCheck,
   FaTrash,
   FaPlusCircle,
 } from 'react-icons/fa';
@@ -113,201 +114,6 @@ const findMatchingLabel = (options, needle, fallback) => {
   if (exact) return exact;
   const partial = options.find((opt) => normalize(opt).includes(normalizedNeedle));
   return partial || fallback || needle;
-};
-
-const SYSTEM_MAPPINGS = [
-  {
-    needle: 'Sintomas generales',
-    label: 'Síntomas generales',
-    keys: ['sintomas_generales_desc', 'sintomas_generales'],
-    descKey: 'sintomas_generales_desc',
-  },
-  {
-    needle: 'Endocrino',
-    label: 'Endocrino',
-    keys: ['endocrino_desc', 'endocrino'],
-    descKey: 'endocrino_desc',
-  },
-  {
-    needle: 'Organos de los sentidos',
-    label: 'Órganos de los sentidos',
-    keys: ['organos_sentidos_desc', 'organos_sentidos'],
-    descKey: 'organos_sentidos_desc',
-  },
-  {
-    needle: 'Gastrointestinal',
-    label: 'Gastrointestinal',
-    keys: ['gastrointestinal_desc', 'gastrointestinal'],
-    descKey: 'gastrointestinal_desc',
-  },
-  {
-    needle: 'Cardiopulmonar',
-    label: 'Cardiopulmonar',
-    keys: ['cardiopulmonar_desc', 'cardiopulmonar'],
-    descKey: 'cardiopulmonar_desc',
-  },
-  {
-    needle: 'Genitourinario',
-    label: 'Genitourinario',
-    keys: ['genitourinario_desc', 'genitourinario'],
-    descKey: 'genitourinario_desc',
-  },
-  {
-    needle: 'Genital femenino',
-    label: 'Genital femenino',
-    keys: ['genital_femenino_desc', 'genital_femenino'],
-    descKey: 'genital_femenino_desc',
-  },
-  {
-    needle: 'Sexualidad',
-    label: 'Sexualidad',
-    keys: ['sexualidad_desc', 'sexualidad'],
-    descKey: 'sexualidad_desc',
-  },
-  {
-    needle: 'Dermatologico',
-    label: 'Dermatológico',
-    keys: ['dermatologico_desc', 'dermatologico'],
-    descKey: 'dermatologico_desc',
-  },
-  {
-    needle: 'Neurologico',
-    label: 'Neurológico',
-    keys: ['neurologico_desc', 'neurologico'],
-    descKey: 'neurologico_desc',
-  },
-  {
-    needle: 'Hematologico',
-    label: 'Hematológico',
-    keys: ['hematologico_desc', 'hematologico'],
-    descKey: 'hematologico_desc',
-  },
-  {
-    needle: 'Reumatologico',
-    label: 'Reumatológico',
-    keys: ['reumatologico_desc', 'reumatologico'],
-    descKey: 'reumatologico_desc',
-  },
-  {
-    needle: 'Psiquiatrico',
-    label: 'Psiquiátrico',
-    keys: ['psiquiatrico_desc', 'psiquiatrico'],
-    descKey: 'psiquiatrico_desc',
-  },
-  {
-    needle: 'Medicamentos',
-    label: 'Medicamentos',
-    keys: ['medicamentos_desc', 'medicamentos'],
-    descKey: 'medicamentos_desc',
-  },
-];
-
-const CONSULTA_SYSTEM_FIELDS = SYSTEM_MAPPINGS.map(({ descKey, label }) => ({ key: descKey, label }));
-
-let consultaClientIdCounter = 0;
-const generateConsultaClientId = (prefix = 'consulta') => {
-  consultaClientIdCounter += 1;
-  return `${prefix}-${Date.now()}-${consultaClientIdCounter}`;
-};
-
-const toSafeString = (value) => (value == null ? '' : String(value));
-
-const dateToSortableValue = (value) => {
-  if (!value) return Number.NEGATIVE_INFINITY;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) ? parsed : Number.NEGATIVE_INFINITY;
-};
-
-const idToSortableValue = (consulta) => {
-  if (consulta.id_consulta == null) {
-    return consulta.__isNew ? Number.MAX_SAFE_INTEGER : 0;
-  }
-  const numeric = Number(consulta.id_consulta);
-  if (Number.isFinite(numeric)) return numeric;
-  const digits = String(consulta.id_consulta).match(/\d+/);
-  return digits ? Number(digits[0]) : 0;
-};
-
-const sortConsultas = (items = []) => {
-  const clone = [...items];
-  clone.sort((a, b) => {
-    const byDate = dateToSortableValue(b.fecha_consulta) - dateToSortableValue(a.fecha_consulta);
-    if (byDate !== 0) return byDate;
-    const byId = idToSortableValue(b) - idToSortableValue(a);
-    if (byId !== 0) return byId;
-    const byCreated = (b.__createdAt || 0) - (a.__createdAt || 0);
-    if (byCreated !== 0) return byCreated;
-    return String(b.__clientId || '').localeCompare(String(a.__clientId || ''));
-  });
-  return clone;
-};
-
-const formatConsultaForState = (consulta = {}, fallbackIndex = 0) => {
-  const base = {
-    id_consulta: consulta.id_consulta ?? null,
-    fecha_consulta: toSafeString(consulta.fecha_consulta),
-    recordatorio: toSafeString(consulta.recordatorio),
-    padecimiento_actual: toSafeString(consulta.padecimiento_actual),
-    diagnostico: toSafeString(consulta.diagnostico),
-    tratamiento: toSafeString(consulta.tratamiento),
-    notas: toSafeString(consulta.notas),
-    __clientId:
-      consulta.__clientId ||
-      (consulta.id_consulta != null
-        ? `consulta-${consulta.id_consulta}`
-        : generateConsultaClientId('consulta-temp')),
-    __createdAt:
-      typeof consulta.__createdAt === 'number'
-        ? consulta.__createdAt
-        : Date.now() + fallbackIndex,
-    __isNew: Boolean(consulta.__isNew),
-  };
-
-  CONSULTA_SYSTEM_FIELDS.forEach(({ key }) => {
-    base[key] = toSafeString(consulta[key]);
-  });
-
-  return base;
-};
-
-const createEmptyConsulta = () => {
-  const template = {
-    id_consulta: null,
-    fecha_consulta: todayISO(),
-    recordatorio: '',
-    padecimiento_actual: '',
-    diagnostico: '',
-    tratamiento: '',
-    notas: '',
-    __isNew: true,
-  };
-  CONSULTA_SYSTEM_FIELDS.forEach(({ key }) => {
-    template[key] = '';
-  });
-  const formatted = formatConsultaForState(template);
-  formatted.__createdAt = Date.now();
-  return formatted;
-};
-
-const buildConsultasPayload = (consultas = []) => {
-  const trim = (value) => (typeof value === 'string' ? value.trim() : value ?? '');
-  return sortConsultas(consultas).map((consulta) => {
-    const payloadConsulta = {
-      id_consulta: consulta.id_consulta ?? null,
-      fecha_consulta: trim(consulta.fecha_consulta),
-      recordatorio: trim(consulta.recordatorio),
-      padecimiento_actual: trim(consulta.padecimiento_actual),
-      diagnostico: trim(consulta.diagnostico),
-      tratamiento: trim(consulta.tratamiento),
-      notas: trim(consulta.notas),
-    };
-
-    CONSULTA_SYSTEM_FIELDS.forEach(({ key }) => {
-      payloadConsulta[key] = trim(consulta[key]);
-    });
-
-    return payloadConsulta;
-  });
 };
 
 const mapApiToForm = (api) => {
@@ -430,8 +236,24 @@ const mapApiToForm = (api) => {
   assignIf('pronostico', dt && dt.pronostico);
 
   const systemSource = { ...(legacy || {}), ...(cons || {}) };
+  const systemMappings = [
+    { needle: 'Sintomas generales', keys: ['sintomas_generales_desc', 'sintomas_generales'] },
+    { needle: 'Endocrino', keys: ['endocrino_desc', 'endocrino'] },
+    { needle: 'Organos de los sentidos', keys: ['organos_sentidos_desc', 'organos_sentidos'] },
+    { needle: 'Gastrointestinal', keys: ['gastrointestinal_desc', 'gastrointestinal'] },
+    { needle: 'Cardiopulmonar', keys: ['cardiopulmonar_desc', 'cardiopulmonar'] },
+    { needle: 'Genitourinario', keys: ['genitourinario_desc', 'genitourinario'] },
+    { needle: 'Genital femenino', keys: ['genital_femenino_desc', 'genital_femenino'] },
+    { needle: 'Sexualidad', keys: ['sexualidad_desc', 'sexualidad'] },
+    { needle: 'Dermatologico', keys: ['dermatologico_desc', 'dermatologico'] },
+    { needle: 'Neurologico', keys: ['neurologico_desc', 'neurologico'] },
+    { needle: 'Hematologico', keys: ['hematologico_desc', 'hematologico'] },
+    { needle: 'Reumatologico', keys: ['reumatologico_desc', 'reumatologico'] },
+    { needle: 'Psiquiatrico', keys: ['psiquiatrico_desc', 'psiquiatrico'] },
+    { needle: 'Medicamentos', keys: ['medicamentos_desc', 'medicamentos'] },
+  ];
 
-  next.interrogatorio_aparatos = SYSTEM_MAPPINGS
+  next.interrogatorio_aparatos = systemMappings
     .map(({ needle, keys }) => {
       const label = findMatchingLabel(SISTEMAS_OPCIONES, needle, needle);
       const descripcion = keys
@@ -487,7 +309,6 @@ const Modify = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState(() => buildInitialForm());
-  const [consultas, setConsultas] = useState([]);
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
   const handleToggle = (key) => (e) => {
@@ -504,9 +325,9 @@ const Modify = () => {
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
+  const [nuevoSistema, setNuevoSistema] = useState('');
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   const prefillRef = useRef(buildInitialForm());
-  const consultasPrefillRef = useRef([]);
   const nombreRef = useRef(null);
   const imcAutoCalcRef = useRef(false);
 
@@ -536,30 +357,17 @@ const Modify = () => {
         }
         const json = await res.json();
         console.log('[Modify] Prefill recibido:', json);
-        const consultasFromApi = Array.isArray(json?.consultas) ? json.consultas : [];
-        const preparedConsultas = sortConsultas(
-          consultasFromApi.map((item, index) => formatConsultaForState(item, index))
-        );
         const mapped = mapApiToForm(json);
-        if (preparedConsultas[0]) {
-          mapped.fecha_consulta = preparedConsultas[0].fecha_consulta || mapped.fecha_consulta;
-          mapped.recordatorio = preparedConsultas[0].recordatorio || mapped.recordatorio;
-          mapped.padecimiento_actual = preparedConsultas[0].padecimiento_actual || mapped.padecimiento_actual;
-          mapped.diagnostico = preparedConsultas[0].diagnostico || mapped.diagnostico;
-          mapped.tratamiento = preparedConsultas[0].tratamiento || mapped.tratamiento;
-          mapped.notas = preparedConsultas[0].notas || mapped.notas;
-        }
         console.log('[Modify] Prefill mapeado:', mapped);
         if (alive) {
           const snapshot = deepClone(mapped);
           prefillRef.current = snapshot;
-          consultasPrefillRef.current = deepClone(preparedConsultas);
           setFormData(snapshot);
-          setConsultas(preparedConsultas);
           setOpenSection('datos');
           setNuevoAntecedente('');
           setNuevoHabito('');
           setNuevoPatologico('');
+          setNuevoSistema('');
           setNuevoInspeccion('');
         }
       } catch (err) {
@@ -579,46 +387,11 @@ const Modify = () => {
     };
   }, [id]);
 
-  useEffect(() => {
-    setFormData((prev) => {
-      const first = consultas[0];
-      const fallback = {
-        fecha_consulta: todayISO(),
-        recordatorio: '',
-        padecimiento_actual: '',
-        diagnostico: '',
-        tratamiento: '',
-        notas: '',
-      };
-      const source = first
-        ? {
-            fecha_consulta: first.fecha_consulta || '',
-            recordatorio: first.recordatorio || '',
-            padecimiento_actual: first.padecimiento_actual || '',
-            diagnostico: first.diagnostico || '',
-            tratamiento: first.tratamiento || '',
-            notas: first.notas || '',
-          }
-        : fallback;
-
-      let changed = false;
-      const next = { ...prev };
-      Object.entries(source).forEach(([key, value]) => {
-        if ((prev[key] ?? '') !== value) {
-          next[key] = value;
-          changed = true;
-        }
-      });
-      return changed ? next : prev;
-    });
-  }, [consultas]);
-
   // Log en tiempo real cada vez que cambia el payload
   useEffect(() => {
     const livePayload = buildNestedPayload(formData);
-    livePayload.consultas = buildConsultasPayload(consultas);
     console.log('[Modify] Payload actualizado:', livePayload);
-  }, [formData, consultas]);
+  }, [formData]);
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
@@ -648,7 +421,6 @@ const Modify = () => {
     setIsSubmitting(true);
 
     const payload = buildNestedPayload(formData);
-    payload.consultas = buildConsultasPayload(consultas);
     console.log('[Modify] Payload a enviar:', payload);
 
     try {
@@ -673,7 +445,6 @@ const Modify = () => {
 
       alert('Perfil actualizado correctamente');
       prefillRef.current = deepClone(formData);
-      consultasPrefillRef.current = deepClone(sortConsultas(consultas));
       navigate(`/profile/${id}`);
     } catch (err) {
       console.error('[Modify] Error al actualizar perfil:', err);
@@ -685,13 +456,12 @@ const Modify = () => {
 
   const handleCancel = () => {
     const snapshot = deepClone(prefillRef.current || buildInitialForm());
-    const consultasSnapshot = deepClone(consultasPrefillRef.current || []);
     setFormData(snapshot);
-    setConsultas(sortConsultas(consultasSnapshot));
     setOpenSection('datos');
     setNuevoAntecedente('');
     setNuevoHabito('');
     setNuevoPatologico('');
+    setNuevoSistema('');
     setNuevoInspeccion('');
   };
   const addAntecedente = () => {
@@ -775,23 +545,29 @@ const Modify = () => {
     }));
   };
 
-  // ---- Consultas ----
-  const handleAddConsulta = () => {
-    setConsultas((prev) => sortConsultas([...prev, createEmptyConsulta()]));
+  // ---- Padecimiento actual e interrogatorio por aparatos y sistemas ----
+  const addSistema = () => {
+    if (!nuevoSistema) return;
+    setFormData((prev) => ({
+      ...prev,
+      interrogatorio_aparatos: [
+        ...prev.interrogatorio_aparatos,
+        { nombre: nuevoSistema, descripcion: '' },
+      ],
+    }));
+    setNuevoSistema('');
   };
-
-  const updateConsultaField = (idx, field, value) => {
-    setConsultas((prev) => {
-      const next = prev.map((item, index) =>
-        index === idx
-          ? { ...item, [field]: value, ...(field === 'fecha_consulta' ? { __createdAt: item.__createdAt || Date.now() } : {}) }
-          : item
-      );
-      if (field === 'fecha_consulta') {
-        return sortConsultas(next);
-      }
-      return next;
-    });
+  const removeSistemaAt = (idx) => {
+    setFormData((prev) => ({
+      ...prev,
+      interrogatorio_aparatos: prev.interrogatorio_aparatos.filter((_, i) => i !== idx),
+    }));
+  };
+  const updateSistemaDesc = (idx, valor) => {
+    setFormData((prev) => ({
+      ...prev,
+      interrogatorio_aparatos: prev.interrogatorio_aparatos.map((s, i) => i === idx ? { ...s, descripcion: valor } : s),
+    }));
   };
 
   // ---- Exploración física: inspección general ----
@@ -1664,115 +1440,133 @@ const Modify = () => {
             <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
               <Summary>Consultas</Summary>
 
+              {/* Subgrid 2 columnas: Fecha de consulta + Recordatorio */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="fecha_consulta"><FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha de consulta</Label>
+                  <Input
+                    type="date"
+                    id="fecha_consulta"
+                    name="fecha_consulta"
+                    value={formData.fecha_consulta}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor="recordatorio"><FaBell style={{ marginRight: '0.5rem' }} />Recordatorio</Label>
+                  <Input
+                    type="date"
+                    id="recordatorio"
+                    name="recordatorio"
+                    value={formData.recordatorio}
+                    onChange={handleChange}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+
               <FieldGroup>
-                <SubmitButton
-                  type="button"
-                  onClick={handleAddConsulta}
-                  disabled={isPrefilling || isSubmitting}
-                >
-                  <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                  Nueva consulta
-                </SubmitButton>
+                <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
+                <TextArea
+                  id="consulta_padecimiento_actual"
+                  name="padecimiento_actual"
+                  value={formData.padecimiento_actual}
+                  onChange={handleChange}
+                  rows={6}
+                  placeholder="Describe el padecimiento actual"
+                />
               </FieldGroup>
 
-              {consultas.length === 0 && (
-                <p style={{ margin: '1rem 0', fontStyle: 'italic' }}>
-                  No hay consultas registradas.
-                </p>
-              )}
+              <FieldGroup>
+                <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
+                <TextArea
+                  id="consulta_diagnostico"
+                  name="diagnostico"
+                  value={formData.diagnostico}
+                  onChange={handleChange}
+                  rows={6}
+                  placeholder="Escribe el diagnóstico clínico"
+                />
+              </FieldGroup>
 
-              {consultas.length > 0 && (
-                <div>
-                  {consultas.map((consulta, idx) => {
-                    const consultaKey = consulta.__clientId || `consulta-${idx}`;
-                    const titulo = `Consulta ${consultas.length - idx}`;
-                    const separatorStyle = idx === 0 ? {} : { borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '1.5rem', marginTop: '1.5rem' };
+              <FieldGroup>
+                <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
+                <TextArea
+                  id="consulta_tratamiento"
+                  name="tratamiento"
+                  value={formData.tratamiento}
+                  onChange={handleChange}
+                  rows={6}
+                  placeholder="Plan de tratamiento"
+                />
+              </FieldGroup>
 
-                    return (
-                      <div key={consultaKey} style={{ marginBottom: '2rem', ...separatorStyle }}>
-                        <h4 style={{ marginBottom: '1rem', fontSize: '1.6rem', color: Palette.primary }}>{titulo}</h4>
+              <FieldGroup>
+                <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
+                <TextArea
+                  id="consulta_notas"
+                  name="notas"
+                  value={formData.notas}
+                  onChange={handleChange}
+                  rows={6}
+                  placeholder="Notas de la consulta"
+                />
+              </FieldGroup>
 
-                        <TwoColumnRow>
-                          <FieldGroup>
-                            <Label htmlFor={`${consultaKey}-fecha`}><FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha de consulta</Label>
-                            <Input
-                              type="date"
-                              id={`${consultaKey}-fecha`}
-                              value={consulta.fecha_consulta}
-                              onChange={(e) => updateConsultaField(idx, 'fecha_consulta', e.target.value)}
-                            />
-                          </FieldGroup>
-                          <FieldGroup>
-                            <Label htmlFor={`${consultaKey}-recordatorio`}><FaBell style={{ marginRight: '0.5rem' }} />Recordatorio</Label>
-                            <Input
-                              type="date"
-                              id={`${consultaKey}-recordatorio`}
-                              value={consulta.recordatorio}
-                              onChange={(e) => updateConsultaField(idx, 'recordatorio', e.target.value)}
-                            />
-                          </FieldGroup>
-                        </TwoColumnRow>
+              {/* Selector para agregar sistemas */}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor="select_sistema">Selecciona un sistema</Label>
+                  <Select
+                    id="select_sistema"
+                    value={nuevoSistema}
+                    onChange={e => setNuevoSistema(e.target.value)}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {SISTEMAS_OPCIONES
+                      .filter(opt => !formData.interrogatorio_aparatos.some(s => normalize(s.nombre) === normalize(opt)))
+                      .map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                  </Select>
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>&nbsp;</Label>
+                  <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema || isPrefilling}>
+                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+                    Agregar
+                  </SubmitButton>
+                </FieldGroup>
+              </TwoColumnRow>
 
+              {/* Lista de sistemas agregados */}
+              {formData.interrogatorio_aparatos.length > 0 && (
+                <ListContainer>
+                  {formData.interrogatorio_aparatos.map((s, idx) => (
+                    <ItemCard key={idx}>
+                      <TwoColumnRow>
                         <FieldGroup>
-                          <Label htmlFor={`${consultaKey}-padecimiento`}><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
+                          <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
+                          <Input value={s.nombre} disabled />
+                        </FieldGroup>
+                        <FieldGroup>
+                          <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
                           <TextArea
-                            id={`${consultaKey}-padecimiento`}
-                            value={consulta.padecimiento_actual}
-                            onChange={(e) => updateConsultaField(idx, 'padecimiento_actual', e.target.value)}
-                            rows={6}
-                            placeholder="Describe el padecimiento actual"
+                            value={s.descripcion}
+                            onChange={e => updateSistemaDesc(idx, e.target.value)}
+                            rows={3}
+                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
                           />
                         </FieldGroup>
-
-                        <FieldGroup>
-                          <Label htmlFor={`${consultaKey}-diagnostico`}><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
-                          <TextArea
-                            id={`${consultaKey}-diagnostico`}
-                            value={consulta.diagnostico}
-                            onChange={(e) => updateConsultaField(idx, 'diagnostico', e.target.value)}
-                            rows={6}
-                            placeholder="Escribe el diagnóstico clínico"
-                          />
-                        </FieldGroup>
-
-                        <FieldGroup>
-                          <Label htmlFor={`${consultaKey}-tratamiento`}><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
-                          <TextArea
-                            id={`${consultaKey}-tratamiento`}
-                            value={consulta.tratamiento}
-                            onChange={(e) => updateConsultaField(idx, 'tratamiento', e.target.value)}
-                            rows={6}
-                            placeholder="Plan de tratamiento"
-                          />
-                        </FieldGroup>
-
-                        <FieldGroup>
-                          <Label htmlFor={`${consultaKey}-notas`}><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
-                          <TextArea
-                            id={`${consultaKey}-notas`}
-                            value={consulta.notas}
-                            onChange={(e) => updateConsultaField(idx, 'notas', e.target.value)}
-                            rows={6}
-                            placeholder="Notas de la consulta"
-                          />
-                        </FieldGroup>
-
-                        {CONSULTA_SYSTEM_FIELDS.map(({ key, label }) => (
-                          <FieldGroup key={key}>
-                            <Label htmlFor={`${consultaKey}-${key}`}>{label}</Label>
-                            <TextArea
-                              id={`${consultaKey}-${key}`}
-                              value={consulta[key]}
-                              onChange={(e) => updateConsultaField(idx, key, e.target.value)}
-                              rows={4}
-                              placeholder={`Descripción de ${label.toLowerCase()}`}
-                            />
-                          </FieldGroup>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
+                      </TwoColumnRow>
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removeSistemaAt(idx)}>
+                          <FaTrash />
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
+                  ))}
+                </ListContainer>
               )}
             </details>
 
@@ -1797,4 +1591,3 @@ const Modify = () => {
 };
 
 export default Modify;
-
