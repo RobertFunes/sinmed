@@ -263,8 +263,12 @@ const mapApiToForm = (api) => {
     })
     .filter(Boolean);
 
-  const efRows = toArr(api.exploracion_fisica);
-  const ef = efRows[0] || {};
+  const efSource = api.exploracion_fisica;
+  const ef = Array.isArray(efSource)
+    ? efSource[0] || {}
+    : typeof efSource === 'object' && efSource !== null
+    ? efSource
+    : {};
   assignIf('peso_actual', ef.peso_actual);
   assignIf('peso_anterior', ef.peso_anterior);
   assignIf('peso_deseado', ef.peso_deseado);
@@ -325,9 +329,14 @@ const Modify = () => {
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   const prefillRef = useRef(buildInitialForm());
   const nombreRef = useRef(null);
+  const imcAutoCalcRef = useRef(false);
 
-  const handleChange = ({ target: { name, value } }) =>
+  const handleChange = ({ target: { name, value } }) => {
+    if (name === 'peso_actual' || name === 'talla_cm') {
+      imcAutoCalcRef.current = true;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   useEffect(() => {
     let alive = true;
@@ -386,13 +395,16 @@ const Modify = () => {
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
+    if (isPrefilling) return;
+    if (!imcAutoCalcRef.current) return;
+    imcAutoCalcRef.current = false;
     const w = parseFloat(formData.peso_actual);
     const hcm = parseFloat(formData.talla_cm);
-    const newImc = (Number.isFinite(w) && w > 0 && Number.isFinite(hcm) && hcm > 0)
+    const newImc = Number.isFinite(w) && w > 0 && Number.isFinite(hcm) && hcm > 0
       ? (w / Math.pow(hcm / 100, 2)).toFixed(2)
       : '';
     setFormData((prev) => (prev.imc === newImc ? prev : { ...prev, imc: newImc }));
-  }, [formData.peso_actual, formData.talla_cm]);
+  }, [formData.peso_actual, formData.talla_cm, isPrefilling]);
 
   const handleSubmit = async e => {
     e.preventDefault();
