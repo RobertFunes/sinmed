@@ -222,14 +222,14 @@ async function getSummary(limit = 50, offset = 0) {
   const [[{ total }]] = await db.query('SELECT COUNT(*) AS total FROM perfil');
   return { rows, total };
 }
-
-
-
+// Obtiene un perfil completo con sus relaciones según el esquema NUEVO
 async function getById(id_perfil) {
   const id = Number(id_perfil);
   if (!Number.isInteger(id) || id <= 0) {
     return { ok: false, error: { code: 'BAD_REQUEST', message: 'id_perfil inválido' } };
   }
+
+  // Perfil base
   const [pRows] = await db.query(
     'SELECT * FROM perfil WHERE id_perfil = ? LIMIT 1',
     [id]
@@ -239,6 +239,7 @@ async function getById(id_perfil) {
     return { ok: false, error: { code: 'NOT_FOUND', message: 'Perfil no encontrado' } };
   }
 
+  // Helpers de fecha
   const toYMD = (v) => {
     if (v == null) return v;
     if (v instanceof Date) {
@@ -247,21 +248,29 @@ async function getById(id_perfil) {
       const d = String(v.getUTCDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
     }
-    // Si ya viene como string fecha ISO, normaliza a YYYY-MM-DD
-    if (typeof v === 'string' && /\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+    if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
     return v;
   };
 
-  // Campos fecha por tabla (solo estos se formatean a YYYY-MM-DD)
+  // Qué campos son fechas por tabla (para formatear YYYY-MM-DD)
   const DATE_KEYS = {
-    perfil: new Set(['fecha_nacimiento', 'actualizado', 'creado']),
-    default: new Set(['creado', 'actualizado'])
+    perfil: new Set(['fecha_nacimiento', 'creado', 'actualizado']),
+    antecedentes_familiares: new Set(['creado', 'actualizado']),
+    antecedentes_personales: new Set(['creado', 'actualizado']),
+    antecedentes_personales_patologicos: new Set(['creado', 'actualizado']),
+    exploracion_fisica: new Set(['creado', 'actualizado']),
+    // gineco no tiene timestamps, pero SÍ fechas clínicas
+    gineco_obstetricos: new Set([
+      'fecha_ultima_menstruacion',
+      'fecha_ultimo_parto',
+      'fecha_menopausia'
+    ]),
+    consultas: new Set(['fecha_consulta', 'recordatorio'])
   };
 
-  // Nueva construcción de respuesta según reglas
   const compactRow = (obj, scope = 'default') => {
     const out = {};
-    const dateKeys = DATE_KEYS[scope] || DATE_KEYS.default;
+    const dateKeys = DATE_KEYS[scope] || new Set();
     for (const [k, v] of Object.entries(obj || {})) {
       const val = dateKeys.has(k) ? toYMD(v) : v;
       if (val != null && val !== '') out[k] = val;
@@ -271,67 +280,87 @@ async function getById(id_perfil) {
 
   const result = { ok: true, ...compactRow(perfil, 'perfil') };
 
-  // 1:1 antecedentes_personales
-  const [apRows] = await db.query('SELECT * FROM antecedentes_personales WHERE id_perfil = ? LIMIT 1', [id]);
-  if (apRows?.length) {
-    const ap = compactRow(apRows[0]);
-    if (Object.keys(ap).length > 0) result.antecedentes_personales = ap;
+  // 1:1
+  {
+    const [rows] = await db.query(
+      'SELECT * FROM antecedentes_personales WHERE id_perfil = ? LIMIT 1',
+      [id]
+    );
+    if (rows?.length) result.antecedentes_personales = compactRow(rows[0], 'antecedentes_personales');
   }
 
-  // 1:N colecciones
-  const tables1N = [
-    'antecedentes_familiares',
-    'antecedentes_personales_patologicos',
-    'diagnostico_tratamiento',
-    'exploracion_fisica',
-  ];
-  const includedDateStrings = [];
-  if (result.actualizado) includedDateStrings.push(result.actualizado);
+  {
+    const [rows] = await db.query(
+      'SELECT * FROM gineco_obstetricos WHERE id_perfil = ? LIMIT 1',
+      [id]
+    );
+    if (rows?.length) result.gineco_obstetricos = compactRow(rows[0], 'gineco_obstetricos');
+  }
 
-  for (const t of tables1N) {
-    const [rows] = await db.query(`SELECT * FROM ${t} WHERE id_perfil = ? ORDER BY creado DESC`, [id]);
-    if (Array.isArray(rows) && rows.length > 0) {
-      const items = rows.map((r) => compactRow(r, t)).filter((o) => Object.keys(o).length > 0);
-      if (items.length > 0) {
-        result[t] = items;
+  {
+    // Por si no tienes UNIQUE(id_perfil) aún, tomamos la más reciente por actualizado si existiera; si no, por id
+    const [rows] = await db.query(
+      'SELECT * FROM exploracion_fisica WHERE id_perfil = ? ORDER BY actualizado DESC, id_exploracion DESC LIMIT 1',
+      [id]
+    );
+    if (rows?.length) result.exploracion_fisica = compactRow(rows[0], 'exploracion_fisica');
+  }
+
+  // 1:N
+  const includedDates = [];
+  if (result.actualizado) includedDates.push(result.actualizado);
+
+  const load1N = async (table, scope, orderBy) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${table} WHERE id_perfil = ? ${orderBy ? 'ORDER BY ' + orderBy : ''}`,
+      [id]
+    );
+    if (Array.isArray(rows) && rows.length) {
+      const items = rows.map(r => compactRow(r, scope)).filter(o => Object.keys(o).length > 0);
+      if (items.length) {
+        result[table] = items;
+        // agrega candidatos para actualizado_max
         for (const it of items) {
-          if (it.actualizado) includedDateStrings.push(it.actualizado);
+          if (it.actualizado) includedDates.push(it.actualizado);
         }
+      }
+    }
+  };
+
+  await load1N('antecedentes_familiares', 'antecedentes_familiares', 'actualizado DESC, id_antecedente_familiar DESC');
+  await load1N('antecedentes_personales_patologicos', 'antecedentes_personales_patologicos', 'actualizado DESC, id_app DESC');
+
+  // consultas es 1:N; no tiene creado/actualizado, usamos fecha_consulta como "actividad"
+  {
+    const [rows] = await db.query(
+      'SELECT * FROM consultas WHERE id_perfil = ? ORDER BY fecha_consulta DESC, id_consulta DESC',
+      [id]
+    );
+    if (Array.isArray(rows) && rows.length) {
+      const items = rows.map(r => compactRow(r, 'consultas'));
+      result.consultas = items;
+      for (const it of items) {
+        if (it.fecha_consulta) includedDates.push(it.fecha_consulta);
       }
     }
   }
 
-  // actualizado_max
+  // actualizado_max = lo más reciente entre p.actualizado, timestamps de 1:N y fecha_consulta
   const toDate = (s) => {
     if (!s) return null;
     const d = new Date(s);
-    return isNaN(d.getTime()) ? null : d;
+    return isNaN(d) ? null : d;
   };
   let max = null;
-  for (const s of includedDateStrings) {
+  for (const s of includedDates) {
     const d = toDate(s);
     if (d && (!max || d > max)) max = d;
   }
   if (max) result.actualizado_max = toYMD(max);
 
-  // ✂️ Fechas
-  // row.fecha_nacimiento      = toYMD(row.fecha_nacimiento);
-  // row.ultima_fecha_contacto = toYMD(row.ultima_fecha_contacto);
-
-  // 🗑️ Campos de póliza descartados
-  // delete row.aseguradora;
-  // delete row.numero_poliza;
-  // delete row.categoria_poliza;
-  // delete row.subcategoria_poliza;
-  // delete row.detalle_poliza;
-  // delete row.fecha_inicio_poliza;
-  // delete row.fecha_termino_poliza;
-  // delete row.tipo_poliza;
-  // delete row.seguros_contratados;
-  // delete row.asegurados;
-
   return result;
 }
+
 async function updateUltimaFechaContacto(id, fecha) {
   const [result] = await db.query(
     'UPDATE clientes SET ultima_fecha_contacto = ? WHERE id_cliente = ?',

@@ -1,7 +1,5 @@
 # 📊 Documentación de la Base de Datos
-
-Este esquema está diseñado para registrar perfiles de pacientes y toda su información clínica asociada.  
-Consta de **7 tablas**: `perfil`, `antecedentes_familiares`, `antecedentes_personales`, `antecedentes_personales_patologicos`, `diagnostico_tratamiento`, `exploracion_fisica` y `padecimiento_actual_interrogatorio`.
+Consta de 7 tablas: perfil, antecedentes_familiares, antecedentes_personales, antecedentes_personales_patologicos, gineco_obstetricos, exploracion_fisica y consultas
 
 ---
 
@@ -71,7 +69,7 @@ Registra antecedentes ginecológicos y obstétricos del perfil.
 
 | Columna                  | Tipo                         | Null | Key | Default   | Extra          | Descripción                                         |
 |--------------------------|------------------------------|------|-----|-----------|----------------|-----------------------------------------------------|
-| id_gineco                | int(11)                      | NO   | PRI | NULL      | auto_increment | Identificador único del registro                    |
+| id                | int(11)                      | NO   | PRI | NULL      | auto_increment | Identificador único del registro                    |
 | id_perfil                | int(11)                      | NO   | UNI | NULL      |                | Clave foránea a `perfil.id_perfil`                 |
 | edad_primera_menstruacion| tinyint(4)                   | YES  |     | NULL      |                | Edad de la primera menstruación                     |
 | ciclo_dias               | tinyint(4)                   | YES  |     | NULL      |                | Duración promedio del ciclo (en días)               |
@@ -87,8 +85,7 @@ Registra antecedentes ginecológicos y obstétricos del perfil.
 | abortos                  | tinyint(4)                   | YES  |     | NULL      |                | Número de abortos                                   |
 | fecha_ultimo_parto       | date                          | YES  |     | NULL      |                | Fecha del último parto                               |
 | fecha_menopausia         | date                          | YES  |     | NULL      |                | Fecha de inicio de menopausia (si aplica)           |
-| creado                   | date                          | NO   |     | curdate() |                | Fecha de creación del registro                       |
-| actualizado              | date                          | NO   |     | curdate() |                | Fecha de última modificación (se actualiza por trigger)|
+
 
 ## 🩺 Tabla `antecedentes_personales_patologicos`
 Antecedentes de enfermedades, cirugías o condiciones previas.
@@ -175,8 +172,7 @@ Registra cada consulta médica realizada a un paciente, con diagnóstico, tratam
 | medicamentos_desc       | text        | YES  |     | NULL      |                | Descripción de medicamentos en uso o administrados                      |
 | medicamentos_estado     | varchar(15) | YES  |     | NULL      |                | Estado o control de medicamentos                                       |
 | recordatorio            | date        | YES  |     | NULL      |                | Fecha de recordatorio para seguimiento o próxima revisión               |
-| creado                  | date        | NO   |     | curdate() |                | Fecha de creación del registro                                          |
-| actualizado             | date        | NO   |     | curdate() |                | Fecha de última modificación (actualizada automáticamente por trigger)  |
+
 
 ## Relaciones
 
@@ -185,11 +181,12 @@ Registra cada consulta médica realizada a un paciente, con diagnóstico, tratam
   - `antecedentes_personales`
   - `gineco_obstetricos`
   - `exploracion_fisica`
-  - `consultas`
+  
   - Implementación: el backend usa UPSERT (`INSERT ... ON DUPLICATE KEY UPDATE`) sobre `id_perfil`, lo que implica un índice UNIQUE en `id_perfil` en estas tablas.
 - Relaciones 1:N con `perfil` (múltiples filas por perfil):
   - `antecedentes_familiares`
   - `antecedentes_personales_patologicos`
+  - `consultas`
   - Implementación: el backend inserta una fila por cada elemento del arreglo recibido, con `id_perfil` como FK.
 
 Diagrama (cardinalidad):
@@ -200,7 +197,7 @@ Diagrama (cardinalidad):
         │
         ├──── (1) exploracion_fisica
         │
-        ├──── (1) consultas
+        ├──── (N) consultas
         │
         ├──── (N) antecedentes_familiares
         │
