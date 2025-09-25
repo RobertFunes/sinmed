@@ -71,6 +71,15 @@ export const Label = styled.span`
   font-weight: 700;
   font-size: 0.95rem;
   line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 export const Value = styled.span`

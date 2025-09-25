@@ -424,49 +424,52 @@ async function postponeContactDate(id, days = 45) {
 
 async function getPending() {
   /* 🇲🇽 NOW_MX = hora/fecha de México (UTC-6) */
-  const [rows] = await db.query(`
+  const [birthdays] = await db.query(`
     SELECT
-      id_cliente AS id,
-      nombre,
-      ultima_fecha_contacto,
-
-      /* 🎂 Próximo cumple calculado con hora CDMX */
+      p.id_perfil        AS id,
+      p.nombre           AS nombre,
+      p.telefono_movil   AS telefono_movil,
+      NULL               AS ultima_fecha_contacto,
       CASE
-        WHEN DATE_FORMAT(fecha_nacimiento,'%m-%d') >= DATE_FORMAT(CONVERT_TZ(NOW(),'+00:00','-06:00'),'%m-%d')
+        WHEN DATE_FORMAT(p.fecha_nacimiento,'%m-%d') >= DATE_FORMAT(CONVERT_TZ(NOW(),'+00:00','-06:00'),'%m-%d')
           THEN STR_TO_DATE(
-                 CONCAT(YEAR(CONVERT_TZ(NOW(),'+00:00','-06:00')),'-',DATE_FORMAT(fecha_nacimiento,'%m-%d')),
+                 CONCAT(YEAR(CONVERT_TZ(NOW(),'+00:00','-06:00')),'-',DATE_FORMAT(p.fecha_nacimiento,'%m-%d')),
                  '%Y-%m-%d'
                )
         ELSE STR_TO_DATE(
-                 CONCAT(YEAR(CONVERT_TZ(NOW(),'+00:00','-06:00'))+1,'-',DATE_FORMAT(fecha_nacimiento,'%m-%d')),
+                 CONCAT(YEAR(CONVERT_TZ(NOW(),'+00:00','-06:00'))+1,'-',DATE_FORMAT(p.fecha_nacimiento,'%m-%d')),
                  '%Y-%m-%d'
                )
       END AS proximo_cumple
-
-    FROM clientes
-
-    WHERE (
-  CASE
-    WHEN DATE_FORMAT(fecha_nacimiento,'%m-%d') >= DATE_FORMAT(DATE(CONVERT_TZ(NOW(),'+00:00','-06:00')),'%m-%d')
-      THEN DATEDIFF(
-             STR_TO_DATE(
-               CONCAT(YEAR(DATE(CONVERT_TZ(NOW(),'+00:00','-06:00'))),'-',DATE_FORMAT(fecha_nacimiento,'%m-%d')),
-               '%Y-%m-%d'
-             ),
+    FROM perfil p
+    WHERE p.fecha_nacimiento IS NOT NULL
+    HAVING DATEDIFF(
+             proximo_cumple,
              DATE(CONVERT_TZ(NOW(),'+00:00','-06:00'))
-           )
-    ELSE DATEDIFF(
-             STR_TO_DATE(
-               CONCAT(YEAR(DATE(CONVERT_TZ(NOW(),'+00:00','-06:00')))+1,'-',DATE_FORMAT(fecha_nacimiento,'%m-%d')),
-               '%Y-%m-%d'
-             ),
-             DATE(CONVERT_TZ(NOW(),'+00:00','-06:00'))
-           )
-  END
-) <= 30
-
+           ) BETWEEN 0 AND 30
+    ORDER BY proximo_cumple ASC, p.id_perfil ASC
   `);
-  return rows;
+
+  const [reminders] = await db.query(`
+    SELECT
+      c.id_consulta,
+      c.id_perfil,
+      p.nombre,
+      p.telefono_movil,
+      c.fecha_consulta,
+      c.recordatorio
+    FROM consultas c
+    INNER JOIN perfil p ON p.id_perfil = c.id_perfil
+    WHERE c.recordatorio IS NOT NULL
+      AND c.recordatorio >= DATE(CONVERT_TZ(NOW(),'+00:00','-06:00'))
+      AND c.recordatorio <= DATE_ADD(DATE(CONVERT_TZ(NOW(),'+00:00','-06:00')), INTERVAL 30 DAY)
+    ORDER BY c.recordatorio ASC, c.id_consulta ASC
+  `);
+
+  return {
+    birthdays,
+    reminders,
+  };
 }
 async function removeById(id) {
   const [result] = await db.query(
