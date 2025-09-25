@@ -5,12 +5,35 @@ import { Palette } from '../helpers/theme.js';
 export const Section = styled.section`
   background: ${Palette.background};
   border: 1px solid ${Palette.border};
-  
+
   padding: 28px 28px;
   h3{
     font-size: 1.9rem;
-    color: ${Palette.title}; 
+    color: ${Palette.title};
   }
+`;
+
+export const Stack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+`;
+
+export const Group = styled.div`
+  border: 1px solid ${Palette.border};
+  border-radius: 12px;
+  padding: 18px;
+  background: ${Palette.accent};
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const GroupTitle = styled.h4`
+  margin: 0;
+  color: ${Palette.secondary};
+  font-size: 1.1rem;
 `;
 
 export const TwoRow = styled.div`
