@@ -1,7 +1,6 @@
 // controllers/user.js
 
 const bd = require('../models/profile'); // 👈 Así, no db
-const { isInvalidOrFuture } = require('../helpers/helpers');
 
 // POST /postpone { id }
 const postpone = async (req, res) => {
@@ -36,34 +35,217 @@ const checkAuth = (req, res, next) => {
 };
 const modify = async (req, res) => {
   try {
-    const { id } = req.params;
-    const data = req.body;
+    const body = req.body || {};
+    const idParam = Number(req.params?.id);
+    const candidateIds = [
+      body?.id_perfil,
+      body?.id,
+      body?.perfil_id,
+      body?.datos_personales?.id_perfil,
+      idParam,
+    ];
+    const id = candidateIds
+      .map((value) => Number(value))
+      .find((value) => Number.isInteger(value) && value > 0);
 
-    // 🛑 Validación de ID
-    if (!id || isNaN(Number(id))) {
-      return res.status(400).json({ error: 'ID inválido 🚫' });
+    if (!id) {
+      return res.status(400).json({ error: 'ID de perfil inválido' });
     }
 
-    // 📅 Corrección de fecha inválida o futura
-    const hoy = new Date().toISOString().split('T')[0];
-    if (isInvalidOrFuture(data.ultima_fecha_contacto)) {
-      data.ultima_fecha_contacto = hoy;
+    if (Number.isInteger(idParam) && idParam > 0 && idParam !== id) {
+      console.warn('[modify] ID de ruta difiere del payload:', { idParam, idPayload: id });
     }
 
-    // 🔧 Ejecutamos la modificación
-    const result = await bd.modifyClient(Number(id), data);
-
-    // 🚫 Si no afectó filas, no existía el cliente
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado 🔍' });
+    const existing = await bd.getById(id);
+    if (!existing || existing.ok === false) {
+      const code = existing?.error?.code;
+      const message = existing?.error?.message || 'Perfil no encontrado';
+      const status = code === 'NOT_FOUND' ? 404 : 400;
+      return res.status(status).json({ error: message });
     }
 
-    // ✅ Éxito
-    return res
-      .status(200)
-      .json({ msg: `Cliente con ID ${id} modificado correctamente ✏️` });
+    const clean = (v) => (v === '' || v == null ? null : v);
+    const toYMD = (v) => (typeof v === 'string' && v.length >= 10 ? v.slice(0, 10) : null);
+    const norm = (v) => (typeof v === 'string' ? v.trim() : v);
+
+    const dp = body.datos_personales || {};
+    const perfil = {
+      nombre: dp.nombre && String(dp.nombre).trim() ? dp.nombre.trim() : 'Sin nombre',
+      fecha_nacimiento: clean(toYMD(dp.fecha_nacimiento)),
+      genero: clean(dp.genero),
+      telefono_movil: clean(dp.telefono_movil),
+      correo_electronico: clean(dp.correo_electronico),
+      residencia: clean(dp.residencia),
+      ocupacion: clean(dp.ocupacion),
+      escolaridad: clean(dp.escolaridad),
+      estado_civil: clean(dp.estado_civil),
+      tipo_sangre: clean(dp.tipo_sangre),
+      referido_por: clean(dp.referido_por),
+    };
+    const perfil_result = await bd.updatePerfil(id, perfil);
+
+    const afRaw = Array.isArray(body.antecedentes_familiares) ? body.antecedentes_familiares : [];
+    const afItems = afRaw.map((it) => ({
+      nombre: norm(it?.nombre) || null,
+      descripcion: norm(it?.descripcion) || null,
+    }));
+    const af_replaced = await bd.replaceAntecedentesFamiliares(id, afItems);
+
+    const apRaw = body.antecedentes_personales || {};
+    const apPayload = {};
+    const habitos = Array.isArray(apRaw.habitos) ? apRaw.habitos : [];
+    for (const h of habitos) {
+      const tipo = (h?.tipo || '').trim().toLowerCase();
+      const c = h?.campos || {};
+      if (tipo.startsWith('alcohol')) {
+        apPayload.bebidas_por_dia = clean(c.bebidas_por_dia);
+        apPayload.tiempo_activo_alc = clean(c.tiempo_activo_alc);
+      } else if (tipo.includes('taba')) {
+        apPayload.cigarrillos_por_dia = clean(c.cigarrillos_por_dia);
+        apPayload.tiempo_activo_tab = clean(c.tiempo_activo_tab);
+      } else if (tipo.includes('toxico')) {
+        apPayload.tipo_toxicomania = clean(c.tipo_toxicomania);
+        apPayload.tiempo_activo_tox = clean(c.tiempo_activo_tox);
+      }
+    }
+
+    const alim = apRaw.alimentacion || {};
+    apPayload.calidad = clean(alim.calidad);
+    apPayload.descripcion = clean(alim.descripcion);
+    apPayload.hay_cambios = clean(alim.hay_cambios);
+    if (apPayload.hay_cambios === 'Si') {
+      apPayload.cambio_tipo = clean(alim.tipo);
+      apPayload.cambio_causa = clean(alim.causa);
+      apPayload.cambio_tiempo = clean(alim.tiempo);
+    }
+    const ap_result = await bd.upsertAntecedentesPersonales(id, apPayload);
+
+    const goRaw = body.gineco_obstetricos || {};
+    const goPayload = {
+      edad_primera_menstruacion: clean(goRaw.edad_primera_menstruacion),
+      ciclo_dias: clean(goRaw.ciclo_dias),
+      cantidad: clean(goRaw.cantidad),
+      dolor: clean(goRaw.dolor),
+      fecha_ultima_menstruacion: clean(toYMD(goRaw.fecha_ultima_menstruacion)),
+      vida_sexual_activa: clean(goRaw.vida_sexual_activa),
+      anticoncepcion: clean(goRaw.anticoncepcion),
+      tipo_anticonceptivo: clean(goRaw.tipo_anticonceptivo),
+      gestas: clean(goRaw.gestas),
+      partos: clean(goRaw.partos),
+      cesareas: clean(goRaw.cesareas),
+      abortos: clean(goRaw.abortos),
+      fecha_ultimo_parto: clean(toYMD(goRaw.fecha_ultimo_parto)),
+      fecha_menopausia: clean(toYMD(goRaw.fecha_menopausia)),
+    };
+    const go_result = await bd.upsertGinecoObstetricos(id, goPayload);
+
+    const appRaw = Array.isArray(body.antecedentes_personales_patologicos)
+      ? body.antecedentes_personales_patologicos
+      : [];
+    const appItems = appRaw.map((it) => ({
+      antecedente: norm(it?.antecedente) || null,
+      descripcion: norm(it?.descripcion) || null,
+    }));
+    const app_replaced = await bd.replaceAntecedentesPersonalesPatologicos(id, appItems);
+
+    const efRaw = body.exploracion_fisica || {};
+    const efPayload = {
+      peso_actual: clean(efRaw.peso_actual),
+      peso_anterior: clean(efRaw.peso_anterior),
+      peso_deseado: clean(efRaw.peso_deseado),
+      peso_ideal: clean(efRaw.peso_ideal),
+      talla_cm: clean(efRaw.talla_cm),
+      imc: clean(efRaw.imc),
+      rtg: clean(efRaw.rtg),
+      ta_mmhg: clean(efRaw.ta_mmhg),
+      frecuencia_cardiaca: clean(efRaw.frecuencia_cardiaca),
+      frecuencia_respiratoria: clean(efRaw.frecuencia_respiratoria),
+      temperatura_c: clean(efRaw.temperatura_c),
+      cadera_cm: clean(efRaw.cadera_cm),
+      cintura_cm: clean(efRaw.cintura_cm),
+    };
+    const areas = Array.isArray(efRaw.inspeccion_general) ? efRaw.inspeccion_general : [];
+    const pick = (name) => {
+      const it = areas.find((a) => (a?.nombre || '').toLowerCase() === name);
+      return it ? (it.descripcion ?? null) : null;
+    };
+    efPayload.cabeza = pick('cabeza');
+    efPayload.cuello = pick('cuello');
+    const torax = areas.find((a) => {
+      const n = (a?.nombre || '').toLowerCase();
+      return n === 'tórax' || n === 'torax';
+    });
+    efPayload.torax = torax ? (torax.descripcion ?? null) : null;
+    efPayload.abdomen = pick('abdomen');
+    efPayload.genitales = pick('genitales');
+    efPayload.extremidades = pick('extremidades');
+
+    const parseNum = (v) => (v == null || v === '' ? NaN : Number(v));
+    const w = parseNum(efPayload.peso_actual);
+    const hcm = parseNum(efPayload.talla_cm);
+    if ((!efPayload.imc || efPayload.imc === '') && Number.isFinite(w) && w > 0 && Number.isFinite(hcm) && hcm > 0) {
+      const hm = hcm / 100;
+      const bmi = w / (hm * hm);
+      efPayload.imc = Number.isFinite(bmi) ? bmi.toFixed(2) : null;
+    }
+    const ef_result = await bd.upsertExploracionFisica(id, efPayload);
+
+    const consRaw = Array.isArray(body.consultas) ? body.consultas : [];
+    const strip = (s) => (typeof s === 'string' ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '');
+    const mapNameToCol = (raw) => {
+      const k = strip(String(raw || '')).toLowerCase().trim();
+      if (!k) return null;
+      if (k === 'sintomas generales') return 'sintomas_generales_desc';
+      if (k === 'endocrino') return 'endocrino_desc';
+      if (k === 'organos de los sentidos') return 'organos_sentidos_desc';
+      if (k === 'gastrointestinal') return 'gastrointestinal_desc';
+      if (k === 'cardiopulmonar') return 'cardiopulmonar_desc';
+      if (k === 'genitourinario') return 'genitourinario_desc';
+      if (k === 'genital femenino') return 'genital_femenino_desc';
+      if (k === 'sexualidad') return 'sexualidad_desc';
+      if (k === 'dermatologico') return 'dermatologico_desc';
+      if (k === 'neurologico') return 'neurologico_desc';
+      if (k === 'hematologico') return 'hematologico_desc';
+      if (k === 'reumatologico') return 'reumatologico_desc';
+      if (k === 'psiquiatrico') return 'psiquiatrico_desc';
+      if (k === 'medicamentos') return 'medicamentos_desc';
+      return null;
+    };
+
+    const consItems = consRaw.map((entry) => {
+      const row = {
+        fecha_consulta: clean(toYMD(entry?.fecha_consulta)),
+        recordatorio: clean(toYMD(entry?.recordatorio)),
+        padecimiento_actual: clean(entry?.padecimiento_actual),
+        diagnostico: clean(entry?.diagnostico),
+        tratamiento: clean(entry?.tratamiento),
+        notas: clean(entry?.notas),
+      };
+      const interrogatorio = Array.isArray(entry?.interrogatorio_aparatos)
+        ? entry.interrogatorio_aparatos
+        : [];
+      for (const item of interrogatorio) {
+        const col = mapNameToCol(item?.nombre);
+        if (col) row[col] = clean(item?.descripcion);
+      }
+      return row;
+    }).filter((row) => Object.values(row).some((value) => value != null && value !== ''));
+
+    const cons_result = await bd.replaceConsultas(id, consItems);
+
+    return res.status(200).json({
+      ok: true,
+      id_perfil: id,
+      perfil_actualizado: perfil_result?.affectedRows ?? 0,
+      af_reemplazados: af_replaced,
+      ap_upserted: ap_result?.affectedRows ?? 0,
+      go_upserted: go_result?.affectedRows ?? 0,
+      ef_upserted: ef_result?.affectedRows ?? 0,
+      consultas_reemplazadas: cons_result?.inserted ?? 0,
+      app_reemplazados: app_replaced,
+    });
   } catch (err) {
-    console.error('Error al modificar cliente:', err);
+    console.error('Error al modificar perfil:', err);
     return res.status(500).json({ error: err.message });
   }
 };

@@ -206,7 +206,7 @@ const trimValue = (value) => {
   return value ?? '';
 };
 
-const buildPayloadWithConsultas = (data) => {
+const buildPayloadWithConsultas = (data, idPerfil) => {
   const base = buildNestedPayload(data);
   const consultas = sortConsultasDesc(toArr(data?.consultas)).map((consulta) => ({
     fecha_consulta: trimValue(consulta?.fecha_consulta),
@@ -222,6 +222,10 @@ const buildPayloadWithConsultas = (data) => {
   }));
 
   base.consultas = consultas;
+  if (idPerfil != null && idPerfil !== '') {
+    const numericId = Number(idPerfil);
+    base.id_perfil = Number.isFinite(numericId) && numericId > 0 ? numericId : idPerfil;
+  }
   return base;
 };
 
@@ -540,9 +544,9 @@ const Modify = () => {
 
   // Log en tiempo real cada vez que cambia el payload
   useEffect(() => {
-    const livePayload = buildPayloadWithConsultas(formData);
+    const livePayload = buildPayloadWithConsultas(formData, id);
     console.log('[Modify] Payload actualizado:', livePayload);
-  }, [formData]);
+  }, [formData, id]);
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
@@ -571,7 +575,7 @@ const Modify = () => {
 
     setIsSubmitting(true);
 
-    const payload = buildPayloadWithConsultas(formData);
+    const payload = buildPayloadWithConsultas(formData, id);
     console.log('[Modify] Payload a enviar:', payload);
 
     try {
