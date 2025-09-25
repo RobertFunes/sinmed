@@ -110,14 +110,6 @@ export const buildNestedPayload = (data) => {
     })),
   };
 
-  // Diagnóstico y tratamiento
-  const diagnostico_y_tratamiento = {
-    diagnostico: trim(data.diagnostico),
-    tratamiento: trim(data.tratamiento),
-    pronostico: trim(data.pronostico),
-    notas: trim(data.notas),
-  };
-
   return {
     datos_personales,
     antecedentes_familiares,
@@ -126,6 +118,5 @@ export const buildNestedPayload = (data) => {
     antecedentes_personales_patologicos: patologicos,
     consultas,
     exploracion_fisica,
-    diagnostico_y_tratamiento,
   };
 };
