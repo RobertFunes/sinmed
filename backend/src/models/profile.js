@@ -8,6 +8,16 @@ async function add(data) {
   return result?.insertId;
 }
 
+async function updatePerfil(id_perfil, data = {}) {
+  const id = Number(id_perfil);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error('id_perfil inválido');
+  }
+  const payload = { ...data };
+  const [result] = await db.query('UPDATE perfil SET ? WHERE id_perfil = ?', [payload, id]);
+  return result;
+}
+
 // Inserta N filas en antecedentes_familiares para un perfil dado
 // items: array de objetos { nombre, descripcion? } ya normalizados ('' -> null)
 async function addAntecedentesFamiliares(id_perfil, items = []) {
@@ -24,6 +34,12 @@ async function addAntecedentesFamiliares(id_perfil, items = []) {
     inserted++;
   }
   return inserted;
+}
+
+async function replaceAntecedentesFamiliares(id_perfil, items = []) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  await db.query('DELETE FROM antecedentes_familiares WHERE id_perfil = ?', [id_perfil]);
+  return addAntecedentesFamiliares(id_perfil, items);
 }
 
 // Inserta/actualiza (1:1) antecedentes_personales por id_perfil
@@ -80,6 +96,12 @@ async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
   return inserted;
 }
 
+async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  await db.query('DELETE FROM antecedentes_personales_patologicos WHERE id_perfil = ?', [id_perfil]);
+  return addAntecedentesPersonalesPatologicos(id_perfil, items);
+}
+
 // Inserta/actualiza (1:1) exploracion_fisica por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
 async function upsertExploracionFisica(id_perfil, data = {}) {
@@ -118,6 +140,28 @@ async function upsertConsultas(id_perfil, data = {}) {
                ON DUPLICATE KEY UPDATE ${updates}`;
   const [result] = await db.query(sql, values);
   return result;
+}
+
+async function replaceConsultas(id_perfil, items = []) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  await db.query('DELETE FROM consultas WHERE id_perfil = ?', [id_perfil]);
+  if (!Array.isArray(items) || items.length === 0) {
+    return { inserted: 0 };
+  }
+
+  let inserted = 0;
+  for (const raw of items) {
+    if (!raw || typeof raw !== 'object') continue;
+    const payload = { id_perfil, ...raw };
+    const hasContent = Object.entries(payload).some(([key, value]) => (
+      key !== 'id_perfil' && value != null && value !== ''
+    ));
+    if (!hasContent) continue;
+    const [result] = await db.query('INSERT INTO consultas SET ?', [payload]);
+    inserted += result?.affectedRows ?? 0;
+  }
+
+  return { inserted };
 }
 // Inserta/actualiza (1:1) diagnostico_tratamiento por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
@@ -553,6 +597,7 @@ async function deleteAppointment(id) {
 
 module.exports = {
   add,
+  updatePerfil,
   getAll,
   getSummary,
   updateUltimaFechaContacto,
@@ -563,12 +608,15 @@ module.exports = {
   modifyClient,
   getNameById,
   addAntecedentesFamiliares,
+  replaceAntecedentesFamiliares,
   upsertAntecedentesPersonales,
   upsertGinecoObstetricos,
   addAntecedentesPersonalesPatologicos,
+  replaceAntecedentesPersonalesPatologicos,
   upsertDiagnosticoTratamiento,
   upsertExploracionFisica,
   upsertConsultas,
+  replaceConsultas,
   addAppointment,
   listAppointments,
   updateAppointment,
