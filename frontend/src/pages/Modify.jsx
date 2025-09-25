@@ -725,6 +725,16 @@ const Modify = () => {
     setNuevoSistemaPorConsulta((prev) => ({ ...prev, [nueva.uid]: '' }));
   };
 
+  const handleEliminarConsulta = (uid) => {
+    updateConsultas((current) => current.filter((consulta) => consulta.uid !== uid));
+    setNuevoSistemaPorConsulta((prev) => {
+      if (!(uid in prev)) return prev;
+      const next = { ...prev };
+      delete next[uid];
+      return next;
+    });
+  };
+
   const handleConsultaFieldChange = (uid, field) => (event) => {
     const { value } = event.target;
     updateConsultas((current) =>
@@ -1693,6 +1703,17 @@ const Modify = () => {
                     >
                       {titulo}
                     </h3>
+
+                    <ItemActions style={{ justifyContent: 'flex-end' }}>
+                      <DangerButton
+                        type="button"
+                        onClick={() => handleEliminarConsulta(uid)}
+                        disabled={isPrefilling}
+                      >
+                        <FaTrash />
+                        <ButtonLabel>Eliminar consulta</ButtonLabel>
+                      </DangerButton>
+                    </ItemActions>
 
                     <TwoColumnRow>
                       <FieldGroup>
