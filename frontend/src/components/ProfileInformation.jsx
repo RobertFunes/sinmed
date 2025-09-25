@@ -1,15 +1,52 @@
 // src/components/ProfileInformation.jsx
 import PropTypes from 'prop-types';
 import {
-  FiPhone,
-  FiMail,
-  FiCalendar,
-  FiBriefcase,
-  FiHome,
-  FiLayers,
-} from 'react-icons/fi';
-import { PiNoteFill } from 'react-icons/pi';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+  FaUser,
+  FaBirthdayCake,
+  FaPhone,
+  FaUserPlus,
+  FaGraduationCap,
+  FaUsers,
+  FaTint,
+  FaBeer,
+  FaClock,
+  FaSmoking,
+  FaPills,
+  FaUtensils,
+  FaExchangeAlt,
+  FaExclamationCircle,
+  FaFemale,
+  FaCalendarAlt,
+  FaCalendarCheck,
+  FaBaby,
+  FaBabyCarriage,
+  FaProcedures,
+  FaHeartbeat,
+  FaCalendarDay,
+  FaCalendarTimes,
+  FaFileMedical,
+  FaWeight,
+  FaHistory,
+  FaRulerVertical,
+  FaRulerCombined,
+  FaRulerHorizontal,
+  FaBullseye,
+  FaBalanceScale,
+  FaChartBar,
+  FaHeart,
+  FaThermometerHalf,
+  FaStethoscope,
+  FaBell,
+  FaNotesMedical,
+  FaDiagnoses,
+  FaPrescriptionBottleAlt,
+  FaStickyNote,
+  FaClipboardCheck,
+  FaEdit,
+  FaTrashAlt,
+} from 'react-icons/fa';
+import { MdEmail, MdHome, MdWork } from 'react-icons/md';
+import { GiLungs } from 'react-icons/gi';
 import { ActionButton } from './ContactCard.styles.jsx';
 import {
   Section,
@@ -154,8 +191,8 @@ const buildHabitos = (ap = {}) => {
     habitos.push({
       titulo: label,
       rows: [
-        { label: 'Bebidas por día', value: ap.bebidas_por_dia },
-        { label: 'Tiempo activo', value: ap.tiempo_activo_alc },
+        { label: 'Bebidas por día', value: ap.bebidas_por_dia, icon: <FaBeer /> },
+        { label: 'Tiempo activo', value: ap.tiempo_activo_alc, icon: <FaClock /> },
       ],
     });
   }
@@ -165,8 +202,8 @@ const buildHabitos = (ap = {}) => {
     habitos.push({
       titulo: label,
       rows: [
-        { label: 'Cigarrillos por día', value: ap.cigarrillos_por_dia },
-        { label: 'Tiempo activo', value: ap.tiempo_activo_tab },
+        { label: 'Cigarrillos por día', value: ap.cigarrillos_por_dia, icon: <FaSmoking /> },
+        { label: 'Tiempo activo', value: ap.tiempo_activo_tab, icon: <FaClock /> },
       ],
     });
   }
@@ -176,8 +213,8 @@ const buildHabitos = (ap = {}) => {
     habitos.push({
       titulo: label,
       rows: [
-        { label: 'Tipo', value: ap.tipo_toxicomania },
-        { label: 'Tiempo activo', value: ap.tiempo_activo_tox },
+        { label: 'Tipo', value: ap.tipo_toxicomania, icon: <FaPills /> },
+        { label: 'Tiempo activo', value: ap.tiempo_activo_tox, icon: <FaClock /> },
       ],
     });
   }
@@ -236,7 +273,10 @@ const Row = ({ icon, label, value }) => {
   if (!present(value)) return null;
   return (
     <FieldRow>
-      <Label>{icon} {label}</Label>
+      <Label>
+        {icon ? <span className="icon">{icon}</span> : null}
+        {label}
+      </Label>
       <Value>{value}</Value>
     </FieldRow>
   );
@@ -305,27 +345,35 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const iconFor = (key) => {
     switch (key) {
       case 'id_perfil':
-      case 'genero':
-      case 'escolaridad':
-      case 'estado_civil':
-      case 'tipo_sangre':
-      case 'referido_por':
-        return <FiLayers />;
+        return <FaClipboardCheck />;
       case 'nombre':
-      case 'residencia':
-        return <FiHome />;
+        return <FaUser />;
+      case 'genero':
+        return null;
       case 'fecha_nacimiento':
-      case 'creado':
-      case 'actualizado':
-        return <FiCalendar />;
+        return <FaBirthdayCake />;
       case 'telefono_movil':
-        return <FiPhone />;
+        return <FaPhone />;
       case 'correo_electronico':
-        return <FiMail />;
+        return <MdEmail />;
+      case 'residencia':
+        return <MdHome />;
       case 'ocupacion':
-        return <FiBriefcase />;
+        return <MdWork />;
+      case 'escolaridad':
+        return <FaGraduationCap />;
+      case 'estado_civil':
+        return null;
+      case 'tipo_sangre':
+        return <FaTint />;
+      case 'referido_por':
+        return <FaUserPlus />;
+      case 'creado':
+        return <FaCalendarDay />;
+      case 'actualizado':
+        return <FaCalendarCheck />;
       default:
-        return <FiLayers />;
+        return <FaClipboardCheck />;
     }
   };
 
@@ -365,11 +413,11 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const antecedentesPersonales = data.antecedentes_personales || {};
   const apGenerales = [
     { label: 'Calidad del sueño:', value: antecedentesPersonales.calidad },
-    { label: 'Descripción:', value: antecedentesPersonales.descripcion },
+    { label: 'Descripción:', value: antecedentesPersonales.descripcion, icon: <FaUtensils /> },
     { label: '¿Hay cambios?:', value: antecedentesPersonales.hay_cambios },
-    { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo },
-    { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa },
-    { label: 'Tiempo del cambio:', value: antecedentesPersonales.cambio_tiempo },
+    { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt /> },
+    { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa, icon: <FaExclamationCircle /> },
+    { label: 'Tiempo del cambio:', value: antecedentesPersonales.cambio_tiempo, icon: <FaClock /> },
   ].filter((row) => present(row.value));
   const apHabitos = buildHabitos(antecedentesPersonales);
 
@@ -378,20 +426,20 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     : data.gineco_obstetricos || {};
 
   const ginecoRows = [
-    { label: 'Edad de menarca:', value: ginecoSource.edad_primera_menstruacion },
-    { label: 'Ciclo / días:', value: ginecoSource.ciclo_dias },
-    { label: 'Cantidad:', value: ginecoSource.cantidad },
+    { label: 'Edad de menarca:', value: ginecoSource.edad_primera_menstruacion, icon: <FaFemale /> },
+    { label: 'Ciclo / días:', value: ginecoSource.ciclo_dias, icon: <FaCalendarAlt /> },
+    { label: 'Cantidad:', value: ginecoSource.cantidad, icon: <FaTint /> },
     { label: 'Dolor:', value: ginecoSource.dolor },
-    { label: 'Fecha de última menstruación:', value: formatDate(ginecoSource.fecha_ultima_menstruacion) },
+    { label: 'Fecha de última menstruación:', value: formatDate(ginecoSource.fecha_ultima_menstruacion), icon: <FaCalendarCheck /> },
     { label: 'Vida sexual activa:', value: ginecoSource.vida_sexual_activa },
     { label: 'Anticoncepción:', value: ginecoSource.anticoncepcion },
-    { label: 'Tipo de anticonceptivo:', value: ginecoSource.tipo_anticonceptivo },
-    { label: 'Gestas:', value: ginecoSource.gestas },
-    { label: 'Partos:', value: ginecoSource.partos },
-    { label: 'Cesáreas:', value: ginecoSource.cesareas },
-    { label: 'Abortos:', value: ginecoSource.abortos },
-    { label: 'Fecha del último parto:', value: formatDate(ginecoSource.fecha_ultimo_parto) },
-    { label: 'Fecha de menopausia:', value: formatDate(ginecoSource.fecha_menopausia) },
+    { label: 'Tipo de anticonceptivo:', value: ginecoSource.tipo_anticonceptivo, icon: <FaPills /> },
+    { label: 'Gestas:', value: ginecoSource.gestas, icon: <FaBaby /> },
+    { label: 'Partos:', value: ginecoSource.partos, icon: <FaBabyCarriage /> },
+    { label: 'Cesáreas:', value: ginecoSource.cesareas, icon: <FaProcedures /> },
+    { label: 'Abortos:', value: ginecoSource.abortos, icon: <FaHeartbeat /> },
+    { label: 'Fecha del último parto:', value: formatDate(ginecoSource.fecha_ultimo_parto), icon: <FaCalendarDay /> },
+    { label: 'Fecha de menopausia:', value: formatDate(ginecoSource.fecha_menopausia), icon: <FaCalendarTimes /> },
   ].filter((row) => present(row.value));
 
   const patologicos = toArr(data.antecedentes_personales_patologicos)
@@ -411,19 +459,19 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     : {};
 
   const efRows = [
-    { label: 'Peso actual (kg):', value: efSource.peso_actual },
-    { label: 'Peso anterior (kg):', value: efSource.peso_anterior },
-    { label: 'Peso deseado (kg):', value: efSource.peso_deseado },
-    { label: 'Peso ideal (kg):', value: efSource.peso_ideal },
-    { label: 'Talla (cm):', value: efSource.talla_cm },
-    { label: 'IMC:', value: efSource.imc },
-    { label: 'RTG:', value: efSource.rtg },
-    { label: 'TA (mmHg):', value: efSource.ta_mmhg },
-    { label: 'Frecuencia cardiaca:', value: efSource.frecuencia_cardiaca },
-    { label: 'Frecuencia respiratoria:', value: efSource.frecuencia_respiratoria },
-    { label: 'Temperatura (°C):', value: efSource.temperatura_c },
-    { label: 'Cadera (cm):', value: efSource.cadera_cm },
-    { label: 'Cintura (cm):', value: efSource.cintura_cm },
+    { label: 'Peso actual (kg):', value: efSource.peso_actual, icon: <FaWeight /> },
+    { label: 'Peso anterior (kg):', value: efSource.peso_anterior, icon: <FaHistory /> },
+    { label: 'Peso deseado (kg):', value: efSource.peso_deseado, icon: <FaBullseye /> },
+    { label: 'Peso ideal (kg):', value: efSource.peso_ideal, icon: <FaBalanceScale /> },
+    { label: 'Talla (cm):', value: efSource.talla_cm, icon: <FaRulerVertical /> },
+    { label: 'IMC:', value: efSource.imc, icon: <FaChartBar /> },
+    { label: 'RTG:', value: efSource.rtg, icon: <FaHeartbeat /> },
+    { label: 'TA (mmHg):', value: efSource.ta_mmhg, icon: <FaHeart /> },
+    { label: 'Frecuencia cardiaca:', value: efSource.frecuencia_cardiaca, icon: <FaHeart /> },
+    { label: 'Frecuencia respiratoria:', value: efSource.frecuencia_respiratoria, icon: <GiLungs /> },
+    { label: 'Temperatura (°C):', value: efSource.temperatura_c, icon: <FaThermometerHalf /> },
+    { label: 'Cadera (cm):', value: efSource.cadera_cm, icon: <FaRulerCombined /> },
+    { label: 'Cintura (cm):', value: efSource.cintura_cm, icon: <FaRulerHorizontal /> },
   ].filter((row) => present(row.value));
 
   const inspeccion = mapInspectionFromSource(efSource);
@@ -446,8 +494,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             {antecedentesFamiliares.map((item, idx) => (
               <Group key={`af-${idx}`}>
                 <GroupTitle>Registro {idx + 1}</GroupTitle>
-                <Row icon={<FiLayers />} label="Antecedente:" value={item.nombre} />
-                <Row icon={<PiNoteFill />} label="Descripción:" value={item.descripcion} />
+                <Row icon={<FaUsers />} label="Antecedente:" value={item.nombre} />
+                <Row icon={<FaStickyNote />} label="Descripción:" value={item.descripcion} />
               </Group>
             ))}
           </Stack>
@@ -459,8 +507,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
           <h3>Antecedentes Personales</h3>
           {apGenerales.length > 0 && (
             <TwoColumnRow>
-              {apGenerales.map(({ label, value }, idx) => (
-                <Row key={`ap-${idx}`} icon={<FiLayers />} label={label} value={value} />
+              {apGenerales.map(({ label, value, icon }, idx) => (
+                <Row key={`ap-${idx}`} icon={icon ?? null} label={label} value={value} />
               ))}
             </TwoColumnRow>
           )}
@@ -471,10 +519,10 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 {apHabitos.map((habito, idx) => (
                   <Group key={`habito-${idx}`}>
                     <GroupTitle>{habito.titulo}</GroupTitle>
-                    {habito.rows.map(({ label, value }, rowIdx) => (
+                    {habito.rows.map(({ label, value, icon }, rowIdx) => (
                       <Row
                         key={`habito-${idx}-${rowIdx}`}
-                        icon={<FiLayers />}
+                        icon={icon ?? null}
                         label={label}
                         value={value}
                       />
@@ -491,8 +539,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         <Section>
           <h3>Antecedentes Gineco-Obstétricos</h3>
           <TwoColumnRow>
-            {ginecoRows.map(({ label, value }, idx) => (
-              <Row key={`gineco-${idx}`} icon={<FiLayers />} label={label} value={value} />
+            {ginecoRows.map(({ label, value, icon }, idx) => (
+              <Row key={`gineco-${idx}`} icon={icon ?? null} label={label} value={value} />
             ))}
           </TwoColumnRow>
         </Section>
@@ -505,11 +553,37 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             {patologicos.map((item, idx) => (
               <Group key={item.id || `pat-${idx}`}>
                 <GroupTitle>Registro {idx + 1}</GroupTitle>
-                <Row icon={<FiLayers />} label="Antecedente:" value={item.antecedente} />
-                <Row icon={<PiNoteFill />} label="Descripción:" value={item.descripcion} />
+                <Row icon={<FaFileMedical />} label="Antecedente:" value={item.antecedente} />
+                <Row icon={<FaStickyNote />} label="Descripción:" value={item.descripcion} />
               </Group>
             ))}
           </Stack>
+        </Section>
+      )}
+
+      {(efRows.length > 0 || inspeccion.length > 0) && (
+        <Section>
+          <h3>Exploración Física</h3>
+          {efRows.length > 0 && (
+            <TwoColumnRow>
+              {efRows.map(({ label, value, icon }, idx) => (
+                <Row key={`ef-${idx}`} icon={icon ?? null} label={label} value={value} />
+              ))}
+            </TwoColumnRow>
+          )}
+          {inspeccion.length > 0 && (
+            <>
+              <h4>Inspección general</h4>
+              <Stack>
+                {inspeccion.map((item, idx) => (
+                  <Group key={`ins-${idx}`}>
+                    <GroupTitle>{item.nombre}</GroupTitle>
+                    <Row icon={<FaStethoscope />} label="Descripción:" value={item.descripcion} />
+                  </Group>
+                ))}
+              </Stack>
+            </>
+          )}
         </Section>
       )}
 
@@ -522,19 +596,19 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <GroupTitle>
                   Consulta {idx + 1}{present(consulta.fecha_consulta) ? ` · ${consulta.fecha_consulta}` : ''}
                 </GroupTitle>
-                <Row icon={<FiCalendar />} label="Fecha de consulta:" value={consulta.fecha_consulta} />
-                <Row icon={<FiCalendar />} label="Recordatorio:" value={consulta.recordatorio} />
-                <Row icon={<PiNoteFill />} label="Padecimiento actual:" value={consulta.padecimiento_actual} />
-                <Row icon={<PiNoteFill />} label="Diagnóstico:" value={consulta.diagnostico} />
-                <Row icon={<PiNoteFill />} label="Tratamiento:" value={consulta.tratamiento} />
-                <Row icon={<PiNoteFill />} label="Notas:" value={consulta.notas} />
+                <Row icon={<FaCalendarDay />} label="Fecha de consulta:" value={consulta.fecha_consulta} />
+                <Row icon={<FaBell />} label="Recordatorio:" value={consulta.recordatorio} />
+                <Row icon={<FaNotesMedical />} label="Padecimiento actual:" value={consulta.padecimiento_actual} />
+                <Row icon={<FaDiagnoses />} label="Diagnóstico:" value={consulta.diagnostico} />
+                <Row icon={<FaPrescriptionBottleAlt />} label="Tratamiento:" value={consulta.tratamiento} />
+                <Row icon={<FaStickyNote />} label="Notas:" value={consulta.notas} />
                 {consulta.interrogatorio.length > 0 && (
                   <>
                     <h5>Interrogatorio por aparatos y sistemas</h5>
                     {consulta.interrogatorio.map((item, interrogatorioIdx) => (
                       <Row
                         key={`${consulta.id}-interrogatorio-${interrogatorioIdx}`}
-                        icon={<FiLayers />}
+                        icon={<FaClipboardCheck />}
                         label={`${item.nombre}:`}
                         value={item.descripcion}
                       />
@@ -548,35 +622,9 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             <Stack>
               <Group>
                 <GroupTitle>Pronóstico</GroupTitle>
-                <Row icon={<PiNoteFill />} label="Pronóstico general:" value={pronostico} />
+                <Row icon={<FaStickyNote />} label="Pronóstico general:" value={pronostico} />
               </Group>
             </Stack>
-          )}
-        </Section>
-      )}
-
-      {(efRows.length > 0 || inspeccion.length > 0) && (
-        <Section>
-          <h3>Exploración Física</h3>
-          {efRows.length > 0 && (
-            <TwoColumnRow>
-              {efRows.map(({ label, value }, idx) => (
-                <Row key={`ef-${idx}`} icon={<FiLayers />} label={label} value={value} />
-              ))}
-            </TwoColumnRow>
-          )}
-          {inspeccion.length > 0 && (
-            <>
-              <h4>Inspección general</h4>
-              <Stack>
-                {inspeccion.map((item, idx) => (
-                  <Group key={`ins-${idx}`}>
-                    <GroupTitle>{item.nombre}</GroupTitle>
-                    <Row icon={<PiNoteFill />} label="Descripción:" value={item.descripcion} />
-                  </Group>
-                ))}
-              </Stack>
-            </>
           )}
         </Section>
       )}
