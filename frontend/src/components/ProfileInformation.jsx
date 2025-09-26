@@ -97,22 +97,37 @@ const findMatchingLabel = (options, needle, fallback) => {
   return partial || fallback || needle;
 };
 
+// Mapeo de campos de sistemas para descripciones y estados (seguimiento)
 const SISTEMA_FIELD_MAPPINGS = [
-  { needle: 'Sintomas generales', keys: ['sintomas_generales_desc', 'sintomas_generales'] },
-  { needle: 'Endocrino', keys: ['endocrino_desc', 'endocrino'] },
-  { needle: 'Organos de los sentidos', keys: ['organos_sentidos_desc', 'organos_sentidos'] },
-  { needle: 'Gastrointestinal', keys: ['gastrointestinal_desc', 'gastrointestinal'] },
-  { needle: 'Cardiopulmonar', keys: ['cardiopulmonar_desc', 'cardiopulmonar'] },
-  { needle: 'Genitourinario', keys: ['genitourinario_desc', 'genitourinario'] },
-  { needle: 'Genital femenino', keys: ['genital_femenino_desc', 'genital_femenino'] },
-  { needle: 'Sexualidad', keys: ['sexualidad_desc', 'sexualidad'] },
-  { needle: 'Dermatologico', keys: ['dermatologico_desc', 'dermatologico'] },
-  { needle: 'Neurologico', keys: ['neurologico_desc', 'neurologico'] },
-  { needle: 'Hematologico', keys: ['hematologico_desc', 'hematologico'] },
-  { needle: 'Reumatologico', keys: ['reumatologico_desc', 'reumatologico'] },
-  { needle: 'Psiquiatrico', keys: ['psiquiatrico_desc', 'psiquiatrico'] },
-  { needle: 'Medicamentos', keys: ['medicamentos_desc', 'medicamentos'] },
+  { needle: 'Sintomas generales', descKeys: ['sintomas_generales_desc', 'sintomas_generales'], estadoKey: 'sintomas_generales_estado' },
+  { needle: 'Endocrino', descKeys: ['endocrino_desc', 'endocrino'], estadoKey: 'endocrino_estado' },
+  { needle: 'Organos de los sentidos', descKeys: ['organos_sentidos_desc', 'organos_sentidos'], estadoKey: 'organos_sentidos_estado' },
+  { needle: 'Gastrointestinal', descKeys: ['gastrointestinal_desc', 'gastrointestinal'], estadoKey: 'gastrointestinal_estado' },
+  { needle: 'Cardiopulmonar', descKeys: ['cardiopulmonar_desc', 'cardiopulmonar'], estadoKey: 'cardiopulmonar_estado' },
+  { needle: 'Genitourinario', descKeys: ['genitourinario_desc', 'genitourinario'], estadoKey: 'genitourinario_estado' },
+  { needle: 'Genital femenino', descKeys: ['genital_femenino_desc', 'genital_femenino'], estadoKey: 'genital_femenino_estado' },
+  { needle: 'Sexualidad', descKeys: ['sexualidad_desc', 'sexualidad'], estadoKey: 'sexualidad_estado' },
+  { needle: 'Dermatologico', descKeys: ['dermatologico_desc', 'dermatologico'], estadoKey: 'dermatologico_estado' },
+  { needle: 'Neurologico', descKeys: ['neurologico_desc', 'neurologico'], estadoKey: 'neurologico_estado' },
+  { needle: 'Hematologico', descKeys: ['hematologico_desc', 'hematologico'], estadoKey: 'hematologico_estado' },
+  { needle: 'Reumatologico', descKeys: ['reumatologico_desc', 'reumatologico'], estadoKey: 'reumatologico_estado' },
+  { needle: 'Psiquiatrico', descKeys: ['psiquiatrico_desc', 'psiquiatrico'], estadoKey: 'psiquiatrico_estado' },
+  { needle: 'Medicamentos', descKeys: ['medicamentos_desc', 'medicamentos'], estadoKey: 'medicamentos_estado' },
 ];
+
+const SISTEMA_ESTADO_OPTIONS = [
+  { value: 'mejoro', label: 'Mejoró' },
+  { value: 'igual', label: 'Igual' },
+  { value: 'empeoro', label: 'Empeoró' },
+  { value: 'se_quito', label: 'Se quitó' },
+];
+
+const estadoLabel = (value) => {
+  const v = toStr(value).trim();
+  if (!v) return '';
+  const opt = SISTEMA_ESTADO_OPTIONS.find((o) => o.value === v);
+  return opt ? opt.label : v;
+};
 
 const parseDateValue = (value) => {
   if (!value) return Number.NEGATIVE_INFINITY;
@@ -145,20 +160,23 @@ const mapSistemasFromSource = (source = {}) => {
     .map((item) => {
       const nombre = toStr(item?.nombre);
       const descripcion = toStr(item?.descripcion);
-      if (!present(nombre) && !present(descripcion)) return null;
-      return { nombre, descripcion };
+      const estado = toStr(item?.estado);
+      if (!present(nombre) && !present(descripcion) && !present(estado)) return null;
+      return { nombre, descripcion, estado };
     })
     .filter(Boolean);
 
   if (direct.length > 0) return direct;
 
   return SISTEMA_FIELD_MAPPINGS
-    .map(({ needle, keys }) => {
+    .map(({ needle, descKeys, estadoKey }) => {
       const label = findMatchingLabel(SISTEMAS_OPCIONES, needle, needle);
-      const descripcion = keys
+      const descripcion = toArr(descKeys)
         .map((key) => toStr(source?.[key]).trim())
         .find((value) => value.length > 0);
-      return descripcion ? { nombre: label, descripcion } : null;
+      const estado = estadoKey ? toStr(source?.[estadoKey]).trim() : '';
+      if (!present(descripcion) && !present(estado)) return null;
+      return { nombre: label, descripcion: descripcion || '', estado };
     })
     .filter(Boolean);
 };
@@ -606,12 +624,26 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                   <>
                     <h5>Interrogatorio por aparatos y sistemas</h5>
                     {consulta.interrogatorio.map((item, interrogatorioIdx) => (
-                      <Row
-                        key={`${consulta.id}-interrogatorio-${interrogatorioIdx}`}
-                        icon={<FaClipboardCheck />}
-                        label={`${item.nombre}:`}
-                        value={item.descripcion}
-                      />
+                      [
+                        (
+                          <Row
+                            key={`${consulta.id}-interrogatorio-${interrogatorioIdx}-desc`}
+                            icon={<FaClipboardCheck />}
+                            label={`${item.nombre}:`}
+                            value={item.descripcion}
+                          />
+                        ),
+                        present(item.estado)
+                          ? (
+                            <Row
+                              key={`${consulta.id}-interrogatorio-${interrogatorioIdx}-estado`}
+                              icon={null}
+                              label={"Seguimiento:"}
+                              value={estadoLabel(item.estado)}
+                            />
+                          )
+                          : null,
+                      ]
                     ))}
                   </>
                 )}

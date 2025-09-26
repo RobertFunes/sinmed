@@ -699,11 +699,12 @@ const Modify = () => {
     const esOtro = normalize(nuevoAntecedente) === normalize('Otras');
     setFormData((prev) => ({
       ...prev,
+      // Insertar al inicio
       antecedentes_familiares: [
-        ...prev.antecedentes_familiares,
         esOtro
           ? { nombre: '', descripcion: '', esOtro: true }
           : { nombre: nuevoAntecedente, descripcion: '', esOtro: false },
+        ...prev.antecedentes_familiares,
       ],
     }));
     setNuevoAntecedente('');
@@ -731,7 +732,8 @@ const Modify = () => {
     if (tipoNormalized.includes('toxico')) base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
     setFormData((prev) => ({
       ...prev,
-      antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],
+      // Insertar al inicio
+      antecedentes_personales_habitos: [base, ...prev.antecedentes_personales_habitos],
     }));
     setNuevoHabito('');
   };
@@ -755,9 +757,10 @@ const Modify = () => {
     if (!nuevoPatologico) return;
     setFormData((prev) => ({
       ...prev,
+      // Insertar al inicio
       antecedentes_personales_patologicos: [
-        ...prev.antecedentes_personales_patologicos,
         { antecedente: nuevoPatologico, descripcion: '' },
+        ...prev.antecedentes_personales_patologicos,
       ],
     }));
     setNuevoPatologico('');
@@ -844,9 +847,10 @@ const Modify = () => {
         if (consulta.uid !== uid) return consulta;
         return {
           ...consulta,
+          // Insertar el nuevo sistema al inicio de la lista
           interrogatorio_aparatos: [
-            ...toArr(consulta.interrogatorio_aparatos),
             { nombre: seleccionado, descripcion: '', estado: '' },
+            ...toArr(consulta.interrogatorio_aparatos),
           ],
         };
       }),
@@ -900,9 +904,10 @@ const Modify = () => {
     if (!nuevoInspeccion) return;
     setFormData((prev) => ({
       ...prev,
+      // Insertar nueva inspección al inicio
       inspeccion_general: [
-        ...prev.inspeccion_general,
         { nombre: nuevoInspeccion, descripcion: '' },
+        ...prev.inspeccion_general,
       ],
     }));
     setNuevoInspeccion('');
@@ -1962,7 +1967,7 @@ const Modify = () => {
                               <ItemActions>
                                 <DangerButton type="button" onClick={() => handleEliminarSistema(uid, sistemaIdx)}>
                                   <FaTrash />
-                                  <ButtonLabel>Eliminar</ButtonLabel>
+                                  <ButtonLabel>Eliminar sistema</ButtonLabel>
                                 </DangerButton>
                               </ItemActions>
                             </ItemCard>
