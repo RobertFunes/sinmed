@@ -85,6 +85,7 @@ import {
 } from 'react-icons/fa';
 import { MdEmail, MdHome, MdWork, MdDescription } from 'react-icons/md';
 import { GiLungs } from 'react-icons/gi';
+import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox } from './modify.styles';
 
 
 
@@ -798,8 +799,16 @@ const Modify = () => {
   };
 
   const handleNuevaConsulta = () => {
+    // Crear nueva consulta y autocompletar desde la más reciente
+    const current = toArr(formData.consultas);
+    const last = sortConsultasAsc(current)[current.length - 1] || null;
     const nueva = createEmptyConsulta();
-    updateConsultas((current) => [nueva, ...current]);
+    if (last) {
+      nueva.padecimiento_actual = toStr(last.padecimiento_actual);
+      nueva.diagnostico = toStr(last.diagnostico);
+      nueva.interrogatorio_aparatos = deepClone(toArr(last.interrogatorio_aparatos));
+    }
+    updateConsultas((list) => [nueva, ...list]);
     setNuevoSistemaPorConsulta((prev) => ({ ...prev, [nueva.uid]: '' }));
   };
 
@@ -1764,7 +1773,7 @@ const Modify = () => {
                   style={{ width: 'auto' }}
                 >
                   <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                  Nueva consulta
+                  Crear nueva consulta
                 </SubmitButton>
               </div>
 
@@ -1914,6 +1923,28 @@ const Modify = () => {
                                 <FieldGroup>
                                   <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
                                   <Input value={s.nombre} disabled />
+                                  {showEstadoChecklist && (
+                                  <FieldGroup>
+                                    <Label>Seguimiento</Label>
+                                    <EstadoChecklist>
+                                      {SISTEMA_ESTADO_OPTIONS.map((option) => {
+                                        const optionId = `${uid}-sistema-${sistemaIdx}-${option.value}`;
+                                        const checked = estadoValue === option.value;
+                                        return (
+                                          <EstadoOptionLabel key={option.value} htmlFor={optionId}>
+                                            <EstadoCheckbox
+                                              id={optionId}
+                                              type="checkbox"
+                                              checked={checked}
+                                              onChange={() => handleToggleSistemaEstado(uid, sistemaIdx, option.value)}
+                                            />
+                                            <span>{option.label}</span>
+                                          </EstadoOptionLabel>
+                                        );
+                                      })}
+                                    </EstadoChecklist>
+                                  </FieldGroup>
+                                )}
                                 </FieldGroup>
                                 <FieldGroup>
                                   <Label>{`Descripci\u00f3n de aparato ${s.nombre?.toLowerCase?.() || ''}`}</Label>
@@ -1926,32 +1957,7 @@ const Modify = () => {
                                 </FieldGroup>
                               </TwoColumnRow>
 
-                              {showEstadoChecklist && (
-                                <FieldGroup>
-                                  <Label>Seguimiento</Label>
-                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                                    {SISTEMA_ESTADO_OPTIONS.map((option) => {
-                                      const optionId = `${uid}-sistema-${sistemaIdx}-${option.value}`;
-                                      const checked = estadoValue === option.value;
-                                      return (
-                                        <label
-                                          key={option.value}
-                                          htmlFor={optionId}
-                                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                                        >
-                                          <input
-                                            id={optionId}
-                                            type="checkbox"
-                                            checked={checked}
-                                            onChange={() => handleToggleSistemaEstado(uid, sistemaIdx, option.value)}
-                                          />
-                                          <span>{option.label}</span>
-                                        </label>
-                                      );
-                                    })}
-                                  </div>
-                                </FieldGroup>
-                              )}
+                              
 
                               <ItemActions>
                                 <DangerButton type="button" onClick={() => handleEliminarSistema(uid, sistemaIdx)}>
