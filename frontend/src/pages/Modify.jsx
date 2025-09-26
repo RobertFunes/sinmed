@@ -119,29 +119,52 @@ const generateConsultaUid = () => {
 };
 
 const parseDateValue = (value) => {
-  if (!value) return Number.NEGATIVE_INFINITY;
+  if (!value) return Number.NaN;
   const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+  return Number.isNaN(parsed) ? Number.NaN : parsed;
 };
 
-const sortConsultasDesc = (entries = []) => {
-  const fallbackMap = new Map();
-  const orderMap = new Map();
-  entries.forEach((item, index) => {
-    const fallbackKey = `idx-${index}`;
-    fallbackMap.set(item, fallbackKey);
-    orderMap.set(item?.uid ?? fallbackKey, index);
+const extractNumericId = (entry) => {
+  const raw = entry?.id ?? entry?.uid;
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  const str = String(raw ?? '').trim();
+  if (!str) return Number.NaN;
+  const matches = str.match(/\d+/g);
+  if (!matches || matches.length === 0) return Number.NaN;
+  // Prefer the last numeric group (e.g., incremental id or timestamp)
+  const last = matches[matches.length - 1];
+  const num = parseInt(last, 10);
+  return Number.isFinite(num) ? num : Number.NaN;
+};
+
+const sortConsultasAsc = (entries = []) => {
+  // decorate with original index to ensure stable final ordering
+  const decorated = entries.map((item, index) => ({ item, index }));
+
+  decorated.sort((a, b) => {
+    const da = parseDateValue(a.item?.fecha_consulta);
+    const db = parseDateValue(b.item?.fecha_consulta);
+    const aHasDate = Number.isFinite(da);
+    const bHasDate = Number.isFinite(db);
+
+    // Primary: by date ascending (oldest first) when both have valid dates and are different
+    if (aHasDate && bHasDate && da !== db) return da - db;
+
+    // Fallback: by numeric id (highest first) when dates are equal or unavailable
+    const ida = extractNumericId(a.item);
+    const idb = extractNumericId(b.item);
+    const aHasId = Number.isFinite(ida);
+    const bHasId = Number.isFinite(idb);
+    if (aHasId && bHasId && ida !== idb) return idb - ida; // highest id first
+
+    // If one has date and the other doesn't, prefer the one with a valid date
+    if (aHasDate !== bHasDate) return aHasDate ? -1 : 1;
+
+    // Stable fallback: original order
+    return a.index - b.index;
   });
 
-  return [...entries].sort((a, b) => {
-    const diff = parseDateValue(b?.fecha_consulta) - parseDateValue(a?.fecha_consulta);
-    if (diff !== 0) return diff;
-    const keyA = a?.uid ?? fallbackMap.get(a);
-    const keyB = b?.uid ?? fallbackMap.get(b);
-    const idxA = orderMap.get(keyA) ?? 0;
-    const idxB = orderMap.get(keyB) ?? 0;
-    return idxA - idxB;
-  });
+  return decorated.map((d) => d.item);
 };
 
 const findMatchingLabel = (options, needle, fallback) => {
@@ -153,39 +176,66 @@ const findMatchingLabel = (options, needle, fallback) => {
 };
 
 const SISTEMA_FIELD_MAPPINGS = [
-  { needle: 'Sintomas generales', keys: ['sintomas_generales_desc', 'sintomas_generales'] },
-  { needle: 'Endocrino', keys: ['endocrino_desc', 'endocrino'] },
-  { needle: 'Organos de los sentidos', keys: ['organos_sentidos_desc', 'organos_sentidos'] },
-  { needle: 'Gastrointestinal', keys: ['gastrointestinal_desc', 'gastrointestinal'] },
-  { needle: 'Cardiopulmonar', keys: ['cardiopulmonar_desc', 'cardiopulmonar'] },
-  { needle: 'Genitourinario', keys: ['genitourinario_desc', 'genitourinario'] },
-  { needle: 'Genital femenino', keys: ['genital_femenino_desc', 'genital_femenino'] },
-  { needle: 'Sexualidad', keys: ['sexualidad_desc', 'sexualidad'] },
-  { needle: 'Dermatologico', keys: ['dermatologico_desc', 'dermatologico'] },
-  { needle: 'Neurologico', keys: ['neurologico_desc', 'neurologico'] },
-  { needle: 'Hematologico', keys: ['hematologico_desc', 'hematologico'] },
-  { needle: 'Reumatologico', keys: ['reumatologico_desc', 'reumatologico'] },
-  { needle: 'Psiquiatrico', keys: ['psiquiatrico_desc', 'psiquiatrico'] },
-  { needle: 'Medicamentos', keys: ['medicamentos_desc', 'medicamentos'] },
+  { needle: 'Sintomas generales', descKeys: ['sintomas_generales_desc', 'sintomas_generales'], estadoKey: 'sintomas_generales_estado' },
+  { needle: 'Endocrino', descKeys: ['endocrino_desc', 'endocrino'], estadoKey: 'endocrino_estado' },
+  { needle: 'Organos de los sentidos', descKeys: ['organos_sentidos_desc', 'organos_sentidos'], estadoKey: 'organos_sentidos_estado' },
+  { needle: 'Gastrointestinal', descKeys: ['gastrointestinal_desc', 'gastrointestinal'], estadoKey: 'gastrointestinal_estado' },
+  { needle: 'Cardiopulmonar', descKeys: ['cardiopulmonar_desc', 'cardiopulmonar'], estadoKey: 'cardiopulmonar_estado' },
+  { needle: 'Genitourinario', descKeys: ['genitourinario_desc', 'genitourinario'], estadoKey: 'genitourinario_estado' },
+  { needle: 'Genital femenino', descKeys: ['genital_femenino_desc', 'genital_femenino'], estadoKey: 'genital_femenino_estado' },
+  { needle: 'Sexualidad', descKeys: ['sexualidad_desc', 'sexualidad'], estadoKey: 'sexualidad_estado' },
+  { needle: 'Dermatologico', descKeys: ['dermatologico_desc', 'dermatologico'], estadoKey: 'dermatologico_estado' },
+  { needle: 'Neurologico', descKeys: ['neurologico_desc', 'neurologico'], estadoKey: 'neurologico_estado' },
+  { needle: 'Hematologico', descKeys: ['hematologico_desc', 'hematologico'], estadoKey: 'hematologico_estado' },
+  { needle: 'Reumatologico', descKeys: ['reumatologico_desc', 'reumatologico'], estadoKey: 'reumatologico_estado' },
+  { needle: 'Psiquiatrico', descKeys: ['psiquiatrico_desc', 'psiquiatrico'], estadoKey: 'psiquiatrico_estado' },
+  { needle: 'Medicamentos', descKeys: ['medicamentos_desc', 'medicamentos'], estadoKey: 'medicamentos_estado' },
+];
+
+const SISTEMA_FIELD_LOOKUP = SISTEMA_FIELD_MAPPINGS.reduce((acc, config) => {
+  acc[normalize(config.needle)] = config;
+  return acc;
+}, {});
+
+const findSistemaConfig = (nombre) => SISTEMA_FIELD_LOOKUP[normalize(nombre)] || null;
+
+const SISTEMA_ESTADO_OPTIONS = [
+  { value: 'mejoro', label: 'Mejor\u00f3' },
+  { value: 'igual', label: 'Igual' },
+  { value: 'empeoro', label: 'Empeor\u00f3' },
+  { value: 'se_quito', label: 'Se quit\u00f3' },
 ];
 
 const mapSistemasFromSource = (source = {}) => {
-  const direct = toArr(source?.interrogatorio_aparatos).map((item) => {
-    const nombre = toStr(item?.nombre);
-    const descripcion = toStr(item?.descripcion);
-    if (!nombre && !descripcion) return null;
-    return { nombre, descripcion };
-  }).filter(Boolean);
+  const direct = toArr(source?.interrogatorio_aparatos)
+    .map((item) => {
+      const nombre = toStr(item?.nombre);
+      const descripcion = toStr(item?.descripcion);
+      const estado = toStr(item?.estado).trim();
+      if (!nombre && !descripcion && !estado) return null;
+      return {
+        nombre,
+        descripcion,
+        estado,
+      };
+    })
+    .filter(Boolean);
 
   if (direct.length > 0) return direct;
 
   return SISTEMA_FIELD_MAPPINGS
-    .map(({ needle, keys }) => {
+    .map(({ needle, descKeys, estadoKey }) => {
       const label = findMatchingLabel(SISTEMAS_OPCIONES, needle, needle);
-      const descripcion = keys
+      const descripcion = toArr(descKeys)
         .map((key) => toStr(source?.[key]).trim())
         .find((value) => value.length > 0);
-      return descripcion ? { nombre: label, descripcion } : null;
+      const estado = estadoKey ? toStr(source?.[estadoKey]).trim() : '';
+      if (!descripcion && !estado) return null;
+      return {
+        nombre: label,
+        descripcion: descripcion || '',
+        estado,
+      };
     })
     .filter(Boolean);
 };
@@ -208,18 +258,36 @@ const trimValue = (value) => {
 
 const buildPayloadWithConsultas = (data, idPerfil) => {
   const base = buildNestedPayload(data);
-  const consultas = sortConsultasDesc(toArr(data?.consultas)).map((consulta) => ({
-    fecha_consulta: trimValue(consulta?.fecha_consulta),
-    recordatorio: trimValue(consulta?.recordatorio),
-    padecimiento_actual: trimValue(consulta?.padecimiento_actual),
-    diagnostico: trimValue(consulta?.diagnostico),
-    tratamiento: trimValue(consulta?.tratamiento),
-    notas: trimValue(consulta?.notas),
-    interrogatorio_aparatos: toArr(consulta?.interrogatorio_aparatos).map((item) => ({
-      nombre: trimValue(item?.nombre),
-      descripcion: trimValue(item?.descripcion),
-    })),
-  }));
+  const consultas = sortConsultasAsc(toArr(data?.consultas)).map((consulta) => {
+    const payload = {
+      fecha_consulta: trimValue(consulta?.fecha_consulta),
+      recordatorio: trimValue(consulta?.recordatorio),
+      padecimiento_actual: trimValue(consulta?.padecimiento_actual),
+      diagnostico: trimValue(consulta?.diagnostico),
+      tratamiento: trimValue(consulta?.tratamiento),
+      notas: trimValue(consulta?.notas),
+    };
+
+    const interrogatorio_aparatos = toArr(consulta?.interrogatorio_aparatos).map((item) => {
+      const nombre = trimValue(item?.nombre);
+      const descripcion = trimValue(item?.descripcion);
+      const estado = trimValue(item?.estado);
+      const config = findSistemaConfig(nombre);
+      if (config?.estadoKey) {
+        payload[config.estadoKey] = estado;
+      }
+      return {
+        nombre,
+        descripcion,
+        estado,
+      };
+    });
+
+    return {
+      ...payload,
+      interrogatorio_aparatos,
+    };
+  });
 
   base.consultas = consultas;
   if (idPerfil != null && idPerfil !== '') {
@@ -348,6 +416,7 @@ const mapApiToForm = (api) => {
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),
+      estado: toStr(item?.estado),
     })),
   }));
 
@@ -367,43 +436,45 @@ const mapApiToForm = (api) => {
         interrogatorio_aparatos: mapSistemasFromSource(fallbackSource).map((item) => ({
           nombre: toStr(item?.nombre),
           descripcion: toStr(item?.descripcion),
+          estado: toStr(item?.estado),
         })),
       },
     ];
   }
 
-  const sortedConsultas = sortConsultasDesc(
+  const sortedConsultas = sortConsultasAsc(
     consultas.map((consulta) => ({
       ...consulta,
       uid: consulta.uid || generateConsultaUid(),
       interrogatorio_aparatos: toArr(consulta.interrogatorio_aparatos).map((item) => ({
         nombre: toStr(item?.nombre),
         descripcion: toStr(item?.descripcion),
+        estado: toStr(item?.estado),
       })),
     })),
   );
 
   next.consultas = sortedConsultas;
 
-  const firstConsulta = sortedConsultas[0] || null;
+  const lastConsulta = sortedConsultas[sortedConsultas.length - 1] || null;
 
-  if (firstConsulta) {
-    assignIf('fecha_consulta', firstConsulta.fecha_consulta);
-    assignIf('recordatorio', firstConsulta.recordatorio);
-    assignIf('padecimiento_actual', firstConsulta.padecimiento_actual);
-    assignIf('diagnostico', firstConsulta.diagnostico);
-    if (!toStr(firstConsulta.diagnostico).trim()) {
+  if (lastConsulta) {
+    assignIf('fecha_consulta', lastConsulta.fecha_consulta);
+    assignIf('recordatorio', lastConsulta.recordatorio);
+    assignIf('padecimiento_actual', lastConsulta.padecimiento_actual);
+    assignIf('diagnostico', lastConsulta.diagnostico);
+    if (!toStr(lastConsulta.diagnostico).trim()) {
       assignIf('diagnostico', dt && dt.diagnostico);
     }
-    assignIf('tratamiento', firstConsulta.tratamiento);
-    if (!toStr(firstConsulta.tratamiento).trim()) {
+    assignIf('tratamiento', lastConsulta.tratamiento);
+    if (!toStr(lastConsulta.tratamiento).trim()) {
       assignIf('tratamiento', dt && dt.tratamiento);
     }
-    assignIf('notas', firstConsulta.notas);
-    if (!toStr(firstConsulta.notas).trim()) {
+    assignIf('notas', lastConsulta.notas);
+    if (!toStr(lastConsulta.notas).trim()) {
       assignIf('notas', dt && dt.notas);
     }
-    next.interrogatorio_aparatos = toArr(firstConsulta.interrogatorio_aparatos);
+    next.interrogatorio_aparatos = toArr(lastConsulta.interrogatorio_aparatos);
   } else {
     assignIf('fecha_consulta', legacy && legacy.fecha_consulta);
     assignIf('recordatorio', legacy && legacy.recordatorio);
@@ -484,7 +555,10 @@ const Modify = () => {
   const nombreRef = useRef(null);
   const imcAutoCalcRef = useRef(false);
 
-  const consultasOrdenadas = toArr(formData.consultas);
+  // Mostrar en la interfaz de la más reciente a la más antigua
+  const consultasOrdenadas = sortConsultasAsc(toArr(formData.consultas)).slice().reverse();
+  // Identificar siempre la consulta más antigua (nunca debe mostrar seguimiento)
+  const oldestConsultaUid = (sortConsultasAsc(toArr(formData.consultas))[0]?.uid) ?? null;
 
   const handleChange = ({ target: { name, value } }) => {
     if (name === 'peso_actual' || name === 'talla_cm') {
@@ -701,16 +775,16 @@ const Modify = () => {
   };
 
   const syncPrimaryConsulta = (data, consultasList) => {
-    const first = consultasList[0] || {};
+    const last = consultasList[consultasList.length - 1] || {};
     return {
       ...data,
-      fecha_consulta: first.fecha_consulta || '',
-      recordatorio: first.recordatorio || '',
-      padecimiento_actual: first.padecimiento_actual || '',
-      diagnostico: first.diagnostico || '',
-      tratamiento: first.tratamiento || '',
-      notas: first.notas || '',
-      interrogatorio_aparatos: toArr(first.interrogatorio_aparatos),
+      fecha_consulta: last.fecha_consulta || '',
+      recordatorio: last.recordatorio || '',
+      padecimiento_actual: last.padecimiento_actual || '',
+      diagnostico: last.diagnostico || '',
+      tratamiento: last.tratamiento || '',
+      notas: last.notas || '',
+      interrogatorio_aparatos: toArr(last.interrogatorio_aparatos),
     };
   };
 
@@ -718,7 +792,7 @@ const Modify = () => {
     setFormData((prev) => {
       const current = toArr(prev.consultas);
       const updated = updater(current);
-      const sorted = sortConsultasDesc(updated);
+      const sorted = sortConsultasAsc(updated);
       return syncPrimaryConsulta({ ...prev, consultas: sorted }, sorted);
     });
   };
@@ -763,7 +837,7 @@ const Modify = () => {
           ...consulta,
           interrogatorio_aparatos: [
             ...toArr(consulta.interrogatorio_aparatos),
-            { nombre: seleccionado, descripcion: '' },
+            { nombre: seleccionado, descripcion: '', estado: '' },
           ],
         };
       }),
@@ -793,6 +867,21 @@ const Modify = () => {
             i === idx ? { ...s, descripcion: valor } : s,
           ),
         };
+      }),
+    );
+  };
+
+  const handleToggleSistemaEstado = (uid, idx, value) => {
+    updateConsultas((current) =>
+      current.map((consulta) => {
+        if (consulta.uid !== uid) return consulta;
+        const updated = toArr(consulta.interrogatorio_aparatos).map((s, i) => {
+          if (i !== idx) return s;
+          const currentEstado = toStr(s?.estado);
+          const nextEstado = currentEstado === value ? '' : value;
+          return { ...s, estado: nextEstado };
+        });
+        return { ...consulta, interrogatorio_aparatos: updated };
       }),
     );
   };
@@ -1681,7 +1770,8 @@ const Modify = () => {
 
               {consultasOrdenadas.map((consulta, idx) => {
                 const totalConsultas = consultasOrdenadas.length;
-                const titulo = `Consulta ${totalConsultas - idx}`;
+                const displayNumber = Math.max(1, totalConsultas - idx);
+                const titulo = `Consulta ${displayNumber}`;
                 const uid = consulta.uid || `consulta-${idx}`;
                 const fechaId = `fecha_consulta_${uid}`;
                 const recordatorioId = `recordatorio_${uid}`;
@@ -1813,31 +1903,65 @@ const Modify = () => {
 
                     {sistemasSeleccionados.length > 0 && (
                       <ListContainer>
-                        {sistemasSeleccionados.map((s, sistemaIdx) => (
-                          <ItemCard key={`${uid}-sistema-${sistemaIdx}`}>
-                            <TwoColumnRow>
-                              <FieldGroup>
-                                <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
-                                <Input value={s.nombre} disabled />
-                              </FieldGroup>
-                              <FieldGroup>
-                                <Label>{`Descripción de aparato ${s.nombre?.toLowerCase?.() || ''}`}</Label>
-                                <TextArea
-                                  value={s.descripcion}
-                                  onChange={(e) => handleActualizarSistemaDesc(uid, sistemaIdx, e.target.value)}
-                                  rows={3}
-                                  placeholder={`Detalle de ${s.nombre?.toLowerCase?.() || ''}`}
-                                />
-                              </FieldGroup>
-                            </TwoColumnRow>
-                            <ItemActions>
-                              <DangerButton type="button" onClick={() => handleEliminarSistema(uid, sistemaIdx)}>
-                                <FaTrash />
-                                <ButtonLabel>Eliminar</ButtonLabel>
-                              </DangerButton>
-                            </ItemActions>
-                          </ItemCard>
-                        ))}
+                        {sistemasSeleccionados.map((s, sistemaIdx) => {
+                          const config = findSistemaConfig(s.nombre);
+                          const estadoValue = toStr(s.estado);
+                          const isOldestConsulta = String(uid) === String(oldestConsultaUid ?? '');
+                          const showEstadoChecklist = !isOldestConsulta && Boolean(config?.estadoKey);
+                          return (
+                            <ItemCard key={`${uid}-sistema-${sistemaIdx}`}>
+                              <TwoColumnRow>
+                                <FieldGroup>
+                                  <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
+                                  <Input value={s.nombre} disabled />
+                                </FieldGroup>
+                                <FieldGroup>
+                                  <Label>{`Descripci\u00f3n de aparato ${s.nombre?.toLowerCase?.() || ''}`}</Label>
+                                  <TextArea
+                                    value={s.descripcion}
+                                    onChange={(e) => handleActualizarSistemaDesc(uid, sistemaIdx, e.target.value)}
+                                    rows={3}
+                                    placeholder={`Detalle de ${s.nombre?.toLowerCase?.() || ''}`}
+                                  />
+                                </FieldGroup>
+                              </TwoColumnRow>
+
+                              {showEstadoChecklist && (
+                                <FieldGroup>
+                                  <Label>Seguimiento</Label>
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                                    {SISTEMA_ESTADO_OPTIONS.map((option) => {
+                                      const optionId = `${uid}-sistema-${sistemaIdx}-${option.value}`;
+                                      const checked = estadoValue === option.value;
+                                      return (
+                                        <label
+                                          key={option.value}
+                                          htmlFor={optionId}
+                                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                                        >
+                                          <input
+                                            id={optionId}
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => handleToggleSistemaEstado(uid, sistemaIdx, option.value)}
+                                          />
+                                          <span>{option.label}</span>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                </FieldGroup>
+                              )}
+
+                              <ItemActions>
+                                <DangerButton type="button" onClick={() => handleEliminarSistema(uid, sistemaIdx)}>
+                                  <FaTrash />
+                                  <ButtonLabel>Eliminar</ButtonLabel>
+                                </DangerButton>
+                              </ItemActions>
+                            </ItemCard>
+                          );
+                        })}
                       </ListContainer>
                     )}
                   </div>
@@ -1866,3 +1990,5 @@ const Modify = () => {
 };
 
 export default Modify;
+
+

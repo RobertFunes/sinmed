@@ -2,6 +2,23 @@
 
 const bd = require('../models/profile'); // 👈 Así, no db
 
+const SISTEMA_FIELD_CONFIGS = [
+  { key: 'sintomas generales', desc: 'sintomas_generales_desc', estado: 'sintomas_generales_estado' },
+  { key: 'endocrino', desc: 'endocrino_desc', estado: 'endocrino_estado' },
+  { key: 'organos de los sentidos', desc: 'organos_sentidos_desc', estado: 'organos_sentidos_estado' },
+  { key: 'gastrointestinal', desc: 'gastrointestinal_desc', estado: 'gastrointestinal_estado' },
+  { key: 'cardiopulmonar', desc: 'cardiopulmonar_desc', estado: 'cardiopulmonar_estado' },
+  { key: 'genitourinario', desc: 'genitourinario_desc', estado: 'genitourinario_estado' },
+  { key: 'genital femenino', desc: 'genital_femenino_desc', estado: 'genital_femenino_estado' },
+  { key: 'sexualidad', desc: 'sexualidad_desc', estado: 'sexualidad_estado' },
+  { key: 'dermatologico', desc: 'dermatologico_desc', estado: 'dermatologico_estado' },
+  { key: 'neurologico', desc: 'neurologico_desc', estado: 'neurologico_estado' },
+  { key: 'hematologico', desc: 'hematologico_desc', estado: 'hematologico_estado' },
+  { key: 'reumatologico', desc: 'reumatologico_desc', estado: 'reumatologico_estado' },
+  { key: 'psiquiatrico', desc: 'psiquiatrico_desc', estado: 'psiquiatrico_estado' },
+  { key: 'medicamentos', desc: 'medicamentos_desc', estado: 'medicamentos_estado' },
+];
+
 // POST /postpone { id }
 const postpone = async (req, res) => {
   try {
@@ -192,24 +209,10 @@ const modify = async (req, res) => {
 
     const consRaw = Array.isArray(body.consultas) ? body.consultas : [];
     const strip = (s) => (typeof s === 'string' ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '');
-    const mapNameToCol = (raw) => {
+    const mapNameToConfig = (raw) => {
       const k = strip(String(raw || '')).toLowerCase().trim();
       if (!k) return null;
-      if (k === 'sintomas generales') return 'sintomas_generales_desc';
-      if (k === 'endocrino') return 'endocrino_desc';
-      if (k === 'organos de los sentidos') return 'organos_sentidos_desc';
-      if (k === 'gastrointestinal') return 'gastrointestinal_desc';
-      if (k === 'cardiopulmonar') return 'cardiopulmonar_desc';
-      if (k === 'genitourinario') return 'genitourinario_desc';
-      if (k === 'genital femenino') return 'genital_femenino_desc';
-      if (k === 'sexualidad') return 'sexualidad_desc';
-      if (k === 'dermatologico') return 'dermatologico_desc';
-      if (k === 'neurologico') return 'neurologico_desc';
-      if (k === 'hematologico') return 'hematologico_desc';
-      if (k === 'reumatologico') return 'reumatologico_desc';
-      if (k === 'psiquiatrico') return 'psiquiatrico_desc';
-      if (k === 'medicamentos') return 'medicamentos_desc';
-      return null;
+      return SISTEMA_FIELD_CONFIGS.find((cfg) => cfg.key === k) || null;
     };
 
     const consItems = consRaw.map((entry) => {
@@ -225,8 +228,24 @@ const modify = async (req, res) => {
         ? entry.interrogatorio_aparatos
         : [];
       for (const item of interrogatorio) {
-        const col = mapNameToCol(item?.nombre);
-        if (col) row[col] = clean(item?.descripcion);
+        const config = mapNameToConfig(item?.nombre);
+        if (!config) continue;
+        if (config.desc) row[config.desc] = clean(item?.descripcion);
+        if (config.estado) {
+          if (item?.estado !== undefined) {
+            row[config.estado] = clean(item?.estado);
+          } else if (entry?.[config.estado] !== undefined) {
+            row[config.estado] = clean(entry?.[config.estado]);
+          }
+        }
+      }
+
+      for (const cfg of SISTEMA_FIELD_CONFIGS) {
+        if (!cfg.estado) continue;
+        if (row[cfg.estado] !== undefined) continue;
+        if (entry?.[cfg.estado] !== undefined) {
+          row[cfg.estado] = clean(entry[cfg.estado]);
+        }
       }
       return row;
     }).filter((row) => Object.values(row).some((value) => value != null && value !== ''));
@@ -620,28 +639,30 @@ const add = async (req, res) => {
       ? consRaw.interrogatorio_aparatos
       : [];
     const strip = (s) => (typeof s === 'string' ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '');
-    const mapNameToCol = (raw) => {
+    const mapNameToConfig = (raw) => {
       const k = strip(String(raw || '')).toLowerCase().trim();
       if (!k) return null;
-      if (k === 'sintomas generales') return 'sintomas_generales_desc';
-      if (k === 'endocrino') return 'endocrino_desc';
-      if (k === 'organos de los sentidos') return 'organos_sentidos_desc';
-      if (k === 'gastrointestinal') return 'gastrointestinal_desc';
-      if (k === 'cardiopulmonar') return 'cardiopulmonar_desc';
-      if (k === 'genitourinario') return 'genitourinario_desc';
-      if (k === 'genital femenino') return 'genital_femenino_desc';
-      if (k === 'sexualidad') return 'sexualidad_desc';
-      if (k === 'dermatologico') return 'dermatologico_desc';
-      if (k === 'neurologico') return 'neurologico_desc';
-      if (k === 'hematologico') return 'hematologico_desc';
-      if (k === 'reumatologico') return 'reumatologico_desc';
-      if (k === 'psiquiatrico') return 'psiquiatrico_desc';
-      if (k === 'medicamentos') return 'medicamentos_desc';
-      return null;
+      return SISTEMA_FIELD_CONFIGS.find((cfg) => cfg.key === k) || null;
     };
     for (const it of arr) {
-      const col = mapNameToCol(it?.nombre);
-      if (col) consPayload[col] = clean(it?.descripcion);
+      const config = mapNameToConfig(it?.nombre);
+      if (!config) continue;
+      if (config.desc) consPayload[config.desc] = clean(it?.descripcion);
+      if (config.estado) {
+        if (it?.estado !== undefined) {
+          consPayload[config.estado] = clean(it?.estado);
+        } else if (consRaw?.[config.estado] !== undefined) {
+          consPayload[config.estado] = clean(consRaw[config.estado]);
+        }
+      }
+    }
+
+    for (const cfg of SISTEMA_FIELD_CONFIGS) {
+      if (!cfg.estado) continue;
+      if (consPayload[cfg.estado] !== undefined) continue;
+      if (consRaw?.[cfg.estado] !== undefined) {
+        consPayload[cfg.estado] = clean(consRaw[cfg.estado]);
+      }
     }
     const cons_result = await bd.upsertConsultas(id_perfil, consPayload);
 
