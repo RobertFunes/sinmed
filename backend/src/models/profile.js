@@ -473,7 +473,7 @@ async function getPending() {
 }
 async function removeById(id) {
   const [result] = await db.query(
-    'DELETE FROM clientes WHERE id_cliente = ?',
+    'DELETE FROM perfil WHERE id_perfil = ?',
     [id]
   );
   return result;

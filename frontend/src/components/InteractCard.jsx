@@ -31,11 +31,11 @@ const isValidBirthDate = (dateStr) => {
 };
 
 const daysSince = (dateStr) => {
-  if (!dateStr) return '—';
+  if (!dateStr) return '-';
   const then = new Date(dateStr);
   const diffMs = Date.now() - then.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  return diffDays === 0 ? 'Hoy' : `Último contacto hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+  return diffDays === 0 ? 'Hoy' : `Última modificación hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
 };
 
 const daysToBirthday = (birthDateStr) => {
@@ -153,11 +153,11 @@ export default function IneractCard({
         <ButtonRow>
           {showPostpone && (
             <ActionButton className="delete" onClick={askPostpone}>
-              <FaTrashAlt /> Posponer
+              <FaTrashAlt /> Eliminar recordatorio
             </ActionButton>
           )}
           <ActionButton onClick={handleView}>
-            <BsChatSquareText /> Interactuar
+            <BsChatSquareText /> Ver perfil
           </ActionButton>
         </ButtonRow>
       </Card>

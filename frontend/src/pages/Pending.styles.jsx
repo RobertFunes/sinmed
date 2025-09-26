@@ -1,11 +1,8 @@
 // src/pages/Pending.styles.jsx
 import styled from 'styled-components';
+import { Palette } from '../helpers/theme';
 
-/* Paleta base */
-const cyan      = '#00adb5';
-const darkGray  = '#393e46';
-const black     = '#222831';
-const lightGray = '#eeeeee';
+/* Colores vienen desde helpers/theme.js (Palette) */
 
 /* —————————— Wrapper general —————————— */
 export const Container = styled.div`
@@ -26,7 +23,7 @@ export const Container = styled.div`
 
 /* —————————— Título de sección —————————— */
 export const SectionTitle = styled.h3`
-  color: ${cyan};
+  color: ${Palette.background};
   font-size: 1.6rem;
   font-weight: 700;
   margin-bottom: 8px;
@@ -39,7 +36,7 @@ export const SectionTitle = styled.h3`
     content: '';
     width: 6px;
     height: 100%;
-    background: ${cyan};
+    background: ${Palette.primary};
     border-radius: 4px;
   }
 `;

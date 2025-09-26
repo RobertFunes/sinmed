@@ -1,5 +1,6 @@
 // src/components/InteractCard.styles.jsx
 import styled, { keyframes, css } from 'styled-components';
+import { Palette } from '../helpers/theme';
 
 /* Animación de rebote para cumpleaños de hoy */
 const bounce = keyframes`
@@ -20,7 +21,7 @@ const bounce = keyframes`
 
 /* Contenedor principal de la tarjeta */
 export const Card = styled.div`
-  background: ${({ $birthday }) => ($birthday ? '#fff8e1' : '#ffffff')};
+  background: ${({ $birthday }) => ($birthday ? Palette.secondary : Palette.background)};
   border-radius: 12px;
   padding: 16px 20px;
   box-shadow: 0 2px 8px rgba(34, 40, 49, 0.08); /* sombra con Pure Black */
@@ -35,7 +36,7 @@ export const Card = styled.div`
 /* Nombre del cliente */
 export const Name = styled.h2`
   margin: 0;
-  color: #222831;                      /* Pure Black */
+  color: ${Palette.text};
   font-size: 1.25rem;
   font-weight: 700;
 `;
@@ -52,7 +53,7 @@ export const InfoRow = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: ${({ $birthday }) => ($birthday ? '#ff6f00' : '#393e46')};
+  color: ${({ $birthday }) => ($birthday ? Palette.background : Palette.muted)};
   font-size: 0.95rem;
 
   span {
@@ -65,7 +66,7 @@ export const InfoRow = styled.div`
   }
 
   svg {
-    color: #00adb5; /* Bright Cyan */
+    color: ${Palette.accent};
   }
 `;
 
@@ -78,8 +79,8 @@ export const ButtonRow = styled.div`
 
 /* Botón de acción genérico */
 export const ActionButton = styled.button`
-  background: #eeeeee;                 /* Light Gray */
-  color: #222831;                      /* Pure Black */
+  background: ${Palette.background};
+  color: ${Palette.text};
   border: none;
   border-radius: 8px;
   padding: 6px 12px;
@@ -91,19 +92,19 @@ export const ActionButton = styled.button`
   transition: background 0.15s, color 0.15s, transform 0.1s;
 
   &:hover {
-    background: #00adb5;               /* Bright Cyan */
-    color: #ffffff;                    /* White */
+    background: ${Palette.primary};
+    color: #ffffff;
     transform: translateY(-1px);
   }
 
   /* Variante para el botón “Eliminar” */
   &.delete {
-    background: #ffffff;
-    color: #b00020;                    /* Rojo oscuro para delete */
-    box-shadow: 0 0 0 2px #b00020 inset;
+    background: ${Palette.background};
+    color: ${Palette.primary};
+    box-shadow: 0 0 0 2px ${Palette.primary} inset;
 
     &:hover {
-      background: #b00020;
+      background: ${Palette.primary};
       color: #ffffff;
     }
   }

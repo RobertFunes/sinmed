@@ -101,7 +101,7 @@ function Pending() {
                   name={item.name}
                   lastContact={item.lastContact}
                   reminderDate={item.reminderDate}
-                  showPostpone={false}
+                  showPostpone={true}
                 />
               ))
             : <p>🎉 ¡No hay recordatorios próximos!</p>}
@@ -115,6 +115,7 @@ function Pending() {
                   id={item.id}
                   key={item.id}
                   name={item.name}
+                  lastContact={item.lastContact}
                   birthDate={item.birthDate}
                   isBirthdayToday={item.isBirthdayToday}
                   showPostpone={false} // No mostrar botón de posponer en cumpleaños
