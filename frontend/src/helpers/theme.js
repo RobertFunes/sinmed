@@ -1,16 +1,16 @@
 export const Palette = {
   // Roles principales
-  primary: '#67C090',     // Acción principal, acentos, focus
-  secondary: '#26667F',   // Superficies/oscuros, hovers fuertes, bordes fuertes
-  accent: '#DDF4E7',      // Color suave para resaltar fondos o secciones
-  dark: '#124170',        // Tonos más profundos, headers, contrastes
+  primary: '#541212',     // Acción principal, acentos, focus (rojo vino)
+  secondary: '#4F959D',   // Superficies/oscuros, hovers fuertes, bordes fuertes (turquesa apagado)
+  accent: '#4FB7B3',      // Color suave para resaltar fondos o secciones (verde menta oceánico)
+  dark: '#205781',        // Tonos más profundos, headers, contrastes (azul marino acero)
 
   // Texto
-  text: '#000000',        // Texto principal
-  title: '#67C090',       // Encabezados, títulos
-  muted: '#393E46',       // Texto/íconos secundarios, placeholders
+  text: '#000000',        // Texto principal (negro absoluto)
+  title: '#415E72',       // Encabezados, títulos (azul pizarra profundo)
+  muted: '#4F959D',       // Texto/íconos secundarios, placeholders (turquesa apagado)
 
   // Fondos y bordes
-  background: '#e3e3e3ff',  // Fondo principal
-  border: '#000000ff',      // Bordes suaves, separadores
+  background: '#FFFFFF',  // Fondo principal (blanco puro)
+  border: '#415E72',      // Bordes suaves, separadores (azul pizarra profundo)
 };

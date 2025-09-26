@@ -10,7 +10,7 @@ import InteractCard from '../components/InteractCard.jsx';
 import { Container, SectionTitle } from './Pending.styles.jsx';
 
 function Pending() {
-  const [clients, setClients] = useState([]);
+  const [pendingData, setPendingData] = useState({ reminders: [], birthdays: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,7 +22,11 @@ function Pending() {
           credentials: 'include'
         });
         if (!res.ok) throw new Error('Error al obtener los datos 😢');
-        setClients(await res.json());
+        const payload = await res.json();
+        setPendingData({
+          reminders: Array.isArray(payload?.reminders) ? payload.reminders : [],
+          birthdays: Array.isArray(payload?.birthdays) ? payload.birthdays : []
+        });
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -32,32 +36,39 @@ function Pending() {
     })();
   }, []);
 
-  /* 2️⃣ Clasificación */
-  const { overdue, birthdays } = useMemo(() => {
-    const today = new Date();
-    const overdueArr = [];
-    const birthdayArr = [];
+  /* 2️⃣ Normalización */
+  const { reminders, birthdays } = useMemo(() => {
+    const remindersList = Array.isArray(pendingData.reminders)
+      ? pendingData.reminders.map((item) => ({
+          id: item.id_perfil ?? item.id,
+          consultaId: item.id_consulta,
+          name: item.nombre ?? 'Sin nombre',
+          lastContact: item.fecha_consulta ?? null,
+          reminderDate: item.recordatorio ?? null
+        }))
+      : [];
 
-    clients.forEach(c => {
-      const last = c.ultima_fecha_contacto
-        ? new Date(c.ultima_fecha_contacto.slice(0, 10) + 'T00:00:00')
-        : null;
-      const next = c.proximo_cumple
-        ? new Date(c.proximo_cumple.slice(0, 10) + 'T00:00:00')
-        : null;
+    const birthdaysList = Array.isArray(pendingData.birthdays)
+      ? pendingData.birthdays.map((item) => {
+          const rawDate = item.proximo_cumple ?? item.fecha_nacimiento;
+          const date = rawDate ? new Date(rawDate) : null;
+          const today = new Date();
+          const isToday =
+            date &&
+            date.getUTCMonth() === today.getUTCMonth() &&
+            date.getUTCDate() === today.getUTCDate();
 
-      const daysSince = last ? Math.floor((today - last) / 86_400_000) : Infinity;
-      const daysToBd = next ? Math.ceil((next - today) / 86_400_000) : Infinity;
+          return {
+            id: item.id,
+            name: item.nombre ?? 'Sin nombre',
+            birthDate: rawDate ?? null,
+            isBirthdayToday: Boolean(isToday)
+          };
+        })
+      : [];
 
-      if (daysSince > 40) overdueArr.push({ ...c, daysSince });
-      if (daysToBd <= 30) birthdayArr.push({ ...c, daysToBd });
-    });
-
-    overdueArr.sort((a, b) => b.daysSince - a.daysSince);
-    birthdayArr.sort((a, b) => a.daysToBd - b.daysToBd);
-
-    return { overdue: overdueArr, birthdays: birthdayArr };
-  }, [clients]);
+    return { reminders: remindersList, birthdays: birthdaysList };
+  }, [pendingData]);
 
   /* 3️⃣ UI */
   if (loading)
@@ -80,41 +91,35 @@ function Pending() {
     <>
       <Header />
       <Container>
-        {/* +40 d sin contacto */}
-        <SectionTitle>Perfiles con más de 40 días sin contacto 📞</SectionTitle>
+        <SectionTitle>Recordatorios de consultas (≤ 30 días) ⏰</SectionTitle>
         <div className="overdue">
-
-          {overdue.length
-            ? overdue.map(c => (
-              <InteractCard
-                key={c.id}
-                id={c.id}
-                name={c.nombre}
-                lastContact={c.ultima_fecha_contacto}
-                onPostpone={(idPospuesto) => {
-                  setClients(prev => prev.filter(c => c.id !== idPospuesto));
-                }}
-              />
-            ))
-             : <p>🎉 ¡No tienes pendientes por contacto!</p>}
-
-          {/* Cumples próximos */}
+          {reminders.length
+            ? reminders.map((item) => (
+                <InteractCard
+                  key={item.consultaId ?? item.id}
+                  id={item.id}
+                  name={item.name}
+                  lastContact={item.lastContact}
+                  reminderDate={item.reminderDate}
+                  showPostpone={false}
+                />
+              ))
+            : <p>🎉 ¡No hay recordatorios próximos!</p>}
         </div>
+
         <SectionTitle>Próximos cumpleaños (≤ 30 días) 🎂</SectionTitle>
         <div className="overdue">
-
           {birthdays.length
-            ? birthdays.map(c => (
-              <InteractCard
-                id={c.id}
-                key={c.id}  
-                name={c.nombre}
-                lastContact={c.ultima_fecha_contacto}
-                birthDate={c.proximo_cumple}
-                isBirthdayToday={c.daysToBd === 0}
-                showPostpone={false} // No mostrar botón de posponer en cumpleaños
-              />
-            ))
+            ? birthdays.map((item) => (
+                <InteractCard
+                  id={item.id}
+                  key={item.id}
+                  name={item.name}
+                  birthDate={item.birthDate}
+                  isBirthdayToday={item.isBirthdayToday}
+                  showPostpone={false} // No mostrar botón de posponer en cumpleaños
+                />
+              ))
             : <p>🥳 Ningún cumpleaños próximo</p>}
         </div>
       </Container>
