@@ -475,6 +475,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   ].filter((row) => present(row.value));
 
   const inspeccion = mapInspectionFromSource(efSource);
+  const totalConsultas = consultas.length;
 
   return (
     <>
@@ -594,7 +595,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             {consultas.map((consulta, idx) => (
               <Group key={consulta.id || `consulta-${idx}`}>
                 <GroupTitle>
-                  Consulta {idx + 1}{present(consulta.fecha_consulta) ? ` · ${consulta.fecha_consulta}` : ''}
+                  Consulta {totalConsultas - idx}{present(consulta.fecha_consulta) ? ` · ${consulta.fecha_consulta}` : ''}
                 </GroupTitle>
                 <Row icon={<FaCalendarDay />} label="Fecha de consulta:" value={consulta.fecha_consulta} />
                 <Row icon={<FaBell />} label="Recordatorio:" value={consulta.recordatorio} />

@@ -14,8 +14,9 @@ import { BsChatSquareText } from "react-icons/bs";
 import {
   FaRegClock,
   FaBirthdayCake,
+  FaRegCalendarAlt,
   FaTrashAlt,
-  
+
 } from 'react-icons/fa';
 import { url } from '../helpers/url.js';
 /* ---------- Helpers ---------- */
@@ -61,15 +62,41 @@ const daysToBirthday = (birthDateStr) => {
     : `Faltan ${diffDays} día${diffDays > 1 ? 's' : ''}`;
 };
 
+const formatReminder = (dateStr) => {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const reminderDate = new Date(date);
+  reminderDate.setHours(0, 0, 0, 0);
+
+  const diffMs = reminderDate.getTime() - today.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  const formatted = reminderDate.toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+
+  if (diffDays === 0) return `Recordatorio para hoy · ${formatted}`;
+  if (diffDays === 1) return `Recordatorio mañana · ${formatted}`;
+  if (diffDays > 1) return `Recordatorio en ${diffDays} días · ${formatted}`;
+  return `Recordatorio vencido · ${formatted}`;
+};
+
 /* ---------- Componente simplificado ---------- */
 export default function IneractCard({
   id,
   name,
   lastContact,
+  reminderDate,
   birthDate,
   showPostpone = true,
   isBirthdayToday = false,
-  onPostpone            
+  onPostpone
 }) {
   const [confirmPostpone, setConfirmPostpone] = useState(false);
   const navigate = useNavigate();
@@ -98,6 +125,7 @@ export default function IneractCard({
     setConfirmPostpone(false);
     handlePostpone();
   };
+  const reminderLabel = formatReminder(reminderDate);
   return (
     <>
       <Card $birthday={isBirthdayToday}>
@@ -107,6 +135,13 @@ export default function IneractCard({
             <FaRegClock />
             <span>{daysSince(lastContact)}</span>
           </InfoRow>
+
+          {reminderLabel && (
+            <InfoRow>
+              <FaRegCalendarAlt />
+              <span>{reminderLabel}</span>
+            </InfoRow>
+          )}
 
           {isValidBirthDate(birthDate) && (
             <InfoRow $birthday={isBirthdayToday}>

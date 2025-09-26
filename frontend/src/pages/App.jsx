@@ -18,7 +18,10 @@ export default function Nav() {
   const confirmDelete  = async () => {
     const { id, nombre } = toDelete;
     try {
-      const res = await fetch(`${url}/api/profile/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${url}/api/profile/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
       if (!res.ok) throw new Error('No se pudo eliminar');
 
       setProfiles(prev => prev.filter(p => p.id_perfil !== id));
