@@ -19,20 +19,21 @@ const SISTEMA_FIELD_CONFIGS = [
   { key: 'medicamentos', desc: 'medicamentos_desc', estado: 'medicamentos_estado' },
 ];
 
-// POST /postpone { id }
+// POST /postpone { id_consulta }
 const postpone = async (req, res) => {
   try {
-    const { id } = req.body;
-    if (!id || isNaN(Number(id))) {
-      return res.status(400).json({ error: 'ID inválido' });
+    const { id_consulta } = req.body;
+    const consultaId = Number(id_consulta);
+    if (!Number.isInteger(consultaId) || consultaId <= 0) {
+      return res.status(400).json({ error: 'ID de consulta inválido' });
     }
 
-    const result = await bd.postponeContactDate(id);
+    const result = await bd.postponeContactDate(consultaId);
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
+      return res.status(404).json({ error: 'Consulta no encontrada' });
     }
 
-    res.status(200).json({ msg: `Contacto para ID ${id} pospuesto 45 días` });
+    res.status(200).json({ msg: `Recordatorio eliminado para la consulta ${consultaId}` });
   } catch (err) {
     console.error('Error al posponer contacto:', err);
     res.status(500).json({ error: err.message });
