@@ -1,12 +1,5 @@
 import styled from 'styled-components';
-
-// Colores utilizados en otras vistas para mantener coherencia
-const Palette = {
-  cyan: '#00ADB5',
-  lightGray: '#EEEEEE',
-  darkGray: '#393E46',
-  black: '#222831',
-};
+import { Palette } from '../helpers/theme';
 
 export const Container = styled.div`
   display: flex;
@@ -15,7 +8,7 @@ export const Container = styled.div`
   padding: 2rem;
   min-height: 100vh;
   font-family: 'Nunito', sans-serif;
-  background-image: url('/bg.png');
+  background-image: url('/bg6.png');
   background-repeat: repeat;
 `;
 
@@ -29,12 +22,12 @@ export const SwitchRow = styled.div`
     align-items: center;
     gap: 0.25rem;
     font-weight: 600;
-    color: ${Palette.black};
+    color: ${Palette.text};
     font-size: 1.5rem;
   }
 
   input[type='radio'] {
-    accent-color: ${Palette.cyan};
+    accent-color: ${Palette.primary};
     width: 1.5rem;
     transform: scale(2);
   }
@@ -47,36 +40,36 @@ export const SelectorRow = styled.div`
   align-items: center;
   p{
     font-size: 2rem;
-    color: ${Palette.black};
+    color: ${Palette.background};
 
   }
 `;
 
 export const Select = styled.select`
   padding: 0.5rem 1rem;
-  border: 2px solid ${Palette.darkGray};
+  border: 2px solid ${Palette.border};
   border-radius: 10px;
-  background: #fff;
-  color: ${Palette.black};
+  background: ${Palette.background};
+  color: ${Palette.text};
   font-size: 1.5rem;
   &:focus {
-    outline: 2px solid ${Palette.cyan};
+    outline: 2px solid ${Palette.primary};
     border-color: transparent;
   }
 `;
 
 export const Input = styled.input`
   padding: 0.5rem 1rem;
-  border: 2px solid ${Palette.darkGray};
+  border: 2px solid ${Palette.border};
   border-radius: 10px;
   flex: 1;
-  background: #fff;
-  color: ${Palette.black};
+  background: ${Palette.background};
+  color: ${Palette.text};
   font-size: 1.5rem;
   max-width: 60vw;
   &:focus {
-    outline: 2px solid ${Palette.cyan};
-    border-color: ${Palette.cyan};
+    outline: 2px solid ${Palette.primary};
+    border-color: ${Palette.primary};
   }
 `;
 
