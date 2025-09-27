@@ -26,6 +26,19 @@ export const Container = styled.div`
     justify-content: flex-end;
   }
 `;
+export const InfoBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  color: ${Palette.background};
+  background: ${Palette.dark};
+  border: 1px solid ${Palette.border};
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+`;
 export const ModeSwitch = styled.label`
   position: relative;
   display: inline-block;
@@ -104,7 +117,7 @@ export const FieldRow = styled.div`
 
 /* 🔖 Etiquetas */
 export const Label = styled.label`
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: ${Palette.muted};
 `;

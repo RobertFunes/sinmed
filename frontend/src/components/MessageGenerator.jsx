@@ -8,6 +8,7 @@ import ConfirmModal from './ConfirmModal.jsx';
 // 🖌️  Estilos: los crearás en MessageGenerator.styles.jsx en el siguiente paso
 import {
   Container,
+  InfoBar,
   WhatsappBubble,
   FieldRow,
   Label,
@@ -37,6 +38,9 @@ export default function MessageGenerator({ profile = {} }) {
   const [serviceReady, setServiceReady] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [checking, setChecking] = useState(true);
+  // Límites IA
+  const [limits, setLimits] = useState(null);
+  const [limitsLoading, setLimitsLoading] = useState(true);
 
   /* ------ Formulario ------ */
   const [phone, setPhone]         = useState(profile.telefono_movil || '');
@@ -70,6 +74,22 @@ export default function MessageGenerator({ profile = {} }) {
         console.error('❌ Error al verificar /what/status:', err);
       } finally {
         setChecking(false);
+      }
+    })();
+  }, []);
+
+  // Cargar límites IA (silencioso)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${url}/api/limits`, { credentials: 'include' });
+        if (!res.ok) return;
+        const json = await res.json();
+        setLimits(json);
+      } catch (_) {
+        /* ignore */
+      } finally {
+        setLimitsLoading(false);
       }
     })();
   }, []);
@@ -255,8 +275,15 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
   return (
     <>
       <Container>
-        
-        <h1>Interactuar con {profile.nombre}</h1>
+        {/* Info de uso IA (discreta) */}
+        {!limitsLoading && limits && limits.ok && (
+          <InfoBar>
+            <span>• Texto: {limits.gemini.used}/{limits.gemini.limit}</span>
+            <span>• Imágenes: {limits.image.used}/{limits.image.limit}</span>
+            <span>• Reseteo: {String(limits.gemini.resetAt || '').slice(0,10)}</span>
+          </InfoBar>
+        )}
+
         {/* Resumen IA */}
         <FieldRow>
           <Label>Generar resumen, consultar con IA</Label>
