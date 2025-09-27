@@ -1,5 +1,6 @@
 // modify.jsx (actualizado para edicion de perfiles)
 import { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import {
@@ -82,10 +83,11 @@ import {
   FaClipboardCheck,
   FaTrash,
   FaPlusCircle,
+  FaSave,
 } from 'react-icons/fa';
 import { MdEmail, MdHome, MdWork, MdDescription } from 'react-icons/md';
 import { GiLungs } from 'react-icons/gi';
-import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox } from './modify.styles';
+import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox, FloatingSave } from './modify.styles';
 
 
 
@@ -694,6 +696,8 @@ const Modify = () => {
     setNuevoSistemaPorConsulta({});
     setNuevoInspeccion('');
   };
+  // Ref para submit programático (botón flotante)
+  const formElRef = useRef(null);
   const addAntecedente = () => {
     if (!nuevoAntecedente) return;
     const esOtro = normalize(nuevoAntecedente) === normalize('Otras');
@@ -949,7 +953,7 @@ const Modify = () => {
             <span>Editar</span> historia clinica.
           </Title>
 
-          <Form onSubmit={handleSubmit} noValidate>
+          <Form ref={formElRef} onSubmit={handleSubmit} noValidate>
             {/* 🧍 Datos personales -> payload.datos_personales */}
             <details open={openSection === 'datos'} onToggle={handleToggle('datos')}>
               <Summary>
@@ -1993,6 +1997,18 @@ const Modify = () => {
                 {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
               </SubmitButton>
             </ButtonRow>
+            {/* Botón flotante fijo para guardar */}
+            <FloatingSave>
+              <SubmitButton
+                type="button"
+                onClick={() => formElRef.current?.requestSubmit?.()}
+                title="Guardar cambios"
+                aria-label="Guardar cambios"
+                disabled={isSubmitting || isPrefilling}
+              >
+                <FaSave />
+              </SubmitButton>
+            </FloatingSave>
           </Form>
         </FormCard>
       </AddContainer>

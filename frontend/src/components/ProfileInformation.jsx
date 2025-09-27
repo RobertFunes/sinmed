@@ -53,11 +53,11 @@ import {
   FieldRow,
   Label,
   Value,
-  Actions,
   TwoColumnRow,
   Stack,
   Group,
   GroupTitle,
+  FloatingActions,
 } from './ProfileInformation.styles.jsx';
 import {
   HABITOS_OPCIONES,
@@ -662,16 +662,14 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         </Section>
       )}
 
-      <Section>
-        <Actions>
-          <ActionButton onClick={onEditProfile} title="Editar perfil">
-            <FaEdit /> Editar perfil
-          </ActionButton>
-          <ActionButton className="delete" onClick={onDeleteProfile} title="Eliminar perfil">
-            <FaTrashAlt /> Eliminar
-          </ActionButton>
-        </Actions>
-      </Section>
+      <FloatingActions>
+        <ActionButton onClick={onEditProfile} title="Editar perfil" aria-label="Editar perfil">
+          <FaEdit />
+        </ActionButton>
+        <ActionButton className="delete" onClick={onDeleteProfile} title="Eliminar perfil" aria-label="Eliminar perfil">
+          <FaTrashAlt />
+        </ActionButton>
+      </FloatingActions>
     </>
   );
 }
@@ -681,3 +679,5 @@ ProfileInformation.propTypes = {
   onEditProfile: PropTypes.func,
   onDeleteProfile: PropTypes.func,
 };
+
+ 

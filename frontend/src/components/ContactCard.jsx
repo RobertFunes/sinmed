@@ -50,7 +50,7 @@ export default function ContactCard(props) {
 
         <InfoRow>
           <FaRegClock />
-          <span>Última modificación: {updated || '-'}</span>
+          <span>Modificado: {updated || '-'}</span>
         </InfoRow>
 
         <InfoRow>

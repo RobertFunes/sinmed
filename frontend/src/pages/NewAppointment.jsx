@@ -150,7 +150,7 @@ export default function NewAppointment() {
               disabled
             />
           </Field>
-          <Field>
+          <Field style={{ justifyItems: 'center' }}>
             <span>Color</span>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               {COLOR_OPTIONS.map(({ name, hex }) => (
@@ -161,11 +161,11 @@ export default function NewAppointment() {
                   title={name}
                   aria-label={`Elegir color ${name}`}
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 38,
+                    height: 38,
                     borderRadius: '50%',
                     backgroundColor: hex,
-                    border: color === name ? '2px solid #111' : '2px solid transparent',
+                    border: color === name ? '3px solid white' : '2px solid transparent',
                     boxShadow: color === name ? '0 0 0 2px rgba(0,0,0,0.15)' : '0 0 0 1px rgba(0,0,0,0.1)',
                     cursor: 'pointer'
                   }}

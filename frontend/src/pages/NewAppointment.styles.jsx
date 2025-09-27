@@ -6,7 +6,10 @@ export const Page = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+  background-image: url('/bg5.png');
+  background-repeat: repeat;
+  background-position: top left;
+  min-height: 80vh;
 `;
 
 export const HeaderRow = styled.div`
@@ -18,7 +21,7 @@ export const HeaderRow = styled.div`
 
 export const Title = styled.h2`
   margin: 0;
-  color: ${Palette.primary};
+  color: ${Palette.secondary};
 `;
 
 export const Form = styled.form`
@@ -33,7 +36,7 @@ export const Form = styled.form`
 export const Field = styled.label`
   display: grid;
   gap: 6px;
-  color: ${Palette.primary};
+  color: ${Palette.secondary};
   font-weight: 600;
   font-size: 1.2rem;
 `;
@@ -87,6 +90,7 @@ export const GhostButton = styled.button`
   border-radius: 8px;
   border: 1px solid ${Palette.primary};
   font-weight: 600;
+  background-color: ${Palette.background};
   cursor: pointer;
 `;
 
@@ -98,4 +102,3 @@ export const NewButtonLink = styled.a`
   border-radius: 8px;
   font-weight: 600;
 `;
-

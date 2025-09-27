@@ -7,7 +7,7 @@ export const PendingTitle = styled.h1`
   text-align: center;
   margin: 0;
   font-family: 'Nunito', sans-serif;
-  background-image: url('/bg.png');
+  background-image: url('/bg5.png');
   background-repeat: repeat;
   background-position: top left;
   padding-top: 60px;
@@ -17,7 +17,7 @@ export const PendingTitle = styled.h1`
 export const ContactListContainer = styled.section`
   /* Quitamos el bloque de gradiente y dejamos el fondo de la página hacer el trabajo.
      Si quieres conservar el gradiente sutil, úsalo como background de la PÁGINA, no del grid 😉 */
-  background-image: url('/bg.png');
+  background-image: url('/bg5.png');
   background-repeat: repeat;
   background-position: top left;
   display: grid;

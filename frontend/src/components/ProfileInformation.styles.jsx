@@ -103,3 +103,20 @@ export const Actions = styled.div`
   gap: 12px;
   margin: 24px 0;
 `;
+
+// Botonera fija abajo a la derecha
+export const FloatingActions = styled.div`
+  position: fixed;
+  right: 50px;
+  bottom: 50px;
+  display: flex;
+  gap: 20px;
+  z-index: 1000;
+  
+  button {
+    padding: 20px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;

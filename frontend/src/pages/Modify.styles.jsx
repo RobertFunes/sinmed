@@ -43,3 +43,25 @@ export const EstadoCheckbox = styled.input`
   accent-color: #2aa198; /* minimal green/teal */
 `;
 
+// Botón flotante fijo abajo a la derecha para guardar
+export const FloatingSave = styled.div`
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  max-width:100px;
+  
+  button {
+    height: 75px;
+    width: 75px;
+    padding: 12px 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+ 
+  }
+  svg{
+    font-size: 2.5rem;
+    color: #2aa198;
+  }
+`;
