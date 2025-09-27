@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { url } from '../helpers/url.js';
 import MessageGenerator from '../components/MessageGenerator.jsx';
-import { Container, Title } from './Profile.styles.jsx';
+import { Container, Title, SwitchRow } from './Profile.styles.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import ProfileInformation from '../components/ProfileInformation.jsx';
 
@@ -15,6 +15,7 @@ export default function Profile() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [toDelete, setToDelete] = useState(null);
+  const [view, setView] = useState('perfil');
 
   // Carga del perfil
   useEffect(() => {
@@ -60,24 +61,38 @@ export default function Profile() {
     <>
       <Header />
       <Container>
+        <SwitchRow>
+          <label>
+            <input type="radio" name="profile-view" value="perfil" checked={view === 'perfil'} onChange={() => setView('perfil')} />
+            Perfil
+          </label>
+          <label>
+            <input type="radio" name="profile-view" value="ia" checked={view === 'ia'} onChange={() => setView('ia')} />
+            IA
+          </label>
+        </SwitchRow>
         <Title>Perfil de {data.nombre} ID{id}</Title>
-        <ProfileInformation
-          data={data}
-          onEditProfile={handleEditProfile}
-          onDeleteProfile={askDeleteProfile}
-        />
+        
+        {view === 'perfil' ? (
+          <ProfileInformation
+            data={data}
+            onEditProfile={handleEditProfile}
+            onDeleteProfile={askDeleteProfile}
+          />
+        ) : null}
       </Container>
 
       {/* Generador de mensajes sin sección de pólizas */}
-      <MessageGenerator profile={data} />
+      {view === 'ia' ? <MessageGenerator profile={data} /> : null}
 
       <ConfirmModal
         open={!!toDelete}
-        text={toDelete ? `¿Eliminar el perfil de "${data.nombre}"? ¡Esta acción no se puede deshacer!` : ''}
+        text={toDelete ? `Eliminar el perfil de "${data.nombre}"? ¡Esta acción no se puede deshacer!` : ''}
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
       />
     </>
   );
-}
+} 
+
 

@@ -2,14 +2,7 @@
 import styled, { keyframes } from 'styled-components';
 
 /* 🎨 Paleta minimalista */
-const colors = {
-  primary: '#00ADB5',
-  bg: '#FFFFFF',
-  text: '#222831',
-  subtleText: '#5B616A',
-  border: '#E6E8EB',
-  soft: '#F7F8FA',
-};
+import { Palette } from '../helpers/theme';
 
 /* ✨ Animación para el spinner */
 const spin = keyframes`
@@ -21,8 +14,8 @@ export const Container = styled.div`
   max-width: 1840px;
   margin: 40px auto;
   padding: 24px;
-  background: ${colors.bg};
-  border: 1px solid ${colors.border};
+  background: ${Palette.background};
+  border: 1px solid ${Palette.border};
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.04);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -47,7 +40,7 @@ export const ModeCheckbox = styled.input`
   height: 0;
 
   &:checked + span {
-    background: ${colors.primary};
+    background: ${Palette.primary};
   }
   &:checked + span:before {
     transform: translateX(24px);
@@ -58,7 +51,7 @@ export const ModeSlider = styled.span`
   position: absolute;
   top: 0; left: 0;
   right: 0; bottom: 0;
-  background: ${colors.border};
+  background: ${Palette.border};
   border-radius: 34px;
   transition: .3s;
 
@@ -67,7 +60,7 @@ export const ModeSlider = styled.span`
     position: absolute;
     height: 22px; width: 22px;
     left: 3px; bottom: 3px;
-    background: ${colors.bg};
+    background: ${Palette.background};
     border-radius: 50%;
     transition: .3s;
   }
@@ -75,8 +68,8 @@ export const ModeSlider = styled.span`
 /* 💬 Burbuja tipo WhatsApp */
 export const WhatsappBubble = styled.div`
   position: relative;
-  background: ${colors.soft};
-  color: ${colors.text};
+  background: ${Palette.background};
+  color: ${Palette.text};
   padding: 12px 14px;
   border-radius: 12px 12px 12px 0;
   line-height: 1.4;
@@ -88,7 +81,7 @@ export const WhatsappBubble = styled.div`
     bottom: 0;
     width: 0;
     height: 0;
-    border-top: 8px solid ${colors.soft};
+    border-top: 8px solid ${Palette.background};
     border-right: 8px solid transparent;
   }
 `;
@@ -101,6 +94,7 @@ export const FieldRow = styled.div`
   margin-bottom: 14px;
   align-items: flex-start;
   img{
+    max-height: 600px;
     align-self: center;
     max-width: 100%;
     border-radius: 8px;
@@ -112,23 +106,23 @@ export const FieldRow = styled.div`
 export const Label = styled.label`
   font-size: 0.95rem;
   font-weight: 600;
-  color: ${colors.subtleText};
+  color: ${Palette.muted};
 `;
 
 /* 📝 Inputs genéricos */
 const baseInput = `
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid ${colors.border};
+  border: 1px solid ${Palette.border};
   border-radius: 8px;
-  background: ${colors.bg};
-  color: ${colors.text};
+  background: ${Palette.background};
+  color: ${Palette.text};
   outline: none;
   font-size: 0.95rem;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
   &:focus {
-    border-color: ${colors.primary};
+    border-color: ${Palette.primary};
     box-shadow: 0 0 0 3px rgba(0, 173, 181, 0.18);
   }
 `;
@@ -146,9 +140,9 @@ export const TextArea = styled.textarea`
 /* 🚀 Botón principal */
 
 export const Button = styled.button`
-  background: ${colors.primary};
+  background: ${Palette.primary};
   color: #fff;
-  border: 1px solid ${colors.primary};
+  border: 1px solid ${Palette.primary};
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.95rem;
@@ -165,10 +159,10 @@ export const Button = styled.button`
 export const ResultArea = styled.div`
   margin-top: 16px;
   padding: 14px 16px;
-  background: ${colors.soft};
-  border: 1px solid ${colors.border};
+  background: ${Palette.background};
+  border: 1px solid ${Palette.border};
   border-radius: 10px;
-  color: ${colors.text};
+  color: ${Palette.text};
   p { margin: 8px 0 0; white-space: pre-wrap; }
 `;
 
@@ -179,13 +173,13 @@ export const LoadingSpinner = styled.div`
   justify-content: center;
   gap: 0.6rem;
   font-weight: 600;
-  color: ${colors.subtleText};
+  color: ${Palette.muted};
 
   &::before {
     content: '';
     width: 1.2rem;
     height: 1.2rem;
-    border: 3px solid ${colors.primary};
+    border: 3px solid ${Palette.primary};
     border-top-color: transparent;
     border-radius: 50%;
     animation: ${spin} 0.8s linear infinite;
@@ -211,3 +205,4 @@ export const WhatsAppButton = styled(Button)`
   gap: 8px;
   &:hover { filter: brightness(0.92); }
 `;
+
