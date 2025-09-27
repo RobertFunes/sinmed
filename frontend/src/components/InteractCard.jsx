@@ -90,6 +90,7 @@ const formatReminder = (dateStr) => {
 /* ---------- Componente simplificado ---------- */
 export default function IneractCard({
   id,
+  consultaId,
   name,
   lastContact,
   ultima_fecha_contacto,
@@ -105,13 +106,14 @@ export default function IneractCard({
   const handleView = () => {
     navigate(`/profile/${id}`);
   };
+  const effectiveConsultaId = consultaId ?? id;
   const handlePostpone = async () => {
     try {
       const res = await fetch(`${url}/api/postpone`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id_consulta: effectiveConsultaId })
       });
       onPostpone?.(id);
       if (!res.ok) throw new Error('Error al posponer');

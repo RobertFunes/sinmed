@@ -414,11 +414,11 @@ async function updateUltimaFechaContacto(id, fecha) {
   return result;
 }
 
-// Suma "days" a la ultima_fecha_contacto de un cliente
-async function postponeContactDate(id, days = 45) {
+// Elimina el recordatorio asociado a una consulta específica
+async function postponeContactDate(id_consulta) {
   const [result] = await db.query(
-    'UPDATE clientes SET ultima_fecha_contacto = DATE_ADD(ultima_fecha_contacto, INTERVAL ? DAY) WHERE id_cliente = ?',
-    [days, id]
+    'UPDATE consultas SET recordatorio = NULL WHERE id_consulta = ?',
+    [id_consulta]
   );
   return result;
 }

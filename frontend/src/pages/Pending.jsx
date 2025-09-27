@@ -99,6 +99,7 @@ function Pending() {
                 <InteractCard
                   key={item.consultaId ?? item.id}
                   id={item.id}
+                  consultaId={item.consultaId}
                   name={item.name}
                   lastContact={item.lastContact}
                   reminderDate={item.reminderDate}
