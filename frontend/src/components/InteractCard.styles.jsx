@@ -21,14 +21,14 @@ const bounce = keyframes`
 
 /* Contenedor principal de la tarjeta */
 export const Card = styled.div`
-  background: ${({ $birthday }) => ($birthday ? Palette.secondary : Palette.background)};
+  background: ${({ $birthday }) => ($birthday ? Palette.dark : Palette.background)};
   border-radius: 12px;
   padding: 16px 20px;
   box-shadow: 0 2px 8px rgba(34, 40, 49, 0.08); /* sombra con Pure Black */
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 200px;
+  min-height: 220px;
   justify-content: space-around;
   font-family: 'Nunito', sans-serif;
 `;
@@ -66,7 +66,9 @@ export const InfoRow = styled.div`
   }
 
   svg {
-    color: ${Palette.accent};
+    color: ${Palette.dark};
+    font-size: 1.1rem;
+    margin-right:15px;
   }
 `;
 

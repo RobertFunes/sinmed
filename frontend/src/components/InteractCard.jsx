@@ -92,6 +92,8 @@ export default function IneractCard({
   id,
   name,
   lastContact,
+  ultima_fecha_contacto,
+  ultimaFechaContacto,
   reminderDate,
   birthDate,
   showPostpone = true,
@@ -126,6 +128,7 @@ export default function IneractCard({
     handlePostpone();
   };
   const reminderLabel = formatReminder(reminderDate);
+  const effectiveLastContact = lastContact;
   return (
     <>
       <Card $birthday={isBirthdayToday}>
@@ -133,7 +136,7 @@ export default function IneractCard({
         <InfoSection>
           <InfoRow>
             <FaRegClock />
-            <span>{daysSince(lastContact)}</span>
+            <span>{daysSince(effectiveLastContact)}</span>
           </InfoRow>
 
           {reminderLabel && (

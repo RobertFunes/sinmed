@@ -61,6 +61,7 @@ function Pending() {
           return {
             id: item.id,
             name: item.nombre ?? 'Sin nombre',
+            lastContact: item.ultima_fecha_contacto ?? null,
             birthDate: rawDate ?? null,
             isBirthdayToday: Boolean(isToday)
           };

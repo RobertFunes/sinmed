@@ -189,7 +189,8 @@ async function getAll() {
 }
 
 // Resumen paginado de perfiles
-async function getSummary(limit = 50, offset = 0) {
+// DEPRECATED: bloque legacy basado en 'clientes' (no exportado)
+async function getSummaryClientes_DEPRECATED(limit = 50, offset = 0) {
   const [rows] = await db.query(
     `SELECT
       id_cliente,              -- 🔑 para rutas /profile/:id
@@ -429,7 +430,7 @@ async function getPending() {
       p.id_perfil        AS id,
       p.nombre           AS nombre,
       p.telefono_movil   AS telefono_movil,
-      NULL               AS ultima_fecha_contacto,
+      lc.ultima_fecha_contacto,
       CASE
         WHEN DATE_FORMAT(p.fecha_nacimiento,'%m-%d') >= DATE_FORMAT(CONVERT_TZ(NOW(),'+00:00','-06:00'),'%m-%d')
           THEN STR_TO_DATE(
@@ -442,6 +443,11 @@ async function getPending() {
                )
       END AS proximo_cumple
     FROM perfil p
+    LEFT JOIN (
+      SELECT id_perfil, MAX(fecha_consulta) AS ultima_fecha_contacto
+      FROM consultas
+      GROUP BY id_perfil
+    ) lc ON lc.id_perfil = p.id_perfil
     WHERE p.fecha_nacimiento IS NOT NULL
     HAVING DATEDIFF(
              proximo_cumple,
