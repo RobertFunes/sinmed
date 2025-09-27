@@ -512,7 +512,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
           <Stack>
             {antecedentesFamiliares.map((item, idx) => (
               <Group key={`af-${idx}`}>
-                <GroupTitle>Registro {idx + 1}</GroupTitle>
+                
                 <Row icon={<FaUsers />} label="Antecedente:" value={item.nombre} />
                 <Row icon={<FaStickyNote />} label="Descripción:" value={item.descripcion} />
               </Group>
@@ -533,7 +533,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
           )}
           {apHabitos.length > 0 && (
             <>
-              <h4>Hábitos</h4>
+              <h4 style={{ color: 'black', textAlign: 'center' }}>Hábitos</h4>
               <Stack>
                 {apHabitos.map((habito, idx) => (
                   <Group key={`habito-${idx}`}>
@@ -592,7 +592,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
           )}
           {inspeccion.length > 0 && (
             <>
-              <h4>Inspección general</h4>
+              <h4 style={{ color: 'black', textAlign: 'center' }}>Inspección general</h4>
               <Stack>
                 {inspeccion.map((item, idx) => (
                   <Group key={`ins-${idx}`}>
@@ -623,7 +623,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <Row icon={<FaStickyNote />} label="Notas:" value={consulta.notas} />
                 {consulta.interrogatorio.length > 0 && (
                   <>
-                    <h5>Interrogatorio por aparatos y sistemas</h5>
+                    <h4 style={{ color: 'black',alignSelf:'center'}}>Interrogatorio por aparatos y sistemas</h4>
                     {consulta.interrogatorio.map((item, interrogatorioIdx) => (
                       [
                         (

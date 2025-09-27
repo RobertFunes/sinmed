@@ -127,7 +127,8 @@ export default function IneractCard({
   const cancelPostpone = () => setConfirmPostpone(false);
   const confirmPostponeAction = () => {
     setConfirmPostpone(false);
-    handlePostpone();
+    // Para Pending (eliminar recordatorio) delegamos al padre
+    onPostpone?.(effectiveConsultaId);
   };
   const reminderLabel = formatReminder(reminderDate);
   const effectiveLastContact = lastContact;
@@ -168,8 +169,8 @@ export default function IneractCard({
       </Card>
       <ConfirmModal
         open={confirmPostpone}
-        text="¿Posponer este contacto 45 días?"
-        confirmLabel="Posponer"
+        text="¿Eliminar este recordatorio?"
+        confirmLabel="Eliminar"
         onCancel={cancelPostpone}
         onConfirm={confirmPostponeAction}
       />

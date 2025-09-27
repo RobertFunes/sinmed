@@ -104,6 +104,12 @@ function Pending() {
                   lastContact={item.lastContact}
                   reminderDate={item.reminderDate}
                   showPostpone={true}
+                  onPostpone={(rid) => {
+                    setPendingData((prev) => ({
+                      ...prev,
+                      reminders: prev.reminders.filter((r) => (r.consultaId ?? r.id) !== rid)
+                    }));
+                  }}
                 />
               ))
             : <p>🎉 ¡No hay recordatorios próximos!</p>}

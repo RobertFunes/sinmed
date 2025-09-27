@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { Palette } from '../helpers/theme.js';
 
 export const Section = styled.section`
-  background: ${Palette.background};
+  background: rgba(255, 255, 255, 0.8);
+
   border: 1px solid ${Palette.border};
 
   padding: 28px 28px;
@@ -24,7 +25,7 @@ export const Group = styled.div`
   border: 1px solid ${Palette.border};
   border-radius: 12px;
   padding: 18px;
-  background: ${Palette.accent};
+  background: ${Palette.background};
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -55,11 +56,10 @@ export const TwoColumnRow = styled.div`
 
 export const FieldRow = styled.div`
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 25% 75%;
   align-items: center;
   gap: 14px;
   padding: 10px 0;
-  border-bottom: 1px solid ${Palette.border};
   &:last-child {
     border-bottom: 0;
     padding-bottom: 0;
@@ -84,6 +84,7 @@ export const Label = styled.span`
 
 export const Value = styled.span`
   white-space: pre-wrap;
+  max-width: 85%;
   color: ${Palette.text};
   background: ${Palette.background};
   border: 1px solid ${Palette.border};
