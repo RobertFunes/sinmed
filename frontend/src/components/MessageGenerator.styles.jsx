@@ -44,7 +44,8 @@ export const ModeSwitch = styled.label`
   display: inline-block;
   width: 52px;
   height: 28px;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
 `;
 
 export const ModeCheckbox = styled.input`
@@ -52,11 +53,19 @@ export const ModeCheckbox = styled.input`
   width: 0;
   height: 0;
 
+  &:disabled {
+    cursor: not-allowed;
+  }
+
   &:checked + span {
     background: ${Palette.primary};
   }
   &:checked + span:before {
     transform: translateX(24px);
+  }
+
+  &:disabled + span {
+    filter: grayscale(0.35);
   }
 `;
 
