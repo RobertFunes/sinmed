@@ -1,6 +1,7 @@
 // controllers/user.js
 
-const bd = require('../models/profile'); // 👈 Así, no db
+const bd = require('../models/profile');
+const iaLimiter = require('../utils/iaLimiter');
 
 const SISTEMA_FIELD_CONFIGS = [
   { key: 'sintomas generales', desc: 'sintomas_generales_desc', estado: 'sintomas_generales_estado' },
@@ -718,6 +719,18 @@ const getPending = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// GET /limits - devuelve uso actual de IA
+const getLimits = (req, res) => {
+  try {
+    const gemini = iaLimiter.getInfo('gemini');
+    const image = iaLimiter.getInfo('image');
+    return res.status(200).json({ ok: true, month: gemini.month, gemini, image });
+  } catch (err) {
+    console.error('[limits] error:', err);
+    return res.status(500).json({ ok: false, error: 'No se pudo obtener limites' });
+  }
+};
 const removeById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -784,7 +797,11 @@ module.exports = {
   createCalendar,
   updateCalendar,
   listCalendar,
-  deleteCalendar
+  deleteCalendar,
+  getLimits
 };
+
+
+
 
 

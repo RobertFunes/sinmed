@@ -51,6 +51,10 @@ export default function MessageGenerator({ profile = {} }) {
   const [confirmSend, setConfirmSend] = useState(false);
   const [mode, setMode] = useState('text');   // 'texto' | 'imagen'
   const [confirmSendImg, setConfirmSendImg] = useState(false);
+  // Resumen IA
+  const [summaryPrompt, setSummaryPrompt] = useState('');
+  const [summaryResult, setSummaryResult] = useState('');
+  const [summaryLoading, setSummaryLoading] = useState(false);
   /* ------ Comprobación del endpoint /what/status ------ */
   useEffect(() => {
     (async () => {
@@ -127,6 +131,30 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
   const confirmSendImageWhatsApp = () => {
     setConfirmSendImg(false);
     handleSendImageWhatsApp();
+  };
+  // Generar resumen con IA (mismo endpoint que el mensaje)
+  const handleGenerateSummary = async () => {
+    const userPrompt = String(summaryPrompt || '').trim();
+    if (!userPrompt) return;
+    const datosPerfil = JSON.stringify(profile || {}, null, 2);
+    const fullPrompt = `Toma el siguiente perfil y ${userPrompt}. Devuelve solo el texto, sin Markdown.\n\nPerfil del cliente (JSON):\n${datosPerfil}`;
+    setSummaryLoading(true);
+    setSummaryResult('');
+    try {
+      const res = await fetch(`${url}/ia/gemini`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: fullPrompt }),
+      });
+      if (!res.ok) throw new Error('Error al invocar la IA');
+      const { respuesta } = await res.json();
+      setSummaryResult((respuesta || '').replace(/\*\*/g, '*'));
+    } catch (err) {
+      alert(`⚠️ ${err.message || 'Error inesperado'}`);
+    } finally {
+      setSummaryLoading(false);
+    }
   };
   const handleGenerateImage = async () => {
     setImgLoading(true);
@@ -227,8 +255,30 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
   return (
     <>
       <Container>
-        {/* Teléfono */}
+        
         <h1>Interactuar con {profile.nombre}</h1>
+        {/* Resumen IA */}
+        <FieldRow>
+          <Label>Generar resumen, consultar con IA</Label>
+          <Input
+            type="text"
+            value={summaryPrompt}
+            placeholder="Ej: Resume el perfil en 5 puntos claros"
+            onChange={(e) => setSummaryPrompt(e.target.value)}
+          />
+          <div className="buttons">
+            <Button disabled={summaryLoading || !summaryPrompt.trim()} onClick={handleGenerateSummary}>
+              {summaryLoading ? 'Generando…' : 'Generar'}
+            </Button>
+          </div>
+        </FieldRow>
+        {summaryResult ? (
+          <FieldRow>
+            <Label>Resultado</Label>
+            <TextArea rows={10} value={summaryResult} onChange={(e) => setSummaryResult(e.target.value)} />
+          </FieldRow>
+        ) : null}
+
         <FieldRow>
           <Label>Modo: {mode === 'text' ? 'Texto 💬' : 'Imagen 🖼️'}</Label>
           <ModeSwitch>
@@ -367,5 +417,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 MessageGenerator.propTypes = {
   profile: PropTypes.object,
 };
+
+
 
 

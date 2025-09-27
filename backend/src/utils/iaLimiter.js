@@ -2,7 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '../data');
+// Persist usage file under models directory instead of data
+const DATA_DIR = path.join(__dirname, '../models');
 const FILE = path.join(DATA_DIR, 'ia-usage.json');
 
 const DEFAULTS = {
@@ -103,4 +104,3 @@ function getInfo(kind) {
 }
 
 module.exports = { canUse, consume, getInfo };
-

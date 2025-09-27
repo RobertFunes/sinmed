@@ -1,5 +1,6 @@
 // src/components/ContactCard.styles.jsx
 import styled from 'styled-components';
+import { Palette } from '../helpers/theme';
 
 /* 📋  PALETA DELVALLE
    Bright Cyan  #00adb5
@@ -11,7 +12,7 @@ import styled from 'styled-components';
 
 /* Contenedor principal de la tarjeta */
 export const Card = styled.div`
-  background: #ffffff;                 /* White */
+  background: ${Palette.background};
   border-radius: 12px;
   padding: 16px 20px;
   box-shadow: 0 2px 8px rgba(34, 40, 49, 0.08); /* sombra con Pure Black */
@@ -21,12 +22,13 @@ export const Card = styled.div`
   justify-content:space-around;
   font-family: 'Nunito', sans-serif;
   min-height: 350px;
+  max-width: 500px;
 `;
 
 /* Nombre del cliente */
 export const Name = styled.h2`
   margin: 0;
-  color: #222831;                      /* Pure Black */
+  color: ${Palette.text};
   font-size: 1.25rem;
   font-weight: 700;
 `;
@@ -43,11 +45,11 @@ export const InfoRow = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #393e46;                      /* Dark Gray */
+  color: ${Palette.muted};
   font-size: 1rem;
 
   svg {
-    color: #00adb5;                    /* Bright Cyan */
+    color: ${Palette.accent};
   }
 `;
 
@@ -60,8 +62,8 @@ export const ButtonRow = styled.div`
 
 /* Botón de acción genérico */
 export const ActionButton = styled.button`
-  background: #eeeeee;                 /* Light Gray */
-  color: #222831;                      /* Pure Black */
+  background: ${Palette.background};
+  color: ${Palette.text};
   border: none;
   border-radius: 8px;
   padding: 6px 12px;
@@ -73,19 +75,19 @@ export const ActionButton = styled.button`
   transition: background 0.15s, color 0.15s, transform 0.1s;
   font-size: 1.2rem;
   &:hover {
-    background: #00adb5;               /* Bright Cyan */
-    color: #ffffff;                    /* White */
+    background: ${Palette.primary};
+    color: #ffffff;
     transform: translateY(-1px);
   }
 
   /* Variante para el botón “Eliminar” */
   &.delete {
-    background: #ffffff;
-    color: #b00020;                    /* Rojo oscuro para delete */
-    box-shadow: 0 0 0 2px #b00020 inset;
+    background: ${Palette.background};
+    color: ${Palette.primary};
+    box-shadow: 0 0 0 2px ${Palette.primary} inset;
 
     &:hover {
-      background: #b00020;
+      background: ${Palette.primary};
       color: #ffffff;
     }
   }

@@ -148,7 +148,27 @@ async function search(req, res) {
     });
 
     const total = items.length;
-    const slice = items.slice(0, limit).map(({ __pos, __exact, __title, ...rest }) => rest);
+    const toYMD = (v) => {
+      if (v == null) return v;
+      if (v instanceof Date) {
+        const y = v.getUTCFullYear();
+        const m = String(v.getUTCMonth() + 1).padStart(2, '0');
+        const d = String(v.getUTCDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      const s = String(v);
+      // Si viene como 'YYYY-MM-DDTHH:mm:ss.sssZ', nos quedamos con la fecha
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+      return s;
+    };
+
+    const slice = items.slice(0, limit).map(({ __pos, __exact, __title, ...rest }) => {
+      const out = { ...rest };
+      if (out.created) out.created = toYMD(out.created);
+      if (out.updated) out.updated = toYMD(out.updated);
+      if (out.updated_at) out.updated_at = toYMD(out.updated_at);
+      return out;
+    });
 
     return res.status(200).json({ items: slice, meta: { limit: 20, totalEstimado: total } });
   } catch (err) {

@@ -17,7 +17,8 @@ const {
   createCalendar,
   updateCalendar,
   listCalendar,
-  deleteCalendar
+  deleteCalendar,
+  getLimits
 } = require('../controllers/user');
 const e = require('express');
 // Ruta pública: login
@@ -38,6 +39,9 @@ router.post('/calendar', checkAuth, createCalendar);
 router.put('/calendar', checkAuth, updateCalendar);
 router.get('/calendar', checkAuth, listCalendar);
 router.delete('/calendar/:id', checkAuth, deleteCalendar);
+
+// IA limits usage
+router.get('/limits', checkAuth, getLimits);
 
 
 // GET /status
