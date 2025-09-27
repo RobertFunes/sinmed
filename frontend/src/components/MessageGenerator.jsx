@@ -59,7 +59,7 @@ export default function MessageGenerator({ profile = {} }) {
   const [summaryResult, setSummaryResult] = useState('');
   const [summaryLoading, setSummaryLoading] = useState(false);
   const messagingDisabled = !serviceReady;
-  const serviceStatusMessage = statusMsg || '❌ Escanea el código QR para habilitar WhatsApp.';
+  const serviceStatusMessage = statusMsg || '❌ Escanea el código QR para habilitar las funciones avanzadas de WhatsApp.';
   const ensureServiceReady = () => {
     if (messagingDisabled) {
       alert(serviceStatusMessage);
@@ -284,11 +284,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
           </InfoBar>
         )}
 
-        {!serviceReady && (
-          <FieldRow>
-            <WhatsappBubble>{serviceStatusMessage}</WhatsappBubble>
-          </FieldRow>
-        )}
+        
 
         {/* Resumen IA */}
         <FieldRow>
@@ -311,7 +307,11 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
             <TextArea rows={10} value={summaryResult} onChange={(e) => setSummaryResult(e.target.value)} />
           </FieldRow>
         ) : null}
-
+        {!serviceReady && (
+          <FieldRow>
+            <WhatsappBubble>{serviceStatusMessage}</WhatsappBubble>
+          </FieldRow>
+        )}
         <FieldRow>
           <Label>Modo: {mode === 'text' ? 'Texto 💬' : 'Imagen 🖼️'}</Label>
           <ModeSwitch $disabled={messagingDisabled}>

@@ -430,7 +430,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
 
   const antecedentesPersonales = data.antecedentes_personales || {};
   const apGenerales = [
-    { label: 'Calidad del sueño:', value: antecedentesPersonales.calidad },
+    { label: 'Calidad de la alimentación:', value: antecedentesPersonales.calidad },
     { label: 'Descripción:', value: antecedentesPersonales.descripcion, icon: <FaUtensils /> },
     { label: '¿Hay cambios?:', value: antecedentesPersonales.hay_cambios },
     { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt /> },
