@@ -22,12 +22,16 @@ export default function Search() {
   const [criteria, setCriteria] = useState(profileOptions[0].value);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [noResults, setNoResults] = useState(false);
+  const [serverMessage, setServerMessage] = useState('');
 
   useEffect(() => {
     const q = query.trim();
     const minLength = criteria === 'id' ? 1 : 3;
     if (q.length < minLength) {
       setResults([]);
+      setNoResults(false);
+      setServerMessage('');
       return;
     }
 
@@ -38,8 +42,25 @@ export default function Search() {
       signal: controller.signal,
       credentials: 'include',
     })
-      .then((r) => (r.ok ? r.json() : { items: [] }))
-      .then((data) => setResults(Array.isArray(data.items) ? data.items : []))
+      .then((r) => (
+        r.ok
+          ? r.json()
+          : { items: [], meta: { limit: 20, totalEstimado: 0 }, noResults: true, message: 'No se encontraron resultados' }
+      ))
+      .then((data) => {
+        const items = Array.isArray(data.items) ? data.items : [];
+        setResults(items);
+        const empty = items.length === 0;
+        const metaZero = data?.meta && typeof data.meta.totalEstimado === 'number' && data.meta.totalEstimado === 0;
+        setNoResults(empty || !!data.noResults || metaZero);
+        setServerMessage(
+          typeof data.message === 'string'
+            ? data.message
+            : empty
+              ? 'No se encontraron resultados'
+              : ''
+        );
+      })
       .catch((err) => {
         if (err.name !== 'AbortError') console.error(err);
       });
@@ -68,7 +89,13 @@ export default function Search() {
           />
         </SelectorRow>
 
-        {results.length > 0 ? <p>{results.length} resultados encontrados</p> : null}
+        {results.length > 0 ? (
+          <p>{results.length} resultados encontrados</p>
+        ) : (
+          (noResults && query.trim().length >= (criteria === 'id' ? 1 : 3)) ? (
+            <p>{serverMessage || 'No se encontraron resultados'}</p>
+          ) : null
+        )}
 
         <Results>
           {results.map((p) => (

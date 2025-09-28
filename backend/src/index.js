@@ -8,6 +8,7 @@ const iaRoutes = require('./routes/ia');
 const whatsRoutes = require('./routes/whats');
 const userRoutes = require('./routes/user');
 const searchRoutes = require('./routes/search');
+const citasCleanup = require('./jobs/citasCleanup');
 const app = express();
 // Trust first proxy (e.g., Nginx/Heroku). Needed so req.ip is the real client IP
 // and not the proxy address, which is important for rate limiting.
@@ -46,3 +47,6 @@ app.get(['/contracts'], (req, res) => {
 });
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend corriendo en puerto ${PORT}`));
+
+// Agenda la depuración mensual de citas (día 1 a las 03:00 America/Mexico_City)
+try { citasCleanup.start(); } catch (_) {}
