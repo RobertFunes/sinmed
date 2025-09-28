@@ -5,7 +5,6 @@ const router = express.Router();
 const {
   login,
   add,
-  getAll,
   getSummary,
   getPending,
   getById,
@@ -13,7 +12,6 @@ const {
   postpone,
   checkAuth,
   modify,
-  getNameMin,
   createCalendar,
   updateCalendar,
   listCalendar,
@@ -29,7 +27,6 @@ router.put('/profile/:id',   checkAuth, modify);
 router.get('/profile/:id',checkAuth, getById);
 router.get('/summary', checkAuth,getSummary); // Resumen de perfiles
 router.get('/pending', checkAuth,getPending);
-router.get('/profile/:id/min', checkAuth, getNameMin);
 router.post('/postpone',checkAuth, postpone);
 router.delete('/profile/:id', checkAuth,removeById);
 

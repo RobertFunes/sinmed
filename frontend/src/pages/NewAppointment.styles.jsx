@@ -74,8 +74,8 @@ export const Actions = styled.div`
 `;
 
 export const PrimaryButton = styled.button`
-  background: ${Palette.primary};
-  color: ${Palette.secondary};
+  background: ${Palette.dark};
+  color: ${Palette.background};
   padding: 10px 14px;
   border-radius: 8px;
   border: none;

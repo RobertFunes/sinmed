@@ -183,13 +183,11 @@ async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
   return result;
 }
 
-async function getAll() {
-  const [rows] = await db.query('SELECT * FROM clientes');
-  return rows;
-}
+// getAll() eliminado (legacy)
 
 // Resumen paginado de perfiles
 // DEPRECATED: bloque legacy basado en 'clientes' (no exportado)
+/* LEGACY REMOVED: getSummaryClientes_DEPRECATED
 async function getSummaryClientes_DEPRECATED(limit = 50, offset = 0) {
   const [rows] = await db.query(
     `SELECT
@@ -209,60 +207,61 @@ async function getSummaryClientes_DEPRECATED(limit = 50, offset = 0) {
 
   return { rows, total };
 }
+*/
 async function getSummary(limit = 50, offset = 0) {
-  const [rows] = await db.query(
-    `SELECT
-       p.id_perfil,
-       p.nombre,
-       p.telefono_movil,
-       CASE
-         WHEN p.fecha_nacimiento IS NULL THEN NULL
-         ELSE TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE())
-       END AS edad,
-       DATE_FORMAT(p.creado, '%Y-%m-%d') AS creado,
-       DATE_FORMAT(GREATEST(
-         COALESCE(p.actualizado,              DATE '1970-01-01'),
-         COALESCE(af.max_actualizado,         DATE '1970-01-01'),
-         COALESCE(ap.max_actualizado,         DATE '1970-01-01'),
-         COALESCE(app.max_actualizado,        DATE '1970-01-01'),
-         COALESCE(ef.max_actualizado,         DATE '1970-01-01'),
-         COALESCE(c.max_fecha_consulta,       DATE '1970-01-01')
-       ), '%Y-%m-%d') AS actualizado
-     FROM perfil p
-     /* 1:N: antecedentes_familiares */
-     LEFT JOIN (
-       SELECT id_perfil, MAX(actualizado) AS max_actualizado
-       FROM antecedentes_familiares
-       GROUP BY id_perfil
-     ) af ON af.id_perfil = p.id_perfil
-     /* 1:1 (pero da igual usar MAX): antecedentes_personales */
-     LEFT JOIN (
-       SELECT id_perfil, MAX(actualizado) AS max_actualizado
-       FROM antecedentes_personales
-       GROUP BY id_perfil
-     ) ap ON ap.id_perfil = p.id_perfil
-     /* 1:N: antecedentes_personales_patologicos */
-     LEFT JOIN (
-       SELECT id_perfil, MAX(actualizado) AS max_actualizado
-       FROM antecedentes_personales_patologicos
-       GROUP BY id_perfil
-     ) app ON app.id_perfil = p.id_perfil
-     /* 1:1: exploracion_fisica */
-     LEFT JOIN (
-       SELECT id_perfil, MAX(actualizado) AS max_actualizado
-       FROM exploracion_fisica
-       GROUP BY id_perfil
-     ) ef ON ef.id_perfil = p.id_perfil
-     /* 1:N: consultas -> usamos la última fecha_consulta */
-     LEFT JOIN (
-       SELECT id_perfil, MAX(fecha_consulta) AS max_fecha_consulta
-       FROM consultas
-       GROUP BY id_perfil
-     ) c ON c.id_perfil = p.id_perfil
-     ORDER BY actualizado DESC
-     LIMIT ? OFFSET ?`,
-    [limit, offset]
-  );
+  const summarySql = [
+    'SELECT',
+    '  p.id_perfil,',
+    '  p.nombre,',
+    '  p.telefono_movil,',
+    '  CASE',
+    '    WHEN p.fecha_nacimiento IS NULL THEN NULL',
+    '    ELSE TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE())',
+    '  END AS edad,',
+    "  DATE_FORMAT(p.creado, '%Y-%m-%d') AS creado,",
+    '  DATE_FORMAT(GREATEST(',
+    "    COALESCE(p.actualizado,              CAST('1970-01-01' AS DATE)),",
+    "    COALESCE(af.max_actualizado,         CAST('1970-01-01' AS DATE)),",
+    "    COALESCE(ap.max_actualizado,         CAST('1970-01-01' AS DATE)),",
+    "    COALESCE(app.max_actualizado,        CAST('1970-01-01' AS DATE)),",
+    "    COALESCE(ef.max_actualizado,         CAST('1970-01-01' AS DATE)),",
+    "    COALESCE(c.max_fecha_consulta,       CAST('1970-01-01' AS DATE))",
+    "  ), '%Y-%m-%d') AS actualizado",
+    'FROM perfil p',
+    ' ',
+    'LEFT JOIN (',
+    '  SELECT id_perfil, MAX(actualizado) AS max_actualizado',
+    '  FROM antecedentes_familiares',
+    '  GROUP BY id_perfil',
+    ') af ON af.id_perfil = p.id_perfil',
+    ' ',
+    'LEFT JOIN (',
+    '  SELECT id_perfil, MAX(actualizado) AS max_actualizado',
+    '  FROM antecedentes_personales',
+    '  GROUP BY id_perfil',
+    ') ap ON ap.id_perfil = p.id_perfil',
+    ' ',
+    'LEFT JOIN (',
+    '  SELECT id_perfil, MAX(actualizado) AS max_actualizado',
+    '  FROM antecedentes_personales_patologicos',
+    '  GROUP BY id_perfil',
+    ') app ON app.id_perfil = p.id_perfil',
+    ' ',
+    'LEFT JOIN (',
+    '  SELECT id_perfil, MAX(actualizado) AS max_actualizado',
+    '  FROM exploracion_fisica',
+    '  GROUP BY id_perfil',
+    ') ef ON ef.id_perfil = p.id_perfil',
+    ' ',
+    'LEFT JOIN (',
+    '  SELECT id_perfil, MAX(fecha_consulta) AS max_fecha_consulta',
+    '  FROM consultas',
+    '  GROUP BY id_perfil',
+    ') c ON c.id_perfil = p.id_perfil',
+    'ORDER BY actualizado DESC',
+    'LIMIT ? OFFSET ?'
+  ].join('\n');
+  const [rows] = await db.query(summarySql, [limit, offset]);
 
   const [[{ total }]] = await db.query('SELECT COUNT(*) AS total FROM perfil');
   return { rows, total };
@@ -406,13 +405,7 @@ async function getById(id_perfil) {
   return result;
 }
 
-async function updateUltimaFechaContacto(id, fecha) {
-  const [result] = await db.query(
-    'UPDATE clientes SET ultima_fecha_contacto = ? WHERE id_cliente = ?',
-    [fecha, id]
-  );
-  return result;
-}
+// updateUltimaFechaContacto() eliminado (legacy basado en tabla `clientes`)
 
 // Elimina el recordatorio asociado a una consulta específica
 async function postponeContactDate(id_consulta) {
@@ -484,6 +477,7 @@ async function removeById(id) {
   );
   return result;
 }
+/* LEGACY REMOVED: modifyClient
 async function modifyClient(id, data) {
   const record = { ...data };
   delete record.aseguradora;
@@ -510,6 +504,7 @@ async function modifyClient(id, data) {
   return result;
 }
 
+/* LEGACY REMOVED: getNameById
 async function getNameById(id) {
   const [rows] = await db.query(
     'SELECT id_cliente, nombre FROM clientes WHERE id_cliente = ?',
@@ -517,6 +512,7 @@ async function getNameById(id) {
   );
   return rows?.[0] || null;
 }
+*/
 
 
 // Calendar
@@ -607,15 +603,11 @@ async function deleteAppointment(id) {
 module.exports = {
   add,
   updatePerfil,
-  getAll,
   getSummary,
-  updateUltimaFechaContacto,
   postponeContactDate,
   getPending,
   getById,
   removeById,
-  modifyClient,
-  getNameById,
   addAntecedentesFamiliares,
   replaceAntecedentesFamiliares,
   upsertAntecedentesPersonales,

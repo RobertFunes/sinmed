@@ -685,6 +685,7 @@ const add = async (req, res) => {
   }
 }
 
+/* LEGACY REMOVED: getAll
 const getAll = async (req, res) => {
   try {
     const profiles = await bd.getAll();
@@ -694,6 +695,7 @@ const getAll = async (req, res) => {
     console.error('Error al obtener perfiles:', err);
   }
 };
+*/
 
 
 const getSummary = async (req, res) => {
@@ -751,6 +753,7 @@ const removeById = async (req, res) => {
       res.status(500).json({ error: err.message });
   }
 };
+/* LEGACY REMOVED: getNameMin
 const getNameMin = async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -781,13 +784,12 @@ const getNameMin = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+*/
 
 module.exports = {
   login,
   add,
-  getAll,
   getSummary,
-  getNameMin,
   getPending,
   getById,
   removeById,

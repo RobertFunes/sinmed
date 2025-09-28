@@ -2,13 +2,6 @@
 import styled from 'styled-components';
 import { Palette } from '../helpers/theme';
 
-/* 📋  PALETA DELVALLE
-   Bright Cyan  #00adb5
-   Pure Black   #222831
-   Dark Gray    #393e46
-   Light Gray   #eeeeee
-   White        #ffffff
-*/
 
 /* Contenedor principal de la tarjeta */
 export const Card = styled.div`
@@ -28,7 +21,7 @@ export const Card = styled.div`
 /* Nombre del cliente */
 export const Name = styled.h2`
   margin: 0;
-  color: ${Palette.text};
+  color: ${Palette.primary};
   font-size: 1.25rem;
   font-weight: 700;
 `;
@@ -45,11 +38,11 @@ export const InfoRow = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: ${Palette.muted};
+  color: ${Palette.secondary};
   font-size: 1rem;
 
   svg {
-    color: ${Palette.accent};
+    color: ${Palette.border};
   }
 `;
 
