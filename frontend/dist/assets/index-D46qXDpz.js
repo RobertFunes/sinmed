@@ -1336,7 +1336,16 @@ var i="ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.".split("_"),o
   /* El icono del calendario/reloj */
   &::-webkit-calendar-picker-indicator {
     cursor: pointer;
-    filter: invert(1); /* Ajusta el valor: 0 = negro, 1 = blanco */
+    /* Intento de tintado al color del tema (Chromium/WebKit)
+       Nota: no hay soporte estandar para fijar el color exacto del icono nativo;
+       usamos un filtro aproximado hacia un rojo vino similar a Palette.primary. */
+    color: ${he.primary};
+    opacity: 0.95;
+    filter: invert(16%) sepia(18%) saturate(4000%) hue-rotate(350deg) brightness(92%) contrast(96%);
+  }
+
+  &::-webkit-calendar-picker-indicator:hover {
+    filter: invert(16%) sepia(18%) saturate(4200%) hue-rotate(350deg) brightness(100%) contrast(100%);
   }
 
   /* Para Firefox (más limitado) */
