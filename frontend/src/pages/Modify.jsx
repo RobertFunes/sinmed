@@ -92,6 +92,19 @@ import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox, FloatingSave } from
 
 
 
+// Estilos locales para elementos anidados de Consultas
+const NestedDetails = styled.details`
+  margin-left: 1rem;
+`;
+const NestedToolbar = styled.div`
+  margin-left: 1rem;
+`;
+const InnerSummary = styled(Summary)`
+  background: #f7fbff;
+  border-left: 4px solid ${Palette.primary};
+  border-radius: 4px;
+`;
+
 const todayISO = () => {
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -562,6 +575,17 @@ const Modify = () => {
   const consultasOrdenadas = sortConsultasAsc(toArr(formData.consultas)).slice().reverse();
   // Identificar siempre la consulta más antigua (nunca debe mostrar seguimiento)
   const oldestConsultaUid = (sortConsultasAsc(toArr(formData.consultas))[0]?.uid) ?? null;
+
+  // Control de acordeón interno: solo una consulta abierta a la vez
+  const [openConsultaUid, setOpenConsultaUid] = useState(null);
+  const handleToggleConsulta = (uid) => (e) => {
+    if (e.currentTarget.open) {
+      setOpenConsultaUid(uid);
+    } else if (openConsultaUid === uid) {
+      setOpenConsultaUid(null);
+    }
+  };
+
 
   const handleChange = ({ target: { name, value } }) => {
     if (name === 'peso_actual' || name === 'talla_cm') {
@@ -1774,7 +1798,7 @@ const Modify = () => {
             <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
               <Summary>Consultas</Summary>
 
-              <div style={{ marginBottom: '1.5rem' }}>
+              <NestedToolbar style={{ marginBottom: '1.5rem' }}>
                 <SubmitButton
                   type="button"
                   onClick={handleNuevaConsulta}
@@ -1784,7 +1808,7 @@ const Modify = () => {
                   <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                   Crear nueva consulta
                 </SubmitButton>
-              </div>
+              </NestedToolbar>
 
               {consultasOrdenadas.map((consulta, idx) => {
                 const totalConsultas = consultasOrdenadas.length;
@@ -1806,8 +1830,8 @@ const Modify = () => {
 
                 return (
                   <div key={uid} style={{ marginBottom: '2.5rem' }}>
-                    <details>
-                      <Summary>{titulo}</Summary>
+                    <NestedDetails open={openConsultaUid === uid} onToggle={handleToggleConsulta(uid)}>
+                      <InnerSummary>{titulo}</InnerSummary>
 
                     <ItemActions style={{ justifyContent: 'flex-end' }}>
                       <DangerButton
@@ -1971,7 +1995,7 @@ const Modify = () => {
                       />
                     </FieldGroup>
                     
-                    </details>
+                    </NestedDetails>
                   </div>
                 );
               })}
