@@ -1859,39 +1859,6 @@ const Modify = () => {
                       />
                     </FieldGroup>
 
-                    <FieldGroup>
-                      <Label htmlFor={diagnosticoId}><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
-                      <TextArea
-                        id={diagnosticoId}
-                        value={consulta.diagnostico || ''}
-                        onChange={handleConsultaFieldChange(uid, 'diagnostico')}
-                        rows={6}
-                        placeholder="Escribe el diagnóstico clínico"
-                      />
-                    </FieldGroup>
-
-                    <FieldGroup>
-                      <Label htmlFor={tratamientoId}><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
-                      <TextArea
-                        id={tratamientoId}
-                        value={consulta.tratamiento || ''}
-                        onChange={handleConsultaFieldChange(uid, 'tratamiento')}
-                        rows={6}
-                        placeholder="Plan de tratamiento"
-                      />
-                    </FieldGroup>
-
-                    <FieldGroup>
-                      <Label htmlFor={notasId}><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
-                      <TextArea
-                        id={notasId}
-                        value={consulta.notas || ''}
-                        onChange={handleConsultaFieldChange(uid, 'notas')}
-                        rows={6}
-                        placeholder="Notas de la consulta"
-                      />
-                    </FieldGroup>
-
                     <TwoColumnRow>
                       <FieldGroup>
                         <Label htmlFor={selectId}>Selecciona un sistema</Label>
@@ -1966,8 +1933,6 @@ const Modify = () => {
                                 </FieldGroup>
                               </TwoColumnRow>
 
-                              
-
                               <ItemActions>
                                 <DangerButton type="button" onClick={() => handleEliminarSistema(uid, sistemaIdx)}>
                                   <FaTrash />
@@ -1979,6 +1944,40 @@ const Modify = () => {
                         })}
                       </ListContainer>
                     )}
+
+                    <FieldGroup>
+                      <Label htmlFor={diagnosticoId}><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
+                      <TextArea
+                        id={diagnosticoId}
+                        value={consulta.diagnostico || ''}
+                        onChange={handleConsultaFieldChange(uid, 'diagnostico')}
+                        rows={6}
+                        placeholder="Escribe el diagnóstico clínico"
+                      />
+                    </FieldGroup>
+
+                    <FieldGroup>
+                      <Label htmlFor={tratamientoId}><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
+                      <TextArea
+                        id={tratamientoId}
+                        value={consulta.tratamiento || ''}
+                        onChange={handleConsultaFieldChange(uid, 'tratamiento')}
+                        rows={6}
+                        placeholder="Plan de tratamiento"
+                      />
+                    </FieldGroup>
+
+                    <FieldGroup>
+                      <Label htmlFor={notasId}><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
+                      <TextArea
+                        id={notasId}
+                        value={consulta.notas || ''}
+                        onChange={handleConsultaFieldChange(uid, 'notas')}
+                        rows={6}
+                        placeholder="Notas de la consulta"
+                      />
+                    </FieldGroup>
+                    
                   </div>
                 );
               })}
