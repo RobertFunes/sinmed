@@ -1806,15 +1806,8 @@ const Modify = () => {
 
                 return (
                   <div key={uid} style={{ marginBottom: '2.5rem' }}>
-                    <h3
-                      style={{
-                        margin: idx === 0 ? '0 0 1rem' : '2rem 0 1rem',
-                        color: Palette.primary,
-                        fontSize: '1.5rem',
-                      }}
-                    >
-                      {titulo}
-                    </h3>
+                    <details>
+                      <Summary>{titulo}</Summary>
 
                     <ItemActions style={{ justifyContent: 'flex-end' }}>
                       <DangerButton
@@ -1978,6 +1971,7 @@ const Modify = () => {
                       />
                     </FieldGroup>
                     
+                    </details>
                   </div>
                 );
               })}

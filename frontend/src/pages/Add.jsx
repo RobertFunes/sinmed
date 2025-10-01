@@ -189,10 +189,10 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       antecedentes_familiares: [
-        ...prev.antecedentes_familiares,
         nuevoAntecedente === 'Otras'
           ? { nombre: '', descripcion: '', esOtro: true }
           : { nombre: nuevoAntecedente, descripcion: '' },
+        ...prev.antecedentes_familiares,
       ],
     }));
     setNuevoAntecedente('');
@@ -219,7 +219,7 @@ const Add = () => {
     if (nuevoHabito === 'Toxicomanías') base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
     setFormData(prev => ({
       ...prev,
-      antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],
+      antecedentes_personales_habitos: [base, ...prev.antecedentes_personales_habitos],
     }));
     setNuevoHabito('');
   };
@@ -244,8 +244,8 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       antecedentes_personales_patologicos: [
-        ...prev.antecedentes_personales_patologicos,
         { antecedente: nuevoPatologico, descripcion: '' },
+        ...prev.antecedentes_personales_patologicos,
       ],
     }));
     setNuevoPatologico('');
@@ -269,8 +269,8 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       interrogatorio_aparatos: [
-        ...prev.interrogatorio_aparatos,
         { nombre: nuevoSistema, descripcion: '' },
+        ...prev.interrogatorio_aparatos,
       ],
     }));
     setNuevoSistema('');
@@ -294,8 +294,8 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       inspeccion_general: [
-        ...prev.inspeccion_general,
         { nombre: nuevoInspeccion, descripcion: '' },
+        ...prev.inspeccion_general,
       ],
     }));
     setNuevoInspeccion('');
