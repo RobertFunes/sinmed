@@ -24,6 +24,9 @@ import {
   DangerButton,
   ButtonLabel,
   ListContainer,
+  AlergicoContainer,
+  AlergicoOptions,
+  AlergicoOption,
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
@@ -338,6 +341,7 @@ const mapApiToForm = (api) => {
   assign('estado_civil', api.estado_civil);
   assign('tipo_sangre', api.tipo_sangre);
   assign('referido_por', api.referido_por);
+  assign('alergico', api.alergico);
 
   next.antecedentes_familiares = toArr(api.antecedentes_familiares).map((item) => {
     const nombre = toStr(item?.nombre);
@@ -566,6 +570,14 @@ const Modify = () => {
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
   const [nuevoSistemaPorConsulta, setNuevoSistemaPorConsulta] = useState({});
+  // Toggle exclusivo para 'alérgico': permite ninguno o sólo uno (Sí/No)
+  const toggleAlergico = (valor) => (e) => {
+    const checked = e.target.checked;
+    setFormData(prev => ({
+      ...prev,
+      alergico: checked ? valor : (prev.alergico === valor ? '' : prev.alergico),
+    }));
+  };
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   const prefillRef = useRef(buildInitialForm());
   const nombreRef = useRef(null);
@@ -1173,6 +1185,30 @@ const Modify = () => {
                   />
                 </FieldGroup>
               </TwoColumnRow>
+              {/* Alérgico (Sí/No) exclusivo, permite ninguno o uno */}
+              <AlergicoContainer>
+                <Label>Alérgico</Label>
+                <AlergicoOptions>
+                  <AlergicoOption $selected={formData.alergico === 'Si'}>
+                    <input
+                      type="checkbox"
+                      name="alergico_si"
+                      checked={formData.alergico === 'Si'}
+                      onChange={toggleAlergico('Si')}
+                    />
+                    <span>Sí</span>
+                  </AlergicoOption>
+                  <AlergicoOption $selected={formData.alergico === 'No'}>
+                    <input
+                      type="checkbox"
+                      name="alergico_no"
+                      checked={formData.alergico === 'No'}
+                      onChange={toggleAlergico('No')}
+                    />
+                    <span>No</span>
+                  </AlergicoOption>
+                </AlergicoOptions>
+              </AlergicoContainer>
               {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
