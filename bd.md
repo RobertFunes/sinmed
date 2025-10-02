@@ -174,8 +174,28 @@ Registra cada consulta médica realizada a un paciente, con diagnóstico, tratam
 | medicamentos_estado     | varchar(15) | YES  |     | NULL      |                | Estado o control de medicamentos                                       |
 | recordatorio            | date        | YES  |     | NULL      |                | Fecha de recordatorio para seguimiento o próxima revisión               |
 
+## 🎨 Tabla `personalizados`
+Permite registrar campos personalizados definidos por paciente y ligados a una consulta específica.  
+**Notas**:  
+- Relación N:1 con `perfil` (`id_perfil`).  
+- Relación N:1 con `consultas` (`id_consulta`).  
+- Si se elimina el perfil o la consulta, los registros personalizados asociados también se eliminan (`ON DELETE CASCADE`).  
 
-## Relaciones
+| Columna          | Tipo        | Null | Key | Default   | Extra          | Descripción                                               |
+|------------------|-------------|------|-----|-----------|----------------|-----------------------------------------------------------|
+| id_personalizado | int(11)     | NO   | PRI | NULL      | auto_increment | Identificador único del registro personalizado            |
+| id_perfil        | int(11)     | NO   | MUL | NULL      |                | Clave foránea a `perfil.id_perfil`                        |
+| id_consulta      | int(11)     | NO   | MUL | NULL      |                | Clave foránea a `consultas.id_consulta`                   |
+| nombre           | varchar(100)| NO   |     | NULL      |                | Nombre del campo o etiqueta personalizada                 |
+| descripcion      | varchar(255)| NO   |     | NULL      |                | Valor o detalle del campo personalizado                   |
+| creado           | date        | NO   |     | curdate() |                | Fecha de creación del registro                            |
+| actualizado      | date        | NO   |     | curdate() |                | Fecha de última actualización                             |
+
+### 🔗 Relaciones
+- Cada fila en `personalizados` **debe** estar asociada a un `perfil` y a una `consulta`.  
+- `ON DELETE CASCADE` asegura que al eliminar un perfil o una consulta, los personalizados dependientes desaparezcan.  
+- Esto permite que los médicos agreguen información flexible (campos adicionales) por consulta sin alterar el modelo fijo de las otras tablas.
+
 
 - Tabla raíz: `perfil` (`id_perfil` PK). Todas las demás tablas clínicas cuelgan de este ID.
 - Relaciones 1:1 con `perfil` (una fila por perfil, `id_perfil` único):

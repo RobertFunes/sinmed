@@ -123,6 +123,8 @@ async function upsertExploracionFisica(id_perfil, data = {}) {
 }
 
 // Inserta/actualiza (1:1) consultas por id_perfil
+// Para ADD: garantizamos 1 sola consulta por perfil eliminando previas y
+// devolvemos el id_consulta recién creado para enlazar personalizados.
 // data: objeto parcial con columnas válidas (sin id_perfil)
 async function upsertConsultas(id_perfil, data = {}) {
   if (!id_perfil) throw new Error('id_perfil requerido');
@@ -131,15 +133,12 @@ async function upsertConsultas(id_perfil, data = {}) {
   const cols = Object.keys(payload).filter((k) => payload[k] != null);
   if (cols.length === 0) return { affectedRows: 0 };
 
-  const fields = ['id_perfil', ...cols];
-  const placeholders = fields.map(() => '?').join(', ');
-  const values = [id_perfil, ...cols.map((k) => payload[k])];
-
-  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
-  const sql = `INSERT INTO consultas (${fields.join(', ')}) VALUES (${placeholders})
-               ON DUPLICATE KEY UPDATE ${updates}`;
-  const [result] = await db.query(sql, values);
-  return result;
+  // En "add" sólo puede haber una consulta. Eliminamos cualquier previa
+  // para asegurar unicidad y luego insertamos, recuperando insertId.
+  await db.query('DELETE FROM consultas WHERE id_perfil = ?', [id_perfil]);
+  const row = { id_perfil, ...Object.fromEntries(cols.map((k) => [k, payload[k]])) };
+  const [result] = await db.query('INSERT INTO consultas SET ?', [row]);
+  return { affectedRows: result?.affectedRows ?? 0, insertId: result?.insertId };
 }
 
 async function replaceConsultas(id_perfil, items = []) {
@@ -164,10 +163,11 @@ async function replaceConsultas(id_perfil, items = []) {
   return { inserted };
 }
 
-// Inserta N filas en tabla `personalizados` para un perfil dado
+// Inserta N filas en tabla `personalizados` para un perfil/consulta dado
 // items: array de objetos { nombre, descripcion } (strings no nulos)
-async function addPersonalizados(id_perfil, items = []) {
+async function addPersonalizados(id_perfil, id_consulta, items = []) {
   if (!id_perfil) throw new Error('id_perfil requerido');
+  if (!id_consulta) throw new Error('id_consulta requerido');
   if (!Array.isArray(items) || items.length === 0) return 0;
   let inserted = 0;
   for (const it of items) {
@@ -175,8 +175,8 @@ async function addPersonalizados(id_perfil, items = []) {
     const descripcion = (it?.descripcion ?? '').toString().trim();
     if (!nombre) continue; // requiere al menos nombre
     await db.query(
-      'INSERT INTO personalizados (id_perfil, nombre, descripcion) VALUES (?, ?, ?)',
-      [id_perfil, nombre, descripcion]
+      'INSERT INTO personalizados (id_perfil, id_consulta, nombre, descripcion) VALUES (?, ?, ?, ?)',
+      [id_perfil, id_consulta, nombre, descripcion]
     );
     inserted++;
   }

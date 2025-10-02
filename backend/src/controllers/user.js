@@ -669,6 +669,7 @@ const add = async (req, res) => {
       }
     }
     const cons_result = await bd.upsertConsultas(id_perfil, consPayload);
+    const id_consulta = cons_result?.insertId;
 
     // 7) personalizados (1:N) -> INSERT en `personalizados`
     //    - Viene dentro de body.consultas.personalizados [{ nombre, descripcion }]
@@ -682,7 +683,10 @@ const add = async (req, res) => {
         descripcion: (it?.descripcion ?? '').toString().trim(),
       }))
       .filter((it) => it.nombre.length > 0);
-    const personalizados_inserted = await bd.addPersonalizados(id_perfil, persItems);
+    let personalizados_inserted = 0;
+    if (id_consulta) {
+      personalizados_inserted = await bd.addPersonalizados(id_perfil, id_consulta, persItems);
+    }
 
     // Respuesta minimal con los ids/efectos clave para continuar el flujo
     return res.status(201).json({
@@ -693,6 +697,7 @@ const add = async (req, res) => {
       go_upserted: go_result?.affectedRows ?? 0,
       ef_upserted: ef_result?.affectedRows ?? 0,
       cons_upserted: cons_result?.affectedRows ?? 0,
+      id_consulta,
       personalizados_inserted,
       app_inserted,
     });
