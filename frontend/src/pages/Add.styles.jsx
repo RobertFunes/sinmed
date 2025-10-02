@@ -189,11 +189,11 @@ export const Summary = styled.summary`
 
 /* Contenedor de cada ítem agregado (familiares, hábitos, patológicos, inspección, sistemas) */
 export const ItemCard = styled.div`
-  border: 1px solid ${Palette.secondary};
+  border: 4px solid ${Palette.secondary};
   border-radius: 6px;
   padding: 0.75rem;
   margin-bottom: 0.75rem;
-  background: ${Palette.background};
+  background: ${Palette.background  };
 `;
 
 /* Contenedor para separar la lista del selector superior */

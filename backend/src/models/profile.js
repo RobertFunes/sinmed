@@ -163,6 +163,25 @@ async function replaceConsultas(id_perfil, items = []) {
 
   return { inserted };
 }
+
+// Inserta N filas en tabla `personalizados` para un perfil dado
+// items: array de objetos { nombre, descripcion } (strings no nulos)
+async function addPersonalizados(id_perfil, items = []) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  if (!Array.isArray(items) || items.length === 0) return 0;
+  let inserted = 0;
+  for (const it of items) {
+    const nombre = (it?.nombre ?? '').toString().trim();
+    const descripcion = (it?.descripcion ?? '').toString().trim();
+    if (!nombre) continue; // requiere al menos nombre
+    await db.query(
+      'INSERT INTO personalizados (id_perfil, nombre, descripcion) VALUES (?, ?, ?)',
+      [id_perfil, nombre, descripcion]
+    );
+    inserted++;
+  }
+  return inserted;
+}
 // Inserta/actualiza (1:1) diagnostico_tratamiento por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
 async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
@@ -560,6 +579,7 @@ module.exports = {
   upsertExploracionFisica,
   upsertConsultas,
   replaceConsultas,
+  addPersonalizados,
   addAppointment,
   listAppointments,
   updateAppointment,

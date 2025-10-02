@@ -300,6 +300,33 @@ const Add = () => {
     }));
   };
 
+  // ---- Consultas: personalizados (título + descripción) ----
+  const addPersonalizado = () => {
+    setFormData(prev => {
+      const list = Array.isArray(prev.personalizados) ? prev.personalizados : [];
+      if (list.length >= 10) return prev;
+      return {
+        ...prev,
+        personalizados: [
+          { nombre: '', descripcion: '' },
+          ...list,
+        ],
+      };
+    });
+  };
+  const removePersonalizadoAt = (idx) => {
+    setFormData(prev => ({
+      ...prev,
+      personalizados: (prev.personalizados || []).filter((_, i) => i !== idx),
+    }));
+  };
+  const updatePersonalizadoField = (idx, field, valor) => {
+    setFormData(prev => ({
+      ...prev,
+      personalizados: (prev.personalizados || []).map((p, i) => i === idx ? { ...p, [field]: valor } : p),
+    }));
+  };
+
   // ---- Exploración física: inspección general ----
   const addInspeccion = () => {
     if (!nuevoInspeccion) return;
@@ -1290,13 +1317,53 @@ const Add = () => {
                 </ListContainer>
               )}
 
-              {/* Acción: crear sistema personalizado (placeholder) */}
+              {/* Acción: crear tarjeta personalizada (título + descripción) */}
               <FieldGroup>
                 <Label>&nbsp;</Label>
-                <SubmitButton type="button" onClick={() => {}}>
+                <SubmitButton
+                  type="button"
+                  onClick={addPersonalizado}
+                  disabled={(formData.personalizados || []).length >= 10}
+                >
                   Crear personalizado
                 </SubmitButton>
               </FieldGroup>
+
+              {/* Lista de personalizados agregados */}
+              {(formData.personalizados || []).length > 0 && (
+                <ListContainer>
+                  {formData.personalizados.map((p, idx) => (
+                    <ItemCard key={`pers-${idx}`}>
+                      <TwoColumnRow>
+                        <FieldGroup>
+                          <Label>Título</Label>
+                          <Input
+                            value={p.nombre}
+                            onChange={e => updatePersonalizadoField(idx, 'nombre', e.target.value)}
+                            placeholder="Escribe el título"
+                            maxLength={100}
+                          />
+                        </FieldGroup>
+                        <FieldGroup>
+                          <Label>Descripción</Label>
+                          <TextArea
+                            value={p.descripcion}
+                            onChange={e => updatePersonalizadoField(idx, 'descripcion', e.target.value)}
+                            rows={3}
+                            placeholder="Describe el contenido"
+                          />
+                        </FieldGroup>
+                      </TwoColumnRow>
+                      <ItemActions>
+                        <DangerButton type="button" onClick={() => removePersonalizadoAt(idx)}>
+                          <FaTrash />
+                          <ButtonLabel>Eliminar</ButtonLabel>
+                        </DangerButton>
+                      </ItemActions>
+                    </ItemCard>
+                  ))}
+                </ListContainer>
+              )}
 
               <FieldGroup>
                 <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
