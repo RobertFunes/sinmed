@@ -268,6 +268,7 @@ const createEmptyConsulta = () => ({
   tratamiento: '',
   notas: '',
   interrogatorio_aparatos: [],
+  personalizados: [],
 });
 
 const trimValue = (value) => {
@@ -302,9 +303,17 @@ const buildPayloadWithConsultas = (data, idPerfil) => {
       };
     });
 
+    const personalizados = toArr(consulta?.personalizados)
+      .map((p) => ({
+        nombre: trimValue(p?.nombre),
+        descripcion: trimValue(p?.descripcion),
+      }))
+      .filter((p) => p.nombre !== '' || p.descripcion !== '');
+
     return {
       ...payload,
       interrogatorio_aparatos,
+      personalizados,
     };
   });
 
@@ -425,8 +434,22 @@ const mapApiToForm = (api) => {
   const dtRows = toArr(api.diagnostico_tratamiento);
   const dt = dtRows[0] || null;
 
+  // Agrupar personalizados por id_consulta
+  const personalizadosByConsulta = new Map();
+  toArr(api.personalizados).forEach((it) => {
+    const cid = Number(it?.id_consulta);
+    if (!Number.isFinite(cid)) return;
+    const nombre = toStr(it?.nombre);
+    const descripcion = toStr(it?.descripcion);
+    if (!nombre && !descripcion) return;
+    const list = personalizadosByConsulta.get(cid) || [];
+    list.push({ nombre, descripcion });
+    personalizadosByConsulta.set(cid, list);
+  });
+
   const consultasFromApi = consRows.map((row) => ({
     uid: row?.uid || row?.id || generateConsultaUid(),
+    id_consulta: Number(row?.id_consulta) || undefined,
     fecha_consulta: toStr(row?.fecha_consulta),
     recordatorio: toStr(row?.recordatorio),
     padecimiento_actual: toStr(row?.padecimiento_actual),
@@ -437,6 +460,10 @@ const mapApiToForm = (api) => {
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),
       estado: toStr(item?.estado),
+    })),
+    personalizados: (personalizadosByConsulta.get(Number(row?.id_consulta)) || []).map((p) => ({
+      nombre: toStr(p?.nombre),
+      descripcion: toStr(p?.descripcion),
     })),
   }));
 
@@ -470,6 +497,10 @@ const mapApiToForm = (api) => {
         nombre: toStr(item?.nombre),
         descripcion: toStr(item?.descripcion),
         estado: toStr(item?.estado),
+      })),
+      personalizados: toArr(consulta.personalizados).map((p) => ({
+        nombre: toStr(p?.nombre),
+        descripcion: toStr(p?.descripcion),
       })),
     })),
   );
@@ -850,6 +881,8 @@ const Modify = () => {
       nueva.padecimiento_actual = toStr(last.padecimiento_actual);
       nueva.diagnostico = toStr(last.diagnostico);
       nueva.interrogatorio_aparatos = deepClone(toArr(last.interrogatorio_aparatos));
+      // Copiar también los personalizados de la última consulta para mantener continuidad visual
+      nueva.personalizados = deepClone(toArr(last.personalizados));
     }
     updateConsultas((list) => [nueva, ...list]);
     setNuevoSistemaPorConsulta((prev) => ({ ...prev, [nueva.uid]: '' }));
@@ -896,6 +929,43 @@ const Modify = () => {
       }),
     );
     setNuevoSistemaPorConsulta((prev) => ({ ...prev, [uid]: '' }));
+  };
+
+  // ---- Consultas: personalizados (título + descripción) por consulta ----
+  const handleAgregarPersonalizado = (uid) => {
+    updateConsultas((current) =>
+      current.map((consulta) => {
+        if (consulta.uid !== uid) return consulta;
+        const list = toArr(consulta.personalizados);
+        if (list.length >= 10) return consulta;
+        return {
+          ...consulta,
+          personalizados: [{ nombre: '', descripcion: '' }, ...list],
+        };
+      }),
+    );
+  };
+  const handleEliminarPersonalizado = (uid, idx) => {
+    updateConsultas((current) =>
+      current.map((consulta) => {
+        if (consulta.uid !== uid) return consulta;
+        return {
+          ...consulta,
+          personalizados: toArr(consulta.personalizados).filter((_, i) => i !== idx),
+        };
+      }),
+    );
+  };
+  const handleActualizarPersonalizado = (uid, idx, field, valor) => {
+    updateConsultas((current) =>
+      current.map((consulta) => {
+        if (consulta.uid !== uid) return consulta;
+        return {
+          ...consulta,
+          personalizados: toArr(consulta.personalizados).map((p, i) => (i === idx ? { ...p, [field]: valor } : p)),
+        };
+      }),
+    );
   };
 
   const handleEliminarSistema = (uid, idx) => {
@@ -1995,6 +2065,49 @@ const Modify = () => {
                             </ItemCard>
                           );
                         })}
+                      </ListContainer>
+                    )}
+
+                    {/* Personalizados por consulta */}
+                    <FieldGroup>
+                      <Label>&nbsp;</Label>
+                      <SubmitButton type="button" onClick={() => handleAgregarPersonalizado(uid)}>
+                        Crear personalizado
+                      </SubmitButton>
+                    </FieldGroup>
+
+                    {toArr(consulta.personalizados).length > 0 && (
+                      <ListContainer>
+                        {toArr(consulta.personalizados).map((p, pIdx) => (
+                          <ItemCard key={`${uid}-pers-${pIdx}`}>
+                            <TwoColumnRow>
+                              <FieldGroup>
+                                <Label>Título</Label>
+                                <Input
+                                  value={p.nombre}
+                                  onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'nombre', e.target.value)}
+                                  placeholder="Escribe el título"
+                                  maxLength={100}
+                                />
+                              </FieldGroup>
+                              <FieldGroup>
+                                <Label>Descripción</Label>
+                                <TextArea
+                                  value={p.descripcion}
+                                  onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)}
+                                  rows={3}
+                                  placeholder="Describe el contenido"
+                                />
+                              </FieldGroup>
+                            </TwoColumnRow>
+                            <ItemActions>
+                              <DangerButton type="button" onClick={() => handleEliminarPersonalizado(uid, pIdx)}>
+                                <FaTrash />
+                                <ButtonLabel>Eliminar</ButtonLabel>
+                              </DangerButton>
+                            </ItemActions>
+                          </ItemCard>
+                        ))}
                       </ListContainer>
                     )}
 

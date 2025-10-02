@@ -246,7 +246,8 @@ const buildConsultas = (data = {}) => {
   const consultas = consRows
     .map((row, idx) => {
       const base = {
-        id: row?.uid || row?.id || `consulta-${idx}`,
+        id: row?.id_consulta || row?.uid || row?.id || `consulta-${idx}`,
+        id_consulta: row?.id_consulta,
         fecha_consulta: formatDate(row?.fecha_consulta),
         recordatorio: formatDate(row?.recordatorio),
         padecimiento_actual: toStr(row?.padecimiento_actual),
@@ -285,6 +286,23 @@ const buildConsultas = (data = {}) => {
   }
 
   return { consultas, pronostico };
+};
+
+// Agrupa personalizados por id_consulta
+const groupPersonalizadosByConsulta = (items) => {
+  const map = new Map();
+  const list = toArr(items);
+  for (const it of list) {
+    const consultaId = it?.id_consulta;
+    if (!consultaId) continue;
+    const nombre = toStr(it?.nombre).trim();
+    const descripcion = toStr(it?.descripcion).trim();
+    if (!present(nombre) && !present(descripcion)) continue;
+    const bucket = map.get(consultaId) || [];
+    bucket.push({ nombre, descripcion });
+    map.set(consultaId, bucket);
+  }
+  return map;
 };
 
 const Row = ({ icon, label, value }) => {
@@ -472,6 +490,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     .filter((item) => present(item.antecedente) || present(item.descripcion));
 
   const { consultas, pronostico } = buildConsultas(data);
+  const personalizadosByConsulta = groupPersonalizadosByConsulta(data.personalizados);
 
   const efSource = Array.isArray(data.exploracion_fisica)
     ? data.exploracion_fisica[0] || {}
@@ -648,6 +667,19 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                           )
                           : null,
                       ]
+                    ))}
+                  </>
+                )}
+                {present(consulta.id_consulta) && present(personalizadosByConsulta.get(consulta.id_consulta)) && (
+                  <>
+                    <h4 style={{ color: 'black', alignSelf: 'center' }}>Personalizados</h4>
+                    {toArr(personalizadosByConsulta.get(consulta.id_consulta)).map((p, pIdx) => (
+                      <Row
+                        key={`${consulta.id}-personalizado-${pIdx}`}
+                        icon={<FaStickyNote />}
+                        label={`${p.nombre}:`}
+                        value={p.descripcion}
+                      />
                     ))}
                   </>
                 )}

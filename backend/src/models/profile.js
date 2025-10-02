@@ -385,6 +385,20 @@ async function getById(id_perfil) {
     }
   }
 
+  // personalizados (1:N) asociados al perfil; incluyen id_consulta para referencia
+  {
+    const [rows] = await db.query(
+      'SELECT * FROM personalizados WHERE id_perfil = ? ORDER BY id_consulta DESC, nombre ASC',
+      [id]
+    );
+    if (Array.isArray(rows) && rows.length) {
+      const items = rows.map(r => compactRow(r, 'personalizados'));
+      if (items.length) {
+        result.personalizados = items;
+      }
+    }
+  }
+
   // actualizado_max = lo más reciente entre p.actualizado, timestamps de 1:N y fecha_consulta
   const toDate = (s) => {
     if (!s) return null;
