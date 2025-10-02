@@ -100,6 +100,7 @@ const modify = async (req, res) => {
       estado_civil: clean(dp.estado_civil),
       tipo_sangre: clean(dp.tipo_sangre),
       referido_por: clean(dp.referido_por),
+      alergico: clean(dp.alergico),
     };
     const perfil_result = await bd.updatePerfil(id, perfil);
 
@@ -483,6 +484,7 @@ const add = async (req, res) => {
       estado_civil: clean(dp.estado_civil),
       tipo_sangre: clean(dp.tipo_sangre),
       referido_por: clean(dp.referido_por),
+      alergico: clean(dp.alergico),
     };
     const id_perfil = await bd.add(perfil); // id del perfil recién creado
 
@@ -753,38 +755,7 @@ const removeById = async (req, res) => {
       res.status(500).json({ error: err.message });
   }
 };
-/* LEGACY REMOVED: getNameMin
-const getNameMin = async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({ error: 'ID inválido' });
-    }
 
-    // 🔎 función minimal en el modelo:
-    // async function getNameById(id) {
-    //   const [rows] = await db.query('SELECT id_cliente, nombre FROM clientes WHERE id_cliente = ?', [id]);
-    //   return rows?.[0] || null;
-    // }
-
-    const row = await bd.getNameById(id);
-    if (!row) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
-    }
-
-    // 👇 cache cortito para que el front no te bombardee
-    res.set('Cache-Control', 'public, max-age=30');
-
-    return res.status(200).json({
-      id: row.id_cliente,      // normaliza llave de salida
-      nombre: row.nombre
-    });
-  } catch (err) {
-    console.error('Error en getNameMin:', err);
-    return res.status(500).json({ error: err.message });
-  }
-};
-*/
 
 module.exports = {
   login,

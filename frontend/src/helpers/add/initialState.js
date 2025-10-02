@@ -10,6 +10,7 @@ export const initialState = {
   estado_civil: '',           // enum(...)
   tipo_sangre: '',            // varchar(10) NULL
   referido_por: '',           // varchar(100) NULL
+  alergico: '',               // 'Si' | 'No' | ''
   antecedentes_familiares: [], // [{ nombre: string, descripcion: string, esOtro?: boolean }]
   // Antecedentes personales
   antecedentes_personales_habitos: [], // [{ tipo: 'Alcoholismo'|'Tabaquismo'|'Toxicomanías', campos: {...} }]

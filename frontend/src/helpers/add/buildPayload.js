@@ -15,6 +15,7 @@ export const buildNestedPayload = (data) => {
     estado_civil: trim(data.estado_civil),
     tipo_sangre: trim(data.tipo_sangre),
     referido_por: trim(data.referido_por),
+    alergico: trim(data.alergico),
   };
 
   // Antecedentes familiares

@@ -183,31 +183,8 @@ async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
   return result;
 }
 
-// getAll() eliminado (legacy)
 
-// Resumen paginado de perfiles
-// DEPRECATED: bloque legacy basado en 'clientes' (no exportado)
-/* LEGACY REMOVED: getSummaryClientes_DEPRECATED
-async function getSummaryClientes_DEPRECATED(limit = 50, offset = 0) {
-  const [rows] = await db.query(
-    `SELECT
-      id_cliente,              -- 🔑 para rutas /profile/:id
-      nombre,
-      telefono_movil,
-      ultima_fecha_contacto,
-      fecha_nacimiento
-    FROM clientes
-    LIMIT ? OFFSET ?`,
-    [limit, offset]
-  );
 
-  const [[{ total }]] = await db.query(
-    'SELECT COUNT(*) AS total FROM clientes'
-  );
-
-  return { rows, total };
-}
-*/
 async function getSummary(limit = 50, offset = 0) {
   const summarySql = [
     'SELECT',
@@ -477,42 +454,7 @@ async function removeById(id) {
   );
   return result;
 }
-/* LEGACY REMOVED: modifyClient
-async function modifyClient(id, data) {
-  const record = { ...data };
-  delete record.aseguradora;
-  delete record.numero_poliza;
-  delete record.categoria_poliza;
-  delete record.subcategoria_poliza;
-  delete record.detalle_poliza;
-  delete record.fecha_inicio_poliza;
-  delete record.fecha_termino_poliza;
-  delete record.tipo_poliza;
-  delete record.seguros_contratados;
-  delete record.asegurados;
 
-  // 🎂 y 📅 existentes
-  if (record.fecha_nacimiento)
-    record.fecha_nacimiento = record.fecha_nacimiento.slice(0, 10);
-  if (record.ultima_fecha_contacto)
-    record.ultima_fecha_contacto = record.ultima_fecha_contacto.slice(0, 10);
-
-  const [result] = await db.query(
-    'UPDATE clientes SET ? WHERE id_cliente = ?',
-    [record, id]
-  );
-  return result;
-}
-
-/* LEGACY REMOVED: getNameById
-async function getNameById(id) {
-  const [rows] = await db.query(
-    'SELECT id_cliente, nombre FROM clientes WHERE id_cliente = ?',
-    [id]
-  );
-  return rows?.[0] || null;
-}
-*/
 
 
 // Calendar

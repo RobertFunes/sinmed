@@ -312,7 +312,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const personalOrder = [
     'id_perfil', 'nombre', 'genero', 'fecha_nacimiento', 'telefono_movil', 'correo_electronico',
     'residencia', 'ocupacion', 'escolaridad', 'estado_civil', 'tipo_sangre', 'referido_por',
-    'creado', 'actualizado',
+    'alergico', 'creado', 'actualizado',
   ];
 
   const getDateStr = (value) => {
@@ -386,6 +386,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         return <FaTint />;
       case 'referido_por':
         return <FaUserPlus />;
+      case 'alergico':
+        return <FaExclamationCircle />;
       case 'creado':
         return <FaCalendarDay />;
       case 'actualizado':
@@ -409,6 +411,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       case 'estado_civil': return 'Estado civil:';
       case 'tipo_sangre': return 'Tipo de sangre:';
       case 'referido_por': return 'Referido por:';
+      case 'alergico': return 'Alérgico:';
       case 'creado': return 'Creado:';
       case 'actualizado': return 'Actualizado:';
       default: return `${key.replace(/_/g, ' ')}:`;
