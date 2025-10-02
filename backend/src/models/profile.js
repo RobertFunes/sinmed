@@ -235,7 +235,7 @@ async function getSummary(limit = 50, offset = 0) {
     '  FROM consultas',
     '  GROUP BY id_perfil',
     ') c ON c.id_perfil = p.id_perfil',
-    'ORDER BY actualizado DESC',
+    'ORDER BY p.id_perfil DESC',
     'LIMIT ? OFFSET ?'
   ].join('\n');
   const [rows] = await db.query(summarySql, [limit, offset]);

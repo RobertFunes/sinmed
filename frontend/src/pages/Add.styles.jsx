@@ -222,3 +222,50 @@ export const DangerButton = styled.button`
 export const ButtonLabel = styled.span`
   margin-left: 8px;
 `;
+
+/* ---------- ALÉRGICO TOGGLE (SÍ/NO) ---------- */
+export const AlergicoContainer = styled.div`
+margin-top: 20px;
+  border: 1px solid ${Palette.darkGray};
+  width: 20%;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.9rem 1.1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  text-align: center;
+  label {
+    text-align: center;
+    justify-content: center;
+  }
+`;
+
+export const AlergicoOptions = styled.div`
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  padding-top: 0.25rem;
+`;
+
+export const AlergicoOption = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid ${({ $selected }) => ($selected ? Palette.primary : Palette.darkGray)};
+  background: ${({ $selected }) => ($selected ? Palette.primary : '#fff')};
+  color: ${({ $selected }) => ($selected ? Palette.background : Palette.text)};
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease-in-out;
+
+  input[type='checkbox'] {
+    accent-color: ${Palette.primary};
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+`;

@@ -21,6 +21,9 @@ import {
   DangerButton,
   ButtonLabel,
   ListContainer,
+  AlergicoContainer,
+  AlergicoOptions,
+  AlergicoOption,
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
@@ -546,36 +549,29 @@ const Add = () => {
               </TwoColumnRow>
 
               {/* Alérgico (Sí/No) exclusivo, permite ninguno o uno */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label>
-                    Alérgico
-                  </Label>
-                  <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', paddingTop: '0.4rem',marginLeft: '1rem' }}>
-                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input
-                        type="checkbox"
-                        name="alergico_si"
-                        checked={formData.alergico === 'Si'}
-                        onChange={toggleAlergico('Si')}
-                      />
-                      <span>Sí</span>
-                    </label>
-                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input
-                        type="checkbox"
-                        name="alergico_no"
-                        checked={formData.alergico === 'No'}
-                        onChange={toggleAlergico('No')}
-                      />
-                      <span>No</span>
-                    </label>
-                  </div>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                </FieldGroup>
-              </TwoColumnRow>
+              <AlergicoContainer>
+                <Label>Alérgico</Label>
+                <AlergicoOptions>
+                  <AlergicoOption $selected={formData.alergico === 'Si'}>
+                    <input
+                      type="checkbox"
+                      name="alergico_si"
+                      checked={formData.alergico === 'Si'}
+                      onChange={toggleAlergico('Si')}
+                    />
+                    <span>Sí</span>
+                  </AlergicoOption>
+                  <AlergicoOption $selected={formData.alergico === 'No'}>
+                    <input
+                      type="checkbox"
+                      name="alergico_no"
+                      checked={formData.alergico === 'No'}
+                      onChange={toggleAlergico('No')}
+                    />
+                    <span>No</span>
+                  </AlergicoOption>
+                </AlergicoOptions>
+              </AlergicoContainer>
               {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
