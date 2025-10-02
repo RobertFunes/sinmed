@@ -377,6 +377,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
 
   const { creadoMax, actualizadoMax } = computeMaxDates();
   const personalData = { ...data, creado: creadoMax || data.creado, actualizado: actualizadoMax || data.actualizado };
+  const isAllergic = String(personalData.alergico || '').trim() === 'Si';
 
   const iconFor = (key) => {
     switch (key) {
@@ -520,7 +521,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   return (
     <>
       {personalRows.length > 0 && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Datos Personales</h3>
           <TwoColumnRow>
             {personalRows}
@@ -529,7 +530,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       {antecedentesFamiliares.length > 0 && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Antecedentes Familiares</h3>
           <Stack>
             {antecedentesFamiliares.map((item, idx) => (
@@ -544,7 +545,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       {(apGenerales.length > 0 || apHabitos.length > 0) && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Antecedentes Personales</h3>
           {apGenerales.length > 0 && (
             <TwoColumnRow>
@@ -577,7 +578,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       {ginecoRows.length > 0 && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Antecedentes Gineco-Obstétricos</h3>
           <TwoColumnRow>
             {ginecoRows.map(({ label, value, icon }, idx) => (
@@ -588,7 +589,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       {patologicos.length > 0 && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Antecedentes Personales Patológicos</h3>
           <Stack>
             {patologicos.map((item, idx) => (
@@ -603,7 +604,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       {(efRows.length > 0 || inspeccion.length > 0) && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Exploración Física</h3>
           {efRows.length > 0 && (
             <TwoColumnRow>
@@ -629,7 +630,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       {consultas.length > 0 && (
-        <Section>
+        <Section $alergico={isAllergic}>
           <h3>Consultas</h3>
           <Stack>
             {consultas.map((consulta, idx) => (

@@ -9,15 +9,6 @@ const bounce = keyframes`
   60% { transform: translateY(-2px); }
 `;
 
-/* 📋  PALETA DELVALLE
-   Bright Cyan  #00adb5
-   Pure Black   #222831
-   Dark Gray    #393e46
-   Light Gray   #eeeeee
-   White        #ffffff
-*/
-
-
 
 /* Contenedor principal de la tarjeta */
 export const Card = styled.div`

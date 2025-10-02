@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Palette } from '../helpers/theme.js';
 
 export const Section = styled.section`
-  background: rgba(255, 255, 255, 0.8);
-
+  background: ${(p) => (p.$alergico ? '#000' : 'rgba(255, 255, 255, 0.8)')};
+  //aqui me gustaria que sea negro si tiene alergias
   border: 1px solid ${Palette.border};
 
   padding: 28px 28px;
