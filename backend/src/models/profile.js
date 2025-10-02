@@ -145,10 +145,11 @@ async function replaceConsultas(id_perfil, items = []) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   await db.query('DELETE FROM consultas WHERE id_perfil = ?', [id_perfil]);
   if (!Array.isArray(items) || items.length === 0) {
-    return { inserted: 0 };
+    return { inserted: 0, insertIds: [] };
   }
 
   let inserted = 0;
+  const insertIds = [];
   for (const raw of items) {
     if (!raw || typeof raw !== 'object') continue;
     const payload = { id_perfil, ...raw };
@@ -158,9 +159,10 @@ async function replaceConsultas(id_perfil, items = []) {
     if (!hasContent) continue;
     const [result] = await db.query('INSERT INTO consultas SET ?', [payload]);
     inserted += result?.affectedRows ?? 0;
+    if (result?.insertId) insertIds.push(result.insertId);
   }
 
-  return { inserted };
+  return { inserted, insertIds };
 }
 
 // Inserta N filas en tabla `personalizados` para un perfil/consulta dado
@@ -181,6 +183,13 @@ async function addPersonalizados(id_perfil, id_consulta, items = []) {
     inserted++;
   }
   return inserted;
+}
+
+// Elimina todos los personalizados de un perfil
+async function deletePersonalizadosByPerfil(id_perfil) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+  const [result] = await db.query('DELETE FROM personalizados WHERE id_perfil = ?', [id_perfil]);
+  return result;
 }
 // Inserta/actualiza (1:1) diagnostico_tratamiento por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
@@ -594,6 +603,7 @@ module.exports = {
   upsertConsultas,
   replaceConsultas,
   addPersonalizados,
+  deletePersonalizadosByPerfil,
   addAppointment,
   listAppointments,
   updateAppointment,

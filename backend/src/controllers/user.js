@@ -218,7 +218,8 @@ const modify = async (req, res) => {
       return SISTEMA_FIELD_CONFIGS.find((cfg) => cfg.key === k) || null;
     };
 
-    const consItems = consRaw.map((entry) => {
+    // Construye pares { row, pers } por cada entrada cruda
+    const consPairs = consRaw.map((entry) => {
       const row = {
         fecha_consulta: clean(toYMD(entry?.fecha_consulta)),
         recordatorio: clean(toYMD(entry?.recordatorio)),
@@ -250,10 +251,38 @@ const modify = async (req, res) => {
           row[cfg.estado] = clean(entry[cfg.estado]);
         }
       }
-      return row;
-    }).filter((row) => Object.values(row).some((value) => value != null && value !== ''));
+
+      const persRaw = Array.isArray(entry?.personalizados) ? entry.personalizados : [];
+      const pers = persRaw
+        .map((it) => ({
+          nombre: (it?.nombre ?? '').toString().trim(),
+          descripcion: (it?.descripcion ?? '').toString().trim(),
+        }))
+        .filter((it) => it.nombre.length > 0 || it.descripcion.length > 0);
+
+      return { row, pers };
+    });
+
+    // Filtra entradas vacías (según lógica ya existente)
+    const filtered = consPairs.filter(({ row }) =>
+      Object.values(row).some((value) => value != null && value !== '')
+    );
+    const consItems = filtered.map(({ row }) => row);
+    const persLists = filtered.map(({ pers }) => pers.filter((p) => p.nombre && p.nombre.trim().length > 0));
 
     const cons_result = await bd.replaceConsultas(id, consItems);
+
+    // Reemplaza todos los personalizados del perfil y re-inserta por consulta recién creada
+    await bd.deletePersonalizadosByPerfil(id);
+    let pers_total = 0;
+    const insertIds = Array.isArray(cons_result?.insertIds) ? cons_result.insertIds : [];
+    for (let i = 0; i < insertIds.length; i++) {
+      const cid = insertIds[i];
+      const list = Array.isArray(persLists[i]) ? persLists[i] : [];
+      if (!cid || list.length === 0) continue;
+      const n = await bd.addPersonalizados(id, cid, list);
+      pers_total += n;
+    }
 
     return res.status(200).json({
       ok: true,
@@ -264,6 +293,7 @@ const modify = async (req, res) => {
       go_upserted: go_result?.affectedRows ?? 0,
       ef_upserted: ef_result?.affectedRows ?? 0,
       consultas_reemplazadas: cons_result?.inserted ?? 0,
+      personalizados_reemplazados: pers_total,
       app_reemplazados: app_replaced,
     });
   } catch (err) {

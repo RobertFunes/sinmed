@@ -1,11 +1,11 @@
 {
-  "month": "2025-09",
+  "month": "2025-10",
   "gemini": {
-    "used": 5,
+    "used": 0,
     "limit": 250
   },
   "image": {
-    "used": 2,
+    "used": 0,
     "limit": 40
   }
 }
