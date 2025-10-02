@@ -1290,6 +1290,14 @@ const Add = () => {
                 </ListContainer>
               )}
 
+              {/* Acción: crear sistema personalizado (placeholder) */}
+              <FieldGroup>
+                <Label>&nbsp;</Label>
+                <SubmitButton type="button" onClick={() => {}}>
+                  Crear personalizado
+                </SubmitButton>
+              </FieldGroup>
+
               <FieldGroup>
                 <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
                 <TextArea

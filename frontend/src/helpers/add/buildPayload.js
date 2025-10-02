@@ -88,6 +88,10 @@ export const buildNestedPayload = (data) => {
       nombre: trim(s.nombre),
       descripcion: trim(s.descripcion),
     })),
+    personalizados: (data.personalizados || []).map((p) => ({
+      nombre: trim(p?.nombre),
+      descripcion: trim(p?.descripcion),
+    })),
   };
 
   // Exploración física

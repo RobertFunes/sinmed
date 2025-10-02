@@ -6,22 +6,23 @@ Consta de 7 tablas: perfil, antecedentes_familiares, antecedentes_personales, an
 ## 🧑 Tabla `perfil`
 Contiene los datos generales de cada paciente.
 
-| Columna           | Tipo                                                        | Null | Key | Default     | Extra          | Descripción                                |
-|-------------------|-------------------------------------------------------------|------|-----|-------------|----------------|--------------------------------------------|
-| id_perfil         | int(11)                                                     | NO   | PRI | NULL        | auto_increment | Identificador único del perfil             |
-| nombre            | varchar(100)                                                | NO   |     | NULL        |                | Nombre completo del paciente               |
-| fecha_nacimiento  | date                                                        | YES  |     | NULL        |                | Fecha de nacimiento                        |
-| genero            | enum('Hombre','Mujer','NA')                                | YES  |     | NA          |                | Género del paciente                        |
-| telefono_movil    | varchar(20)                                                 | YES  |     | NULL        |                | Teléfono móvil                             |
-| correo_electronico| varchar(100)                                                | YES  |     | NULL        |                | Correo electrónico                         |
-| residencia        | varchar(255)                                                | YES  |     | NULL        |                | Domicilio o residencia                     |
-| ocupacion         | varchar(50)                                                 | YES  |     | NULL        |                | Ocupación                                  |
-| escolaridad       | varchar(100)                                                | YES  |     | NULL        |                | Nivel educativo                            |
-| estado_civil      | enum('Soltero','Casado','Divorciado','Viudo','Union libre','Otro') | YES  |     | NULL        |                | Estado civil                               |
-| tipo_sangre       | varchar(10)                                                 | YES  |     | NULL        |                | Grupo y tipo sanguíneo                     |
-| referido_por      | varchar(100)                                                | YES  |     | NULL        |                | Fuente de referencia                       |
-| actualizado       | date                                                        | NO   |     | curdate()   |                | Fecha de última modificación               |
-| creado            | date                                                        | NO   |     | curdate()   |                | Fecha de creación                          |
+| Columna            | Tipo                                                        | Null | Key | Default     | Extra          | Descripción                                |
+|--------------------|-------------------------------------------------------------|------|-----|-------------|----------------|--------------------------------------------|
+| id_perfil          | int(11)                                                     | NO   | PRI | NULL        | auto_increment | Identificador único del perfil             |
+| nombre             | varchar(100)                                                | NO   |     | NULL        |                | Nombre completo del paciente               |
+| fecha_nacimiento   | date                                                        | YES  |     | NULL        |                | Fecha de nacimiento                        |
+| genero             | enum('Hombre','Mujer','NA')                                 | YES  |     | NA          |                | Género del paciente                        |
+| telefono_movil     | varchar(20)                                                 | YES  |     | NULL        |                | Teléfono móvil                             |
+| correo_electronico | varchar(100)                                                | YES  |     | NULL        |                | Correo electrónico                         |
+| residencia         | varchar(255)                                                | YES  |     | NULL        |                | Domicilio o residencia                     |
+| ocupacion          | varchar(50)                                                 | YES  |     | NULL        |                | Ocupación                                  |
+| escolaridad        | varchar(100)                                                | YES  |     | NULL        |                | Nivel educativo                            |
+| estado_civil       | enum('Soltero','Casado','Divorciado','Viudo','Union libre','Otro') | YES  |     | NULL        |                | Estado civil                               |
+| tipo_sangre        | varchar(10)                                                 | YES  |     | NULL        |                | Grupo y tipo sanguíneo                     |
+| referido_por       | varchar(100)                                                | YES  |     | NULL        |                | Fuente de referencia                       |
+| alergico           | varchar(100)                                                | YES  |     | NULL        |                | A qué sustancias es alérgico el paciente   |
+| actualizado        | date                                                        | NO   |     | curdate()   |                | Fecha de última modificación               |
+| creado             | date                                                        | NO   |     | curdate()   |                | Fecha de creación                          |
 
 ---
 

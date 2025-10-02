@@ -36,6 +36,7 @@ export const initialState = {
   // Padecimiento actual e interrogatorio por aparatos y sistemas
   padecimiento_actual: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
+  personalizados: [],          // [{ nombre: string, descripcion: string }]
   calidad: '',
   descripcion: '',
   hay_cambios: '',
