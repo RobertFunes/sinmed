@@ -438,7 +438,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   };
 
   const personalRows = personalOrder
-    .filter((key) => present(personalData[key]))
+    .filter((key) => key !== 'alergico' && present(personalData[key]))
     .map((key) => (
       <Row key={key} icon={iconFor(key)} label={labelFor(key)} value={personalData[key]} />
     ));
@@ -632,6 +632,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       {consultas.length > 0 && (
         <Section $alergico={isAllergic}>
           <h3>Consultas</h3>
+          {/* Mostrar estado de alergias al inicio de la sección Consultas */}
+          <Row icon={<FaExclamationCircle />} label={"Alérgico:"} value={personalData.alergico} />
           <Stack>
             {consultas.map((consulta, idx) => (
               <Group key={consulta.id || `consulta-${idx}`}>

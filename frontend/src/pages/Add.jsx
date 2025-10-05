@@ -576,6 +576,7 @@ const Add = () => {
               </TwoColumnRow>
 
               {/* Alérgico (Sí/No) exclusivo, permite ninguno o uno */}
+              {false && (
               <AlergicoContainer>
                 <Label>Alérgico</Label>
                 <AlergicoOptions>
@@ -599,6 +600,7 @@ const Add = () => {
                   </AlergicoOption>
                 </AlergicoOptions>
               </AlergicoContainer>
+              )}
               {/* Eliminado: fila separada de Referido por (se movió junto a Correo) */}
             </details>
 
@@ -1223,6 +1225,31 @@ const Add = () => {
             {/* 📅 Consultas (padecimiento + interrogatorio) -> payload.consultas */}
             <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
               <Summary>Consultas</Summary>
+
+              {/* Alérgico (Sí/No) exclusivo, permite ninguno o uno - visual primero en Consultas */}
+              <AlergicoContainer>
+                <Label>Al&eacute;rgico</Label>
+                <AlergicoOptions>
+                  <AlergicoOption $selected={formData.alergico === 'Si'}>
+                    <input
+                      type="checkbox"
+                      name="alergico_si"
+                      checked={formData.alergico === 'Si'}
+                      onChange={toggleAlergico('Si')}
+                    />
+                    <span>S&iacute;</span>
+                  </AlergicoOption>
+                  <AlergicoOption $selected={formData.alergico === 'No'}>
+                    <input
+                      type="checkbox"
+                      name="alergico_no"
+                      checked={formData.alergico === 'No'}
+                      onChange={toggleAlergico('No')}
+                    />
+                    <span>No</span>
+                  </AlergicoOption>
+                </AlergicoOptions>
+              </AlergicoContainer>
 
               {/* Subgrid 2 columnas: Fecha de consulta + Recordatorio */}
               <TwoColumnRow>
