@@ -131,7 +131,7 @@ export default function Calendar() {
   }, []);
   const maxTime = useMemo(() => {
     const d = new Date();
-    d.setHours(20, 0, 0, 0);
+    d.setHours(22, 0, 0, 0);
     return d;
   }, []);
 

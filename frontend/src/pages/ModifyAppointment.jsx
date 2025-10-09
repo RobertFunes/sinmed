@@ -86,6 +86,7 @@ export default function ModifyAppointment() {
   const [phone, setPhone] = useState(initialForm.phone);
   const [color, setColor] = useState(initialForm.color);
   const [appointmentId, setAppointmentId] = useState(initialForm.id);
+  const [endEdited, setEndEdited] = useState(false);
 
   useEffect(() => {
     if (!initialAppointment) return;
@@ -110,15 +111,43 @@ export default function ModifyAppointment() {
     const [hh, mm] = val.split(':').map(Number);
     if (Number.isInteger(hh) && Number.isInteger(mm)) {
       const startTotal = hh * 60 + mm;
-      const sum = startTotal + 45;
-      const carry = sum >= 1440 ? 1 : 0;
-      const total = sum % (24 * 60);
-      const endH = String(Math.floor(total / 60)).padStart(2, '0');
-      const endM = String(total % 60).padStart(2, '0');
-      setEndTime(`${endH}:${endM}`);
-      setEndDayOffset(carry);
+      if (!endEdited) {
+        const sum = startTotal + 45;
+        const carry = sum >= 1440 ? 1 : 0;
+        const total = sum % (24 * 60);
+        const endH = String(Math.floor(total / 60)).padStart(2, '0');
+        const endM = String(total % 60).padStart(2, '0');
+        setEndTime(`${endH}:${endM}`);
+        setEndDayOffset(carry);
+      } else {
+        const [eh, em] = String(endTime || '').split(':').map(Number);
+        if (Number.isInteger(eh) && Number.isInteger(em)) {
+          const endTotal = eh * 60 + em;
+          setEndDayOffset(endTotal < startTotal ? 1 : 0);
+        } else {
+          setEndDayOffset(0);
+        }
+      }
     } else {
       setEndTime('');
+      setEndDayOffset(0);
+    }
+  };
+
+  const onEndTimeChange = (val) => {
+    setEndEdited(true);
+    setEndTime(val);
+    if (!val || !time) {
+      setEndDayOffset(0);
+      return;
+    }
+    const [sh, sm] = String(time).split(':').map(Number);
+    const [eh, em] = String(val).split(':').map(Number);
+    if ([sh, sm, eh, em].every((n) => Number.isInteger(n))) {
+      const startTotal = sh * 60 + sm;
+      const endTotal = eh * 60 + em;
+      setEndDayOffset(endTotal < startTotal ? 1 : 0);
+    } else {
       setEndDayOffset(0);
     }
   };
@@ -230,8 +259,8 @@ export default function ModifyAppointment() {
             <Input
               type="time"
               value={endTime}
-              readOnly
-              disabled
+              onChange={(e) => onEndTimeChange(e.target.value)}
+              required
             />
           </Field>
           <Field>
