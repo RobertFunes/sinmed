@@ -79,8 +79,20 @@ const toArr = (value) => (Array.isArray(value) ? value : []);
 const formatDate = (value) => {
   const str = toStr(value).trim();
   if (!str) return '';
-  const match = str.match(/\d{4}-\d{2}-\d{2}/);
-  return match ? match[0] : str;
+  const m = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    const [, y, mo, d] = m;
+    return `${d}-${mo}-${y}`;
+  }
+  const t = Date.parse(str);
+  if (!Number.isNaN(t)) {
+    const dt = new Date(t);
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(dt.getFullYear());
+    return `${dd}-${mm}-${yyyy}`;
+  }
+  return str;
 };
 
 const normalize = (text) =>
@@ -339,14 +351,18 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   };
 
   const computeMaxDates = () => {
-    let creadoMax = getDateStr(data.creado) || null;
-    let actualizadoMax = getDateStr(data.actualizado) || null;
+    let creadoSrc = data.creado || null;
+    let creadoVal = parseDateValue(creadoSrc);
+    let actualizadoSrc = data.actualizado || null;
+    let actualizadoVal = parseDateValue(actualizadoSrc);
 
     if (data.antecedentes_personales && typeof data.antecedentes_personales === 'object') {
-      const c = getDateStr(data.antecedentes_personales.creado);
-      const a = getDateStr(data.antecedentes_personales.actualizado);
-      if (c && (!creadoMax || c > creadoMax)) creadoMax = c;
-      if (a && (!actualizadoMax || a > actualizadoMax)) actualizadoMax = a;
+      const cSrc = data.antecedentes_personales.creado;
+      const aSrc = data.antecedentes_personales.actualizado;
+      const cVal = parseDateValue(cSrc);
+      const aVal = parseDateValue(aSrc);
+      if (cVal > creadoVal) { creadoVal = cVal; creadoSrc = cSrc; }
+      if (aVal > actualizadoVal) { actualizadoVal = aVal; actualizadoSrc = aSrc; }
     }
 
     const arrays = [
@@ -361,22 +377,29 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     for (const arr of arrays) {
       if (!Array.isArray(arr)) continue;
       for (const it of arr) {
-        const c = getDateStr(it?.creado);
-        const a = getDateStr(it?.actualizado);
-        if (c && (!creadoMax || c > creadoMax)) creadoMax = c;
-        if (a && (!actualizadoMax || a > actualizadoMax)) actualizadoMax = a;
+        const cSrc = it?.creado;
+        const aSrc = it?.actualizado;
+        const cVal = parseDateValue(cSrc);
+        const aVal = parseDateValue(aSrc);
+        if (cVal > creadoVal) { creadoVal = cVal; creadoSrc = cSrc; }
+        if (aVal > actualizadoVal) { actualizadoVal = aVal; actualizadoSrc = aSrc; }
       }
     }
 
-    const aMaxFromBackend = getDateStr(data.actualizado_max);
-    if (aMaxFromBackend && (!actualizadoMax || aMaxFromBackend > actualizadoMax)) {
-      actualizadoMax = aMaxFromBackend;
-    }
-    return { creadoMax, actualizadoMax };
+    const aMaxSrc = data.actualizado_max;
+    const aMaxVal = parseDateValue(aMaxSrc);
+    if (aMaxVal > actualizadoVal) { actualizadoVal = aMaxVal; actualizadoSrc = aMaxSrc; }
+
+    return { creadoMax: formatDate(creadoSrc), actualizadoMax: formatDate(actualizadoSrc) };
   };
 
   const { creadoMax, actualizadoMax } = computeMaxDates();
-  const personalData = { ...data, creado: creadoMax || data.creado, actualizado: actualizadoMax || data.actualizado };
+  const personalData = {
+    ...data,
+    fecha_nacimiento: formatDate(data.fecha_nacimiento),
+    creado: creadoMax || formatDate(data.creado),
+    actualizado: actualizadoMax || formatDate(data.actualizado),
+  };
   const isAllergic = String(personalData.alergico || '').trim() === 'Si';
 
   const iconFor = (key) => {

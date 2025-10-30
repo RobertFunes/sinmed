@@ -39,7 +39,7 @@ function armTtlOnce() {
     shutdown().catch(() => {});
   }, 5 * 60 * 1000); // 5-minute QR window
 }
-function armBootWatchdog(ms = 90 * 1000) { // 90 s de gracia para BOOTING
+function armBootWatchdog(ms = 4 * 60 * 1000) { // 4 min de gracia para BOOTING
   if (bootWatchdog) { clearTimeout(bootWatchdog); bootWatchdog = null; }
   bootWatchdog = setTimeout(() => {
     setStatus('FAILED');     // marcamos fallo por arranque colgado
@@ -106,13 +106,13 @@ async function requestQr() {
 
   client.on('disconnected', () => {
     setStatus('FAILED');
-    console.error('WhatsApp authentication failed');
+    console.error('WhatsApp authentication failed, disconnected');
     shutdown().catch(() => {});
   });
 
   client.on('auth_failure', () => {
     setStatus('FAILED');
-    console.error('WhatsApp authentication failed');
+    console.error('WhatsApp authentication failed, auth_failure event');
     shutdown().catch(() => {});
   });
 

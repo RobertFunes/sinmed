@@ -16,6 +16,25 @@ import { FaPhoneAlt, FaRegClock, FaBirthdayCake, FaTrashAlt, FaEye, FaEdit } fro
 export default function ContactCard(props) {
   const navigate = useNavigate();
 
+  const formatDate = (value) => {
+    const str = String(value ?? '').trim();
+    if (!str) return '';
+    const m = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (m) {
+      const [, y, mo, d] = m;
+      return `${d}-${mo}-${y}`;
+    }
+    const t = Date.parse(str);
+    if (!Number.isNaN(t)) {
+      const dt = new Date(t);
+      const dd = String(dt.getDate()).padStart(2, '0');
+      const mm = String(dt.getMonth() + 1).padStart(2, '0');
+      const yyyy = String(dt.getFullYear());
+      return `${dd}-${mm}-${yyyy}`;
+    }
+    return str;
+  };
+
   // Soporta múltiples alias de campos para compatibilidad
   const id = props.id ?? props.id_perfil ?? props.id_cliente;
   const name = props.name ?? props.nombre;
@@ -45,12 +64,12 @@ export default function ContactCard(props) {
 
         <InfoRow>
           <FaRegClock />
-          <span>Creado: {created || '-'}</span>
+          <span>Creado: {formatDate(created) || '-'}</span>
         </InfoRow>
 
         <InfoRow>
           <FaRegClock />
-          <span>Modificado: {updated || '-'}</span>
+          <span>Modificado: {formatDate(updated) || '-'}</span>
         </InfoRow>
 
         <InfoRow>
