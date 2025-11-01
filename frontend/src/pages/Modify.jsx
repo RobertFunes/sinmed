@@ -1,69 +1,16 @@
 // modify.jsx (actualizado para edicion de perfiles)
 import { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import {
-  AddContainer,
-  FormCard,
-  Title,
-  Form,
-  Summary,
-  FieldGroup,
-  Label,
-  Input,
-  TextArea,
-  Select,
-  ButtonRow,
-  SubmitButton,
-  CancelButton,
-  TwoColumnRow,
-  ThreeColumnRow,
-  ItemCard,
-  ItemActions,
-  DangerButton,
-  ButtonLabel,
-  ListContainer,
-  AlergicoContainer,
-  AlergicoOptions,
-  AlergicoOption,
-} from './Add.styles';
-import { Palette } from '../helpers/theme';
+import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton, CancelButton } from './Add.styles';
 import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
 import { usePerfilModify } from '../components/modify/usePerfilModify';
 import { useSubmitPerfilModify } from '../components/modify/useSubmitPerfilModify';
 
 // iconos
-import {
-  FaTint,
-  FaPills,
-  FaFemale,
-  FaCalendarAlt,
-  FaCalendarCheck,
-  FaBaby,
-  FaBabyCarriage,
-  FaProcedures,
-  FaHeartbeat,
-  FaCalendarDay,
-  FaCalendarTimes,
-  FaWeight,
-  FaHistory,
-  FaRulerVertical,
-  FaRulerCombined,
-  FaRulerHorizontal,
-  FaBullseye,
-  FaBalanceScale,
-  FaChartBar,
-  FaHeart,
-  FaThermometerHalf,
-  FaStethoscope,
-  FaTrash,
-  FaPlusCircle,
-  FaSave,
-} from 'react-icons/fa';
-import { GiLungs } from 'react-icons/gi';
-import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox, FloatingSave } from './modify.styles';
+import { FaSave } from 'react-icons/fa';
+import { FloatingSave } from './modify.styles';
 import DatosPersonalesSection from '../components/modify/DatosPersonalesSection';
 import AntecedentesFamiliaresSectionY from '../components/modify/AntecedentesFamiliaresSectionY';
 import AntecedentesPersonalesSection from '../components/modify/AntecedentesPersonalesSection';
