@@ -29,7 +29,6 @@ import {
   AlergicoOption,
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
-import { url } from '../helpers/url';
 import {
   ANTECEDENTES_OPCIONES,
   HABITOS_OPCIONES,
@@ -38,8 +37,8 @@ import {
   INSPECCION_OPCIONES,
 } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
-import { buildNestedPayload } from '../helpers/add/buildPayload';
 import { usePerfilModify } from '../components/modify/usePerfilModify';
+import { useSubmitPerfilModify } from '../components/modify/useSubmitPerfilModify';
 
 // iconos
 import { AiFillStar } from 'react-icons/ai';
@@ -272,65 +271,14 @@ const createEmptyConsulta = () => ({
   personalizados: [],
 });
 
-const trimValue = (value) => {
-  if (typeof value === 'string') return value.trim();
-  return value ?? '';
-};
-
-const buildPayloadWithConsultas = (data, idPerfil) => {
-  const base = buildNestedPayload(data);
-  const consultas = sortConsultasAsc(toArr(data?.consultas)).map((consulta) => {
-    const payload = {
-      fecha_consulta: trimValue(consulta?.fecha_consulta),
-      recordatorio: trimValue(consulta?.recordatorio),
-      padecimiento_actual: trimValue(consulta?.padecimiento_actual),
-      diagnostico: trimValue(consulta?.diagnostico),
-      tratamiento: trimValue(consulta?.tratamiento),
-      notas: trimValue(consulta?.notas),
-    };
-
-    const interrogatorio_aparatos = toArr(consulta?.interrogatorio_aparatos).map((item) => {
-      const nombre = trimValue(item?.nombre);
-      const descripcion = trimValue(item?.descripcion);
-      const estado = trimValue(item?.estado);
-      const config = findSistemaConfig(nombre);
-      if (config?.estadoKey) {
-        payload[config.estadoKey] = estado;
-      }
-      return {
-        nombre,
-        descripcion,
-        estado,
-      };
-    });
-
-    const personalizados = toArr(consulta?.personalizados)
-      .map((p) => ({
-        nombre: trimValue(p?.nombre),
-        descripcion: trimValue(p?.descripcion),
-      }))
-      .filter((p) => p.nombre !== '' || p.descripcion !== '');
-
-    return {
-      ...payload,
-      interrogatorio_aparatos,
-      personalizados,
-    };
-  });
-
-  base.consultas = consultas;
-  if (idPerfil != null && idPerfil !== '') {
-    const numericId = Number(idPerfil);
-    base.id_perfil = Number.isFinite(numericId) && numericId > 0 ? numericId : idPerfil;
-  }
-  return base;
-};
+// buildPayloadWithConsultas fue movido al hook useSubmitPerfilModify
 
 const Modify = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const { formData, setFormData, isLoading, original } = usePerfilModify(id);
+  const { isSubmitting, submit } = useSubmitPerfilModify(id);
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
   const handleToggle = (key) => (e) => {
@@ -342,7 +290,6 @@ const Modify = () => {
       setOpenSection((prev) => (prev === key ? null : prev));
     }
   };
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
@@ -393,11 +340,7 @@ const Modify = () => {
     setNuevoInspeccion('');
   }, [isLoading]);
 
-  // Log en tiempo real cada vez que cambia el payload
-  useEffect(() => {
-    const livePayload = buildPayloadWithConsultas(formData, id);
-    console.log('[Modify] Payload actualizado:', livePayload);
-  }, [formData, id]);
+  // Eliminado: log de payload en vivo (payload ahora vive en el hook de submit)
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
@@ -424,39 +367,13 @@ const Modify = () => {
       return;
     }
 
-    setIsSubmitting(true);
-
-    const payload = buildPayloadWithConsultas(formData, id);
-    console.log('[Modify] Payload a enviar:', payload);
-
-    try {
-      const res = await fetch(`${url}/api/profile/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        let message = 'Ocurrio un error al actualizar el perfil';
-        try {
-          const errJson = await res.json();
-          if (errJson?.error) message = errJson.error;
-        } catch {
-          /* noop */
-        }
-        alert(message);
-        return;
-      }
-
-      alert('Perfil actualizado correctamente');
-      navigate(`/profile/${id}`);
-    } catch (err) {
-      console.error('[Modify] Error al actualizar perfil:', err);
-      alert('Error de red al intentar modificar el perfil');
-    } finally {
-      setIsSubmitting(false);
-    }
+    const ok = await submit(formData, {
+      onSuccess: async () => {
+        alert('Perfil actualizado correctamente');
+        navigate(`/profile/${id}`);
+      },
+    });
+    if (!ok) return;
   };
 
   const handleCancel = () => {
