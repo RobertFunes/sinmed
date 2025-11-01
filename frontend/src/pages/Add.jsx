@@ -89,6 +89,9 @@ import { GiLungs } from 'react-icons/gi';
 import DatosPersonalesSection from '../components/add/DatosPersonalesSection';
 import AntecedentesFamiliaresSection from '../components/add/AntecedentesFamiliaresSection';
 import AntecedentesPersonalesSection from '../components/add/AntecedentesPersonalesSection';
+import GinecoObstetricosSection from '../components/add/GinecoObstetricosSection';
+import AntecedentesPatologicosSection from '../components/add/AntecedentesPatologicosSection';
+import ExploracionFisicaSection from '../components/add/ExploracionFisicaSection';
 
 
 
@@ -416,374 +419,40 @@ const Add = () => {
 
             {/* 👶 Gineco-Obstétricos -> payload.gineco_obstetricos (solo si no es Hombre) */}
             {showGineco && (
-            <details open={openSection === 'gineco'} onToggle={handleToggle('gineco')}>
-              <Summary>Gineco-Obstetricos</Summary>
-
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="gineco_edad_menarca"><FaFemale style={{ marginRight: '0.5rem' }} />Edad de la primera menstruacion</Label>
-                  <Input
-                    id="gineco_edad_menarca"
-                    name="gineco_edad_menarca"
-                    value={formData.gineco_edad_menarca}
-                    onChange={handleChange}
-                    placeholder="Ej. 12"
-                    inputMode="numeric"
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="gineco_ciclo"><FaCalendarAlt style={{ marginRight: '0.5rem' }} />Ciclo/Dias</Label>
-                  <Input
-                    id="gineco_ciclo"
-                    name="gineco_ciclo"
-                    value={formData.gineco_ciclo}
-                    onChange={handleChange}
-                    placeholder="Ej. 28 dias"
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="gineco_cantidad"><FaTint style={{ marginRight: '0.5rem' }} />Cantidad</Label>
-                  <Input
-                    id="gineco_cantidad"
-                    name="gineco_cantidad"
-                    value={formData.gineco_cantidad}
-                    onChange={handleChange}
-                    placeholder="Ej. Moderado"
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="gineco_dolor">Dolor</Label>
-                  <Select
-                    id="gineco_dolor"
-                    name="gineco_dolor"
-                    value={formData.gineco_dolor}
-                    onChange={handleChange}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                  </Select>
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="gineco_fecha_ultima_menstruacion"><FaCalendarCheck style={{ marginRight: '0.5rem' }} />Fecha de la ultima menstruacion</Label>
-                  <Input
-                    id="gineco_fecha_ultima_menstruacion"
-                    name="gineco_fecha_ultima_menstruacion"
-                    type="date"
-                    value={formData.gineco_fecha_ultima_menstruacion}
-                    onChange={handleChange}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="gineco_vida_sexual_activa">Vida sexual activa</Label>
-                  <Select
-                    id="gineco_vida_sexual_activa"
-                    name="gineco_vida_sexual_activa"
-                    value={formData.gineco_vida_sexual_activa}
-                    onChange={handleChange}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                  </Select>
-                </FieldGroup>
-              </TwoColumnRow>
-              {formData.gineco_vida_sexual_activa === 'Si' ? (
-                <TwoColumnRow>
-                  <FieldGroup>
-                    <Label htmlFor="gineco_anticoncepcion">Anticoncepcion</Label>
-                    <Select
-                      id="gineco_anticoncepcion"
-                      name="gineco_anticoncepcion"
-                      value={formData.gineco_anticoncepcion}
-                      onChange={handleChange}
-                    >
-                      <option value="">-- Selecciona --</option>
-                      <option value="Si">Si</option>
-                      <option value="No">No</option>
-                    </Select>
-                  </FieldGroup>
-                  {formData.gineco_anticoncepcion === 'Si' ? (
-                    <FieldGroup>
-                      <Label htmlFor="gineco_tipo_anticonceptivo"><FaPills style={{ marginRight: '0.5rem' }} />Tipo de anticonceptivo</Label>
-                      <Input
-                        id="gineco_tipo_anticonceptivo"
-                        name="gineco_tipo_anticonceptivo"
-                        value={formData.gineco_tipo_anticonceptivo}
-                        onChange={handleChange}
-                        placeholder="Ej. DIU, Implante, Pastillas"
-                      />
-                    </FieldGroup>
-                  ) : null}
-                </TwoColumnRow>
-              ) : null}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="gineco_gestas"><FaBaby style={{ marginRight: '0.5rem' }} />Gestas</Label>
-                  <Input
-                    id="gineco_gestas"
-                    name="gineco_gestas"
-                    value={formData.gineco_gestas}
-                    onChange={handleChange}
-                    inputMode="numeric"
-                    placeholder="Ej. 2"
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="gineco_partos"><FaBabyCarriage style={{ marginRight: '0.5rem' }} />Partos</Label>
-                  <Input
-                    id="gineco_partos"
-                    name="gineco_partos"
-                    value={formData.gineco_partos}
-                    onChange={handleChange}
-                    inputMode="numeric"
-                    placeholder="Ej. 1"
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="gineco_cesareas"><FaProcedures style={{ marginRight: '0.5rem' }} />Cesareas</Label>
-                  <Input
-                    id="gineco_cesareas"
-                    name="gineco_cesareas"
-                    value={formData.gineco_cesareas}
-                    onChange={handleChange}
-                    inputMode="numeric"
-                    placeholder="Ej. 0"
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="gineco_abortos"><FaHeartbeat style={{ marginRight: '0.5rem' }} />Abortos</Label>
-                  <Input
-                    id="gineco_abortos"
-                    name="gineco_abortos"
-                    value={formData.gineco_abortos}
-                    onChange={handleChange}
-                    inputMode="numeric"
-                    placeholder="Ej. 0"
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="gineco_fecha_ultimo_parto"><FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha del ultimo parto</Label>
-                  <Input
-                    id="gineco_fecha_ultimo_parto"
-                    name="gineco_fecha_ultimo_parto"
-                    type="date"
-                    value={formData.gineco_fecha_ultimo_parto}
-                    onChange={handleChange}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="gineco_fecha_menopausia"><FaCalendarTimes style={{ marginRight: '0.5rem' }} />Fecha de menopausia</Label>
-                  <Input
-                    id="gineco_fecha_menopausia"
-                    name="gineco_fecha_menopausia"
-                    type="date"
-                    value={formData.gineco_fecha_menopausia}
-                    onChange={handleChange}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-            </details>
+            <GinecoObstetricosSection
+              formData={formData}
+              handleChange={handleChange}
+              isOpen={openSection === 'gineco'}
+              onToggle={handleToggle('gineco')}
+              showGineco={showGineco}
+            />
             )}
 
             {/* 🧬 Patológicos -> payload.antecedentes_personales_patologicos[] */}
-            <details open={openSection === 'patologicos'} onToggle={handleToggle('patologicos')}>
-              <Summary>Antecedentes personales patológicos</Summary>
-
-              {/* Selector para agregar patológico */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_patologico">Selecciona un antecedente</Label>
-                  <Select
-                    id="select_patologico"
-                    value={nuevoPatologico}
-                    onChange={e => setNuevoPatologico(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {PATOLOGICOS_OPCIONES
-                      .filter(opt => !formData.antecedentes_personales_patologicos.some(p => p.antecedente === opt))
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addPatologico} disabled={!nuevoPatologico}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {/* Lista de patológicos agregados */}
-              {formData.antecedentes_personales_patologicos.length > 0 && (
-                <ListContainer>
-                  {formData.antecedentes_personales_patologicos.map((p, idx) => (
-                    <ItemCard key={idx}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label><FaFileMedical style={{ marginRight: '0.5rem' }} />Antecedente</Label>
-                          <Input value={p.antecedente} disabled />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>{`Descripción de antecedente: ${p.antecedente.toLowerCase()}`}</Label>
-                          <TextArea
-                            value={p.descripcion}
-                            onChange={e => updatePatologicoDesc(idx, e.target.value)}
-                            rows={3}
-                            placeholder={`Detalle de ${p.antecedente.toLowerCase()}`}
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removePatologicoAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-            </details>
+            <AntecedentesPatologicosSection
+              formData={formData}
+              nuevoPatologico={nuevoPatologico}
+              setNuevoPatologico={setNuevoPatologico}
+              addPatologico={addPatologico}
+              removePatologicoAt={removePatologicoAt}
+              updatePatologicoDesc={updatePatologicoDesc}
+              isOpen={openSection === 'patologicos'}
+              onToggle={handleToggle('patologicos')}
+            />
 
             {/* 🩺 Exploración física -> payload.exploracion_fisica */}
-            <details open={openSection === 'exploracion'} onToggle={handleToggle('exploracion')}>
-              <Summary>Exploración física</Summary>
-
-              {/* Datos antropométricos y vitales */}
-              <TwoColumnRow $cols={3}>
-                <FieldGroup>
-                  <Label htmlFor="peso_actual"><FaWeight style={{ marginRight: '0.5rem' }} />Peso actual (kg)</Label>
-                  <Input id="peso_actual" name="peso_actual" value={formData.peso_actual} onChange={handleChange} inputMode="decimal" placeholder="Ej. 72" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="peso_anterior"><FaHistory style={{ marginRight: '0.5rem' }} />Peso anterior (kg)</Label>
-                  <Input id="peso_anterior" name="peso_anterior" value={formData.peso_anterior} onChange={handleChange} inputMode="decimal" placeholder="Ej. 75" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="talla_cm"><FaRulerVertical style={{ marginRight: '0.5rem' }} />Talla (cm)</Label>
-                  <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 170" />
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow $cols={3}>
-                <FieldGroup>
-                  <Label htmlFor="peso_deseado"><FaBullseye style={{ marginRight: '0.5rem' }} />Peso deseado (kg)</Label>
-                  <Input id="peso_deseado" name="peso_deseado" value={formData.peso_deseado} onChange={handleChange} inputMode="decimal" placeholder="Ej. 68" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="peso_ideal"><FaBalanceScale style={{ marginRight: '0.5rem' }} />Peso ideal (kg)</Label>
-                  <Input id="peso_ideal" name="peso_ideal" value={formData.peso_ideal} onChange={handleChange} inputMode="decimal" placeholder="Ej. 70" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="imc"><FaChartBar style={{ marginRight: '0.5rem' }} />IMC</Label>
-                  <Input id="imc" name="imc" value={formData.imc} readOnly placeholder="Ej. 24.90" />
-                </FieldGroup>
-              </TwoColumnRow>
-              
-              <TwoColumnRow $cols={3}>
-                <FieldGroup>
-                  <Label htmlFor="rtg"><FaHeartbeat style={{ marginRight: '0.5rem' }} />% RTG</Label>
-                  <Input id="rtg" name="rtg" value={formData.rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="ta_mmhg"><FaHeart style={{ marginRight: '0.5rem' }} />TA (mmHg)</Label>
-                  <Input id="ta_mmhg" name="ta_mmhg" value={formData.ta_mmhg} onChange={handleChange} placeholder="Ej. 120/80" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="frecuencia_cardiaca"><FaHeart style={{ marginRight: '0.5rem' }} />FC (frecuencia cardiaca)</Label>
-                  <Input id="frecuencia_cardiaca" name="frecuencia_cardiaca" value={formData.frecuencia_cardiaca} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
-                </FieldGroup>
-                
-              </TwoColumnRow>
-              
-              <TwoColumnRow $cols={3}>
-                <FieldGroup>
-                  <Label htmlFor="frecuencia_respiratoria"><GiLungs style={{ marginRight: '0.5rem' }} />FR (frecuencia respiratoria)</Label>
-                  <Input id="frecuencia_respiratoria" name="frecuencia_respiratoria" value={formData.frecuencia_respiratoria} onChange={handleChange} inputMode="numeric" placeholder="rpm" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="temperatura_c"><FaThermometerHalf style={{ marginRight: '0.5rem' }} />Temp (°C)</Label>
-                  <Input id="temperatura_c" name="temperatura_c" value={formData.temperatura_c} onChange={handleChange} inputMode="decimal" placeholder="Ej. 36.7" />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="cadera_cm"><FaRulerCombined style={{ marginRight: '0.5rem' }} />Cadera (cm)</Label>
-                  <Input id="cadera_cm" name="cadera_cm" value={formData.cadera_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 95" />
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow $cols={4}>
-                
-                <FieldGroup>
-                  <Label htmlFor="cintura_cm"><FaRulerHorizontal style={{ marginRight: '0.5rem' }} />Cintura (cm)</Label>
-                  <Input id="cintura_cm" name="cintura_cm" value={formData.cintura_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 80" />
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {/* Inspección general (dinámica) */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_inspeccion">Inspección general</Label>
-                  <Select
-                    id="select_inspeccion"
-                    value={nuevoInspeccion}
-                    onChange={e => setNuevoInspeccion(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {INSPECCION_OPCIONES
-                      .filter(opt => !formData.inspeccion_general.some(s => s.nombre === opt))
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addInspeccion} disabled={!nuevoInspeccion}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {formData.inspeccion_general.length > 0 && (
-                <ListContainer>
-                  {formData.inspeccion_general.map((s, idx) => (
-                    <ItemCard key={idx}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label><FaStethoscope style={{ marginRight: '0.5rem' }} />Área</Label>
-                          <Input value={s.nombre} disabled />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>{`Descripción de ${s.nombre.toLowerCase()}`}</Label>
-                          <TextArea
-                            value={s.descripcion}
-                            onChange={e => updateInspeccionDesc(idx, e.target.value)}
-                            rows={3}
-                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removeInspeccionAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-            </details>
+            <ExploracionFisicaSection
+              formData={formData}
+              handleChange={handleChange}
+              isOpen={openSection === 'exploracion'}
+              onToggle={handleToggle('exploracion')}
+              INSPECCION_OPCIONES={INSPECCION_OPCIONES}
+              nuevoInspeccion={nuevoInspeccion}
+              setNuevoInspeccion={setNuevoInspeccion}
+              addInspeccion={addInspeccion}
+              removeInspeccionAt={removeInspeccionAt}
+              updateInspeccionDesc={updateInspeccionDesc}
+            />
 
             {/* 📅 Consultas (padecimiento + interrogatorio) -> payload.consultas */}
             <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
