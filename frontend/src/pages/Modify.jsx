@@ -39,6 +39,7 @@ import {
 } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
 import { buildNestedPayload } from '../helpers/add/buildPayload';
+import { usePerfilModify } from '../components/modify/usePerfilModify';
 
 // iconos
 import { AiFillStar } from 'react-icons/ai';
@@ -325,265 +326,11 @@ const buildPayloadWithConsultas = (data, idPerfil) => {
   return base;
 };
 
-const mapApiToForm = (api) => {
-  const base = buildInitialForm();
-  if (!api || api.ok === false) return base;
-
-  const next = deepClone(base);
-
-  const assign = (key, value) => {
-    next[key] = toStr(value);
-  };
-  const assignIf = (key, value) => {
-    const str = toStr(value).trim();
-    if (str !== '') next[key] = str;
-  };
-
-  assign('nombre', api.nombre);
-  assign('fecha_nacimiento', api.fecha_nacimiento);
-  assign('genero', api.genero);
-  assign('telefono_movil', api.telefono_movil);
-  assign('correo_electronico', api.correo_electronico);
-  assign('residencia', api.residencia);
-  assign('ocupacion', api.ocupacion);
-  assign('escolaridad', api.escolaridad);
-  assign('estado_civil', api.estado_civil);
-  assign('tipo_sangre', api.tipo_sangre);
-  assign('referido_por', api.referido_por);
-  assign('alergico', api.alergico);
-
-  next.antecedentes_familiares = toArr(api.antecedentes_familiares).map((item) => {
-    const nombre = toStr(item?.nombre);
-    const descripcion = toStr(item?.descripcion);
-    const esCatalogo = ANTECEDENTES_OPCIONES.some((opt) => normalize(opt) === normalize(nombre));
-    return {
-      nombre,
-      descripcion,
-      esOtro: !nombre || !esCatalogo || item?.esOtro === true,
-    };
-  });
-
-  const ap = api.antecedentes_personales || {};
-  const habitos = [];
-  if (ap.bebidas_por_dia || ap.tiempo_activo_alc) {
-    const label = findMatchingLabel(HABITOS_OPCIONES, 'Alcoholismo', HABITOS_OPCIONES[0] || 'Alcoholismo');
-    habitos.push({
-      tipo: label,
-      campos: {
-        bebidas_por_dia: toStr(ap.bebidas_por_dia),
-        tiempo_activo_alc: toStr(ap.tiempo_activo_alc),
-      },
-    });
-  }
-  if (ap.cigarrillos_por_dia || ap.tiempo_activo_tab) {
-    const label = findMatchingLabel(HABITOS_OPCIONES, 'Tabaquismo', HABITOS_OPCIONES[1] || 'Tabaquismo');
-    habitos.push({
-      tipo: label,
-      campos: {
-        cigarrillos_por_dia: toStr(ap.cigarrillos_por_dia),
-        tiempo_activo_tab: toStr(ap.tiempo_activo_tab),
-      },
-    });
-  }
-  if (ap.tipo_toxicomania || ap.tiempo_activo_tox) {
-    const label = findMatchingLabel(HABITOS_OPCIONES, 'Toxicomanias', HABITOS_OPCIONES[2] || 'Toxicomanias');
-    habitos.push({
-      tipo: label,
-      campos: {
-        tipo_toxicomania: toStr(ap.tipo_toxicomania),
-        tiempo_activo_tox: toStr(ap.tiempo_activo_tox),
-      },
-    });
-  }
-  next.antecedentes_personales_habitos = habitos;
-
-  assign('calidad', ap.calidad);
-  assign('descripcion', ap.descripcion);
-  assign('hay_cambios', ap.hay_cambios);
-  assign('cambio_tipo', ap.cambio_tipo);
-  assign('cambio_causa', ap.cambio_causa);
-  assign('cambio_tiempo', ap.cambio_tiempo);
-
-  const goSource = Array.isArray(api.gineco_obstetricos)
-    ? api.gineco_obstetricos[0] || {}
-    : api.gineco_obstetricos || {};
-
-  assign('gineco_edad_menarca', goSource.edad_primera_menstruacion);
-  assign('gineco_ciclo', goSource.ciclo_dias);
-  assign('gineco_cantidad', goSource.cantidad);
-  assign('gineco_dolor', goSource.dolor);
-  assign('gineco_fecha_ultima_menstruacion', goSource.fecha_ultima_menstruacion);
-  assign('gineco_vida_sexual_activa', goSource.vida_sexual_activa);
-  assign('gineco_anticoncepcion', goSource.anticoncepcion);
-  assign('gineco_tipo_anticonceptivo', goSource.tipo_anticonceptivo);
-  assign('gineco_gestas', goSource.gestas);
-  assign('gineco_partos', goSource.partos);
-  assign('gineco_cesareas', goSource.cesareas);
-  assign('gineco_abortos', goSource.abortos);
-  assign('gineco_fecha_ultimo_parto', goSource.fecha_ultimo_parto);
-  assign('gineco_fecha_menopausia', goSource.fecha_menopausia);
-
-  next.antecedentes_personales_patologicos = toArr(api.antecedentes_personales_patologicos).map((item) => ({
-    antecedente: toStr(item?.antecedente),
-    descripcion: toStr(item?.descripcion),
-  }));
-
-  const consRows = toArr(api.consultas);
-  const legacyRows = toArr(api.padecimiento_actual_interrogatorio);
-  const legacy = legacyRows[0] || null;
-  const dtRows = toArr(api.diagnostico_tratamiento);
-  const dt = dtRows[0] || null;
-
-  // Agrupar personalizados por id_consulta
-  const personalizadosByConsulta = new Map();
-  toArr(api.personalizados).forEach((it) => {
-    const cid = Number(it?.id_consulta);
-    if (!Number.isFinite(cid)) return;
-    const nombre = toStr(it?.nombre);
-    const descripcion = toStr(it?.descripcion);
-    if (!nombre && !descripcion) return;
-    const list = personalizadosByConsulta.get(cid) || [];
-    list.push({ nombre, descripcion });
-    personalizadosByConsulta.set(cid, list);
-  });
-
-  const consultasFromApi = consRows.map((row) => ({
-    uid: row?.uid || row?.id || generateConsultaUid(),
-    id_consulta: Number(row?.id_consulta) || undefined,
-    fecha_consulta: toStr(row?.fecha_consulta),
-    recordatorio: toStr(row?.recordatorio),
-    padecimiento_actual: toStr(row?.padecimiento_actual),
-    diagnostico: toStr(row?.diagnostico),
-    tratamiento: toStr(row?.tratamiento),
-    notas: toStr(row?.notas),
-    interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
-      nombre: toStr(item?.nombre),
-      descripcion: toStr(item?.descripcion),
-      estado: toStr(item?.estado),
-    })),
-    personalizados: (personalizadosByConsulta.get(Number(row?.id_consulta)) || []).map((p) => ({
-      nombre: toStr(p?.nombre),
-      descripcion: toStr(p?.descripcion),
-    })),
-  }));
-
-  let consultas = consultasFromApi;
-
-  if (consultas.length === 0 && (legacy || dt)) {
-    const fallbackSource = { ...(legacy || {}), ...(dt || {}) };
-    consultas = [
-      {
-        uid: generateConsultaUid(),
-        fecha_consulta: toStr(fallbackSource.fecha_consulta),
-        recordatorio: toStr(fallbackSource.recordatorio),
-        padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
-        diagnostico: toStr(fallbackSource.diagnostico),
-        tratamiento: toStr(fallbackSource.tratamiento),
-        notas: toStr(fallbackSource.notas),
-        interrogatorio_aparatos: mapSistemasFromSource(fallbackSource).map((item) => ({
-          nombre: toStr(item?.nombre),
-          descripcion: toStr(item?.descripcion),
-          estado: toStr(item?.estado),
-        })),
-      },
-    ];
-  }
-
-  const sortedConsultas = sortConsultasAsc(
-    consultas.map((consulta) => ({
-      ...consulta,
-      uid: consulta.uid || generateConsultaUid(),
-      interrogatorio_aparatos: toArr(consulta.interrogatorio_aparatos).map((item) => ({
-        nombre: toStr(item?.nombre),
-        descripcion: toStr(item?.descripcion),
-        estado: toStr(item?.estado),
-      })),
-      personalizados: toArr(consulta.personalizados).map((p) => ({
-        nombre: toStr(p?.nombre),
-        descripcion: toStr(p?.descripcion),
-      })),
-    })),
-  );
-
-  next.consultas = sortedConsultas;
-
-  const lastConsulta = sortedConsultas[sortedConsultas.length - 1] || null;
-
-  if (lastConsulta) {
-    assignIf('fecha_consulta', lastConsulta.fecha_consulta);
-    assignIf('recordatorio', lastConsulta.recordatorio);
-    assignIf('padecimiento_actual', lastConsulta.padecimiento_actual);
-    assignIf('diagnostico', lastConsulta.diagnostico);
-    if (!toStr(lastConsulta.diagnostico).trim()) {
-      assignIf('diagnostico', dt && dt.diagnostico);
-    }
-    assignIf('tratamiento', lastConsulta.tratamiento);
-    if (!toStr(lastConsulta.tratamiento).trim()) {
-      assignIf('tratamiento', dt && dt.tratamiento);
-    }
-    assignIf('notas', lastConsulta.notas);
-    if (!toStr(lastConsulta.notas).trim()) {
-      assignIf('notas', dt && dt.notas);
-    }
-    next.interrogatorio_aparatos = toArr(lastConsulta.interrogatorio_aparatos);
-  } else {
-    assignIf('fecha_consulta', legacy && legacy.fecha_consulta);
-    assignIf('recordatorio', legacy && legacy.recordatorio);
-    assignIf('padecimiento_actual', legacy && legacy.padecimiento_actual);
-    assignIf('diagnostico', dt && dt.diagnostico);
-    assignIf('tratamiento', dt && dt.tratamiento);
-    assignIf('notas', dt && dt.notas);
-    next.interrogatorio_aparatos = mapSistemasFromSource({ ...(legacy || {}), ...(dt || {}) });
-  }
-
-  assignIf('pronostico', dt && dt.pronostico);
-
-  const efSource = api.exploracion_fisica;
-  const ef = Array.isArray(efSource)
-    ? efSource[0] || {}
-    : typeof efSource === 'object' && efSource !== null
-    ? efSource
-    : {};
-  assignIf('peso_actual', ef.peso_actual);
-  assignIf('peso_anterior', ef.peso_anterior);
-  assignIf('peso_deseado', ef.peso_deseado);
-  assignIf('peso_ideal', ef.peso_ideal);
-  assignIf('talla_cm', ef.talla_cm);
-  assignIf('imc', ef.imc);
-  assignIf('rtg', ef.rtg);
-  assignIf('ta_mmhg', ef.ta_mmhg);
-  assignIf('frecuencia_cardiaca', ef.frecuencia_cardiaca);
-  assignIf('frecuencia_respiratoria', ef.frecuencia_respiratoria);
-  assignIf('temperatura_c', ef.temperatura_c);
-  assignIf('cadera_cm', ef.cadera_cm);
-  assignIf('cintura_cm', ef.cintura_cm);
-
-  const inspectionMappings = [
-    { needle: 'Cabeza', value: ef.cabeza },
-    { needle: 'Cuello', value: ef.cuello },
-    { needle: 'Torax', value: ef.torax },
-    { needle: 'Abdomen', value: ef.abdomen },
-    { needle: 'Genitales', value: ef.genitales },
-    { needle: 'Extremidades', value: ef.extremidades },
-  ];
-
-  next.inspeccion_general = inspectionMappings
-    .map(({ needle, value }) => {
-      const descripcion = toStr(value).trim();
-      if (!descripcion) return null;
-      const nombre = findMatchingLabel(INSPECCION_OPCIONES, needle, needle);
-      return { nombre, descripcion };
-    })
-    .filter(Boolean);
-
-  return next;
-};
-
 const Modify = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState(() => buildInitialForm());
+  const { formData, setFormData, isLoading, original } = usePerfilModify(id);
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
   const handleToggle = (key) => (e) => {
@@ -596,7 +343,6 @@ const Modify = () => {
     }
   };
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPrefilling, setIsPrefilling] = useState(true);
   const [nuevoAntecedente, setNuevoAntecedente] = useState('');
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
@@ -610,7 +356,6 @@ const Modify = () => {
     }));
   };
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
-  const prefillRef = useRef(buildInitialForm());
   const nombreRef = useRef(null);
   const imcAutoCalcRef = useRef(false);
 
@@ -637,54 +382,16 @@ const Modify = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Al terminar de prellenar, reiniciar estados de UI auxiliares
   useEffect(() => {
-    let alive = true;
-    const controller = new AbortController();
-    setIsPrefilling(true);
-    (async () => {
-      try {
-        const res = await fetch(`${url}/api/profile/${id}`, {
-          credentials: 'include',
-          signal: controller.signal,
-        });
-        if (!res.ok) {
-          console.error(`[Modify] GET /api/profile/${id} ->`, res.status);
-          if (res.status === 404 && alive) {
-            alert('Perfil no encontrado');
-          }
-          return;
-        }
-        const json = await res.json();
-        console.log('[Modify] Prefill recibido:', json);
-        const mapped = mapApiToForm(json);
-        console.log('[Modify] Prefill mapeado:', mapped);
-        if (alive) {
-          const snapshot = deepClone(mapped);
-          prefillRef.current = snapshot;
-          setFormData(snapshot);
-          setOpenSection('datos');
-          setNuevoAntecedente('');
-          setNuevoHabito('');
-          setNuevoPatologico('');
-          setNuevoSistemaPorConsulta({});
-          setNuevoInspeccion('');
-        }
-      } catch (err) {
-        if (!controller.signal.aborted) {
-          console.error('[Modify] Error al cargar perfil:', err);
-          alert('Error de red al cargar el perfil');
-        }
-      } finally {
-        if (alive) {
-          setIsPrefilling(false);
-        }
-      }
-    })();
-    return () => {
-      alive = false;
-      controller.abort();
-    };
-  }, [id]);
+    if (isLoading) return;
+    setOpenSection('datos');
+    setNuevoAntecedente('');
+    setNuevoHabito('');
+    setNuevoPatologico('');
+    setNuevoSistemaPorConsulta({});
+    setNuevoInspeccion('');
+  }, [isLoading]);
 
   // Log en tiempo real cada vez que cambia el payload
   useEffect(() => {
@@ -694,7 +401,7 @@ const Modify = () => {
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
-    if (isPrefilling) return;
+    if (isLoading) return;
     if (!imcAutoCalcRef.current) return;
     imcAutoCalcRef.current = false;
     const w = parseFloat(formData.peso_actual);
@@ -703,7 +410,7 @@ const Modify = () => {
       ? (w / Math.pow(hcm / 100, 2)).toFixed(2)
       : '';
     setFormData((prev) => (prev.imc === newImc ? prev : { ...prev, imc: newImc }));
-  }, [formData.peso_actual, formData.talla_cm, isPrefilling]);
+  }, [formData.peso_actual, formData.talla_cm, isLoading]);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -743,7 +450,6 @@ const Modify = () => {
       }
 
       alert('Perfil actualizado correctamente');
-      prefillRef.current = deepClone(formData);
       navigate(`/profile/${id}`);
     } catch (err) {
       console.error('[Modify] Error al actualizar perfil:', err);
@@ -754,7 +460,7 @@ const Modify = () => {
   };
 
   const handleCancel = () => {
-    const snapshot = deepClone(prefillRef.current || buildInitialForm());
+    const snapshot = deepClone(original || buildInitialForm());
     setFormData(snapshot);
     setOpenSection('datos');
     setNuevoAntecedente('');
@@ -1310,7 +1016,7 @@ const Modify = () => {
                 </FieldGroup>
                 <FieldGroup>
                   <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addAntecedente} disabled={!nuevoAntecedente || isPrefilling}>
+                  <SubmitButton type="button" onClick={addAntecedente} disabled={!nuevoAntecedente || isLoading}>
                     <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                     Agregar antecedente
                   </SubmitButton>
@@ -1383,7 +1089,7 @@ const Modify = () => {
                 </FieldGroup>
                 <FieldGroup>
                   <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addHabito} disabled={!nuevoHabito || isPrefilling}>
+                  <SubmitButton type="button" onClick={addHabito} disabled={!nuevoHabito || isLoading}>
                     <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                     Agregar hábito
                   </SubmitButton>
@@ -1734,7 +1440,7 @@ const Modify = () => {
                 </FieldGroup>
                 <FieldGroup>
                   <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addPatologico} disabled={!nuevoPatologico || isPrefilling}>
+                  <SubmitButton type="button" onClick={addPatologico} disabled={!nuevoPatologico || isLoading}>
                     <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                     Agregar
                   </SubmitButton>
@@ -1864,7 +1570,7 @@ const Modify = () => {
                 </FieldGroup>
                 <FieldGroup>
                   <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addInspeccion} disabled={!nuevoInspeccion || isPrefilling}>
+                  <SubmitButton type="button" onClick={addInspeccion} disabled={!nuevoInspeccion || isLoading}>
                     <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                     Agregar
                   </SubmitButton>
@@ -1935,7 +1641,7 @@ const Modify = () => {
                 <SubmitButton
                   type="button"
                   onClick={handleNuevaConsulta}
-                  disabled={isPrefilling}
+                  disabled={isLoading}
                   style={{ width: 'auto' }}
                 >
                   <FaPlusCircle style={{ marginRight: '0.5rem' }} />
@@ -1970,7 +1676,7 @@ const Modify = () => {
                       <DangerButton
                         type="button"
                         onClick={() => handleEliminarConsulta(uid)}
-                        disabled={isPrefilling}
+                        disabled={isLoading}
                       >
                         <FaTrash />
                         <ButtonLabel>Eliminar consulta</ButtonLabel>
@@ -2028,7 +1734,7 @@ const Modify = () => {
                         <SubmitButton
                           type="button"
                           onClick={() => handleAgregarSistema(uid)}
-                          disabled={!selectValue || isPrefilling}
+                          disabled={!selectValue || isLoading}
                         >
                           <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                           Agregar
@@ -2182,11 +1888,11 @@ const Modify = () => {
               <CancelButton
                 type="button"
                 onClick={handleCancel}
-                disabled={isSubmitting || isPrefilling}
+                disabled={isSubmitting || isLoading}
               >
                 Deshacer cambios
               </CancelButton>
-              <SubmitButton type="submit" disabled={isSubmitting || isPrefilling}>
+              <SubmitButton type="submit" disabled={isSubmitting || isLoading}>
                 {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
               </SubmitButton>
             </ButtonRow>
@@ -2197,7 +1903,7 @@ const Modify = () => {
                 onClick={() => formElRef.current?.requestSubmit?.()}
                 title="Guardar cambios"
                 aria-label="Guardar cambios"
-                disabled={isSubmitting || isPrefilling}
+                disabled={isSubmitting || isLoading}
               >
                 <FaSave />
               </SubmitButton>
