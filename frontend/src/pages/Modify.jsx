@@ -30,8 +30,6 @@ import {
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
 import {
-  ANTECEDENTES_OPCIONES,
-  HABITOS_OPCIONES,
   PATOLOGICOS_OPCIONES,
   SISTEMAS_OPCIONES,
   INSPECCION_OPCIONES,
@@ -43,14 +41,7 @@ import { useSubmitPerfilModify } from '../components/modify/useSubmitPerfilModif
 // iconos
 import {
   FaTint,
-  FaUsers,
-  FaBeer,
-  FaClock,
-  FaSmoking,
   FaPills,
-  FaUtensils,
-  FaExchangeAlt,
-  FaExclamationCircle,
   FaFemale,
   FaCalendarAlt,
   FaCalendarCheck,
@@ -85,6 +76,8 @@ import {
 import { GiLungs } from 'react-icons/gi';
 import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox, FloatingSave } from './modify.styles';
 import DatosPersonalesSection from '../components/modify/DatosPersonalesSection';
+import AntecedentesFamiliaresSectionY from '../components/modify/AntecedentesFamiliaresSectionY';
+import AntecedentesPersonalesSection from '../components/modify/AntecedentesPersonalesSection';
 
 
 
@@ -637,251 +630,32 @@ const Modify = () => {
             />
 
             {/* 👪 Antecedentes familiares -> payload.antecedentes_familiares[] */}
-            <details open={openSection === 'familiares'} onToggle={handleToggle('familiares')}>
-              <Summary>Antecedentes familiares</Summary>
-
-              {/* Selector para agregar antecedente */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_antecedente">Selecciona un antecedente</Label>
-                  <Select
-                    id="select_antecedente"
-                    value={nuevoAntecedente}
-                    onChange={e => setNuevoAntecedente(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {ANTECEDENTES_OPCIONES
-                      .filter(opt => {
-                        const selectedNames = formData.antecedentes_familiares.map(a => (a.esOtro ? 'Otras' : a.nombre));
-                        return !selectedNames.some(name => normalize(name) === normalize(opt));
-                      })
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addAntecedente} disabled={!nuevoAntecedente || isLoading}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar antecedente
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {/* Lista de antecedentes seleccionados */}
-              {formData.antecedentes_familiares.length > 0 && (
-                <ListContainer>
-                  {formData.antecedentes_familiares.map((a, idx) => (
-                    <ItemCard key={idx}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label><FaUsers style={{ marginRight: '0.5rem' }} />{a.esOtro ? 'Otra (especifique)' : 'Antecedente'}</Label>
-                          {a.esOtro ? (
-                            <Input
-                              value={a.nombre}
-                              onChange={e => updateAntecedenteField(idx, 'nombre', e.target.value)}
-                              placeholder="Especifique el antecedente"
-                              maxLength={100}
-                            />
-                          ) : (
-                            <Input value={a.nombre} disabled />
-                          )}
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>Descripción</Label>
-                          <TextArea
-                            value={a.descripcion}
-                            onChange={e => updateAntecedenteField(idx, 'descripcion', e.target.value)}
-                            rows={3}
-                            placeholder="Detalles relevantes, familiar afectado, edad de inicio, etc."
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removeAntecedenteAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-            </details>
+            {/* ?? Antecedentes familiares -> payload.antecedentes_familiares[] */}
+            <AntecedentesFamiliaresSectionY
+              formData={formData}
+              nuevoAntecedente={nuevoAntecedente}
+              setNuevoAntecedente={setNuevoAntecedente}
+              addAntecedente={addAntecedente}
+              removeAntecedenteAt={removeAntecedenteAt}
+              updateAntecedenteField={updateAntecedenteField}
+              isOpen={openSection === 'familiares'}
+              onToggle={handleToggle('familiares')}
+              isLoading={isLoading}
+            />
 
             {/* 🧗 Hábitos y alimentación -> payload.antecedentes_personales */}
-            <details open={openSection === 'personales'} onToggle={handleToggle('personales')}>
-              <Summary>
-                Antecedentes personales
-              </Summary>
-              {/* Select dinámico: Alcoholismo / Tabaquismo / Toxicomanías */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_habito">Selecciona hábito</Label>
-                  <Select
-                    id="select_habito"
-                    value={nuevoHabito}
-                    onChange={e => setNuevoHabito(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {HABITOS_OPCIONES
-                      .filter(opt => !formData.antecedentes_personales_habitos.some(h => normalize(h.tipo) === normalize(opt)))
-                      .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addHabito} disabled={!nuevoHabito || isLoading}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar hábito
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {formData.antecedentes_personales_habitos.length > 0 && (
-                <ListContainer>
-                  {formData.antecedentes_personales_habitos.map((h, idx) => (
-                    <ItemCard key={idx}>
-                      <strong style={{ display: 'block', marginBottom: '0.5rem' }}>{h.tipo}</strong>
-                      <TwoColumnRow>
-                        {h.tipo === 'Alcoholismo' && (
-                          <>
-                            <FieldGroup>
-                              <Label htmlFor={`bebidas_${idx}`}>Alcohol: Bebidas por día</Label>
-                              <Input
-                                id={`bebidas_${idx}`}
-                                value={h.campos.bebidas_por_dia}
-                                onChange={e => updateHabitoCampo(idx, 'bebidas_por_dia', e.target.value)}
-                                inputMode="numeric"
-                                placeholder="Ej. 2"
-                              />
-                            </FieldGroup>
-                            <FieldGroup>
-                              <Label htmlFor={`freq_${idx}`}>Tiempo activo</Label>
-                              <Input
-                                id={`freq_${idx}`}
-                                value={h.campos.tiempo_activo_alc}
-                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo_alc', e.target.value)}
-                                placeholder="Ej. 5 años"
-                              />
-                            </FieldGroup>
-                          </>
-                        )}
-
-                        {h.tipo === 'Tabaquismo' && (
-                          <>
-                            <FieldGroup>
-                              <Label htmlFor={`cigs_${idx}`}>Cigarrillos por día</Label>
-                              <Input
-                                id={`cigs_${idx}`}
-                                value={h.campos.cigarrillos_por_dia}
-                                onChange={e => updateHabitoCampo(idx, 'cigarrillos_por_dia', e.target.value)}
-                                inputMode="numeric"
-                                placeholder="Ej. 10"
-                              />
-                            </FieldGroup>
-                            <FieldGroup>
-                              <Label htmlFor={`tiempo_${idx}`}>Tiempo activo</Label>
-                              <Input
-                                id={`tiempo_${idx}`}
-                                value={h.campos.tiempo_activo_tab}
-                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo_tab', e.target.value)}
-                                placeholder="Ej. 5 años"
-                              />
-                            </FieldGroup>
-                          </>
-                        )}
-
-                        {h.tipo === 'Toxicomanías' && (
-                          <>
-                            <FieldGroup>
-                              <Label htmlFor={`tox_${idx}`}>Tipo de toxicomanía</Label>
-                              <Input
-                                id={`tox_${idx}`}
-                                value={h.campos.tipo_toxicomania}
-                                onChange={e => updateHabitoCampo(idx, 'tipo_toxicomania', e.target.value)}
-                                placeholder="Sustancia"
-                              />
-                            </FieldGroup>
-                            <FieldGroup>
-                              <Label htmlFor={`tox_freq_${idx}`}>Tiempo activo</Label>
-                              <Input
-                                id={`tox_freq_${idx}`}
-                                value={h.campos.tiempo_activo_tox}
-                                onChange={e => updateHabitoCampo(idx, 'tiempo_activo_tox', e.target.value)}
-                                placeholder="Ej. diario, esporádico"
-                              />
-                            </FieldGroup>
-                          </>
-                        )}
-                      </TwoColumnRow>
-
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removeHabitoAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-
-              {/* Eliminado: Select y lista de componentes de la dieta */}
-
-              {/* Campos fijos */}
-              <TwoColumnRow>
-                {/* Eliminado: Vacunación */}
-                <FieldGroup>
-                  <Label htmlFor="alimentacion_calidad">Alimentación (calidad)</Label>
-                  <Select id="calidad" name="calidad" value={formData.calidad} onChange={handleChange}>
-                    <option value="">-- Selecciona --</option>
-                    <option value="Buena">Buena</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Mala">Mala</option>
-                  </Select>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              <FieldGroup>
-                <Label htmlFor="alimentacion_descripcion"><FaUtensils style={{ marginRight: '0.5rem' }} />Descripción de la alimentación</Label>
-                <TextArea id="descripcion" name="descripcion" value={formData.descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
-              </FieldGroup>
-
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="hay_cambios">Cambios en la alimentación</Label>
-                  <Select id="hay_cambios" name="hay_cambios" value={formData.hay_cambios} onChange={handleChange}>
-                    <option value="">-- Selecciona --</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
-                  </Select>
-                </FieldGroup>
-                {formData.hay_cambios === 'Si' && (
-                  <FieldGroup>
-                    <Label htmlFor="cambio_tipo"><FaExchangeAlt style={{ marginRight: '0.5rem' }} />Tipo de cambio</Label>
-                    <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
-                  </FieldGroup>
-                )}
-              </TwoColumnRow>
-
-              {formData.hay_cambios === 'Si' && (
-                <TwoColumnRow>
-                  <FieldGroup>
-                    <Label htmlFor="cambio_causa"><FaExclamationCircle style={{ marginRight: '0.5rem' }} />Causa del cambio</Label>
-                    <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
-                  </FieldGroup>
-                  <FieldGroup>
-                    <Label htmlFor="cambio_tiempo"><FaClock style={{ marginRight: '0.5rem' }} />Tiempo</Label>
-                    <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
-                  </FieldGroup>
-                </TwoColumnRow>
-              )}
-            </details>
+            <AntecedentesPersonalesSection
+              formData={formData}
+              nuevoHabito={nuevoHabito}
+              setNuevoHabito={setNuevoHabito}
+              addHabito={addHabito}
+              removeHabitoAt={removeHabitoAt}
+              updateHabitoCampo={updateHabitoCampo}
+              isOpen={openSection === 'personales'}
+              onToggle={handleToggle('personales')}
+              isLoading={isLoading}
+              handleChange={handleChange}
+            />
 
             {/* 👶 Gineco-Obstétricos -> payload.gineco_obstetricos (solo si no es Hombre) */}
             {showGineco && (
