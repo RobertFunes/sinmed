@@ -33,29 +33,6 @@ const AntecedentesPersonalesSection = ({
       <Summary>Antecedentes personales</Summary>
 
       {/* Select dinámico: Alcoholismo / Tabaquismo / Toxicomanías */}
-      <TwoColumnRow>
-        <FieldGroup>
-          <Label htmlFor="select_habito">Selecciona hábito</Label>
-          <Select id="select_habito" value={nuevoHabito} onChange={(e) => setNuevoHabito(e.target.value)}>
-            <option value="">-- Selecciona --</option>
-            {HABITOS_OPCIONES.filter((opt) => !formData.antecedentes_personales_habitos.some((h) => h.tipo === opt))
-              .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
-              .map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-          </Select>
-        </FieldGroup>
-        <FieldGroup>
-          <Label>&nbsp;</Label>
-          <SubmitButton type="button" onClick={addHabito} disabled={!nuevoHabito}>
-            <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-            Agregar hábito
-          </SubmitButton>
-        </FieldGroup>
-      </TwoColumnRow>
-
       {formData.antecedentes_personales_habitos.length > 0 && (
         <ListContainer>
           {formData.antecedentes_personales_habitos.map((h, idx) => (
@@ -144,6 +121,30 @@ const AntecedentesPersonalesSection = ({
           ))}
         </ListContainer>
       )}
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="select_habito">Selecciona hábito</Label>
+          <Select id="select_habito" value={nuevoHabito} onChange={(e) => setNuevoHabito(e.target.value)}>
+            <option value="">-- Selecciona --</option>
+            {HABITOS_OPCIONES.filter((opt) => !formData.antecedentes_personales_habitos.some((h) => h.tipo === opt))
+              .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+              .map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+          </Select>
+        </FieldGroup>
+        <FieldGroup>
+          <Label>&nbsp;</Label>
+          <SubmitButton type="button" onClick={addHabito} disabled={!nuevoHabito}>
+            <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+            Agregar hábito
+          </SubmitButton>
+        </FieldGroup>
+      </TwoColumnRow>
+
+      
 
       {/* Campos fijos */}
       <TwoColumnRow>

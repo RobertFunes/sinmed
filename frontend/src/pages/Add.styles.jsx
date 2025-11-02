@@ -193,6 +193,7 @@ export const ItemCard = styled.div`
   border-radius: 6px;
   padding: 0.75rem;
   margin-bottom: 0.75rem;
+  margin-top: 2rem;
   background: ${Palette.background  };
 `;
 
@@ -210,12 +211,13 @@ export const ItemActions = styled.div`
 
 /* Botón de eliminar dentro de las tarjetas */
 export const DangerButton = styled.button`
-  background: black;
+  background: ${Palette.primary};
   border: 1px solid ${Palette.secondary};
   border-radius: 4px;
   padding: 0.35rem 0.65rem;
   cursor: pointer;
   color: inherit;
+  margin-right:22vw;
 `;
 
 /* Texto al lado del icono dentro de botones */
