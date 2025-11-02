@@ -1,97 +1,20 @@
 // add.jsx (actualizado con nuevos campos y sección colapsable)
 import { useState, useEffect, useRef } from 'react';
 import Header from '../components/Header';
-import {
-  AddContainer,
-  FormCard,
-  Title,
-  Form,
-  Summary,
-  FieldGroup,
-  Label,
-  Input,
-  TextArea,
-  Select,
-  ButtonRow,
-  SubmitButton,
-  TwoColumnRow,
-  ThreeColumnRow,
-  ItemCard,
-  ItemActions,
-  DangerButton,
-  ButtonLabel,
-  ListContainer,
-  AlergicoContainer,
-  AlergicoOptions,
-  AlergicoOption,
-} from './Add.styles';
-import { Palette } from '../helpers/theme';
+import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton } from './Add.styles';
 import { url } from '../helpers/url';
-import {
-  ANTECEDENTES_OPCIONES,
-  HABITOS_OPCIONES,
-  PATOLOGICOS_OPCIONES,
-  SISTEMAS_OPCIONES,
-  INSPECCION_OPCIONES,
-} from '../helpers/add/catalogos';
+import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
 import { buildNestedPayload } from '../helpers/add/buildPayload';
 
-// iconos
-import { AiFillStar } from 'react-icons/ai';
-import {
-  FaUser,
-  FaBirthdayCake,
-  FaPhone,
-  FaUserPlus,
-  FaGraduationCap,
-  FaTint,
-  FaUsers,
-  FaBeer,
-  FaClock,
-  FaSmoking,
-  FaPills,
-  FaUtensils,
-  FaExchangeAlt,
-  FaExclamationCircle,
-  FaFemale,
-  FaCalendarAlt,
-  FaCalendarCheck,
-  FaBaby,
-  FaBabyCarriage,
-  FaProcedures,
-  FaHeartbeat,
-  FaCalendarDay,
-  FaCalendarTimes,
-  FaFileMedical,
-  FaWeight,
-  FaHistory,
-  FaRulerVertical,
-  FaRulerCombined,
-  FaRulerHorizontal,
-  FaBullseye,
-  FaBalanceScale,
-  FaChartBar,
-  FaHeart,
-  FaThermometerHalf,
-  FaStethoscope,
-  FaBell,
-  FaNotesMedical,
-  FaDiagnoses,
-  FaPrescriptionBottleAlt,
-  FaStickyNote,
-  FaClipboardCheck,
-  FaTrash,
-  FaPlusCircle,
-} from 'react-icons/fa';
-import { MdEmail, MdHome, MdWork, MdDescription } from 'react-icons/md';
-import { GiLungs } from 'react-icons/gi';
+// iconos: se usan dentro de las secciones hijas, no aquí
 import DatosPersonalesSection from '../components/add/DatosPersonalesSection';
 import AntecedentesFamiliaresSection from '../components/add/AntecedentesFamiliaresSection';
 import AntecedentesPersonalesSection from '../components/add/AntecedentesPersonalesSection';
 import GinecoObstetricosSection from '../components/add/GinecoObstetricosSection';
 import AntecedentesPatologicosSection from '../components/add/AntecedentesPatologicosSection';
 import ExploracionFisicaSection from '../components/add/ExploracionFisicaSection';
+import ConsultasSection from '../components/add/ConsultasSection';
 
 
 
@@ -357,17 +280,7 @@ const Add = () => {
       inspeccion_general: prev.inspeccion_general.map((s, i) => i === idx ? { ...s, descripcion: valor } : s),
     }));
   };
-  const Required = () => (
-    <AiFillStar
-      style={{
-        marginLeft: '0.25rem',
-        verticalAlign: 'middle',
-        color: Palette.primary,
-        fontSize: '2.2rem',
-      }}
-      title="Obligatorio"
-    />
-  );
+  // Required movido a DatosPersonalesSection
 
   // 👩‍⚕️ Visibilidad Gineco-Obstétricos
   // Muestra la sección solo si el género NO es "Hombre" ("", "Mujer", etc.)
@@ -455,245 +368,22 @@ const Add = () => {
             />
 
             {/* 📅 Consultas (padecimiento + interrogatorio) -> payload.consultas */}
-            <details open={openSection === 'consultas'} onToggle={handleToggle('consultas')}>
-              <Summary>Consultas</Summary>
-
-              {/* Alérgico (Sí/No) exclusivo, permite ninguno o uno - visual primero en Consultas */}
-              <AlergicoContainer>
-                <Label>Al&eacute;rgico</Label>
-                <AlergicoOptions>
-                  <AlergicoOption $selected={formData.alergico === 'Si'}>
-                    <input
-                      type="checkbox"
-                      name="alergico_si"
-                      checked={formData.alergico === 'Si'}
-                      onChange={toggleAlergico('Si')}
-                    />
-                    <span>S&iacute;</span>
-                  </AlergicoOption>
-                  <AlergicoOption $selected={formData.alergico === 'No'}>
-                    <input
-                      type="checkbox"
-                      name="alergico_no"
-                      checked={formData.alergico === 'No'}
-                      onChange={toggleAlergico('No')}
-                    />
-                    <span>No</span>
-                  </AlergicoOption>
-                </AlergicoOptions>
-              </AlergicoContainer>
-
-              {/* Subgrid 2 columnas: Fecha de consulta + Recordatorio */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="fecha_consulta"><FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha de consulta</Label>
-                  <Input
-                    type="date"
-                    id="fecha_consulta"
-                    name="fecha_consulta"
-                    value={formData.fecha_consulta}
-                    onChange={handleChange}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor="recordatorio"><FaBell style={{ marginRight: '0.5rem' }} />Recordatorio</Label>
-                  <Input
-                    type="date"
-                    id="recordatorio"
-                    name="recordatorio"
-                    value={formData.recordatorio}
-                    onChange={handleChange}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-
-              <FieldGroup>
-                <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
-                <TextArea
-                  id="consulta_padecimiento_actual"
-                  name="padecimiento_actual"
-                  value={formData.padecimiento_actual}
-                  onChange={handleChange}
-                  rows={6}
-                  placeholder="Describe el padecimiento actual"
-                />
-              </FieldGroup>
-
-              {/* Selector para agregar sistemas */}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor="select_sistema">Selecciona un sistema</Label>
-                  <Select
-                    id="select_sistema"
-                    value={nuevoSistema}
-                    onChange={e => setNuevoSistema(e.target.value)}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {SISTEMAS_OPCIONES
-                      .filter(opt => !formData.interrogatorio_aparatos.some(s => s.nombre === opt))
-                      .map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
-              {/* Lista de sistemas agregados */}
-              {formData.interrogatorio_aparatos.length > 0 && (
-                <ListContainer>
-                  {formData.interrogatorio_aparatos.map((s, idx) => (
-                    <ItemCard key={idx}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
-                          <Input value={s.nombre} disabled />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>{`Descripci\u00f3n de aparato ${s.nombre.toLowerCase()}`}</Label>
-                          <TextArea
-                            value={s.descripcion}
-                            onChange={e => updateSistemaDesc(idx, e.target.value)}
-                            rows={3}
-                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removeSistemaAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-
-              {/* Acción: crear tarjeta personalizada (título + descripción) */}
-              <FieldGroup>
-                <Label>&nbsp;</Label>
-                <SubmitButton
-                  type="button"
-                  onClick={addPersonalizado}
-                  disabled={(formData.personalizados || []).length >= 10}
-                >
-                  Crear personalizado
-                </SubmitButton>
-              </FieldGroup>
-
-              {/* Lista de personalizados agregados */}
-              {(formData.personalizados || []).length > 0 && (
-                <ListContainer>
-                  {formData.personalizados.map((p, idx) => (
-                    <ItemCard key={`pers-${idx}`}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label>Título</Label>
-                          <Input
-                            value={p.nombre}
-                            onChange={e => updatePersonalizadoField(idx, 'nombre', e.target.value)}
-                            placeholder="Escribe el título"
-                            maxLength={100}
-                          />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>Descripción</Label>
-                          <TextArea
-                            value={p.descripcion}
-                            onChange={e => updatePersonalizadoField(idx, 'descripcion', e.target.value)}
-                            rows={3}
-                            placeholder="Describe el contenido"
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removePersonalizadoAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-
-              <FieldGroup>
-                <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
-                <TextArea
-                  id="consulta_diagnostico"
-                  name="diagnostico"
-                  value={formData.diagnostico}
-                  onChange={handleChange}
-                  rows={6}
-                  placeholder="Escribe el diagnóstico clínico"
-                />
-              </FieldGroup>
-
-              <FieldGroup>
-                <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
-                <TextArea
-                  id="consulta_tratamiento"
-                  name="tratamiento"
-                  value={formData.tratamiento}
-                  onChange={handleChange}
-                  rows={6}
-                  placeholder="Plan de tratamiento"
-                />
-              </FieldGroup>
-
-              <FieldGroup>
-                <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
-                <TextArea
-                  id="consulta_notas"
-                  name="notas"
-                  value={formData.notas}
-                  onChange={handleChange}
-                  rows={6}
-                  placeholder="Notas de la consulta"
-                />
-              </FieldGroup>
-
-              {/* Selector para agregar sistemas */}
-              
-
-              {/* Lista de sistemas agregados */}
-              {false && (
-                <ListContainer>
-                  {formData.interrogatorio_aparatos.map((s, idx) => (
-                    <ItemCard key={idx}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
-                          <Input value={s.nombre} disabled />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
-                          <TextArea
-                            value={s.descripcion}
-                            onChange={e => updateSistemaDesc(idx, e.target.value)}
-                            rows={3}
-                            placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
-                          />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => removeSistemaAt(idx)}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
-                </ListContainer>
-              )}
-            </details>
+            <ConsultasSection
+              formData={formData}
+              handleChange={handleChange}
+              isOpen={openSection === 'consultas'}
+              onToggle={handleToggle('consultas')}
+              SISTEMAS_OPCIONES={SISTEMAS_OPCIONES}
+              nuevoSistema={nuevoSistema}
+              setNuevoSistema={setNuevoSistema}
+              addSistema={addSistema}
+              removeSistemaAt={removeSistemaAt}
+              updateSistemaDesc={updateSistemaDesc}
+              addPersonalizado={addPersonalizado}
+              removePersonalizadoAt={removePersonalizadoAt}
+              updatePersonalizadoField={updatePersonalizadoField}
+              toggleAlergico={toggleAlergico}
+            />
 
             {/* Botonera */}
             <ButtonRow>
