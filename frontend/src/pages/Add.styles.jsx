@@ -206,7 +206,7 @@ export const ListContainer = styled.div`
 export const ItemActions = styled.div`
   margin-top: 0.5rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 `;
 
 /* Botón de eliminar dentro de las tarjetas */
@@ -214,10 +214,10 @@ export const DangerButton = styled.button`
   background: ${Palette.primary};
   border: 1px solid ${Palette.secondary};
   border-radius: 4px;
-  padding: 0.35rem 0.65rem;
+  padding: 0.45rem 0.45rem;
   cursor: pointer;
   color: inherit;
-  margin-right:22vw;
+  margin-left:25px;
 `;
 
 /* Texto al lado del icono dentro de botones */

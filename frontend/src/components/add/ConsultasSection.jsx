@@ -15,6 +15,7 @@ import {
   AlergicoContainer,
   AlergicoOptions,
   AlergicoOption,
+  ThreeColumnRow
 } from '../../pages/Add.styles';
 import {
   FaCalendarDay,
@@ -77,60 +78,6 @@ const ConsultasSection = ({
         <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
         <TextArea id="consulta_padecimiento_actual" name="padecimiento_actual" value={formData.padecimiento_actual} onChange={handleChange} rows={6} placeholder="Describe el padecimiento actual" />
       </FieldGroup>
-
-      <TwoColumnRow>
-        <FieldGroup>
-          <Label htmlFor="select_sistema">Selecciona un sistema</Label>
-          <Select id="select_sistema" value={nuevoSistema} onChange={(e) => setNuevoSistema(e.target.value)}>
-            <option value="">-- Selecciona --</option>
-            {SISTEMAS_OPCIONES.filter((opt) => !formData.interrogatorio_aparatos.some((s) => s.nombre === opt)).map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </Select>
-        </FieldGroup>
-        <FieldGroup>
-          <Label>&nbsp;</Label>
-          <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema}>
-            <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-            Agregar
-          </SubmitButton>
-        </FieldGroup>
-      </TwoColumnRow>
-
-      {formData.interrogatorio_aparatos.length > 0 && (
-        <ListContainer>
-          {formData.interrogatorio_aparatos.map((s, idx) => (
-            <ItemCard key={idx}>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
-                  <Input value={s.nombre} disabled />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
-                  <TextArea value={s.descripcion} onChange={(e) => updateSistemaDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${s.nombre.toLowerCase()}`} />
-                </FieldGroup>
-              </TwoColumnRow>
-              <ItemActions>
-                <DangerButton type="button" onClick={() => removeSistemaAt(idx)}>
-                  <FaTrash />
-                  <ButtonLabel>Eliminar</ButtonLabel>
-                </DangerButton>
-              </ItemActions>
-            </ItemCard>
-          ))}
-        </ListContainer>
-      )}
-
-      <FieldGroup>
-        <Label>&nbsp;</Label>
-        <SubmitButton type="button" onClick={addPersonalizado} disabled={(formData.personalizados || []).length >= 10}>
-          Crear personalizado
-        </SubmitButton>
-      </FieldGroup>
-
       {(formData.personalizados || []).length > 0 && (
         <ListContainer>
           {formData.personalizados.map((p, idx) => (
@@ -155,6 +102,55 @@ const ConsultasSection = ({
           ))}
         </ListContainer>
       )}
+      {formData.interrogatorio_aparatos.length > 0 && (
+        <ListContainer>
+          {formData.interrogatorio_aparatos.map((s, idx) => (
+            <ItemCard key={idx}>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
+                  <Input value={s.nombre} disabled />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
+                  <TextArea value={s.descripcion} onChange={(e) => updateSistemaDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${s.nombre.toLowerCase()}`} />
+                </FieldGroup>
+              </TwoColumnRow>
+              <ItemActions>
+                <DangerButton type="button" onClick={() => removeSistemaAt(idx)}>
+                  <FaTrash />
+                  <ButtonLabel>Eliminar</ButtonLabel>
+                </DangerButton>
+              </ItemActions>
+            </ItemCard>
+          ))}
+        </ListContainer>
+      )}
+      <ThreeColumnRow>
+        <FieldGroup>
+          <Label htmlFor="select_sistema">Selecciona un sistema</Label>
+          <Select id="select_sistema" value={nuevoSistema} onChange={(e) => setNuevoSistema(e.target.value)}>
+            <option value="">-- Selecciona --</option>
+            {SISTEMAS_OPCIONES.filter((opt) => !formData.interrogatorio_aparatos.some((s) => s.nombre === opt)).map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </Select>
+        </FieldGroup>
+        <FieldGroup>
+          
+          <SubmitButton type="button" onClick={addSistema} disabled={!nuevoSistema}>
+            <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+            Agregar
+          </SubmitButton>
+        </FieldGroup>
+        <FieldGroup>
+          <SubmitButton type="button" onClick={addPersonalizado} disabled={(formData.personalizados || []).length >= 10}>
+            Crear personalizado
+          </SubmitButton>
+        </FieldGroup>
+      </ThreeColumnRow>
     </details>
   );
 };
