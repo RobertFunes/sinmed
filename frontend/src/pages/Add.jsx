@@ -130,10 +130,10 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       antecedentes_familiares: [
+        ...prev.antecedentes_familiares,
         nuevoAntecedente === 'Otras'
           ? { nombre: '', descripcion: '', esOtro: true }
           : { nombre: nuevoAntecedente, descripcion: '' },
-        ...prev.antecedentes_familiares,
       ],
     }));
     setNuevoAntecedente('');
@@ -210,8 +210,8 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       interrogatorio_aparatos: [
-        { nombre: nuevoSistema, descripcion: '' },
         ...prev.interrogatorio_aparatos,
+        { nombre: nuevoSistema, descripcion: '' },
       ],
     }));
     setNuevoSistema('');
@@ -237,8 +237,8 @@ const Add = () => {
       return {
         ...prev,
         personalizados: [
-          { nombre: '', descripcion: '' },
           ...list,
+          { nombre: '', descripcion: '' },
         ],
       };
     });

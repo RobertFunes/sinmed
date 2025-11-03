@@ -151,28 +151,6 @@ const ConsultasSection = ({
                 </Label>
                 <TextArea id={padecimientoId} value={consulta.padecimiento_actual || ''} onChange={handleConsultaFieldChange(uid, 'padecimiento_actual')} rows={6} placeholder="Describe el padecimiento actual" />
               </FieldGroup>
-
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor={selectId}>Selecciona un sistema</Label>
-                  <Select id={selectId} value={selectValue} onChange={handleSistemaSelectChange(uid)}>
-                    <option value="">-- Selecciona --</option>
-                    {opcionesDisponibles.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={() => handleAgregarSistema(uid)} disabled={!selectValue || isLoading}>
-                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
-                    Agregar
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
-
               {sistemasSeleccionados.length > 0 && (
                 <ListContainer>
                   {sistemasSeleccionados.map((s, sistemaIdx) => {
@@ -223,15 +201,26 @@ const ConsultasSection = ({
                   })}
                 </ListContainer>
               )}
-
-              {/* Personalizados por consulta */}
-              <FieldGroup>
-                <Label>&nbsp;</Label>
-                <SubmitButton type="button" onClick={() => handleAgregarPersonalizado(uid)}>
-                  Crear personalizado
-                </SubmitButton>
-              </FieldGroup>
-
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={selectId}>Selecciona un sistema</Label>
+                  <Select id={selectId} value={selectValue} onChange={handleSistemaSelectChange(uid)}>
+                    <option value="">-- Selecciona --</option>
+                    {opcionesDisponibles.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </Select>
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>&nbsp;</Label>
+                  <SubmitButton type="button" onClick={() => handleAgregarSistema(uid)} disabled={!selectValue || isLoading}>
+                    <FaPlusCircle style={{ marginRight: '0.5rem' }} />
+                    Agregar
+                  </SubmitButton>
+                </FieldGroup>
+              </TwoColumnRow>
               {toArr(consulta.personalizados).length > 0 && (
                 <ListContainer>
                   {toArr(consulta.personalizados).map((p, pIdx) => (
@@ -256,6 +245,14 @@ const ConsultasSection = ({
                   ))}
                 </ListContainer>
               )}
+              <FieldGroup>
+                <Label>&nbsp;</Label>
+                <SubmitButton type="button" onClick={() => handleAgregarPersonalizado(uid)}>
+                  Crear personalizado
+                </SubmitButton>
+              </FieldGroup>
+
+              
             </NestedDetails>
           </div>
         );

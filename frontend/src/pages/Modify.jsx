@@ -269,12 +269,11 @@ const Modify = () => {
     const esOtro = normalize(nuevoAntecedente) === normalize('Otras');
     setFormData((prev) => ({
       ...prev,
-      // Insertar al inicio
       antecedentes_familiares: [
+        ...prev.antecedentes_familiares,
         esOtro
           ? { nombre: '', descripcion: '', esOtro: true }
           : { nombre: nuevoAntecedente, descripcion: '', esOtro: false },
-        ...prev.antecedentes_familiares,
       ],
     }));
     setNuevoAntecedente('');
@@ -302,8 +301,7 @@ const Modify = () => {
     if (tipoNormalized.includes('toxico')) base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
     setFormData((prev) => ({
       ...prev,
-      // Insertar al inicio
-      antecedentes_personales_habitos: [base, ...prev.antecedentes_personales_habitos],
+      antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],
     }));
     setNuevoHabito('');
   };
@@ -327,10 +325,9 @@ const Modify = () => {
     if (!nuevoPatologico) return;
     setFormData((prev) => ({
       ...prev,
-      // Insertar al inicio
       antecedentes_personales_patologicos: [
-        { antecedente: nuevoPatologico, descripcion: '' },
         ...prev.antecedentes_personales_patologicos,
+        { antecedente: nuevoPatologico, descripcion: '' },
       ],
     }));
     setNuevoPatologico('');
@@ -513,10 +510,9 @@ const Modify = () => {
     if (!nuevoInspeccion) return;
     setFormData((prev) => ({
       ...prev,
-      // Insertar nueva inspección al inicio
       inspeccion_general: [
-        { nombre: nuevoInspeccion, descripcion: '' },
         ...prev.inspeccion_general,
+        { nombre: nuevoInspeccion, descripcion: '' },
       ],
     }));
     setNuevoInspeccion('');
