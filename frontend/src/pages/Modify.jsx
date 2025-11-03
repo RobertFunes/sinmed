@@ -416,10 +416,9 @@ const Modify = () => {
         if (consulta.uid !== uid) return consulta;
         return {
           ...consulta,
-          // Insertar el nuevo sistema al inicio de la lista
           interrogatorio_aparatos: [
-            { nombre: seleccionado, descripcion: '', estado: '' },
             ...toArr(consulta.interrogatorio_aparatos),
+            { nombre: seleccionado, descripcion: '', estado: '' },
           ],
         };
       }),
@@ -436,7 +435,10 @@ const Modify = () => {
         if (list.length >= 10) return consulta;
         return {
           ...consulta,
-          personalizados: [{ nombre: '', descripcion: '' }, ...list],
+          personalizados: [
+            ...list,
+            { nombre: '', descripcion: '' },
+          ],
         };
       }),
     );

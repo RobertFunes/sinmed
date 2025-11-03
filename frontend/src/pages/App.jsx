@@ -12,11 +12,16 @@ export default function Nav() {
   const limit = 50;
 
   /* ---------- Modal de confirmación ---------- */
-  const [toDelete, setToDelete] = useState(null);
-  const askDelete      = (id, nombre)        => setToDelete({ id, nombre });
-  const cancelDelete   = ()                  => setToDelete(null);
-  const confirmDelete  = async () => {
-    const { id, nombre } = toDelete;
+  const [deleteStage, setDeleteStage] = useState({ step: 0, id: null, nombre: '' });
+
+  const resetDelete = () => setDeleteStage({ step: 0, id: null, nombre: '' });
+  const askDelete = (id, nombre) => setDeleteStage({ step: 1, id, nombre });
+  const cancelDelete = () => resetDelete();
+
+  const handleFirstConfirm = () => setDeleteStage(prev => ({ ...prev, step: 2 }));
+
+  const confirmDelete = async () => {
+    const { id, nombre } = deleteStage;
     try {
       const res = await fetch(`${url}/api/profile/${id}`, {
         method: 'DELETE',
@@ -30,7 +35,7 @@ export default function Nav() {
       console.error('Error al eliminar:', err);
       alert('❌ Ocurrió un problema');
     } finally {
-      setToDelete(null);
+      resetDelete();
     }
   };
 
@@ -84,10 +89,18 @@ export default function Nav() {
       </PaginationContainer>
 
       <ConfirmModal
-        open={!!toDelete}
-        text={`¿Eliminar el perfil de "${toDelete?.nombre}"? ¡Esta acción no se puede deshacer!`}
+        open={deleteStage.step === 1}
+        text={`¿Eliminar el perfil de "${deleteStage.nombre}"? ¡Esta acción no se puede deshacer!`}
+        onCancel={cancelDelete}
+        onConfirm={handleFirstConfirm}
+      />
+      <ConfirmModal
+        open={deleteStage.step === 2}
+        text={`Es la última oportunidad... ¿Eliminar definitivamente a "${deleteStage.nombre}"?`}
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
+        title="⚠️ Confirmación final"
+        confirmLabel="Eliminar definitivamente"
       />
     </>
   );

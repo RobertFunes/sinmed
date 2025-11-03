@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Palette } from '../../helpers/theme';
 import {
@@ -29,6 +29,7 @@ import {
   FaCalendarDay,
 } from 'react-icons/fa';
 import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox } from '../../pages/modify.styles';
+import ConfirmModal from '../ConfirmModal';
 
 const NestedDetails = styled.details`
   margin-left: 1rem;
@@ -76,6 +77,85 @@ const ConsultasSection = ({
   handleEliminarPersonalizado,
   handleActualizarPersonalizado,
 }) => {
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const resolveConsulta = (uid) => {
+    if (!uid) return null;
+    return consultasOrdenadas.find((consulta, index) => (consulta.uid || `consulta-${index}`) === uid) || null;
+  };
+
+  const selectedConsulta = deleteTarget ? resolveConsulta(deleteTarget.uid) : null;
+  const selectedSistema =
+    deleteTarget?.type === 'sistema' && selectedConsulta
+      ? toArr(selectedConsulta.interrogatorio_aparatos)[deleteTarget.index] || null
+      : null;
+  const selectedPersonalizado =
+    deleteTarget?.type === 'personalizado' && selectedConsulta
+      ? toArr(selectedConsulta.personalizados)[deleteTarget.index] || null
+      : null;
+
+  const requestDeleteSistema = (uid, index) => {
+    if (isLoading) return;
+    setDeleteTarget({ type: 'sistema', uid, index });
+  };
+  const requestDeletePersonalizado = (uid, index) => {
+    if (isLoading) return;
+    setDeleteTarget({ type: 'personalizado', uid, index });
+  };
+  const requestDeleteConsulta = (uid) => {
+    if (isLoading) return;
+    setDeleteTarget({ type: 'consulta', uid });
+  };
+  const cancelDelete = () => setDeleteTarget(null);
+  const confirmDelete = () => {
+    if (!deleteTarget || isLoading) return;
+    if (deleteTarget.type === 'sistema') {
+      handleEliminarSistema(deleteTarget.uid, deleteTarget.index);
+    } else if (deleteTarget.type === 'personalizado') {
+      handleEliminarPersonalizado(deleteTarget.uid, deleteTarget.index);
+    } else if (deleteTarget.type === 'consulta') {
+      handleEliminarConsulta(deleteTarget.uid);
+    }
+    setDeleteTarget(null);
+  };
+
+  const modalTitle =
+    deleteTarget?.type === 'sistema'
+      ? '¿Eliminar sistema?'
+      : deleteTarget?.type === 'personalizado'
+        ? '¿Eliminar personalizado?'
+        : deleteTarget?.type === 'consulta'
+          ? '¿Eliminar consulta?'
+          : '';
+
+  const modalText = (() => {
+    if (!deleteTarget) return '';
+    if (deleteTarget.type === 'sistema') {
+      const nombre = selectedSistema?.nombre || 'este sistema';
+      return `Vas a eliminar el sistema "${nombre}". Esta acción no se puede deshacer.`;
+    }
+    if (deleteTarget.type === 'personalizado') {
+      const nombre = selectedPersonalizado?.nombre?.trim() || 'Personalizado sin título';
+      return `Vas a eliminar el personalizado "${nombre}". Esta acción no se puede deshacer.`;
+    }
+    if (deleteTarget.type === 'consulta') {
+      const fechaStr = selectedConsulta?.fecha_consulta
+        ? (() => {
+            const date = new Date(selectedConsulta.fecha_consulta);
+            if (!Number.isNaN(date.getTime())) {
+              const day = String(date.getDate()).padStart(2, '0');
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const year = String(date.getFullYear());
+              return ` del ${day}-${month}-${year}`;
+            }
+            return ` del ${selectedConsulta.fecha_consulta}`;
+          })()
+        : '';
+      const fecha = fechaStr;
+      return `Vas a eliminar la consulta${fecha}. Esta acción no se puede deshacer.`;
+    }
+    return '';
+  })();
   return (
     <details open={isOpen} onToggle={onToggle}>
       <Summary>Consultas</Summary>
@@ -124,7 +204,7 @@ const ConsultasSection = ({
               <InnerSummary>{titulo}</InnerSummary>
 
               <ItemActions style={{ justifyContent: 'flex-end' }}>
-                <DangerButton type="button" onClick={() => handleEliminarConsulta(uid)} disabled={isLoading}>
+                <DangerButton type="button" onClick={() => requestDeleteConsulta(uid)} disabled={isLoading}>
                   <FaTrash />
                   <ButtonLabel>Eliminar consulta</ButtonLabel>
                 </DangerButton>
@@ -191,7 +271,7 @@ const ConsultasSection = ({
                         </TwoColumnRow>
 
                         <ItemActions>
-                          <DangerButton type="button" onClick={() => handleEliminarSistema(uid, sistemaIdx)}>
+                          <DangerButton type="button" onClick={() => requestDeleteSistema(uid, sistemaIdx)} disabled={isLoading}>
                             <FaTrash />
                             <ButtonLabel>Eliminar sistema</ButtonLabel>
                           </DangerButton>
@@ -236,7 +316,7 @@ const ConsultasSection = ({
                         </FieldGroup>
                       </TwoColumnRow>
                       <ItemActions>
-                        <DangerButton type="button" onClick={() => handleEliminarPersonalizado(uid, pIdx)}>
+                        <DangerButton type="button" onClick={() => requestDeletePersonalizado(uid, pIdx)} disabled={isLoading}>
                           <FaTrash />
                           <ButtonLabel>Eliminar</ButtonLabel>
                         </DangerButton>
@@ -257,6 +337,14 @@ const ConsultasSection = ({
           </div>
         );
       })}
+      <ConfirmModal
+        open={deleteTarget !== null}
+        onCancel={cancelDelete}
+        onConfirm={confirmDelete}
+        title={modalTitle || '¿Eliminar?'}
+        text={modalText}
+        confirmLabel="Eliminar"
+      />
     </details>
   );
 };
