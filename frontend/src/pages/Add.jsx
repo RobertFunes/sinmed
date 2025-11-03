@@ -160,7 +160,7 @@ const Add = () => {
     if (nuevoHabito === 'Toxicomanías') base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
     setFormData(prev => ({
       ...prev,
-      antecedentes_personales_habitos: [base, ...prev.antecedentes_personales_habitos],
+      antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],
     }));
     setNuevoHabito('');
   };
@@ -185,8 +185,8 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       antecedentes_personales_patologicos: [
-        { antecedente: nuevoPatologico, descripcion: '' },
         ...prev.antecedentes_personales_patologicos,
+        { antecedente: nuevoPatologico, descripcion: '' },
       ],
     }));
     setNuevoPatologico('');
@@ -262,8 +262,8 @@ const Add = () => {
     setFormData(prev => ({
       ...prev,
       inspeccion_general: [
-        { nombre: nuevoInspeccion, descripcion: '' },
         ...prev.inspeccion_general,
+        { nombre: nuevoInspeccion, descripcion: '' },
       ],
     }));
     setNuevoInspeccion('');

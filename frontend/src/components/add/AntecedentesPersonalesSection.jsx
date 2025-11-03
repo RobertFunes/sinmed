@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaPlusCircle, FaUtensils, FaExchangeAlt, FaExclamationCircle, FaClock, FaTrash } from 'react-icons/fa';
 import {
   Summary,
@@ -16,6 +16,7 @@ import {
   ButtonLabel,
 } from '../../pages/Add.styles';
 import { HABITOS_OPCIONES } from '../../helpers/add/catalogos';
+import ConfirmModal from '../ConfirmModal';
 
 const AntecedentesPersonalesSection = ({
   formData,
@@ -28,6 +29,19 @@ const AntecedentesPersonalesSection = ({
   isOpen,
   onToggle,
 }) => {
+  const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
+
+  const selectedHabito =
+    deleteCandidateIdx !== null ? formData.antecedentes_personales_habitos[deleteCandidateIdx] : null;
+
+  const requestDeleteHabito = (idx) => setDeleteCandidateIdx(idx);
+  const cancelDeleteHabito = () => setDeleteCandidateIdx(null);
+  const confirmDeleteHabito = () => {
+    if (deleteCandidateIdx === null) return;
+    removeHabitoAt(deleteCandidateIdx);
+    setDeleteCandidateIdx(null);
+  };
+
   return (
     <details open={isOpen} onToggle={onToggle}>
       <Summary>Antecedentes personales</Summary>
@@ -112,7 +126,7 @@ const AntecedentesPersonalesSection = ({
               </TwoColumnRow>
 
               <ItemActions>
-                <DangerButton type="button" onClick={() => removeHabitoAt(idx)}>
+                <DangerButton type="button" onClick={() => requestDeleteHabito(idx)}>
                   <FaTrash />
                   <ButtonLabel>Eliminar</ButtonLabel>
                 </DangerButton>
@@ -159,11 +173,11 @@ const AntecedentesPersonalesSection = ({
         </FieldGroup>
       </TwoColumnRow>
 
-      <FieldGroup>
-        <Label htmlFor="alimentacion_descripcion">
-          <FaUtensils style={{ marginRight: '0.5rem' }} />Descripción de la alimentación
-        </Label>
-        <TextArea id="descripcion" name="descripcion" value={formData.descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
+        <FieldGroup>
+          <Label htmlFor="alimentacion_descripcion">
+            <FaUtensils style={{ marginRight: '0.5rem' }} />Descripción de la alimentación
+          </Label>
+          <TextArea id="descripcion" name="descripcion" value={formData.descripcion} onChange={handleChange} rows={3} placeholder="Describe la alimentación del paciente" />
       </FieldGroup>
 
       <TwoColumnRow>
@@ -201,9 +215,20 @@ const AntecedentesPersonalesSection = ({
           </FieldGroup>
         </TwoColumnRow>
       )}
+      <ConfirmModal
+        open={deleteCandidateIdx !== null}
+        onCancel={cancelDeleteHabito}
+        onConfirm={confirmDeleteHabito}
+        title="¿Eliminar hábito?"
+        text={
+          selectedHabito
+            ? `Vas a eliminar el hábito "${selectedHabito.tipo}". Esta acción no se puede deshacer.`
+            : 'Vas a eliminar este hábito. Esta acción no se puede deshacer.'
+        }
+        confirmLabel="Eliminar"
+      />
     </details>
   );
 };
 
 export default AntecedentesPersonalesSection;
-

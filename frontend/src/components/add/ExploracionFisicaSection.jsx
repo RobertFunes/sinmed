@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Summary,
   TwoColumnRow,
@@ -31,6 +31,7 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import { GiLungs } from 'react-icons/gi';
+import ConfirmModal from '../ConfirmModal';
 
 const ExploracionFisicaSection = ({
   formData,
@@ -44,6 +45,19 @@ const ExploracionFisicaSection = ({
   removeInspeccionAt,
   updateInspeccionDesc,
 }) => {
+  const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
+
+  const selectedInspeccion =
+    deleteCandidateIdx !== null ? formData.inspeccion_general[deleteCandidateIdx] : null;
+
+  const requestDeleteInspeccion = (idx) => setDeleteCandidateIdx(idx);
+  const cancelDeleteInspeccion = () => setDeleteCandidateIdx(null);
+  const confirmDeleteInspeccion = () => {
+    if (deleteCandidateIdx === null) return;
+    removeInspeccionAt(deleteCandidateIdx);
+    setDeleteCandidateIdx(null);
+  };
+
   return (
     <details open={isOpen} onToggle={onToggle}>
       <Summary>Exploración física</Summary>
@@ -113,7 +127,32 @@ const ExploracionFisicaSection = ({
           <Input id="cintura_cm" name="cintura_cm" value={formData.cintura_cm} onChange={handleChange} inputMode="decimal" placeholder="Ej. 80" />
         </FieldGroup>
       </TwoColumnRow>
-
+      {formData.inspeccion_general.length > 0 && (
+        <ListContainer>
+          {formData.inspeccion_general.map((s, idx) => (
+            <ItemCard key={idx}>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label>
+                    <FaStethoscope style={{ marginRight: '0.5rem' }} />Área
+                  </Label>
+                  <Input value={s.nombre} disabled />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label>{`Descripción de ${s.nombre.toLowerCase()}`}</Label>
+                  <TextArea value={s.descripcion} onChange={(e) => updateInspeccionDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${s.nombre.toLowerCase()}`} />
+                </FieldGroup>
+             </TwoColumnRow>
+              <ItemActions>
+                <DangerButton type="button" onClick={() => requestDeleteInspeccion(idx)}>
+                  <FaTrash />
+                  <ButtonLabel>Eliminar</ButtonLabel>
+                </DangerButton>
+              </ItemActions>
+            </ItemCard>
+          ))}
+        </ListContainer>
+      )}
       {/* Inspección general (dinámica) */}
       <TwoColumnRow>
         <FieldGroup>
@@ -136,35 +175,20 @@ const ExploracionFisicaSection = ({
         </FieldGroup>
       </TwoColumnRow>
 
-      {formData.inspeccion_general.length > 0 && (
-        <ListContainer>
-          {formData.inspeccion_general.map((s, idx) => (
-            <ItemCard key={idx}>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label>
-                    <FaStethoscope style={{ marginRight: '0.5rem' }} />Área
-                  </Label>
-                  <Input value={s.nombre} disabled />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>{`Descripción de ${s.nombre.toLowerCase()}`}</Label>
-                  <TextArea value={s.descripcion} onChange={(e) => updateInspeccionDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${s.nombre.toLowerCase()}`} />
-                </FieldGroup>
-              </TwoColumnRow>
-              <ItemActions>
-                <DangerButton type="button" onClick={() => removeInspeccionAt(idx)}>
-                  <FaTrash />
-                  <ButtonLabel>Eliminar</ButtonLabel>
-                </DangerButton>
-              </ItemActions>
-            </ItemCard>
-          ))}
-        </ListContainer>
-      )}
+      <ConfirmModal
+        open={deleteCandidateIdx !== null}
+        onCancel={cancelDeleteInspeccion}
+        onConfirm={confirmDeleteInspeccion}
+        title="¿Eliminar área de inspección?"
+        text={
+          selectedInspeccion
+            ? `Vas a eliminar el área "${selectedInspeccion.nombre}". Esta acción no se puede deshacer.`
+            : 'Vas a eliminar este registro de inspección. Esta acción no se puede deshacer.'
+        }
+        confirmLabel="Eliminar"
+      />
     </details>
   );
 };
 
 export default ExploracionFisicaSection;
-
