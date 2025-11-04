@@ -1,6 +1,6 @@
 // modify.jsx (actualizado para edicion de perfiles)
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton, CancelButton } from './Add.styles';
 import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
@@ -151,7 +151,6 @@ const createEmptyConsulta = () => ({
 
 const Modify = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const { formData, setFormData, isLoading, original } = usePerfilModify(id);
   const { isSubmitting, submit } = useSubmitPerfilModify(id);
@@ -244,9 +243,9 @@ const Modify = () => {
     }
 
     const ok = await submit(formData, {
-      onSuccess: async () => {
+      onSuccess: () => {
         alert('Perfil actualizado correctamente');
-        navigate(`/profile/${id}`);
+        window.location.reload();
       },
     });
     if (!ok) return;

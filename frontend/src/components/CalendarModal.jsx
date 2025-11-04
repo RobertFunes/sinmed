@@ -13,6 +13,7 @@ import {
   ColorTag,
   ColorSwatch,
   Actions,
+  ActionRow,
   ActionButton,
 } from "./CalendarModal.styles";
 import { url } from "../helpers/url.js";
@@ -155,18 +156,31 @@ export default function CalendarModal({
         </Content>
 
         <Actions>
-          <ActionButton type="button" $variant="default" onClick={handleModify}>
-            Modificar
-          </ActionButton>
-          <ActionButton
-            type="button"
-            $variant="danger"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            style={confirmDelete ? { background: '#D32F2F', borderColor: '#D32F2F', color: '#fff' } : undefined}
-          >
-            {confirmDelete ? 'Confirmar eliminacion' : 'Eliminar'}
-          </ActionButton>
+          <ActionRow>
+            <ActionButton type="button" $variant="delay" onClick={handleModify}>
+              +7
+            </ActionButton>
+            <ActionButton type="button" $variant="delay" onClick={handleModify}>
+              +14
+            </ActionButton>
+            <ActionButton type="button" $variant="delay" onClick={handleModify}>
+              +21
+            </ActionButton>
+          </ActionRow>
+          <ActionRow>
+            <ActionButton type="button" $variant="primary" onClick={handleModify}>
+              Modificar
+            </ActionButton>
+            <ActionButton
+              type="button"
+              $variant="danger"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              style={confirmDelete ? { background: '#D32F2F', borderColor: '#D32F2F', color: '#fff' } : undefined}
+            >
+              {confirmDelete ? 'Confirmar eliminación' : 'Eliminar'}
+            </ActionButton>
+          </ActionRow>
         </Actions>
       </Container>
     </Backdrop>

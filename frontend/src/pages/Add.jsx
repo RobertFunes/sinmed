@@ -1,5 +1,6 @@
 // add.jsx (actualizado con nuevos campos y sección colapsable)
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton } from './Add.styles';
 import { url } from '../helpers/url';
@@ -31,6 +32,7 @@ const buildInitialForm = () => ({
 });
 
 const Add = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(() => buildInitialForm());
   const nombreRef = useRef(null);
   // Control de acordeón: solo una sección abierta a la vez
@@ -111,8 +113,18 @@ const Add = () => {
       });
 
       if (res.ok) {
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
         alert('Perfil agregado correctamente');
-        setFormData(buildInitialForm());
+        if (data && data.id_perfil) {
+          navigate(`/modify/${data.id_perfil}`);
+        } else {
+          setFormData(buildInitialForm());
+        }
       } else {
         alert('Ocurrió un error al agregar el perfil');
       }

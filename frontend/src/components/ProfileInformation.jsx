@@ -75,6 +75,20 @@ const present = (value) => {
 
 const toStr = (value) => (value == null ? '' : String(value));
 const toArr = (value) => (Array.isArray(value) ? value : []);
+const calculateAge = (value) => {
+  const str = toStr(value).trim();
+  if (!str) return null;
+  const parsed = new Date(str);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const today = new Date();
+  let years = today.getFullYear() - parsed.getFullYear();
+  const hasNotHadBirthday =
+    today.getMonth() < parsed.getMonth() ||
+    (today.getMonth() === parsed.getMonth() && today.getDate() < parsed.getDate());
+  if (hasNotHadBirthday) years -= 1;
+  if (years < 0) return null;
+  return `${years} ${years === 1 ? 'año' : 'años'}`;
+};
 
 const formatDate = (value) => {
   const str = toStr(value).trim();
@@ -394,6 +408,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   };
 
   const { creadoMax, actualizadoMax } = computeMaxDates();
+  const ageDisplay = calculateAge(data.fecha_nacimiento);
   const personalData = {
     ...data,
     fecha_nacimiento: formatDate(data.fecha_nacimiento),
@@ -462,9 +477,17 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
 
   const personalRows = personalOrder
     .filter((key) => key !== 'alergico' && present(personalData[key]))
-    .map((key) => (
-      <Row key={key} icon={iconFor(key)} label={labelFor(key)} value={personalData[key]} />
-    ));
+    .flatMap((key) => {
+      const rows = [
+        <Row key={key} icon={iconFor(key)} label={labelFor(key)} value={personalData[key]} />,
+      ];
+      if (key === 'fecha_nacimiento' && present(ageDisplay)) {
+        rows.push(
+          <Row key="edad" icon={<FaClock />} label="Edad:" value={ageDisplay} />,
+        );
+      }
+      return rows;
+    });
 
   const antecedentesFamiliares = toArr(data.antecedentes_familiares)
     .map((item) => ({
