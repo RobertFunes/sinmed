@@ -42,7 +42,7 @@ app.get(['/', '/add', '/pending', '/login', '/link', '/profile/:id', '/calendar'
   res.sendFile(indexFile);
 });
 
-app.get(['/contracts'], (req, res) => {
+app.get(['/modify/:id'], (req, res) => {
   res.sendFile(indexFile);
 });
 const PORT = process.env.PORT || 5003;

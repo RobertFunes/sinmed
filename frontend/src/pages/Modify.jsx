@@ -542,7 +542,7 @@ const Modify = () => {
       <AddContainer>
         <FormCard>
           <Title>
-            <span>Editar</span> historia clinica.
+            <span>Editar</span> historia clinica{formData.nombre ? ` de ${formData.nombre}` : ''}.
           </Title>
 
           <Form ref={formElRef} onSubmit={handleSubmit} noValidate>
