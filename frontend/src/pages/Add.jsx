@@ -63,8 +63,15 @@ const Add = () => {
     }));
   };
 
-  const handleChange = ({ target: { name, value } }) =>
+  const handleChange = ({ target: { name, value } }) => {
+    if (name === 'telefono_movil') {
+      const digits = value.replace(/\D/g, '');
+      const suffix = digits.startsWith('52') ? digits.slice(2) : digits;
+      setFormData(prev => ({ ...prev, [name]: `52${suffix}` }));
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   // Log en tiempo real cada vez que cambia el payload
   useEffect(() => {

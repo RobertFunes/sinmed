@@ -49,8 +49,12 @@ export const FloatingSave = styled.div`
   right: 24px;
   bottom: 24px;
   z-index: 1000;
-  max-width:100px;
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 100px;
+
   button {
     height: 75px;
     width: 75px;
@@ -58,8 +62,10 @@ export const FloatingSave = styled.div`
     display: inline-flex;
     align-items: center;
     justify-content: center;
- 
+    border-radius: 50%;
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
   }
+
   svg{
     font-size: 2.5rem;
     color: #2aa198;

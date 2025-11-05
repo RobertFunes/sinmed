@@ -9,7 +9,7 @@ import { usePerfilModify } from '../components/modify/usePerfilModify';
 import { useSubmitPerfilModify } from '../components/modify/useSubmitPerfilModify';
 
 // iconos
-import { FaSave } from 'react-icons/fa';
+import { FaSave, FaArrowUp } from 'react-icons/fa';
 import { FloatingSave } from './modify.styles';
 import DatosPersonalesSection from '../components/modify/DatosPersonalesSection';
 import AntecedentesFamiliaresSectionY from '../components/modify/AntecedentesFamiliaresSectionY';
@@ -260,6 +260,10 @@ const Modify = () => {
     setNuevoPatologico('');
     setNuevoSistemaPorConsulta({});
     setNuevoInspeccion('');
+  };
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   // Ref para submit programático (botón flotante)
   const formElRef = useRef(null);
@@ -664,6 +668,14 @@ const Modify = () => {
             </ButtonRow>
             {/* Botón flotante fijo para guardar */}
             <FloatingSave>
+              <SubmitButton
+                type="button"
+                onClick={handleScrollToTop}
+                title="Ir al inicio"
+                aria-label="Ir al inicio de la página"
+              >
+                <FaArrowUp />
+              </SubmitButton>
               <SubmitButton
                 type="button"
                 onClick={() => formElRef.current?.requestSubmit?.()}

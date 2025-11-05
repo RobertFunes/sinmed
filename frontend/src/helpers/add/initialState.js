@@ -2,7 +2,7 @@ export const initialState = {
   nombre: '',                 // varchar(100) NOT NULL
   fecha_nacimiento: '',       // date NULL
   genero: '',                 // enum('Hombre','Mujer','NA')
-  telefono_movil: '',         // varchar(20) NULL
+  telefono_movil: '52',       // varchar(20) NULL (prefijo nacional)
   correo_electronico: '',     // varchar(100) NULL
   residencia: '',             // varchar(255) NULL
   ocupacion: '',              // varchar(50) NULL

@@ -99,7 +99,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             value={formData.telefono_movil}
             onChange={onChange}
             maxLength={20}
-            placeholder="Ej. +525512345678"
+            placeholder="52XXXXXXXXXX"
           />
         </FieldGroup>
       </TwoColumnRow>
@@ -212,4 +212,3 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
 };
 
 export default DatosPersonalesSection;
-
