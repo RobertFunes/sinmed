@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaPlusCircle, FaUtensils, FaExchangeAlt, FaExclamationCircle, FaClock, FaTrash } from 'react-icons/fa';
 import {
   Summary,
@@ -30,6 +30,37 @@ const AntecedentesPersonalesSection = ({
   onToggle,
 }) => {
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
+  const prevHabitosCount = useRef(formData.antecedentes_personales_habitos.length);
+  const habitoInputsRef = useRef([]);
+
+  useEffect(() => {
+    const prevCount = prevHabitosCount.current;
+    const currentCount = formData.antecedentes_personales_habitos.length;
+
+    habitoInputsRef.current.length = currentCount;
+
+    if (currentCount > prevCount) {
+      const lastIndex = currentCount - 1;
+      const targetField = habitoInputsRef.current[lastIndex];
+
+      if (targetField && typeof targetField.focus === 'function') {
+        targetField.focus();
+      }
+
+      if (typeof window !== 'undefined') {
+        window.scrollBy({
+          top: window.innerHeight * 0.15,
+          behavior: 'smooth',
+        });
+      }
+    }
+
+    prevHabitosCount.current = currentCount;
+  }, [formData.antecedentes_personales_habitos.length]);
+
+  const setHabitoInputRef = (idx) => (el) => {
+    habitoInputsRef.current[idx] = el;
+  };
 
   const selectedHabito =
     deleteCandidateIdx !== null ? formData.antecedentes_personales_habitos[deleteCandidateIdx] : null;
@@ -59,6 +90,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`bebidas_${idx}`}>Alcohol: Bebidas por día</Label>
                       <Input
                         id={`bebidas_${idx}`}
+                        ref={setHabitoInputRef(idx)}
                         value={h.campos.bebidas_por_dia}
                         onChange={(e) => updateHabitoCampo(idx, 'bebidas_por_dia', e.target.value)}
                         inputMode="numeric"
@@ -83,6 +115,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`cigs_${idx}`}>Cigarrillos por día</Label>
                       <Input
                         id={`cigs_${idx}`}
+                        ref={setHabitoInputRef(idx)}
                         value={h.campos.cigarrillos_por_dia}
                         onChange={(e) => updateHabitoCampo(idx, 'cigarrillos_por_dia', e.target.value)}
                         inputMode="numeric"
@@ -107,6 +140,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`tox_${idx}`}>Tipo de toxicomanía</Label>
                       <Input
                         id={`tox_${idx}`}
+                        ref={setHabitoInputRef(idx)}
                         value={h.campos.tipo_toxicomania}
                         onChange={(e) => updateHabitoCampo(idx, 'tipo_toxicomania', e.target.value)}
                         placeholder="Sustancia"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaUsers, FaPlusCircle, FaTrash } from 'react-icons/fa';
 import {
   Summary,
@@ -29,6 +29,33 @@ const AntecedentesFamiliaresSection = ({
   onToggle,
 }) => {
   const [deleteCandidateIndex, setDeleteCandidateIndex] = useState(null);
+  const prevAntecedentesCount = useRef(formData.antecedentes_familiares.length);
+  const antecedenteInputsRef = useRef([]);
+
+  useEffect(() => {
+    const prevCount = prevAntecedentesCount.current;
+    const currentCount = formData.antecedentes_familiares.length;
+
+    antecedenteInputsRef.current.length = currentCount;
+
+    if (currentCount > prevCount) {
+      const lastIndex = currentCount - 1;
+      const newlyAddedField = antecedenteInputsRef.current[lastIndex];
+
+      if (newlyAddedField && typeof newlyAddedField.focus === 'function') {
+        newlyAddedField.focus();
+      }
+
+      if (typeof window !== 'undefined') {
+        window.scrollBy({
+          top: window.innerHeight * 0.15,
+          behavior: 'smooth',
+        });
+      }
+    }
+
+    prevAntecedentesCount.current = currentCount;
+  }, [formData.antecedentes_familiares.length]);
 
   const selectedAntecedente =
     deleteCandidateIndex !== null ? formData.antecedentes_familiares[deleteCandidateIndex] : null;
@@ -64,6 +91,9 @@ const AntecedentesFamiliaresSection = ({
                   </Label>
                   {a.esOtro ? (
                     <Input
+                      ref={(el) => {
+                        antecedenteInputsRef.current[idx] = el;
+                      }}
                       value={a.nombre}
                       onChange={(e) => updateAntecedenteField(idx, 'nombre', e.target.value)}
                       placeholder="Especifique el antecedente"
@@ -76,6 +106,11 @@ const AntecedentesFamiliaresSection = ({
                 <FieldGroup>
                   <Label>Descripción</Label>
                   <TextArea
+                    ref={(el) => {
+                      if (!a.esOtro) {
+                        antecedenteInputsRef.current[idx] = el;
+                      }
+                    }}
                     value={a.descripcion}
                     onChange={(e) => updateAntecedenteField(idx, 'descripcion', e.target.value)}
                     rows={3}
