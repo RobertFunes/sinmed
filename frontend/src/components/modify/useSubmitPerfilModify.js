@@ -69,7 +69,7 @@ const SISTEMA_FIELD_LOOKUP = SISTEMA_FIELD_MAPPINGS.reduce((acc, cfg) => {
 }, {});
 const findSistemaConfig = (nombre) => SISTEMA_FIELD_LOOKUP[normalize(nombre)] || null;
 
-const buildPayloadWithConsultas = (data, idPerfil) => {
+export const buildPayloadWithConsultas = (data, idPerfil) => {
   const base = buildNestedPayload(data);
   const consultas = sortConsultasAsc(toArr(data?.consultas)).map((consulta) => {
     const payload = {

@@ -1,12 +1,13 @@
 // modify.jsx (actualizado para edicion de perfiles)
-import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useBeforeUnload, useBlocker } from 'react-router-dom';
 import Header from '../components/Header';
 import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton, CancelButton } from './Add.styles';
 import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
 import { usePerfilModify } from '../components/modify/usePerfilModify';
-import { useSubmitPerfilModify } from '../components/modify/useSubmitPerfilModify';
+import { useSubmitPerfilModify, buildPayloadWithConsultas } from '../components/modify/useSubmitPerfilModify';
+import ConfirmModal from '../components/ConfirmModal';
 
 // iconos
 import { FaSave, FaArrowUp } from 'react-icons/fa';
@@ -154,6 +155,16 @@ const Modify = () => {
 
   const { formData, setFormData, isLoading, original } = usePerfilModify(id);
   const { isSubmitting, submit } = useSubmitPerfilModify(id);
+  const initialPayloadStringRef = useRef('');
+  const allowNavigationRef = useRef(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const shouldBlockNavigation = useCallback(
+    () => hasChanges && !allowNavigationRef.current,
+    [hasChanges],
+  );
+  const blocker = useBlocker(shouldBlockNavigation);
+  const blockerState = blocker.state;
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
   const handleToggle = (key) => (e) => {
@@ -180,6 +191,13 @@ const Modify = () => {
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   const nombreRef = useRef(null);
   const imcAutoCalcRef = useRef(false);
+  const updateSnapshot = useCallback((data, payload) => {
+    if (!data) return;
+    const resolvedPayload = payload ?? buildPayloadWithConsultas(data, id);
+    initialPayloadStringRef.current = JSON.stringify(resolvedPayload);
+    setHasChanges(false);
+    allowNavigationRef.current = false;
+  }, [id]);
 
   // Mostrar en la interfaz de la más reciente a la más antigua
   const consultasOrdenadas = sortConsultasAsc(toArr(formData.consultas)).slice().reverse();
@@ -215,7 +233,31 @@ const Modify = () => {
     setNuevoInspeccion('');
   }, [isLoading]);
 
-  // Eliminado: log de payload en vivo (payload ahora vive en el hook de submit)
+  useEffect(() => {
+    if (isLoading) return;
+    updateSnapshot(original);
+  }, [isLoading, original, updateSnapshot]);
+
+// Eliminado: log de payload en vivo (payload ahora vive en el hook de submit)
+
+  useEffect(() => {
+    if (isLoading) return;
+    const currentPayloadString = JSON.stringify(buildPayloadWithConsultas(formData, id));
+    const different = currentPayloadString !== initialPayloadStringRef.current;
+    setHasChanges(prev => (prev !== different ? different : prev));
+  }, [formData, id, isLoading]);
+
+  useBeforeUnload(
+    useCallback((event) => {
+      if (!hasChanges || allowNavigationRef.current) return;
+      event.preventDefault();
+      event.returnValue = '';
+    }, [hasChanges]),
+  );
+
+  useEffect(() => {
+    setShowLeaveModal(blockerState === 'blocked');
+  }, [blockerState]);
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
@@ -244,6 +286,8 @@ const Modify = () => {
 
     const ok = await submit(formData, {
       onSuccess: () => {
+        updateSnapshot(formData);
+        allowNavigationRef.current = true;
         alert('Perfil actualizado correctamente');
         window.location.reload();
       },
@@ -260,6 +304,7 @@ const Modify = () => {
     setNuevoPatologico('');
     setNuevoSistemaPorConsulta({});
     setNuevoInspeccion('');
+    updateSnapshot(snapshot);
   };
 
   const handleScrollToTop = () => {
@@ -689,6 +734,22 @@ const Modify = () => {
           </Form>
         </FormCard>
       </AddContainer>
+      <ConfirmModal
+        open={showLeaveModal}
+        title="Cambios sin guardar"
+        text="Tienes cambios sin guardar. Si sales perderás la información ingresada."
+        confirmLabel="Salir sin guardar"
+        onCancel={() => {
+          allowNavigationRef.current = false;
+          blocker.reset();
+          setShowLeaveModal(false);
+        }}
+        onConfirm={() => {
+          allowNavigationRef.current = true;
+          setShowLeaveModal(false);
+          blocker.proceed();
+        }}
+      />
     </>
   );
 };

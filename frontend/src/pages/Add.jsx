@@ -105,7 +105,7 @@ const Add = () => {
 
   useBeforeUnload(
     useCallback((event) => {
-      if (!hasChanges) return;
+      if (!hasChanges || allowNavigationRef.current) return;
       event.preventDefault();
       event.returnValue = '';
     }, [hasChanges])
