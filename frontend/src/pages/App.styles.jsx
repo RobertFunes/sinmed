@@ -21,7 +21,7 @@ export const ContactListContainer = styled.section`
   background-repeat: repeat;
   background-position: top left;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   max-width: 100%;
   margin: 0 ;

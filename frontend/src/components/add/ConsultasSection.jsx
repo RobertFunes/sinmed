@@ -102,7 +102,7 @@ const ConsultasSection = ({
 
       <FieldGroup>
         <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
-        <TextArea id="consulta_padecimiento_actual" name="padecimiento_actual" value={formData.padecimiento_actual} onChange={handleChange} rows={6} placeholder="Describe el padecimiento actual" />
+        <TextArea id="consulta_padecimiento_actual" name="padecimiento_actual" value={formData.padecimiento_actual} onChange={handleChange} rows={3} placeholder="Describe el padecimiento actual" />
       </FieldGroup>
       <FieldGroup>
         <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
