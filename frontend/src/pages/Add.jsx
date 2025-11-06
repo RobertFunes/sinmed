@@ -1,12 +1,13 @@
 // add.jsx (actualizado con nuevos campos y sección colapsable)
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useBeforeUnload, useBlocker } from 'react-router-dom';
 import Header from '../components/Header';
 import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton } from './Add.styles';
 import { url } from '../helpers/url';
 import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
 import { buildNestedPayload } from '../helpers/add/buildPayload';
+import ConfirmModal from '../components/ConfirmModal';
 
 // iconos: se usan dentro de las secciones hijas, no aquí
 import DatosPersonalesSection from '../components/add/DatosPersonalesSection';
@@ -33,7 +34,17 @@ const buildInitialForm = () => ({
 
 const Add = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(() => buildInitialForm());
+  const initialFormRef = useRef(null);
+  const initialPayloadStringRef = useRef('');
+
+  if (!initialFormRef.current) {
+    const freshForm = buildInitialForm();
+    initialFormRef.current = freshForm;
+    const initialPayload = buildNestedPayload(freshForm);
+    initialPayloadStringRef.current = JSON.stringify(initialPayload);
+  }
+
+  const [formData, setFormData] = useState(initialFormRef.current);
   const nombreRef = useRef(null);
   // Control de acordeón: solo una sección abierta a la vez
   const [openSection, setOpenSection] = useState('datos');
@@ -53,6 +64,19 @@ const Add = () => {
   const [nuevoSistema, setNuevoSistema] = useState('');
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   // Eliminado: nuevoDieta
+  const [hasChanges, setHasChanges] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const allowNavigationRef = useRef(false);
+  const blocker = useBlocker(() => hasChanges && !allowNavigationRef.current);
+  const blockerState = blocker.state;
+
+  const updateSnapshot = useCallback((data, payload) => {
+    initialFormRef.current = data;
+    const resolvedPayload = payload ?? buildNestedPayload(data);
+    initialPayloadStringRef.current = JSON.stringify(resolvedPayload);
+    setHasChanges(false);
+    allowNavigationRef.current = false;
+  }, []);
 
   // Toggle exclusivo para 'alérgico': permite ninguno o sólo uno (Sí/No)
   const toggleAlergico = (valor) => (e) => {
@@ -72,6 +96,24 @@ const Add = () => {
     }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    const currentPayloadString = JSON.stringify(buildNestedPayload(formData));
+    const different = currentPayloadString !== initialPayloadStringRef.current;
+    setHasChanges(prev => (prev !== different ? different : prev));
+  }, [formData]);
+
+  useBeforeUnload(
+    useCallback((event) => {
+      if (!hasChanges) return;
+      event.preventDefault();
+      event.returnValue = '';
+    }, [hasChanges])
+  );
+
+  useEffect(() => {
+    setShowLeaveModal(blockerState === 'blocked');
+  }, [blockerState]);
 
   // Log en tiempo real cada vez que cambia el payload
   useEffect(() => {
@@ -128,9 +170,13 @@ const Add = () => {
         }
         alert('Perfil agregado correctamente');
         if (data && data.id_perfil) {
+          updateSnapshot(formData, payload);
+          allowNavigationRef.current = true;
           navigate(`/modify/${data.id_perfil}`);
         } else {
-          setFormData(buildInitialForm());
+          const fresh = buildInitialForm();
+          updateSnapshot(fresh);
+          setFormData(fresh);
         }
       } else {
         alert('Ocurrió un error al agregar el perfil');
@@ -143,7 +189,6 @@ const Add = () => {
     }
   };
 
-  const handleCancel = () => setFormData(buildInitialForm());
   const addAntecedente = () => {
     if (!nuevoAntecedente) return;
     setFormData(prev => ({
@@ -413,6 +458,22 @@ const Add = () => {
           </Form>
         </FormCard>
       </AddContainer>
+      <ConfirmModal
+        open={showLeaveModal}
+        title="Cambios sin guardar"
+        text="Tienes cambios sin guardar. Si sales perderás la información ingresada."
+        confirmLabel="Salir sin guardar"
+        onCancel={() => {
+          allowNavigationRef.current = false;
+          blocker.reset();
+          setShowLeaveModal(false);
+        }}
+        onConfirm={() => {
+          allowNavigationRef.current = true;
+          setShowLeaveModal(false);
+          blocker.proceed();
+        }}
+      />
     </>
   );
 };

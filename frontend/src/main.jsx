@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import './index.css';
 import App from './pages/App.jsx';
 import Login from './pages/Login.jsx';
@@ -20,105 +20,35 @@ export function NotFound() {           // ← agrega "export" y se acabó el dra
   return <h2>Página no encontrada 🚫</h2>;
 }
 
+const ProtectedOutlet = () => (
+  <RequireAuth>
+    <Outlet />
+  </RequireAuth>
+);
+
+const router = createBrowserRouter([
+  { path: '/login', element: <Login /> },
+  {
+    element: <ProtectedOutlet />,
+    children: [
+      { path: '/', element: <App /> },
+      { path: '/add', element: <Add /> },
+      { path: '/profile/:id', element: <Profile /> },
+      { path: '/link', element: <Link /> },
+      { path: '/pending', element: <Interact /> },
+      { path: '/modify/:id', element: <Modify /> },
+      { path: '/calendar', element: <Calendar /> },
+      { path: '/calendar/new', element: <NewAppointment /> },
+      { path: '/calendar/modify', element: <ModifyAppointment /> },
+      { path: '/polizas/:id/edit', element: <ModifyContract /> },
+      { path: '/search', element: <Search /> },
+    ],
+  },
+  { path: '*', element: <NotFound /> },
+]);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* Ruta pública */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Rutas protegidas */}
-        <Route 
-          path="/" 
-          element={
-            <RequireAuth>
-              <App />
-            </RequireAuth>
-          } 
-        />
-        <Route
-          path="/add"
-          element={
-            <RequireAuth>
-              <Add />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/profile/:id"
-          element={
-            <RequireAuth>
-              <Profile />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/link"
-          element={
-            <RequireAuth>
-              <Link />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/pending"
-          element={
-            <RequireAuth>
-              <Interact />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/modify/:id"
-          element={
-            <RequireAuth>
-              <Modify />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/calendar"
-          element={
-            <RequireAuth>
-              <Calendar />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/calendar/new"
-          element={
-            <RequireAuth>
-              <NewAppointment />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/calendar/modify"
-          element={
-            <RequireAuth>
-              <ModifyAppointment />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/polizas/:id/edit"
-          element={
-            <RequireAuth>
-              <ModifyContract />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/search"
-          element={
-            <RequireAuth>
-              <Search />
-            </RequireAuth>
-          }
-        />
-        {/* Catch-all */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <RouterProvider router={router} />
   </StrictMode>
 );
