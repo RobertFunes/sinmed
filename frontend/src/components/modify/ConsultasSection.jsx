@@ -225,6 +225,20 @@ const ConsultasSection = ({
                 </FieldGroup>
               </TwoColumnRow>
 
+              {displayNumber >= 2 && (
+                <FieldGroup>
+                  <Label htmlFor={notasId}>
+                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas
+                  </Label>
+                  <TextArea
+                    id={notasId}
+                    value={consulta.notas || ''}
+                    onChange={handleConsultaFieldChange(uid, 'notas')}
+                    rows={2}
+                    placeholder="Notas adicionales"
+                  />
+                </FieldGroup>
+              )}
               <FieldGroup>
                 <Label htmlFor={padecimientoId}>
                   <FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual
@@ -255,18 +269,20 @@ const ConsultasSection = ({
                   placeholder="Describe el plan de tratamiento"
                 />
               </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor={notasId}>
-                  <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas
-                </Label>
-                <TextArea
-                  id={notasId}
-                  value={consulta.notas || ''}
-                  onChange={handleConsultaFieldChange(uid, 'notas')}
-                  rows={2}
-                  placeholder="Notas adicionales"
-                />
-              </FieldGroup>
+              {displayNumber < 2 && (
+                <FieldGroup>
+                  <Label htmlFor={notasId}>
+                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas
+                  </Label>
+                  <TextArea
+                    id={notasId}
+                    value={consulta.notas || ''}
+                    onChange={handleConsultaFieldChange(uid, 'notas')}
+                    rows={2}
+                    placeholder="Notas adicionales"
+                  />
+                </FieldGroup>
+              )}
               {sistemasSeleccionados.length > 0 && (
                 <ListContainer>
                   {sistemasSeleccionados.map((s, sistemaIdx) => {
