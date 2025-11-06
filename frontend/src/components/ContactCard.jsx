@@ -7,7 +7,7 @@ import {
   InfoRow,
   ButtonRow,
   ActionButton,
-} from './ContactCard.styles.jsx';
+} from './ContactCard.styles.js';
 import { MdOutlineNumbers } from 'react-icons/md';
 import { FaPhoneAlt, FaRegClock, FaBirthdayCake, FaTrashAlt, FaEye, FaEdit } from 'react-icons/fa';
 
@@ -64,14 +64,18 @@ export default function ContactCard(props) {
 
         <InfoRow>
           <FaRegClock />
-          <span>Creado: {formatDate(created) || '-'}</span>
+          <span>Creado:</span>
         </InfoRow>
-
+        <InfoRow>
+          <span>{formatDate(created) || '-'}</span>
+        </InfoRow>
         <InfoRow>
           <FaRegClock />
-          <span>Modificado: {formatDate(updated) || '-'}</span>
+          <span>Modificado:</span>
         </InfoRow>
-
+        <InfoRow>
+          <span>{formatDate(updated) || '-'}</span>
+        </InfoRow>
         <InfoRow>
           <MdOutlineNumbers />
           <span>ID: {id}</span>
