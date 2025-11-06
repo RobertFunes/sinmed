@@ -101,7 +101,7 @@ export const Input = styled.input`
 export const TextArea = styled.textarea`
   ${inputStyles}
   resize: vertical;
-  min-height: 120px;
+  min-height: 60px;
 `;
 
 /* Select personalizado */

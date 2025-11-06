@@ -104,6 +104,39 @@ const ConsultasSection = ({
         <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
         <TextArea id="consulta_padecimiento_actual" name="padecimiento_actual" value={formData.padecimiento_actual} onChange={handleChange} rows={6} placeholder="Describe el padecimiento actual" />
       </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_diagnostico"><FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico</Label>
+        <TextArea
+          id="consulta_diagnostico"
+          name="diagnostico"
+          value={formData.diagnostico}
+          onChange={handleChange}
+          rows={4}
+          placeholder="Especifica el diagnóstico"
+        />
+      </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
+        <TextArea
+          id="consulta_tratamiento"
+          name="tratamiento"
+          value={formData.tratamiento}
+          onChange={handleChange}
+          rows={4}
+          placeholder="Describe el plan de tratamiento"
+        />
+      </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
+        <TextArea
+          id="consulta_notas"
+          name="notas"
+          value={formData.notas}
+          onChange={handleChange}
+          rows={3}
+          placeholder="Notas adicionales"
+        />
+      </FieldGroup>
       
       {formData.interrogatorio_aparatos.length > 0 && (
         <ListContainer>

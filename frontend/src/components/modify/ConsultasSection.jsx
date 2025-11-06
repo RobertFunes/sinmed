@@ -229,7 +229,43 @@ const ConsultasSection = ({
                 <Label htmlFor={padecimientoId}>
                   <FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual
                 </Label>
-                <TextArea id={padecimientoId} value={consulta.padecimiento_actual || ''} onChange={handleConsultaFieldChange(uid, 'padecimiento_actual')} rows={6} placeholder="Describe el padecimiento actual" />
+                <TextArea id={padecimientoId} value={consulta.padecimiento_actual || ''} onChange={handleConsultaFieldChange(uid, 'padecimiento_actual')} rows={2} placeholder="Describe el padecimiento actual" />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor={diagnosticoId}>
+                  <FaDiagnoses style={{ marginRight: '0.5rem' }} />Diagnóstico
+                </Label>
+                <TextArea
+                  id={diagnosticoId}
+                  value={consulta.diagnostico || ''}
+                  onChange={handleConsultaFieldChange(uid, 'diagnostico')}
+                  rows={2}
+                  placeholder="Especifica el diagnóstico"
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor={tratamientoId}>
+                  <FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento
+                </Label>
+                <TextArea
+                  id={tratamientoId}
+                  value={consulta.tratamiento || ''}
+                  onChange={handleConsultaFieldChange(uid, 'tratamiento')}
+                  rows={2}
+                  placeholder="Describe el plan de tratamiento"
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor={notasId}>
+                  <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas
+                </Label>
+                <TextArea
+                  id={notasId}
+                  value={consulta.notas || ''}
+                  onChange={handleConsultaFieldChange(uid, 'notas')}
+                  rows={2}
+                  placeholder="Notas adicionales"
+                />
               </FieldGroup>
               {sistemasSeleccionados.length > 0 && (
                 <ListContainer>

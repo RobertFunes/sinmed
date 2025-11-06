@@ -371,21 +371,6 @@ const Add = () => {
               isOpen={openSection === 'patologicos'}
               onToggle={handleToggle('patologicos')}
             />
-
-            {/* 🩺 Exploración física -> payload.exploracion_fisica */}
-            <ExploracionFisicaSection
-              formData={formData}
-              handleChange={handleChange}
-              isOpen={openSection === 'exploracion'}
-              onToggle={handleToggle('exploracion')}
-              INSPECCION_OPCIONES={INSPECCION_OPCIONES}
-              nuevoInspeccion={nuevoInspeccion}
-              setNuevoInspeccion={setNuevoInspeccion}
-              addInspeccion={addInspeccion}
-              removeInspeccionAt={removeInspeccionAt}
-              updateInspeccionDesc={updateInspeccionDesc}
-            />
-
             {/* 📅 Consultas (padecimiento + interrogatorio) -> payload.consultas */}
             <ConsultasSection
               formData={formData}
@@ -403,6 +388,21 @@ const Add = () => {
               updatePersonalizadoField={updatePersonalizadoField}
               toggleAlergico={toggleAlergico}
             />
+            {/* 🩺 Exploración física -> payload.exploracion_fisica */}
+            <ExploracionFisicaSection
+              formData={formData}
+              handleChange={handleChange}
+              isOpen={openSection === 'exploracion'}
+              onToggle={handleToggle('exploracion')}
+              INSPECCION_OPCIONES={INSPECCION_OPCIONES}
+              nuevoInspeccion={nuevoInspeccion}
+              setNuevoInspeccion={setNuevoInspeccion}
+              addInspeccion={addInspeccion}
+              removeInspeccionAt={removeInspeccionAt}
+              updateInspeccionDesc={updateInspeccionDesc}
+            />
+
+            
 
             {/* Botonera */}
             <ButtonRow>
