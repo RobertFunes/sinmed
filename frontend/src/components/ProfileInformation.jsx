@@ -47,7 +47,7 @@ import {
 } from 'react-icons/fa';
 import { MdEmail, MdHome, MdWork } from 'react-icons/md';
 import { GiLungs } from 'react-icons/gi';
-import { ActionButton } from './ContactCard.styles.jsx';
+import { ActionButton } from './ContactCard.styles.js';
 import {
   Section,
   FieldRow,

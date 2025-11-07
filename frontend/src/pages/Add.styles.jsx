@@ -162,6 +162,7 @@ export const TwoColumnRow = styled.div`
   display: grid;
   grid-template-columns: ${({ $cols }) => `repeat(${Number($cols) || 2}, 1fr)`};
   gap: 1.25rem;
+  align-items: end;
 `;
 export const ThreeColumnRow = styled.div`
   display: grid;
