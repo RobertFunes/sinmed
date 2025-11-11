@@ -95,8 +95,14 @@ const ConsultasSection = ({
           <Input type="date" id="fecha_consulta" name="fecha_consulta" value={formData.fecha_consulta} onChange={handleChange} />
         </FieldGroup>
         <FieldGroup>
-          <Label htmlFor="recordatorio"><FaBell style={{ marginRight: '0.5rem' }} />Recordatorio</Label>
-          <Input type="date" id="recordatorio" name="recordatorio" value={formData.recordatorio} onChange={handleChange} />
+          <Label htmlFor="consulta_recordatorio"><FaBell style={{ marginRight: '0.5rem' }} />Recordatorio</Label>
+          <Input
+            type="date"
+            id="consulta_recordatorio"
+            name="consulta_recordatorio"
+            value={formData.consulta_recordatorio}
+            onChange={handleChange}
+          />
         </FieldGroup>
       </TwoColumnRow>
 

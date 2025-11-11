@@ -356,7 +356,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const personalOrder = [
     'id_perfil', 'nombre', 'genero', 'fecha_nacimiento', 'telefono_movil', 'correo_electronico',
     'residencia', 'ocupacion', 'escolaridad', 'estado_civil', 'tipo_sangre', 'referido_por',
-    'alergico', 'creado', 'actualizado',
+    'alergico', 'creado', 'actualizado', 'id_legado', 'fecha_legado', 'recordatorio', 'recordatorio_desc',
   ];
 
   const getDateStr = (value) => {
@@ -414,6 +414,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     fecha_nacimiento: formatDate(data.fecha_nacimiento),
     creado: creadoMax || formatDate(data.creado),
     actualizado: actualizadoMax || formatDate(data.actualizado),
+    fecha_legado: formatDate(data.fecha_legado),
+    recordatorio: formatDate(data.recordatorio),
   };
   const isAllergic = String(personalData.alergico || '').trim() === 'Si';
 
@@ -449,6 +451,14 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         return <FaCalendarDay />;
       case 'actualizado':
         return <FaCalendarCheck />;
+      case 'id_legado':
+        return <FaClipboardCheck />;
+      case 'fecha_legado':
+        return <FaCalendarAlt />;
+      case 'recordatorio':
+        return <FaBell />;
+      case 'recordatorio_desc':
+        return <FaStickyNote />;
       default:
         return <FaClipboardCheck />;
     }
@@ -471,6 +481,10 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       case 'alergico': return 'Alérgico:';
       case 'creado': return 'Creado:';
       case 'actualizado': return 'Actualizado:';
+      case 'id_legado': return 'ID legado:';
+      case 'fecha_legado': return 'Fecha legado:';
+      case 'recordatorio': return 'Recordatorio:';
+      case 'recordatorio_desc': return 'Descripción de recordatorio:';
       default: return `${key.replace(/_/g, ' ')}:`;
     }
   };

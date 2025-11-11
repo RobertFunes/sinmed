@@ -3,6 +3,11 @@
 const bd = require('../models/profile');
 const iaLimiter = require('../utils/iaLimiter');
 
+const toInt = (v) => {
+  const n = Number(v);
+  return Number.isInteger(n) ? n : null;
+};
+
 const SISTEMA_FIELD_CONFIGS = [
   { key: 'sintomas generales', desc: 'sintomas_generales_desc', estado: 'sintomas_generales_estado' },
   { key: 'endocrino', desc: 'endocrino_desc', estado: 'endocrino_estado' },
@@ -101,6 +106,10 @@ const modify = async (req, res) => {
       tipo_sangre: clean(dp.tipo_sangre),
       referido_por: clean(dp.referido_por),
       alergico: clean(dp.alergico),
+      id_legado: toInt(dp.id_legado),
+      fecha_legado: clean(toYMD(dp.fecha_legado)),
+      recordatorio: clean(toYMD(dp.recordatorio)),
+      recordatorio_desc: clean(dp.recordatorio_desc),
     };
     const perfil_result = await bd.updatePerfil(id, perfil);
 
@@ -515,6 +524,10 @@ const add = async (req, res) => {
       tipo_sangre: clean(dp.tipo_sangre),
       referido_por: clean(dp.referido_por),
       alergico: clean(dp.alergico),
+      id_legado: toInt(dp.id_legado),
+      fecha_legado: clean(toYMD(dp.fecha_legado)),
+      recordatorio: clean(toYMD(dp.recordatorio)),
+      recordatorio_desc: clean(dp.recordatorio_desc),
     };
     const id_perfil = await bd.add(perfil); // id del perfil recién creado
 

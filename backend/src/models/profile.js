@@ -303,7 +303,7 @@ async function getById(id_perfil) {
 
   // Qué campos son fechas por tabla (para formatear YYYY-MM-DD)
   const DATE_KEYS = {
-    perfil: new Set(['fecha_nacimiento', 'creado', 'actualizado']),
+    perfil: new Set(['fecha_nacimiento', 'fecha_legado', 'recordatorio', 'creado', 'actualizado']),
     antecedentes_familiares: new Set(['creado', 'actualizado']),
     antecedentes_personales: new Set(['creado', 'actualizado']),
     antecedentes_personales_patologicos: new Set(['creado', 'actualizado']),

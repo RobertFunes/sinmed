@@ -153,6 +153,10 @@ const mapApiToForm = (api) => {
   assign('tipo_sangre', api.tipo_sangre);
   assign('referido_por', api.referido_por);
   assign('alergico', api.alergico);
+  assign('id_legado', api.id_legado);
+  assign('fecha_legado', api.fecha_legado);
+  assign('recordatorio', api.recordatorio);
+  assign('recordatorio_desc', api.recordatorio_desc);
 
   next.antecedentes_familiares = toArr(api.antecedentes_familiares).map((item) => {
     const nombre = toStr(item?.nombre);
@@ -286,7 +290,7 @@ const mapApiToForm = (api) => {
   const lastConsulta = sortedConsultas[sortedConsultas.length - 1] || null;
   if (lastConsulta) {
     assignIf('fecha_consulta', lastConsulta.fecha_consulta);
-    assignIf('recordatorio', lastConsulta.recordatorio);
+    assignIf('consulta_recordatorio', lastConsulta.recordatorio);
     assignIf('padecimiento_actual', lastConsulta.padecimiento_actual);
     assignIf('diagnostico', lastConsulta.diagnostico);
     if (!toStr(lastConsulta.diagnostico).trim()) assignIf('diagnostico', dt && dt.diagnostico);
@@ -297,7 +301,7 @@ const mapApiToForm = (api) => {
     next.interrogatorio_aparatos = toArr(lastConsulta.interrogatorio_aparatos);
   } else {
     assignIf('fecha_consulta', legacy && legacy.fecha_consulta);
-    assignIf('recordatorio', legacy && legacy.recordatorio);
+    assignIf('consulta_recordatorio', legacy && legacy.recordatorio);
     assignIf('padecimiento_actual', legacy && legacy.padecimiento_actual);
     assignIf('diagnostico', dt && dt.diagnostico);
     assignIf('tratamiento', dt && dt.tratamiento);

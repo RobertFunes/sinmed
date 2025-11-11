@@ -398,7 +398,7 @@ const Modify = () => {
     return {
       ...data,
       fecha_consulta: last.fecha_consulta || '',
-      recordatorio: last.recordatorio || '',
+      consulta_recordatorio: last.recordatorio || '',
       padecimiento_actual: last.padecimiento_actual || '',
       diagnostico: last.diagnostico || '',
       tratamiento: last.tratamiento || '',

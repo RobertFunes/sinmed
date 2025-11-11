@@ -21,10 +21,13 @@ Contiene los datos generales de cada paciente.
 | tipo_sangre        | varchar(10)                                                 | YES  |     | NULL        |                | Grupo y tipo sanguíneo                     |
 | referido_por       | varchar(100)                                                | YES  |     | NULL        |                | Fuente de referencia                       |
 | alergico           | varchar(100)                                                | YES  |     | NULL        |                | A qué sustancias es alérgico el paciente   |
+| id_legado          | int(11)                                                     | YES  |     | NULL        |                | Id de perfil legado/relacionado            |
+| fecha_legado       | date                                                        | YES  |     | NULL        |                | Fecha asociada al legado (DATE, sin hora)  |
+| recordatorio       | date                                                        | YES  |     | NULL        |                | Fecha del recordatorio (DATE, sin hora)    |
+| recordatorio_desc  | text                                                        | YES  |     | NULL        |                | Descripción del recordatorio               |
 | actualizado        | date                                                        | NO   |     | curdate()   |                | Fecha de última modificación               |
 | creado             | date                                                        | NO   |     | curdate()   |                | Fecha de creación                          |
 
----
 
 ## 👨‍👩 Tabla `antecedentes_familiares`
 Almacena antecedentes médicos relevantes en la familia del paciente.

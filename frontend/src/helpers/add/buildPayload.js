@@ -16,6 +16,10 @@ export const buildNestedPayload = (data) => {
     tipo_sangre: trim(data.tipo_sangre),
     referido_por: trim(data.referido_por),
     alergico: trim(data.alergico),
+    id_legado: trim(data.id_legado),
+    fecha_legado: trim(data.fecha_legado),
+    recordatorio: trim(data.recordatorio),
+    recordatorio_desc: trim(data.recordatorio_desc),
   };
 
   // Antecedentes familiares
@@ -79,7 +83,7 @@ export const buildNestedPayload = (data) => {
   // Consultas
   const consultas = {
     fecha_consulta: trim(data.fecha_consulta),
-    recordatorio: trim(data.recordatorio),
+    recordatorio: trim(data.consulta_recordatorio),
     padecimiento_actual: trim(data.padecimiento_actual),
     diagnostico: trim(data.diagnostico),
     tratamiento: trim(data.tratamiento),

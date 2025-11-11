@@ -1,6 +1,17 @@
 import React from 'react';
 import { AiFillStar } from 'react-icons/ai';
-import { FaUser, FaBirthdayCake, FaPhone, FaUserPlus, FaGraduationCap, FaTint } from 'react-icons/fa';
+import {
+  FaUser,
+  FaBirthdayCake,
+  FaPhone,
+  FaUserPlus,
+  FaGraduationCap,
+  FaTint,
+  FaIdBadge,
+  FaCalendarAlt,
+  FaBell,
+  FaStickyNote,
+} from 'react-icons/fa';
 import { MdEmail, MdHome, MdWork } from 'react-icons/md';
 import { Palette } from '../../helpers/theme';
 import {
@@ -221,9 +232,72 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           />
         </FieldGroup>
       </TwoColumnRow>
+
+      {/* Datos de legado */}
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="id_legado">
+            <FaIdBadge style={{ marginRight: '0.5rem' }} />
+            ID legado
+          </Label>
+          <Input
+            id="id_legado"
+            name="id_legado"
+            type="number"
+            min="0"
+            value={formData.id_legado}
+            onChange={onChange}
+            placeholder="Ej. 12345"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="fecha_legado">
+            <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
+            Fecha legado
+          </Label>
+          <Input
+            id="fecha_legado"
+            name="fecha_legado"
+            type="date"
+            value={formData.fecha_legado}
+            onChange={onChange}
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+
+      {/* Recordatorio del perfil */}
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="recordatorio">
+            <FaBell style={{ marginRight: '0.5rem' }} />
+            Recordatorio (perfil)
+          </Label>
+          <Input
+            id="recordatorio"
+            name="recordatorio"
+            type="date"
+            value={formData.recordatorio}
+            onChange={onChange}
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="recordatorio_desc">
+            <FaStickyNote style={{ marginRight: '0.5rem' }} />
+            Descripción del recordatorio
+          </Label>
+          <TextArea
+            id="recordatorio_desc"
+            name="recordatorio_desc"
+            value={formData.recordatorio_desc}
+            onChange={onChange}
+            rows={3}
+            maxLength={255}
+            placeholder="Notas adicionales del recordatorio"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
     </details>
   );
 };
 
 export default DatosPersonalesSection;
-

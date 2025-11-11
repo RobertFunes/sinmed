@@ -11,6 +11,10 @@ export const initialState = {
   tipo_sangre: '',            // varchar(10) NULL
   referido_por: '',           // varchar(100) NULL
   alergico: '',               // 'Si' | 'No' | ''
+  id_legado: '',              // numero legado
+  fecha_legado: '',           // fecha naive
+  recordatorio: '',           // recordatorio asociado al perfil
+  recordatorio_desc: '',      // descripcion del recordatorio
   antecedentes_familiares: [], // [{ nombre: string, descripcion: string, esOtro?: boolean }]
   // Antecedentes personales
   antecedentes_personales_habitos: [], // [{ tipo: 'Alcoholismo'|'Tabaquismo'|'Toxicomanías', campos: {...} }]
@@ -32,7 +36,7 @@ export const initialState = {
   // Eliminado: vacunacion
   antecedentes_personales_patologicos: [], // [{ antecedente: string, descripcion: string }]
   fecha_consulta: '',          // fecha de la consulta (YYYY-MM-DD)
-  recordatorio: '',            // fecha de recordatorio (YYYY-MM-DD)
+  consulta_recordatorio: '',   // fecha de recordatorio de la consulta
   // Padecimiento actual e interrogatorio por aparatos y sistemas
   padecimiento_actual: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
