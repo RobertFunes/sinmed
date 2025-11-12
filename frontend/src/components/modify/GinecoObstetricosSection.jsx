@@ -85,9 +85,9 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
           <Input
             id="gineco_fecha_ultima_menstruacion"
             name="gineco_fecha_ultima_menstruacion"
-            type="date"
             value={formData.gineco_fecha_ultima_menstruacion}
             onChange={onChange}
+            placeholder="Ej. 10/2024, hace 3 meses, etc."
           />
         </FieldGroup>
         <FieldGroup>
@@ -174,9 +174,9 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
           <Input
             id="gineco_fecha_ultimo_parto"
             name="gineco_fecha_ultimo_parto"
-            type="date"
             value={formData.gineco_fecha_ultimo_parto}
             onChange={onChange}
+            placeholder="Ej. 2019, cesárea, etc."
           />
         </FieldGroup>
         <FieldGroup>
@@ -186,9 +186,9 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
           <Input
             id="gineco_fecha_menopausia"
             name="gineco_fecha_menopausia"
-            type="date"
             value={formData.gineco_fecha_menopausia}
             onChange={onChange}
+            placeholder="Ej. 2015, menopausia quirúrgica, etc."
           />
         </FieldGroup>
       </TwoColumnRow>
@@ -197,4 +197,3 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
 };
 
 export default GinecoObstetricosSection;
-

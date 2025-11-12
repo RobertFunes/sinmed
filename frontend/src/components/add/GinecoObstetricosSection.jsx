@@ -64,7 +64,13 @@ const GinecoObstetricosSection = ({ formData, handleChange, isOpen, onToggle, sh
           <Label htmlFor="gineco_fecha_ultima_menstruacion">
             <FaCalendarCheck style={{ marginRight: '0.5rem' }} />Fecha de la ultima menstruacion
           </Label>
-          <Input id="gineco_fecha_ultima_menstruacion" name="gineco_fecha_ultima_menstruacion" type="date" value={formData.gineco_fecha_ultima_menstruacion} onChange={handleChange} />
+          <Input
+            id="gineco_fecha_ultima_menstruacion"
+            name="gineco_fecha_ultima_menstruacion"
+            value={formData.gineco_fecha_ultima_menstruacion}
+            onChange={handleChange}
+            placeholder="Ej. 10/2024, hace 3 meses, etc."
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="gineco_vida_sexual_activa">Vida sexual activa</Label>
@@ -132,13 +138,25 @@ const GinecoObstetricosSection = ({ formData, handleChange, isOpen, onToggle, sh
           <Label htmlFor="gineco_fecha_ultimo_parto">
             <FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha del ultimo parto
           </Label>
-          <Input id="gineco_fecha_ultimo_parto" name="gineco_fecha_ultimo_parto" type="date" value={formData.gineco_fecha_ultimo_parto} onChange={handleChange} />
+          <Input
+            id="gineco_fecha_ultimo_parto"
+            name="gineco_fecha_ultimo_parto"
+            value={formData.gineco_fecha_ultimo_parto}
+            onChange={handleChange}
+            placeholder="Ej. 2019, cesárea, etc."
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="gineco_fecha_menopausia">
             <FaCalendarTimes style={{ marginRight: '0.5rem' }} />Fecha de menopausia
           </Label>
-          <Input id="gineco_fecha_menopausia" name="gineco_fecha_menopausia" type="date" value={formData.gineco_fecha_menopausia} onChange={handleChange} />
+          <Input
+            id="gineco_fecha_menopausia"
+            name="gineco_fecha_menopausia"
+            value={formData.gineco_fecha_menopausia}
+            onChange={handleChange}
+            placeholder="Ej. 2015, menopausia quirúrgica, etc."
+          />
         </FieldGroup>
       </TwoColumnRow>
     </details>
@@ -146,4 +164,3 @@ const GinecoObstetricosSection = ({ formData, handleChange, isOpen, onToggle, sh
 };
 
 export default GinecoObstetricosSection;
-

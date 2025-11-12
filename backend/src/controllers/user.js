@@ -155,7 +155,7 @@ const modify = async (req, res) => {
       ciclo_dias: clean(goRaw.ciclo_dias),
       cantidad: clean(goRaw.cantidad),
       dolor: clean(goRaw.dolor),
-      fecha_ultima_menstruacion: clean(toYMD(goRaw.fecha_ultima_menstruacion)),
+      fecha_ultima_menstruacion: clean(goRaw.fecha_ultima_menstruacion),
       vida_sexual_activa: clean(goRaw.vida_sexual_activa),
       anticoncepcion: clean(goRaw.anticoncepcion),
       tipo_anticonceptivo: clean(goRaw.tipo_anticonceptivo),
@@ -163,8 +163,8 @@ const modify = async (req, res) => {
       partos: clean(goRaw.partos),
       cesareas: clean(goRaw.cesareas),
       abortos: clean(goRaw.abortos),
-      fecha_ultimo_parto: clean(toYMD(goRaw.fecha_ultimo_parto)),
-      fecha_menopausia: clean(toYMD(goRaw.fecha_menopausia)),
+      fecha_ultimo_parto: clean(goRaw.fecha_ultimo_parto),
+      fecha_menopausia: clean(goRaw.fecha_menopausia),
     };
     const go_result = await bd.upsertGinecoObstetricos(id, goPayload);
 
@@ -590,7 +590,7 @@ const add = async (req, res) => {
       ciclo_dias: clean(goRaw.ciclo_dias),
       cantidad: clean(goRaw.cantidad),
       dolor: clean(goRaw.dolor),
-      fecha_ultima_menstruacion: clean(toYMD(goRaw.fecha_ultima_menstruacion)),
+      fecha_ultima_menstruacion: clean(goRaw.fecha_ultima_menstruacion),
       vida_sexual_activa: clean(goRaw.vida_sexual_activa),
       anticoncepcion: clean(goRaw.anticoncepcion),
       tipo_anticonceptivo: clean(goRaw.tipo_anticonceptivo),
@@ -598,8 +598,8 @@ const add = async (req, res) => {
       partos: clean(goRaw.partos),
       cesareas: clean(goRaw.cesareas),
       abortos: clean(goRaw.abortos),
-      fecha_ultimo_parto: clean(toYMD(goRaw.fecha_ultimo_parto)),
-      fecha_menopausia: clean(toYMD(goRaw.fecha_menopausia)),
+      fecha_ultimo_parto: clean(goRaw.fecha_ultimo_parto),
+      fecha_menopausia: clean(goRaw.fecha_menopausia),
     };
     const go_result = await bd.upsertGinecoObstetricos(id_perfil, goPayload);
 
