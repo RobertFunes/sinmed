@@ -94,10 +94,6 @@ const ExploracionFisicaSection = ({
 
       <TwoColumnRow $cols={3}>
         <FieldGroup>
-          <Label htmlFor="rtg"><FaHeartbeat style={{ marginRight: '0.5rem' }} />% RTG</Label>
-          <Input id="rtg" name="rtg" value={formData.rtg} onChange={handleChange} inputMode="decimal" placeholder="Ej. 20" />
-        </FieldGroup>
-        <FieldGroup>
           <Label htmlFor="ta_mmhg"><FaHeart style={{ marginRight: '0.5rem' }} />TA (mmHg)</Label>
           <Input id="ta_mmhg" name="ta_mmhg" value={formData.ta_mmhg} onChange={handleChange} placeholder="Ej. 120/80" />
         </FieldGroup>

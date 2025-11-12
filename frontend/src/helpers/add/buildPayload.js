@@ -107,7 +107,6 @@ export const buildNestedPayload = (data) => {
     peso_ideal: trim(data.peso_ideal),
     talla_cm: trim(data.talla_cm),
     imc: trim(data.imc),
-    rtg: trim(data.rtg),
     ta_mmhg: trim(data.ta_mmhg),
     frecuencia_cardiaca: trim(data.frecuencia_cardiaca),
     frecuencia_respiratoria: trim(data.frecuencia_respiratoria),

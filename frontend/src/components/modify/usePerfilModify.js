@@ -326,7 +326,6 @@ const mapApiToForm = (api) => {
   assignIf('peso_ideal', ef.peso_ideal);
   assignIf('talla_cm', ef.talla_cm);
   assignIf('imc', ef.imc);
-  assignIf('rtg', ef.rtg);
   assignIf('ta_mmhg', ef.ta_mmhg);
   assignIf('frecuencia_cardiaca', ef.frecuencia_cardiaca);
   assignIf('frecuencia_respiratoria', ef.frecuencia_respiratoria);

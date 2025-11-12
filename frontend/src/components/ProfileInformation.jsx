@@ -567,7 +567,6 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     { label: 'Peso ideal (kg):', value: efSource.peso_ideal, icon: <FaBalanceScale /> },
     { label: 'Talla (cm):', value: efSource.talla_cm, icon: <FaRulerVertical /> },
     { label: 'IMC:', value: efSource.imc, icon: <FaChartBar /> },
-    { label: 'RTG:', value: efSource.rtg, icon: <FaHeartbeat /> },
     { label: 'TA (mmHg):', value: efSource.ta_mmhg, icon: <FaHeart /> },
     { label: 'Frecuencia cardiaca:', value: efSource.frecuencia_cardiaca, icon: <FaHeart /> },
     { label: 'Frecuencia respiratoria:', value: efSource.frecuencia_respiratoria, icon: <GiLungs /> },

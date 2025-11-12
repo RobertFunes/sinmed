@@ -55,7 +55,6 @@ export const initialState = {
   peso_ideal: '',
   talla_cm: '',
   imc: '',
-  rtg: '',
   ta_mmhg: '',
   frecuencia_cardiaca: '',
   frecuencia_respiratoria: '',
