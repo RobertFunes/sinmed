@@ -129,18 +129,20 @@ const modify = async (req, res) => {
       if (tipo.startsWith('alcohol')) {
         apPayload.bebidas_por_dia = clean(c.bebidas_por_dia);
         apPayload.tiempo_activo_alc = clean(c.tiempo_activo_alc);
+        apPayload.tiempo_inactivo_alc = clean(c.tiempo_inactivo_alc);
       } else if (tipo.includes('taba')) {
         apPayload.cigarrillos_por_dia = clean(c.cigarrillos_por_dia);
         apPayload.tiempo_activo_tab = clean(c.tiempo_activo_tab);
+        apPayload.tiempo_inactivo_tab = clean(c.tiempo_inactivo_tab);
       } else if (tipo.includes('toxico')) {
         apPayload.tipo_toxicomania = clean(c.tipo_toxicomania);
         apPayload.tiempo_activo_tox = clean(c.tiempo_activo_tox);
+        apPayload.tiempo_inactivo_tox = clean(c.tiempo_inactivo_tox);
       }
     }
 
     const alim = apRaw.alimentacion || {};
     apPayload.calidad = clean(alim.calidad);
-    apPayload.descripcion = clean(alim.descripcion);
     apPayload.hay_cambios = clean(alim.hay_cambios);
     if (apPayload.hay_cambios === 'Si') {
       apPayload.cambio_tipo = clean(alim.tipo);
@@ -559,19 +561,21 @@ const add = async (req, res) => {
       if (tipo.startsWith('alcohol')) {
         apPayload.bebidas_por_dia = clean(c.bebidas_por_dia);
         apPayload.tiempo_activo_alc = clean(c.tiempo_activo_alc);
+        apPayload.tiempo_inactivo_alc = clean(c.tiempo_inactivo_alc);
       } else if (tipo.includes('taba')) {
         apPayload.cigarrillos_por_dia = clean(c.cigarrillos_por_dia);
         apPayload.tiempo_activo_tab = clean(c.tiempo_activo_tab);
+        apPayload.tiempo_inactivo_tab = clean(c.tiempo_inactivo_tab);
       } else if (tipo.includes('toxico')) {
         apPayload.tipo_toxicomania = clean(c.tipo_toxicomania);
         apPayload.tiempo_activo_tox = clean(c.tiempo_activo_tox);
+        apPayload.tiempo_inactivo_tox = clean(c.tiempo_inactivo_tox);
       }
     }
 
     // Alimentación
     const alim = apRaw.alimentacion || {};
     apPayload.calidad = clean(alim.calidad);
-    apPayload.descripcion = clean(alim.descripcion);
     apPayload.hay_cambios = clean(alim.hay_cambios);
     if (apPayload.hay_cambios === 'Si') {
       apPayload.cambio_tipo = clean(alim.tipo);

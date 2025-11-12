@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPlusCircle, FaUtensils, FaExchangeAlt, FaExclamationCircle, FaClock, FaTrash } from 'react-icons/fa';
+import { FaPlusCircle, FaExchangeAlt, FaExclamationCircle, FaClock, FaTrash } from 'react-icons/fa';
 import {
   Summary,
   TwoColumnRow,
@@ -82,6 +82,15 @@ const AntecedentesPersonalesSection = ({
                         placeholder="Ej. 5 años"
                       />
                     </FieldGroup>
+                    <FieldGroup>
+                      <Label htmlFor={`inactivo_${idx}`}>Tiempo inactivo</Label>
+                      <Input
+                        id={`inactivo_${idx}`}
+                        value={h.campos.tiempo_inactivo_alc}
+                        onChange={(e) => updateHabitoCampo(idx, 'tiempo_inactivo_alc', e.target.value)}
+                        placeholder="Ej. 1 año"
+                      />
+                    </FieldGroup>
                   </>
                 )}
 
@@ -106,6 +115,15 @@ const AntecedentesPersonalesSection = ({
                         placeholder="Ej. 5 años"
                       />
                     </FieldGroup>
+                    <FieldGroup>
+                      <Label htmlFor={`inactivo_tab_${idx}`}>Tiempo inactivo</Label>
+                      <Input
+                        id={`inactivo_tab_${idx}`}
+                        value={h.campos.tiempo_inactivo_tab}
+                        onChange={(e) => updateHabitoCampo(idx, 'tiempo_inactivo_tab', e.target.value)}
+                        placeholder="Ej. 1 año"
+                      />
+                    </FieldGroup>
                   </>
                 )}
 
@@ -127,6 +145,15 @@ const AntecedentesPersonalesSection = ({
                         value={h.campos.tiempo_activo_tox}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_activo_tox', e.target.value)}
                         placeholder="Ej. diario, esporádico"
+                      />
+                    </FieldGroup>
+                    <FieldGroup>
+                      <Label htmlFor={`tox_inactivo_${idx}`}>Tiempo inactivo</Label>
+                      <Input
+                        id={`tox_inactivo_${idx}`}
+                        value={h.campos.tiempo_inactivo_tox}
+                        onChange={(e) => updateHabitoCampo(idx, 'tiempo_inactivo_tox', e.target.value)}
+                        placeholder="Ej. 6 meses"
                       />
                     </FieldGroup>
                   </>
@@ -187,21 +214,6 @@ const AntecedentesPersonalesSection = ({
           </Select>
         </FieldGroup>
       </TwoColumnRow>
-
-      <FieldGroup>
-        <Label htmlFor="alimentacion_descripcion">
-          <FaUtensils style={{ marginRight: '0.5rem' }} />
-          Descripción de la alimentación
-        </Label>
-        <TextArea
-          id="descripcion"
-          name="descripcion"
-          value={formData.descripcion}
-          onChange={handleChange}
-          rows={3}
-          placeholder="Describe la alimentación del paciente"
-        />
-      </FieldGroup>
 
       <TwoColumnRow>
         <FieldGroup>

@@ -234,9 +234,15 @@ const Add = () => {
   const addHabito = () => {
     if (!nuevoHabito) return;
     const base = { tipo: nuevoHabito, campos: {} };
-    if (nuevoHabito === 'Alcoholismo') base.campos = { bebidas_por_dia: '', tiempo_activo_alc: '' };
-    if (nuevoHabito === 'Tabaquismo') base.campos = { cigarrillos_por_dia: '', tiempo_activo_tab: '' };
-    if (nuevoHabito === 'Toxicomanías') base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
+    if (nuevoHabito === 'Alcoholismo') {
+      base.campos = { bebidas_por_dia: '', tiempo_activo_alc: '', tiempo_inactivo_alc: '' };
+    }
+    if (nuevoHabito === 'Tabaquismo') {
+      base.campos = { cigarrillos_por_dia: '', tiempo_activo_tab: '', tiempo_inactivo_tab: '' };
+    }
+    if (nuevoHabito === 'Toxicomanías') {
+      base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '', tiempo_inactivo_tox: '' };
+    }
     setFormData(prev => ({
       ...prev,
       antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],

@@ -47,7 +47,6 @@ export const buildNestedPayload = (data) => {
   const hayCambios = trim(data.hay_cambios);
   const alimentacion = {
     calidad: trim(data.calidad),
-    descripcion: trim(data.descripcion),
     hay_cambios: hayCambios || '',
     ...(hayCambios === 'Si'
       ? {

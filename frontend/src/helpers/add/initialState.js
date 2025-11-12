@@ -43,7 +43,6 @@ export const initialState = {
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
   personalizados: [],          // [{ nombre: string, descripcion: string }]
   calidad: '',
-  descripcion: '',
   hay_cambios: '',
   cambio_tipo: '',
   cambio_causa: '',
