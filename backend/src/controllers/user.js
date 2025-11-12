@@ -234,6 +234,7 @@ const modify = async (req, res) => {
         recordatorio: clean(toYMD(entry?.recordatorio)),
         padecimiento_actual: clean(entry?.padecimiento_actual),
         diagnostico: clean(entry?.diagnostico),
+        medicamentos: clean(entry?.medicamentos),
         tratamiento: clean(entry?.tratamiento),
         notas: clean(entry?.notas),
       };
@@ -679,6 +680,7 @@ const add = async (req, res) => {
       recordatorio: clean(toYMD(consRaw.recordatorio)),
       padecimiento_actual: clean(consRaw.padecimiento_actual),
       diagnostico: clean(consRaw.diagnostico),
+      medicamentos: clean(consRaw.medicamentos),
       tratamiento: clean(consRaw.tratamiento),
       notas: clean(consRaw.notas),
     };

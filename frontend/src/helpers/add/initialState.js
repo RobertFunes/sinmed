@@ -39,6 +39,7 @@ export const initialState = {
   consulta_recordatorio: '',   // fecha de recordatorio de la consulta
   // Padecimiento actual e interrogatorio por aparatos y sistemas
   padecimiento_actual: '',
+  medicamentos: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
   personalizados: [],          // [{ nombre: string, descripcion: string }]
   calidad: '',

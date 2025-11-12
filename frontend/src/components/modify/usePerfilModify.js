@@ -97,7 +97,6 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Hematologico', descKeys: ['hematologico_desc', 'hematologico'], estadoKey: 'hematologico_estado' },
   { needle: 'Reumatologico', descKeys: ['reumatologico_desc', 'reumatologico'], estadoKey: 'reumatologico_estado' },
   { needle: 'Psiquiatrico', descKeys: ['psiquiatrico_desc', 'psiquiatrico'], estadoKey: 'psiquiatrico_estado' },
-  { needle: 'Medicamentos', descKeys: ['medicamentos_desc', 'medicamentos'], estadoKey: 'medicamentos_estado' },
 ];
 
 const SISTEMA_FIELD_LOOKUP = SISTEMA_FIELD_MAPPINGS.reduce((acc, config) => {
@@ -234,6 +233,7 @@ const mapApiToForm = (api) => {
     recordatorio: toStr(row?.recordatorio),
     padecimiento_actual: toStr(row?.padecimiento_actual),
     diagnostico: toStr(row?.diagnostico),
+    medicamentos: toStr(row?.medicamentos),
     tratamiento: toStr(row?.tratamiento),
     notas: toStr(row?.notas),
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
@@ -255,11 +255,12 @@ const mapApiToForm = (api) => {
       {
         uid: generateConsultaUid(),
         fecha_consulta: toStr(fallbackSource.fecha_consulta),
-        recordatorio: toStr(fallbackSource.recordatorio),
-        padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
-        diagnostico: toStr(fallbackSource.diagnostico),
-        tratamiento: toStr(fallbackSource.tratamiento),
-        notas: toStr(fallbackSource.notas),
+      recordatorio: toStr(fallbackSource.recordatorio),
+      padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
+      diagnostico: toStr(fallbackSource.diagnostico),
+      medicamentos: toStr(fallbackSource.medicamentos),
+      tratamiento: toStr(fallbackSource.tratamiento),
+      notas: toStr(fallbackSource.notas),
         interrogatorio_aparatos: mapSistemasFromSource(fallbackSource).map((item) => ({
           nombre: toStr(item?.nombre),
           descripcion: toStr(item?.descripcion),
@@ -293,6 +294,7 @@ const mapApiToForm = (api) => {
     assignIf('consulta_recordatorio', lastConsulta.recordatorio);
     assignIf('padecimiento_actual', lastConsulta.padecimiento_actual);
     assignIf('diagnostico', lastConsulta.diagnostico);
+    assignIf('medicamentos', lastConsulta.medicamentos);
     if (!toStr(lastConsulta.diagnostico).trim()) assignIf('diagnostico', dt && dt.diagnostico);
     assignIf('tratamiento', lastConsulta.tratamiento);
     if (!toStr(lastConsulta.tratamiento).trim()) assignIf('tratamiento', dt && dt.tratamiento);
@@ -304,6 +306,7 @@ const mapApiToForm = (api) => {
     assignIf('consulta_recordatorio', legacy && legacy.recordatorio);
     assignIf('padecimiento_actual', legacy && legacy.padecimiento_actual);
     assignIf('diagnostico', dt && dt.diagnostico);
+    assignIf('medicamentos', legacy && legacy.medicamentos);
     assignIf('tratamiento', dt && dt.tratamiento);
     assignIf('notas', dt && dt.notas);
     next.interrogatorio_aparatos = mapSistemasFromSource({ ...(legacy || {}), ...(dt || {}) });

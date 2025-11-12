@@ -72,7 +72,6 @@ export const SISTEMAS_OPCIONES = [
   'Hematológico',
   'Reumatológico',
   'Psiquiátrico',
-  'Medicamentos',
 ];
 
 export const INSPECCION_OPCIONES = [

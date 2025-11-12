@@ -138,7 +138,6 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Hematologico', descKeys: ['hematologico_desc', 'hematologico'], estadoKey: 'hematologico_estado' },
   { needle: 'Reumatologico', descKeys: ['reumatologico_desc', 'reumatologico'], estadoKey: 'reumatologico_estado' },
   { needle: 'Psiquiatrico', descKeys: ['psiquiatrico_desc', 'psiquiatrico'], estadoKey: 'psiquiatrico_estado' },
-  { needle: 'Medicamentos', descKeys: ['medicamentos_desc', 'medicamentos'], estadoKey: 'medicamentos_estado' },
 ];
 
 const SISTEMA_ESTADO_OPTIONS = [
@@ -278,12 +277,13 @@ const buildConsultas = (data = {}) => {
         recordatorio: formatDate(row?.recordatorio),
         padecimiento_actual: toStr(row?.padecimiento_actual),
         diagnostico: toStr(row?.diagnostico),
+        medicamentos: toStr(row?.medicamentos),
         tratamiento: toStr(row?.tratamiento),
         notas: toStr(row?.notas),
         interrogatorio: mapSistemasFromSource(row),
       };
       const hasData =
-        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'tratamiento', 'notas']
+        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas']
           .some((key) => present(base[key])) || present(base.interrogatorio);
       return hasData ? base : null;
     })
@@ -301,12 +301,13 @@ const buildConsultas = (data = {}) => {
       recordatorio: formatDate(fallbackSource.recordatorio),
       padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
       diagnostico: toStr(fallbackSource.diagnostico),
+      medicamentos: toStr(fallbackSource.medicamentos),
       tratamiento: toStr(fallbackSource.tratamiento),
       notas: toStr(fallbackSource.notas),
       interrogatorio: mapSistemasFromSource(fallbackSource),
     };
     const hasData =
-      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'tratamiento', 'notas']
+      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas']
         .some((key) => present(fallback[key])) || present(fallback.interrogatorio);
     if (hasData) consultas.push(fallback);
   }
@@ -704,6 +705,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <Row icon={<FaBell />} label="Recordatorio:" value={consulta.recordatorio} />
                 <Row icon={<FaNotesMedical />} label="Padecimiento actual:" value={consulta.padecimiento_actual} />
                 <Row icon={<FaDiagnoses />} label="Diagnóstico:" value={consulta.diagnostico} />
+                <Row icon={<FaPills />} label="Medicamentos:" value={consulta.medicamentos} />
                 <Row icon={<FaPrescriptionBottleAlt />} label="Tratamiento:" value={consulta.tratamiento} />
                 <Row icon={<FaStickyNote />} label="Notas:" value={consulta.notas} />
                 {consulta.interrogatorio.length > 0 && (

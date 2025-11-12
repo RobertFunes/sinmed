@@ -61,7 +61,6 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Hematologico', estadoKey: 'hematologico_estado' },
   { needle: 'Reumatologico', estadoKey: 'reumatologico_estado' },
   { needle: 'Psiquiatrico', estadoKey: 'psiquiatrico_estado' },
-  { needle: 'Medicamentos', estadoKey: 'medicamentos_estado' },
 ];
 const SISTEMA_FIELD_LOOKUP = SISTEMA_FIELD_MAPPINGS.reduce((acc, cfg) => {
   acc[normalize(cfg.needle)] = cfg;
@@ -77,6 +76,7 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
       recordatorio: trimValue(consulta?.recordatorio),
       padecimiento_actual: trimValue(consulta?.padecimiento_actual),
       diagnostico: trimValue(consulta?.diagnostico),
+      medicamentos: trimValue(consulta?.medicamentos),
       tratamiento: trimValue(consulta?.tratamiento),
       notas: trimValue(consulta?.notas),
     };

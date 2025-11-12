@@ -122,6 +122,17 @@ const ConsultasSection = ({
         />
       </FieldGroup>
       <FieldGroup>
+        <Label htmlFor="consulta_medicamentos"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Medicamentos</Label>
+        <TextArea
+          id="consulta_medicamentos"
+          name="medicamentos"
+          value={formData.medicamentos}
+          onChange={handleChange}
+          rows={3}
+          placeholder="Medicamentos actuales o recetados"
+        />
+      </FieldGroup>
+      <FieldGroup>
         <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
         <TextArea
           id="consulta_tratamiento"

@@ -142,6 +142,7 @@ const createEmptyConsulta = () => ({
   recordatorio: '',
   padecimiento_actual: '',
   diagnostico: '',
+  medicamentos: '',
   tratamiento: '',
   notas: '',
   interrogatorio_aparatos: [],
@@ -258,6 +259,11 @@ const Modify = () => {
   useEffect(() => {
     setShowLeaveModal(blockerState === 'blocked');
   }, [blockerState]);
+
+  useEffect(() => {
+    const livePayload = buildPayloadWithConsultas(formData, id);
+    console.log('[Modify] Payload actualizado:', livePayload);
+  }, [formData, id]);
 
   // Calculo automatico de IMC cuando hay peso y talla
   useEffect(() => {
@@ -401,6 +407,7 @@ const Modify = () => {
       consulta_recordatorio: last.recordatorio || '',
       padecimiento_actual: last.padecimiento_actual || '',
       diagnostico: last.diagnostico || '',
+      medicamentos: last.medicamentos || '',
       tratamiento: last.tratamiento || '',
       notas: last.notas || '',
       interrogatorio_aparatos: toArr(last.interrogatorio_aparatos),
@@ -424,6 +431,7 @@ const Modify = () => {
     if (last) {
       nueva.padecimiento_actual = toStr(last.padecimiento_actual);
       nueva.diagnostico = toStr(last.diagnostico);
+      nueva.medicamentos = toStr(last.medicamentos);
       nueva.interrogatorio_aparatos = deepClone(toArr(last.interrogatorio_aparatos));
       // Copiar también los personalizados de la última consulta para mantener continuidad visual
       nueva.personalizados = deepClone(toArr(last.personalizados));

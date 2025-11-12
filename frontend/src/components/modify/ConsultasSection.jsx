@@ -27,6 +27,7 @@ import {
   FaPrescriptionBottleAlt,
   FaStickyNote,
   FaCalendarDay,
+  FaPills,
 } from 'react-icons/fa';
 import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox } from '../../pages/modify.styles';
 import ConfirmModal from '../ConfirmModal';
@@ -255,6 +256,18 @@ const ConsultasSection = ({
                   onChange={handleConsultaFieldChange(uid, 'diagnostico')}
                   rows={2}
                   placeholder="Especifica el diagnóstico"
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor={`${diagnosticoId}_meds`}>
+                  <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos
+                </Label>
+                <TextArea
+                  id={`${diagnosticoId}_meds`}
+                  value={consulta.medicamentos || ''}
+                  onChange={handleConsultaFieldChange(uid, 'medicamentos')}
+                  rows={2}
+                  placeholder="Medicamentos actuales o prescritos"
                 />
               </FieldGroup>
               <FieldGroup>
