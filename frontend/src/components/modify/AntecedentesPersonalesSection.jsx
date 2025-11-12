@@ -235,6 +235,70 @@ const AntecedentesPersonalesSection = ({
         )}
       </TwoColumnRow>
 
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="alimentos_que_le_caen_mal">Alimentos que le caen mal</Label>
+          <TextArea
+            id="alimentos_que_le_caen_mal"
+            name="alimentos_que_le_caen_mal"
+            value={formData.alimentos_que_le_caen_mal}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Ej. lácteos, picante..."
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="componentes_habituales_dieta">Componentes habituales de la dieta</Label>
+          <TextArea
+            id="componentes_habituales_dieta"
+            name="componentes_habituales_dieta"
+            value={formData.componentes_habituales_dieta}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Ej. frutas, verduras, carne..."
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="desayuno">Desayuno habitual</Label>
+          <TextArea
+            id="desayuno"
+            name="desayuno"
+            value={formData.desayuno}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Describe el desayuno típico"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="comida">Comida habitual</Label>
+          <TextArea
+            id="comida"
+            name="comida"
+            value={formData.comida}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Describe la comida típica"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="cena">Cena habitual</Label>
+          <TextArea
+            id="cena"
+            name="cena"
+            value={formData.cena}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Describe la cena típica"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+
       {formData.hay_cambios === 'Si' && (
         <TwoColumnRow>
           <FieldGroup>

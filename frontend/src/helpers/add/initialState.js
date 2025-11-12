@@ -43,6 +43,11 @@ export const initialState = {
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
   personalizados: [],          // [{ nombre: string, descripcion: string }]
   calidad: '',
+  alimentos_que_le_caen_mal: '',
+  componentes_habituales_dieta: '',
+  desayuno: '',
+  comida: '',
+  cena: '',
   hay_cambios: '',
   cambio_tipo: '',
   cambio_causa: '',

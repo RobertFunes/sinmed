@@ -47,6 +47,11 @@ export const buildNestedPayload = (data) => {
   const hayCambios = trim(data.hay_cambios);
   const alimentacion = {
     calidad: trim(data.calidad),
+    alimentos_que_le_caen_mal: trim(data.alimentos_que_le_caen_mal),
+    componentes_habituales_dieta: trim(data.componentes_habituales_dieta),
+    desayuno: trim(data.desayuno),
+    comida: trim(data.comida),
+    cena: trim(data.cena),
     hay_cambios: hayCambios || '',
     ...(hayCambios === 'Si'
       ? {

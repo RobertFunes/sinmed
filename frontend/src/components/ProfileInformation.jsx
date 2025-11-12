@@ -516,6 +516,11 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const antecedentesPersonales = data.antecedentes_personales || {};
   const apGenerales = [
     { label: 'Calidad de la alimentación:', value: antecedentesPersonales.calidad },
+    { label: 'Alimentos que le caen mal:', value: antecedentesPersonales.alimentos_que_le_caen_mal },
+    { label: 'Componentes habituales de la dieta:', value: antecedentesPersonales.componentes_habituales_dieta },
+    { label: 'Desayuno habitual:', value: antecedentesPersonales.desayuno },
+    { label: 'Comida habitual:', value: antecedentesPersonales.comida },
+    { label: 'Cena habitual:', value: antecedentesPersonales.cena },
     { label: 'Cambios en la alimentación:', value: antecedentesPersonales.hay_cambios },
     { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt /> },
     { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa, icon: <FaExclamationCircle /> },

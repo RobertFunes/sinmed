@@ -143,6 +143,16 @@ const modify = async (req, res) => {
 
     const alim = apRaw.alimentacion || {};
     apPayload.calidad = clean(alim.calidad);
+    apPayload.alimentos_que_le_caen_mal = clean(alim.alimentos_que_le_caen_mal);
+    apPayload.componentes_habituales_dieta = clean(alim.componentes_habituales_dieta);
+    apPayload.desayuno = clean(alim.desayuno);
+    apPayload.comida = clean(alim.comida);
+    apPayload.cena = clean(alim.cena);
+    apPayload.alimentos_que_le_caen_mal = clean(alim.alimentos_que_le_caen_mal);
+    apPayload.componentes_habituales_dieta = clean(alim.componentes_habituales_dieta);
+    apPayload.desayuno = clean(alim.desayuno);
+    apPayload.comida = clean(alim.comida);
+    apPayload.cena = clean(alim.cena);
     apPayload.hay_cambios = clean(alim.hay_cambios);
     if (apPayload.hay_cambios === 'Si') {
       apPayload.cambio_tipo = clean(alim.tipo);
@@ -576,6 +586,11 @@ const add = async (req, res) => {
     // Alimentación
     const alim = apRaw.alimentacion || {};
     apPayload.calidad = clean(alim.calidad);
+    apPayload.alimentos_que_le_caen_mal = clean(alim.alimentos_que_le_caen_mal);
+    apPayload.componentes_habituales_dieta = clean(alim.componentes_habituales_dieta);
+    apPayload.desayuno = clean(alim.desayuno);
+    apPayload.comida = clean(alim.comida);
+    apPayload.cena = clean(alim.cena);
     apPayload.hay_cambios = clean(alim.hay_cambios);
     if (apPayload.hay_cambios === 'Si') {
       apPayload.cambio_tipo = clean(alim.tipo);

@@ -202,6 +202,11 @@ const mapApiToForm = (api) => {
   next.antecedentes_personales_habitos = habitos;
 
   assign('calidad', ap.calidad);
+  assign('alimentos_que_le_caen_mal', ap.alimentos_que_le_caen_mal);
+  assign('componentes_habituales_dieta', ap.componentes_habituales_dieta);
+  assign('desayuno', ap.desayuno);
+  assign('comida', ap.comida);
+  assign('cena', ap.cena);
   assign('hay_cambios', ap.hay_cambios);
   assign('cambio_tipo', ap.cambio_tipo);
   assign('cambio_causa', ap.cambio_causa);

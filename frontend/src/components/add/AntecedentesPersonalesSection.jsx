@@ -82,19 +82,19 @@ const AntecedentesPersonalesSection = ({
         <ListContainer>
           {formData.antecedentes_personales_habitos.map((h, idx) => (
             <ItemCard key={idx}>
-              <strong style={{ display: 'block', marginBottom: '0.5rem' }}>{h.tipo}</strong>
+              <strong >{h.tipo}</strong>
               <TwoColumnRow>
                 {h.tipo === 'Alcoholismo' && (
                   <>
                     <FieldGroup>
-                      <Label htmlFor={`bebidas_${idx}`}>Alcohol: Bebidas por día</Label>
+                      <Label htmlFor={`bebidas_${idx}`}>Bebidas</Label>
                       <Input
                         id={`bebidas_${idx}`}
                         ref={setHabitoInputRef(idx)}
                         value={h.campos?.bebidas_por_dia ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'bebidas_por_dia', e.target.value)}
                         inputMode="numeric"
-                        placeholder="Ej. 2"
+                        placeholder="Ej. 2 vasos a la semana"
                       />
                     </FieldGroup>
                     <FieldGroup>
@@ -121,14 +121,14 @@ const AntecedentesPersonalesSection = ({
                 {h.tipo === 'Tabaquismo' && (
                   <>
                     <FieldGroup>
-                      <Label htmlFor={`cigs_${idx}`}>Cigarrillos por día</Label>
+                      <Label htmlFor={`cigs_${idx}`}>Cigarrillos</Label>
                       <Input
                         id={`cigs_${idx}`}
                         ref={setHabitoInputRef(idx)}
                         value={h.campos?.cigarrillos_por_dia ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'cigarrillos_por_dia', e.target.value)}
                         inputMode="numeric"
-                        placeholder="Ej. 10"
+                        placeholder="Ej. 10 cigarrillos al día"
                       />
                     </FieldGroup>
                     <FieldGroup>
@@ -161,7 +161,7 @@ const AntecedentesPersonalesSection = ({
                         ref={setHabitoInputRef(idx)}
                         value={h.campos?.tipo_toxicomania ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tipo_toxicomania', e.target.value)}
-                        placeholder="Sustancia"
+                        placeholder="Sustancias y frecuencia"
                       />
                     </FieldGroup>
                     <FieldGroup>
@@ -170,7 +170,7 @@ const AntecedentesPersonalesSection = ({
                         id={`tox_freq_${idx}`}
                         value={h.campos?.tiempo_activo_tox ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_activo_tox', e.target.value)}
-                        placeholder="Ej. diario, esporádico"
+                        placeholder="Ej. 3 años"
                       />
                     </FieldGroup>
                     <FieldGroup>
@@ -216,6 +216,70 @@ const AntecedentesPersonalesSection = ({
             <FaPlusCircle style={{ marginRight: '0.5rem' }} />
             Agregar hábito
           </SubmitButton>
+        </FieldGroup>
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="alimentos_que_le_caen_mal">Alimentos que le caen mal</Label>
+          <TextArea
+            id="alimentos_que_le_caen_mal"
+            name="alimentos_que_le_caen_mal"
+            value={formData.alimentos_que_le_caen_mal}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Ej. lácteos, picante..."
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="componentes_habituales_dieta">Componentes habituales de la dieta</Label>
+          <TextArea
+            id="componentes_habituales_dieta"
+            name="componentes_habituales_dieta"
+            value={formData.componentes_habituales_dieta}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Ej. frutas, verduras, carne..."
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="desayuno">Desayuno habitual</Label>
+          <TextArea
+            id="desayuno"
+            name="desayuno"
+            value={formData.desayuno}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Describe el desayuno típico"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="comida">Comida habitual</Label>
+          <TextArea
+            id="comida"
+            name="comida"
+            value={formData.comida}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Describe la comida típica"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="cena">Cena habitual</Label>
+          <TextArea
+            id="cena"
+            name="cena"
+            value={formData.cena}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Describe la cena típica"
+          />
         </FieldGroup>
       </TwoColumnRow>
 

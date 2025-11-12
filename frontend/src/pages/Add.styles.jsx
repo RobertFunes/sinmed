@@ -196,6 +196,9 @@ export const ItemCard = styled.div`
   margin-bottom: 0.75rem;
   margin-top: 2rem;
   background: ${Palette.background  };
+  strong{
+    color: ${Palette.primary};
+  }
 `;
 
 /* Contenedor para separar la lista del selector superior */
