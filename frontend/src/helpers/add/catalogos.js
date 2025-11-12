@@ -13,6 +13,7 @@ export const ANTECEDENTES_OPCIONES = [
   'Insomnio',
   'Asma',
   'Colesterol',
+  'Migraña',
   'Enfermedades mentales',
   'Epilepsia',
   'Enfermedades tiroideas',
