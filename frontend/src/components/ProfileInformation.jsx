@@ -228,35 +228,38 @@ const mapInspectionFromSource = (ef = {}) => {
 const buildHabitos = (ap = {}) => {
   const habitos = [];
 
-  if (present(ap.bebidas_por_dia) || present(ap.tiempo_activo_alc)) {
+  if (present(ap.bebidas_por_dia) || present(ap.tiempo_activo_alc) || present(ap.tiempo_inactivo_alc)) {
     const label = findMatchingLabel(HABITOS_OPCIONES, 'Alcoholismo', HABITOS_OPCIONES[0] || 'Alcoholismo');
     habitos.push({
       titulo: label,
       rows: [
         { label: 'Bebidas por día', value: ap.bebidas_por_dia, icon: <FaBeer /> },
         { label: 'Tiempo activo', value: ap.tiempo_activo_alc, icon: <FaClock /> },
+        { label: 'Tiempo inactivo', value: ap.tiempo_inactivo_alc, icon: <FaClock /> },
       ],
     });
   }
 
-  if (present(ap.cigarrillos_por_dia) || present(ap.tiempo_activo_tab)) {
+  if (present(ap.cigarrillos_por_dia) || present(ap.tiempo_activo_tab) || present(ap.tiempo_inactivo_tab)) {
     const label = findMatchingLabel(HABITOS_OPCIONES, 'Tabaquismo', HABITOS_OPCIONES[1] || 'Tabaquismo');
     habitos.push({
       titulo: label,
       rows: [
         { label: 'Cigarrillos por día', value: ap.cigarrillos_por_dia, icon: <FaSmoking /> },
         { label: 'Tiempo activo', value: ap.tiempo_activo_tab, icon: <FaClock /> },
+        { label: 'Tiempo inactivo', value: ap.tiempo_inactivo_tab, icon: <FaClock /> },
       ],
     });
   }
 
-  if (present(ap.tipo_toxicomania) || present(ap.tiempo_activo_tox)) {
+  if (present(ap.tipo_toxicomania) || present(ap.tiempo_activo_tox) || present(ap.tiempo_inactivo_tox)) {
     const label = findMatchingLabel(HABITOS_OPCIONES, 'Toxicomanias', HABITOS_OPCIONES[2] || 'Toxicomanias');
     habitos.push({
       titulo: label,
       rows: [
         { label: 'Tipo', value: ap.tipo_toxicomania, icon: <FaPills /> },
         { label: 'Tiempo activo', value: ap.tiempo_activo_tox, icon: <FaClock /> },
+        { label: 'Tiempo inactivo', value: ap.tiempo_inactivo_tox, icon: <FaClock /> },
       ],
     });
   }
@@ -513,7 +516,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const antecedentesPersonales = data.antecedentes_personales || {};
   const apGenerales = [
     { label: 'Calidad de la alimentación:', value: antecedentesPersonales.calidad },
-    { label: '¿Hay cambios?:', value: antecedentesPersonales.hay_cambios },
+    { label: 'Cambios en la alimentación:', value: antecedentesPersonales.hay_cambios },
     { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt /> },
     { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa, icon: <FaExclamationCircle /> },
     { label: 'Tiempo del cambio:', value: antecedentesPersonales.cambio_tiempo, icon: <FaClock /> },

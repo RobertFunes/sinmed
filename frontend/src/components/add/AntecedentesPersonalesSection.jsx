@@ -91,7 +91,7 @@ const AntecedentesPersonalesSection = ({
                       <Input
                         id={`bebidas_${idx}`}
                         ref={setHabitoInputRef(idx)}
-                        value={h.campos.bebidas_por_dia}
+                        value={h.campos?.bebidas_por_dia ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'bebidas_por_dia', e.target.value)}
                         inputMode="numeric"
                         placeholder="Ej. 2"
@@ -101,7 +101,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`freq_${idx}`}>Tiempo activo</Label>
                       <Input
                         id={`freq_${idx}`}
-                        value={h.campos.tiempo_activo_alc}
+                        value={h.campos?.tiempo_activo_alc ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_activo_alc', e.target.value)}
                         placeholder="Ej. 5 años"
                       />
@@ -110,7 +110,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`inactivo_${idx}`}>Tiempo inactivo</Label>
                       <Input
                         id={`inactivo_${idx}`}
-                        value={h.campos.tiempo_inactivo_alc}
+                        value={h.campos?.tiempo_inactivo_alc ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_inactivo_alc', e.target.value)}
                         placeholder="Ej. 1 año"
                       />
@@ -125,7 +125,7 @@ const AntecedentesPersonalesSection = ({
                       <Input
                         id={`cigs_${idx}`}
                         ref={setHabitoInputRef(idx)}
-                        value={h.campos.cigarrillos_por_dia}
+                        value={h.campos?.cigarrillos_por_dia ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'cigarrillos_por_dia', e.target.value)}
                         inputMode="numeric"
                         placeholder="Ej. 10"
@@ -135,7 +135,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`tiempo_${idx}`}>Tiempo activo</Label>
                       <Input
                         id={`tiempo_${idx}`}
-                        value={h.campos.tiempo_activo_tab}
+                        value={h.campos?.tiempo_activo_tab ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_activo_tab', e.target.value)}
                         placeholder="Ej. 5 años"
                       />
@@ -144,7 +144,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`inactivo_tab_${idx}`}>Tiempo inactivo</Label>
                       <Input
                         id={`inactivo_tab_${idx}`}
-                        value={h.campos.tiempo_inactivo_tab}
+                        value={h.campos?.tiempo_inactivo_tab ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_inactivo_tab', e.target.value)}
                         placeholder="Ej. 1 año"
                       />
@@ -159,7 +159,7 @@ const AntecedentesPersonalesSection = ({
                       <Input
                         id={`tox_${idx}`}
                         ref={setHabitoInputRef(idx)}
-                        value={h.campos.tipo_toxicomania}
+                        value={h.campos?.tipo_toxicomania ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tipo_toxicomania', e.target.value)}
                         placeholder="Sustancia"
                       />
@@ -168,7 +168,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`tox_freq_${idx}`}>Tiempo activo</Label>
                       <Input
                         id={`tox_freq_${idx}`}
-                        value={h.campos.tiempo_activo_tox}
+                        value={h.campos?.tiempo_activo_tox ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_activo_tox', e.target.value)}
                         placeholder="Ej. diario, esporádico"
                       />
@@ -177,7 +177,7 @@ const AntecedentesPersonalesSection = ({
                       <Label htmlFor={`tox_inactivo_${idx}`}>Tiempo inactivo</Label>
                       <Input
                         id={`tox_inactivo_${idx}`}
-                        value={h.campos.tiempo_inactivo_tox}
+                        value={h.campos?.tiempo_inactivo_tox ?? ''}
                         onChange={(e) => updateHabitoCampo(idx, 'tiempo_inactivo_tox', e.target.value)}
                         placeholder="Ej. 6 meses"
                       />

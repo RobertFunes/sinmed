@@ -166,7 +166,7 @@ const mapApiToForm = (api) => {
 
   const ap = api.antecedentes_personales || {};
   const habitos = [];
-  if (ap.bebidas_por_dia || ap.tiempo_activo_alc) {
+  if (ap.bebidas_por_dia || ap.tiempo_activo_alc || ap.tiempo_inactivo_alc) {
     const label = findMatchingLabel(HABITOS_OPCIONES, 'Alcoholismo', HABITOS_OPCIONES[0] || 'Alcoholismo');
     habitos.push({
       tipo: label,
@@ -177,7 +177,7 @@ const mapApiToForm = (api) => {
       },
     });
   }
-  if (ap.cigarrillos_por_dia || ap.tiempo_activo_tab) {
+  if (ap.cigarrillos_por_dia || ap.tiempo_activo_tab || ap.tiempo_inactivo_tab) {
     const label = findMatchingLabel(HABITOS_OPCIONES, 'Tabaquismo', HABITOS_OPCIONES[1] || 'Tabaquismo');
     habitos.push({
       tipo: label,
@@ -188,7 +188,7 @@ const mapApiToForm = (api) => {
       },
     });
   }
-  if (ap.tipo_toxicomania || ap.tiempo_activo_tox) {
+  if (ap.tipo_toxicomania || ap.tiempo_activo_tox || ap.tiempo_inactivo_tox) {
     const label = findMatchingLabel(HABITOS_OPCIONES, 'Toxicomanias', HABITOS_OPCIONES[2] || 'Toxicomanias');
     habitos.push({
       tipo: label,

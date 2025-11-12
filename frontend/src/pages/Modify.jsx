@@ -366,9 +366,15 @@ const Modify = () => {
     if (!nuevoHabito) return;
     const base = { tipo: nuevoHabito, campos: {} };
     const tipoNormalized = normalize(nuevoHabito);
-    if (tipoNormalized.includes('alcohol')) base.campos = { bebidas_por_dia: '', tiempo_activo_alc: '' };
-    if (tipoNormalized.includes('taba')) base.campos = { cigarrillos_por_dia: '', tiempo_activo_tab: '' };
-    if (tipoNormalized.includes('toxico')) base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '' };
+    if (tipoNormalized.includes('alcohol')) {
+      base.campos = { bebidas_por_dia: '', tiempo_activo_alc: '', tiempo_inactivo_alc: '' };
+    }
+    if (tipoNormalized.includes('taba')) {
+      base.campos = { cigarrillos_por_dia: '', tiempo_activo_tab: '', tiempo_inactivo_tab: '' };
+    }
+    if (tipoNormalized.includes('toxico')) {
+      base.campos = { tipo_toxicomania: '', tiempo_activo_tox: '', tiempo_inactivo_tox: '' };
+    }
     setFormData((prev) => ({
       ...prev,
       antecedentes_personales_habitos: [...prev.antecedentes_personales_habitos, base],

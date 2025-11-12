@@ -47,9 +47,25 @@ async function replaceAntecedentesFamiliares(id_perfil, items = []) {
 async function upsertAntecedentesPersonales(id_perfil, data = {}) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
+  const updateColumns = [
+    'bebidas_por_dia',
+    'tiempo_activo_alc',
+    'tiempo_inactivo_alc',
+    'cigarrillos_por_dia',
+    'tiempo_activo_tab',
+    'tiempo_inactivo_tab',
+    'tipo_toxicomania',
+    'tiempo_activo_tox',
+    'tiempo_inactivo_tox',
+    'calidad',
+    'hay_cambios',
+    'cambio_tipo',
+    'cambio_causa',
+    'cambio_tiempo',
+  ];
 
   // Filtra null/undefined para no sobrescribir con null innecesariamente
-  const cols = Object.keys(payload).filter((k) => payload[k] != null);
+  const cols = updateColumns.filter((k) => payload[k] != null);
   if (cols.length === 0) return { affectedRows: 0 };
 
   const fields = ['id_perfil', ...cols];
