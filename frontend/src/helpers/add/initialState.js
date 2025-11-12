@@ -57,6 +57,7 @@ export const initialState = {
   imc: '',
   ta_mmhg: '',
   frecuencia_cardiaca: '',
+  pam: '',
   frecuencia_respiratoria: '',
   temperatura_c: '',
   cadera_cm: '',

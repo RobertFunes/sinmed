@@ -101,6 +101,17 @@ const ExploracionFisicaSection = ({
           <Label htmlFor="frecuencia_cardiaca"><FaHeart style={{ marginRight: '0.5rem' }} />FC (frecuencia cardiaca)</Label>
           <Input id="frecuencia_cardiaca" name="frecuencia_cardiaca" value={formData.frecuencia_cardiaca} onChange={handleChange} inputMode="numeric" placeholder="lpm" />
         </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="pam"><FaHeart style={{ marginRight: '0.5rem' }} />PAM (mmHg)</Label>
+          <Input
+            id="pam"
+            name="pam"
+            value={formData.pam}
+            onChange={handleChange}
+            placeholder="Auto"
+            readOnly
+          />
+        </FieldGroup>
       </TwoColumnRow>
 
       <TwoColumnRow $cols={3}>

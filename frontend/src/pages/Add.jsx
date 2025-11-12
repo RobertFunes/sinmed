@@ -134,6 +134,21 @@ const Add = () => {
     }
   }, [formData.peso_actual, formData.talla_cm]);
 
+  useEffect(() => {
+    const taStr = (formData.ta_mmhg || '').trim();
+    const match = taStr.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+    let pamValue = '';
+    if (match) {
+      const sist = parseFloat(match[1]);
+      const diast = parseFloat(match[2]);
+      if (Number.isFinite(sist) && Number.isFinite(diast)) {
+        const pam = ((sist - diast) / 3) + diast;
+        if (Number.isFinite(pam)) pamValue = pam.toFixed(2);
+      }
+    }
+    setFormData((prev) => (prev.pam === pamValue ? prev : { ...prev, pam: pamValue }));
+  }, [formData.ta_mmhg]);
+
   const handleSubmit = async e => {
     e.preventDefault();
 

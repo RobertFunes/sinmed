@@ -109,6 +109,7 @@ export const buildNestedPayload = (data) => {
     imc: trim(data.imc),
     ta_mmhg: trim(data.ta_mmhg),
     frecuencia_cardiaca: trim(data.frecuencia_cardiaca),
+    pam: trim(data.pam),
     frecuencia_respiratoria: trim(data.frecuencia_respiratoria),
     temperatura_c: trim(data.temperatura_c),
     cadera_cm: trim(data.cadera_cm),
