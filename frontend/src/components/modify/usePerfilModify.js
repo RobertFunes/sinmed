@@ -207,6 +207,7 @@ const mapApiToForm = (api) => {
   assign('desayuno', ap.desayuno);
   assign('comida', ap.comida);
   assign('cena', ap.cena);
+  assign('vacunas', ap.vacunas);
   assign('hay_cambios', ap.hay_cambios);
   assign('cambio_tipo', ap.cambio_tipo);
   assign('cambio_causa', ap.cambio_causa);

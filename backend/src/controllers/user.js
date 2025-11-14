@@ -154,6 +154,7 @@ const modify = async (req, res) => {
     apPayload.comida = clean(alim.comida);
     apPayload.cena = clean(alim.cena);
     apPayload.hay_cambios = clean(alim.hay_cambios);
+    apPayload.vacunas = clean(apRaw.vacunas);
     if (apPayload.hay_cambios === 'Si') {
       apPayload.cambio_tipo = clean(alim.tipo);
       apPayload.cambio_causa = clean(alim.causa);
@@ -592,6 +593,7 @@ const add = async (req, res) => {
     apPayload.comida = clean(alim.comida);
     apPayload.cena = clean(alim.cena);
     apPayload.hay_cambios = clean(alim.hay_cambios);
+    apPayload.vacunas = clean(apRaw.vacunas);
     if (apPayload.hay_cambios === 'Si') {
       apPayload.cambio_tipo = clean(alim.tipo);
       apPayload.cambio_causa = clean(alim.causa);

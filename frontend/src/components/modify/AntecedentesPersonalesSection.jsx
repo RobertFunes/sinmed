@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaPlusCircle, FaExchangeAlt, FaExclamationCircle, FaClock, FaTrash } from 'react-icons/fa';
 import {
   Summary,
@@ -37,6 +37,15 @@ const AntecedentesPersonalesSection = ({
   handleChange,
 }) => {
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
+  const [vacunasRespuesta, setVacunasRespuesta] = useState(() =>
+    (formData.vacunas && formData.vacunas.trim().length) ? 'Si' : ''
+  );
+
+  useEffect(() => {
+    if ((formData.vacunas || '').trim().length && vacunasRespuesta !== 'Si') {
+      setVacunasRespuesta('Si');
+    }
+  }, [formData.vacunas, vacunasRespuesta]);
 
   const selectedHabito =
     deleteCandidateIdx !== null ? formData.antecedentes_personales_habitos[deleteCandidateIdx] : null;
@@ -297,6 +306,41 @@ const AntecedentesPersonalesSection = ({
             placeholder="Describe la cena típica"
           />
         </FieldGroup>
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="vacunas_select">Vacunas</Label>
+          <Select
+            id="vacunas_select"
+            value={vacunasRespuesta}
+            onChange={(e) => {
+              const value = e.target.value;
+              setVacunasRespuesta(value);
+              if (value !== 'Si') {
+                handleChange({ target: { name: 'vacunas', value: '' } });
+              } else if (!formData.vacunas) {
+                handleChange({ target: { name: 'vacunas', value: '' } });
+              }
+            }}
+          >
+            <option value="">-- Selecciona --</option>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </Select>
+        </FieldGroup>
+        {vacunasRespuesta === 'Si' && (
+          <FieldGroup>
+            <Label htmlFor="vacunas">¿Cuál?</Label>
+            <Input
+              id="vacunas"
+              name="vacunas"
+              value={formData.vacunas}
+              onChange={handleChange}
+              placeholder="Especifica las vacunas"
+            />
+          </FieldGroup>
+        )}
       </TwoColumnRow>
 
       {formData.hay_cambios === 'Si' && (

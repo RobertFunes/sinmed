@@ -82,6 +82,7 @@ export const buildNestedPayload = (data) => {
   const antecedentes_personales = {
     habitos,
     alimentacion,
+    vacunas: trim(data.vacunas),
   };
 
   // Consultas

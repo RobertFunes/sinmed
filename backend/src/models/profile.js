@@ -64,6 +64,7 @@ async function upsertAntecedentesPersonales(id_perfil, data = {}) {
     'comida',
     'cena',
     'hay_cambios',
+    'vacunas',
     'cambio_tipo',
     'cambio_causa',
     'cambio_tiempo',

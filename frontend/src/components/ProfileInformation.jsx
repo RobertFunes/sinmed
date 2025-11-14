@@ -41,6 +41,7 @@ import {
   FaPrescriptionBottleAlt,
   FaStickyNote,
   FaClipboardCheck,
+  FaSyringe,
   FaEdit,
   FaTrashAlt,
 } from 'react-icons/fa';
@@ -522,6 +523,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     { label: 'Comida habitual:', value: antecedentesPersonales.comida },
     { label: 'Cena habitual:', value: antecedentesPersonales.cena },
     { label: 'Cambios en la alimentación:', value: antecedentesPersonales.hay_cambios },
+    { label: 'Vacunas:', value: antecedentesPersonales.vacunas, icon: <FaSyringe /> },
     { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt /> },
     { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa, icon: <FaExclamationCircle /> },
     { label: 'Tiempo del cambio:', value: antecedentesPersonales.cambio_tiempo, icon: <FaClock /> },

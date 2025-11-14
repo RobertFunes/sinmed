@@ -32,6 +32,9 @@ const AntecedentesPersonalesSection = ({
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
   const prevHabitosCount = useRef(formData.antecedentes_personales_habitos.length);
   const habitoInputsRef = useRef([]);
+  const [vacunasRespuesta, setVacunasRespuesta] = useState(() =>
+    (formData.vacunas && formData.vacunas.trim().length) ? 'Si' : ''
+  );
 
   useEffect(() => {
     const prevCount = prevHabitosCount.current;
@@ -57,6 +60,12 @@ const AntecedentesPersonalesSection = ({
 
     prevHabitosCount.current = currentCount;
   }, [formData.antecedentes_personales_habitos.length]);
+
+  useEffect(() => {
+    if ((formData.vacunas || '').trim().length && vacunasRespuesta !== 'Si') {
+      setVacunasRespuesta('Si');
+    }
+  }, [formData.vacunas, vacunasRespuesta]);
 
   const setHabitoInputRef = (idx) => (el) => {
     habitoInputsRef.current[idx] = el;
@@ -271,6 +280,15 @@ const AntecedentesPersonalesSection = ({
 
       <TwoColumnRow>
         <FieldGroup>
+          <Label htmlFor="alimentacion_calidad">Alimentación (calidad)</Label>
+          <Select id="calidad" name="calidad" value={formData.calidad} onChange={handleChange}>
+            <option value="">-- Selecciona --</option>
+            <option value="Buena">Buena</option>
+            <option value="Regular">Regular</option>
+            <option value="Mala">Mala</option>
+          </Select>
+        </FieldGroup>
+        <FieldGroup>
           <Label htmlFor="cena">Cena habitual</Label>
           <TextArea
             id="cena"
@@ -285,18 +303,8 @@ const AntecedentesPersonalesSection = ({
 
       
 
-      {/* Campos fijos */}
-      <TwoColumnRow>
-        <FieldGroup>
-          <Label htmlFor="alimentacion_calidad">Alimentación (calidad)</Label>
-          <Select id="calidad" name="calidad" value={formData.calidad} onChange={handleChange}>
-            <option value="">-- Selecciona --</option>
-            <option value="Buena">Buena</option>
-            <option value="Regular">Regular</option>
-            <option value="Mala">Mala</option>
-          </Select>
-        </FieldGroup>
-      </TwoColumnRow>
+      
+
 
       <TwoColumnRow>
         <FieldGroup>
@@ -333,6 +341,41 @@ const AntecedentesPersonalesSection = ({
           </FieldGroup>
         </TwoColumnRow>
       )}
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="vacunas_select">Vacunas</Label>
+          <Select
+            id="vacunas_select"
+            value={vacunasRespuesta}
+            onChange={(e) => {
+              const value = e.target.value;
+              setVacunasRespuesta(value);
+              if (value !== 'Si') {
+                handleChange({ target: { name: 'vacunas', value: '' } });
+              } else if (!formData.vacunas) {
+                handleChange({ target: { name: 'vacunas', value: '' } });
+              }
+            }}
+          >
+            <option value="">-- Selecciona --</option>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </Select>
+        </FieldGroup>
+        {vacunasRespuesta === 'Si' && (
+          <FieldGroup>
+            <Label htmlFor="vacunas">¿Cuál?</Label>
+            <Input
+              id="vacunas"
+              name="vacunas"
+              value={formData.vacunas}
+              onChange={handleChange}
+              placeholder="Especifica las vacunas"
+            />
+          </FieldGroup>
+        )}
+      </TwoColumnRow>
+
       <ConfirmModal
         open={deleteCandidateIdx !== null}
         onCancel={cancelDeleteHabito}
