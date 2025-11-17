@@ -512,6 +512,33 @@ async function getPending() {
     reminders,
   };
 }
+
+// Perfiles con recordatorio configurado en tabla `perfil`
+async function getProfilesWithReminder() {
+  const [rows] = await db.query(
+    `SELECT
+       id_perfil,
+       nombre,
+       telefono_movil,
+       recordatorio,
+       recordatorio_desc
+     FROM perfil
+     WHERE recordatorio IS NOT NULL
+       AND recordatorio >= DATE(CONVERT_TZ(NOW(),'+00:00','-06:00'))
+       AND recordatorio <= DATE_ADD(DATE(CONVERT_TZ(NOW(),'+00:00','-06:00')), INTERVAL 30 DAY)
+     ORDER BY recordatorio ASC, id_perfil ASC`
+  );
+  return rows;
+}
+
+// Limpia recordatorio y recordatorio_desc de un perfil
+async function clearPerfilReminder(id_perfil) {
+  const [result] = await db.query(
+    'UPDATE perfil SET recordatorio = NULL, recordatorio_desc = NULL WHERE id_perfil = ?',
+    [id_perfil]
+  );
+  return result;
+}
 async function removeById(id) {
   const [result] = await db.query(
     'DELETE FROM perfil WHERE id_perfil = ?',
@@ -613,6 +640,8 @@ module.exports = {
   getSummary,
   postponeContactDate,
   getPending,
+  getProfilesWithReminder,
+  clearPerfilReminder,
   getById,
   removeById,
   addAntecedentesFamiliares,

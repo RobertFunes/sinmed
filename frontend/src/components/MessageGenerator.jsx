@@ -148,6 +148,21 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       setLoading(false);
     }
   };
+  const handleOpenWhatsAppWeb = () => {
+    const numberRaw = phone || profile.telefono_movil || '';
+    const messageRaw = (generated || content || '').trim();
+    const digits = numberRaw.replace(/\D/g, '');
+    if (!digits) {
+      alert('Por favor captura un número de teléfono válido.');
+      return;
+    }
+    if (!messageRaw) {
+      alert('No hay mensaje para enviar.');
+      return;
+    }
+    const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(messageRaw)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+  };
   const askConfirmSendImg = () => setConfirmSendImg(true);
   const askConfirmSend = () => setConfirmSend(true);
   const cancelConfirmSend = () => setConfirmSend(false);
@@ -238,7 +253,6 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
   };
   /* ------ Petición a /ia/gemini ------ */
   const handleGenerate = async () => {
-    if (!ensureServiceReady()) return;
     setLoading(true);
     setGenerated('');
     try {
@@ -370,7 +384,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {/* Botón */}
         <section className="buttons">
           {mode === 'text' && (<> 
-            <Button disabled={messagingDisabled || loading || !content.trim()} onClick={handleGenerate}>
+            <Button disabled={loading} onClick={handleGenerate}>
             {loading ? 'Generando…' : 'Generar mensaje ✨💬'}
             </Button>
           </>)}
@@ -405,12 +419,17 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
           </ResultArea>
         )}
         {mode === 'text' && (
-          <WhatsAppButton
-            disabled={messagingDisabled || loading || !generated.trim()}
-            onClick={askConfirmSend}
-          >
-            <FaWhatsapp size={18} /> Enviar por WhatsApp
-          </WhatsAppButton>
+          <section className="buttons">
+            <WhatsAppButton
+              disabled={messagingDisabled || loading || !generated.trim()}
+              onClick={askConfirmSend}
+            >
+              <FaWhatsapp size={18} /> Enviar por WhatsApp
+            </WhatsAppButton>
+            <WhatsAppButton type="button" onClick={handleOpenWhatsAppWeb}>
+              <FaWhatsapp size={18} /> Enviar por whats web
+            </WhatsAppButton>
+          </section>
         )}
         {mode === 'image' && (<>
           <FieldRow>

@@ -5,12 +5,13 @@ import { url } from '../helpers/url.js';
 
 // 🆕 Componente reutilizable
 import InteractCard from '../components/InteractCard.jsx';
+import ProfileReminderCard from '../components/ProfileReminderCard.jsx';
 
 // 👉 Mantén solo los contenedores de estilo generales
 import { Container, SectionTitle } from './Pending.styles.jsx';
 
 function Pending() {
-  const [pendingData, setPendingData] = useState({ reminders: [], birthdays: [] });
+  const [pendingData, setPendingData] = useState({ reminders: [], birthdays: [], profileReminders: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,13 +20,29 @@ function Pending() {
     (async () => {
       try {
         const res = await fetch(`${url}/api/pending`, {
-          credentials: 'include'
+          credentials: 'include',
         });
         if (!res.ok) throw new Error('Error al obtener los datos 😢');
         const payload = await res.json();
+
+        let profileReminders = [];
+        try {
+          const resProfiles = await fetch(`${url}/api/profilepending`, {
+            credentials: 'include',
+          });
+          if (resProfiles.ok) {
+            const profilesPayload = await resProfiles.json();
+            profileReminders = Array.isArray(profilesPayload?.items)
+              ? profilesPayload.items
+              : [];
+          }
+        } catch (e) {
+          console.error('Error al obtener profilepending:', e);
+        }
         setPendingData({
           reminders: Array.isArray(payload?.reminders) ? payload.reminders : [],
-          birthdays: Array.isArray(payload?.birthdays) ? payload.birthdays : []
+          birthdays: Array.isArray(payload?.birthdays) ? payload.birthdays : [],
+          profileReminders,
         });
       } catch (err) {
         console.error(err);
@@ -37,7 +54,7 @@ function Pending() {
   }, []);
 
   /* 2️⃣ Normalización */
-  const { reminders, birthdays } = useMemo(() => {
+  const { reminders, birthdays, profileReminders } = useMemo(() => {
     const remindersList = Array.isArray(pendingData.reminders)
       ? pendingData.reminders.map((item) => ({
           id: item.id_perfil ?? item.id,
@@ -68,7 +85,17 @@ function Pending() {
         })
       : [];
 
-    return { reminders: remindersList, birthdays: birthdaysList };
+    const profileRemindersList = Array.isArray(pendingData.profileReminders)
+      ? pendingData.profileReminders.map((item) => ({
+          id: item.id_perfil ?? item.id,
+          name: item.nombre ?? 'Sin nombre',
+          phone: item.telefono_movil ?? '',
+          reminderDate: item.recordatorio ?? null,
+          reminderDesc: item.recordatorio_desc ?? '',
+        }))
+      : [];
+
+    return { reminders: remindersList, birthdays: birthdaysList, profileReminders: profileRemindersList };
   }, [pendingData]);
 
   /* 3️⃣ UI */
@@ -92,6 +119,30 @@ function Pending() {
     <>
       <Header />
       <Container>
+        <SectionTitle>Recordatorios de perfil ⏰</SectionTitle>
+        <div className="overdue">
+          {profileReminders.length
+            ? profileReminders.map((item) => (
+                <ProfileReminderCard
+                  key={item.id}
+                  id={item.id}
+                  name={item.name}
+                  reminderDate={item.reminderDate}
+                  reminderDesc={item.reminderDesc}
+                  onClear={(pid) => {
+                    setPendingData((prev) => ({
+                      ...prev,
+                      profileReminders: Array.isArray(prev.profileReminders)
+                        ? prev.profileReminders.filter(
+                            (r) => (r.id_perfil ?? r.id) !== pid,
+                          )
+                        : [],
+                    }));
+                  }}
+                />
+              ))
+            : <p>🎉 No hay recordatorios de perfil</p>}
+        </div>
         <SectionTitle>Recordatorios de consultas (≤ 30 días) ⏰</SectionTitle>
         <div className="overdue">
           {reminders.length

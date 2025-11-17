@@ -7,6 +7,8 @@ const {
   add,
   getSummary,
   getPending,
+  getProfilePending,
+  clearProfileReminder,
   getById,
   removeById,
   postpone,
@@ -27,7 +29,9 @@ router.put('/profile/:id',   checkAuth, modify);
 router.get('/profile/:id',checkAuth, getById);
 router.get('/summary', checkAuth,getSummary); // Resumen de perfiles
 router.get('/pending', checkAuth,getPending);
+router.get('/profilepending', checkAuth, getProfilePending);
 router.post('/postpone',checkAuth, postpone);
+router.post('/profile/postpone', checkAuth, clearProfileReminder);
 router.delete('/profile/:id', checkAuth,removeById);
 
 

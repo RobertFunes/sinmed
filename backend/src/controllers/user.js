@@ -814,6 +814,36 @@ const getPending = async (req, res) => {
   }
 };
 
+// GET /profilepending - perfiles con recordatorio en tabla `perfil`
+const getProfilePending = async (req, res) => {
+  try {
+    const items = await bd.getProfilesWithReminder();
+    return res.status(200).json({ ok: true, items });
+  } catch (err) {
+    console.error('Error al obtener perfiles con recordatorio:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
+// POST /profile/postpone - limpia recordatorio de un perfil
+const clearProfileReminder = async (req, res) => {
+  try {
+    const { id_perfil, id } = req.body || {};
+    const targetId = Number(id_perfil ?? id);
+    if (!targetId || Number.isNaN(targetId)) {
+      return res.status(400).json({ ok: false, error: 'ID de perfil inválido' });
+    }
+    const result = await bd.clearPerfilReminder(targetId);
+    if (!result || result.affectedRows === 0) {
+      return res.status(404).json({ ok: false, error: 'Perfil no encontrado' });
+    }
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('Error al limpiar recordatorio de perfil:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 // GET /limits - devuelve uso actual de IA
 const getLimits = (req, res) => {
   try {
@@ -852,6 +882,8 @@ module.exports = {
   add,
   getSummary,
   getPending,
+  getProfilePending,
+  clearProfileReminder,
   getById,
   removeById,
   postpone,
