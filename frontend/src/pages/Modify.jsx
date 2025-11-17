@@ -455,6 +455,7 @@ const Modify = () => {
       nueva.padecimiento_actual = toStr(last.padecimiento_actual);
       nueva.diagnostico = toStr(last.diagnostico);
       nueva.medicamentos = toStr(last.medicamentos);
+      nueva.oreja = toStr(last.oreja);
       nueva.interrogatorio_aparatos = deepClone(toArr(last.interrogatorio_aparatos));
       // Copiar también los personalizados de la última consulta para mantener continuidad visual
       nueva.personalizados = deepClone(toArr(last.personalizados));

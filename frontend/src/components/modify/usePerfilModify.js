@@ -264,6 +264,7 @@ const mapApiToForm = (api) => {
     tratamiento: toStr(row?.tratamiento),
     notas: toStr(row?.notas),
     notas_evolucion: toStr(row?.notas_evolucion),
+    oreja: toStr(row?.oreja),
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),

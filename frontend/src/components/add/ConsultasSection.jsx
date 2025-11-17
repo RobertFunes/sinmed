@@ -105,6 +105,35 @@ const ConsultasSection = ({
           />
         </FieldGroup>
       </TwoColumnRow>
+      <FieldGroup>
+        <Label>Oreja</Label>
+        <AlergicoOptions>
+          <AlergicoOption $selected={formData.oreja === 'izquierda'}>
+            <input
+              type="checkbox"
+              name="oreja_izquierda"
+              checked={formData.oreja === 'izquierda'}
+              onChange={(e) => {
+                const next = e.target.checked ? 'izquierda' : (formData.oreja === 'izquierda' ? '' : formData.oreja);
+                handleChange({ target: { name: 'oreja', value: next } });
+              }}
+            />
+            <span>Izquierda</span>
+          </AlergicoOption>
+          <AlergicoOption $selected={formData.oreja === 'derecha'}>
+            <input
+              type="checkbox"
+              name="oreja_derecha"
+              checked={formData.oreja === 'derecha'}
+              onChange={(e) => {
+                const next = e.target.checked ? 'derecha' : (formData.oreja === 'derecha' ? '' : formData.oreja);
+                handleChange({ target: { name: 'oreja', value: next } });
+              }}
+            />
+            <span>Derecha</span>
+          </AlergicoOption>
+        </AlergicoOptions>
+      </FieldGroup>
 
       <FieldGroup>
         <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>

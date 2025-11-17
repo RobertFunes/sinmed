@@ -199,6 +199,7 @@ const ConsultasSection = ({
         const sistemasSeleccionados = toArr(consulta.interrogatorio_aparatos);
         const opcionesDisponibles = SISTEMAS_OPCIONES.filter((opt) => !sistemasSeleccionados.some((s) => normalize(s.nombre) === normalize(opt)));
         const selectValue = nuevoSistemaPorConsulta[uid] || '';
+        const orejaValue = toStr(consulta.oreja);
 
         return (
           <div key={uid} style={{ marginBottom: '2.5rem' }}>
@@ -226,6 +227,35 @@ const ConsultasSection = ({
                   <Input type="date" id={recordatorioId} value={consulta.recordatorio || ''} onChange={handleConsultaFieldChange(uid, 'recordatorio')} />
                 </FieldGroup>
               </TwoColumnRow>
+              <FieldGroup>
+                <Label>Oreja</Label>
+                <AlergicoOptions>
+                  <AlergicoOption $selected={orejaValue === 'izquierda'}>
+                    <input
+                      type="checkbox"
+                      name={`oreja_izquierda_${uid}`}
+                      checked={orejaValue === 'izquierda'}
+                      onChange={(e) => {
+                        const next = e.target.checked ? 'izquierda' : (orejaValue === 'izquierda' ? '' : orejaValue);
+                        handleConsultaFieldChange(uid, 'oreja')({ target: { value: next } });
+                      }}
+                    />
+                    <span>Izquierda</span>
+                  </AlergicoOption>
+                  <AlergicoOption $selected={orejaValue === 'derecha'}>
+                    <input
+                      type="checkbox"
+                      name={`oreja_derecha_${uid}`}
+                      checked={orejaValue === 'derecha'}
+                      onChange={(e) => {
+                        const next = e.target.checked ? 'derecha' : (orejaValue === 'derecha' ? '' : orejaValue);
+                        handleConsultaFieldChange(uid, 'oreja')({ target: { value: next } });
+                      }}
+                    />
+                    <span>Derecha</span>
+                  </AlergicoOption>
+                </AlergicoOptions>
+              </FieldGroup>
 
               {displayNumber >= 2 && (
                 <FieldGroup>

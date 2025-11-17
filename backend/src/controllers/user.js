@@ -251,6 +251,7 @@ const modify = async (req, res) => {
         tratamiento: clean(entry?.tratamiento),
         notas: clean(entry?.notas),
         notas_evolucion: clean(entry?.notas_evolucion),
+        oreja: clean(entry?.oreja),
       };
       const interrogatorio = Array.isArray(entry?.interrogatorio_aparatos)
         ? entry.interrogatorio_aparatos
@@ -706,6 +707,7 @@ const add = async (req, res) => {
       medicamentos: clean(consRaw.medicamentos),
       tratamiento: clean(consRaw.tratamiento),
       notas: clean(consRaw.notas),
+      oreja: clean(consRaw.oreja),
     };
     const arr = Array.isArray(consRaw.interrogatorio_aparatos)
       ? consRaw.interrogatorio_aparatos

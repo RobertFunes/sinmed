@@ -42,6 +42,7 @@ export const initialState = {
   medicamentos: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
   personalizados: [],          // [{ nombre: string, descripcion: string }]
+  oreja: '',                   // 'izquierda' | 'derecha' | ''
   calidad: '',
   alimentos_que_le_caen_mal: '',
   componentes_habituales_dieta: '',
