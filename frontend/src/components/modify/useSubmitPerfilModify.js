@@ -93,8 +93,12 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
     });
 
     const personalizados = toArr(consulta?.personalizados)
-      .map((p) => ({ nombre: trimValue(p?.nombre), descripcion: trimValue(p?.descripcion) }))
-      .filter((p) => p.nombre !== '' || p.descripcion !== '');
+      .map((p) => ({
+        nombre: trimValue(p?.nombre),
+        descripcion: trimValue(p?.descripcion),
+        estado: trimValue(p?.estado),
+      }))
+      .filter((p) => p.nombre !== '' || p.descripcion !== '' || p.estado !== '');
 
     return { ...payload, interrogatorio_aparatos, personalizados };
   });

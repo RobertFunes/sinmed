@@ -515,7 +515,7 @@ const Modify = () => {
           ...consulta,
           personalizados: [
             ...list,
-            { nombre: '', descripcion: '' },
+            { nombre: '', descripcion: '', estado: '' },
           ],
         };
       }),
@@ -540,6 +540,21 @@ const Modify = () => {
           ...consulta,
           personalizados: toArr(consulta.personalizados).map((p, i) => (i === idx ? { ...p, [field]: valor } : p)),
         };
+      }),
+    );
+  };
+
+  const handleTogglePersonalizadoEstado = (uid, idx, value) => {
+    updateConsultas((current) =>
+      current.map((consulta) => {
+        if (consulta.uid !== uid) return consulta;
+        const updated = toArr(consulta.personalizados).map((p, i) => {
+          if (i !== idx) return p;
+          const currentEstado = toStr(p?.estado);
+          const nextEstado = currentEstado === value ? '' : value;
+          return { ...p, estado: nextEstado };
+        });
+        return { ...consulta, personalizados: updated };
       }),
     );
   };
@@ -710,6 +725,7 @@ const Modify = () => {
               handleAgregarPersonalizado={handleAgregarPersonalizado}
               handleEliminarPersonalizado={handleEliminarPersonalizado}
               handleActualizarPersonalizado={handleActualizarPersonalizado}
+              handleTogglePersonalizadoEstado={handleTogglePersonalizadoEstado}
             />
             {/* 🩺 Exploración física -> payload.exploracion_fisica */}
             <ExploracionFisicaSection

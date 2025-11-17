@@ -188,7 +188,7 @@ async function replaceConsultas(id_perfil, items = []) {
 }
 
 // Inserta N filas en tabla `personalizados` para un perfil/consulta dado
-// items: array de objetos { nombre, descripcion } (strings no nulos)
+// items: array de objetos { nombre, descripcion, estado? } (strings no nulos)
 async function addPersonalizados(id_perfil, id_consulta, items = []) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   if (!id_consulta) throw new Error('id_consulta requerido');
@@ -197,10 +197,11 @@ async function addPersonalizados(id_perfil, id_consulta, items = []) {
   for (const it of items) {
     const nombre = (it?.nombre ?? '').toString().trim();
     const descripcion = (it?.descripcion ?? '').toString().trim();
+    const estado = (it?.estado ?? '').toString().trim();
     if (!nombre) continue; // requiere al menos nombre
     await db.query(
-      'INSERT INTO personalizados (id_perfil, id_consulta, nombre, descripcion) VALUES (?, ?, ?, ?)',
-      [id_perfil, id_consulta, nombre, descripcion]
+      'INSERT INTO personalizados (id_perfil, id_consulta, nombre, descripcion, estado) VALUES (?, ?, ?, ?, ?)',
+      [id_perfil, id_consulta, nombre, descripcion, estado]
     );
     inserted++;
   }

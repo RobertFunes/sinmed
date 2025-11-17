@@ -327,9 +327,10 @@ const groupPersonalizadosByConsulta = (items) => {
     if (!consultaId) continue;
     const nombre = toStr(it?.nombre).trim();
     const descripcion = toStr(it?.descripcion).trim();
-    if (!present(nombre) && !present(descripcion)) continue;
+    const estado = toStr(it?.estado).trim();
+    if (!present(nombre) && !present(descripcion) && !present(estado)) continue;
     const bucket = map.get(consultaId) || [];
-    bucket.push({ nombre, descripcion });
+    bucket.push({ nombre, descripcion, estado });
     map.set(consultaId, bucket);
   }
   return map;
@@ -745,14 +746,22 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 {present(consulta.id_consulta) && present(personalizadosByConsulta.get(consulta.id_consulta)) && (
                   <>
                     <h4 style={{ color: 'black', alignSelf: 'center' }}>Personalizados</h4>
-                    {toArr(personalizadosByConsulta.get(consulta.id_consulta)).map((p, pIdx) => (
-                      <Row
-                        key={`${consulta.id}-personalizado-${pIdx}`}
-                        icon={<FaStickyNote />}
-                        label={`${p.nombre}:`}
-                        value={p.descripcion}
-                      />
-                    ))}
+                    {toArr(personalizadosByConsulta.get(consulta.id_consulta)).map((p, pIdx) => {
+                      const hasDescripcion = present(p.descripcion);
+                      const hasEstado = present(p.estado);
+                      const valueParts = [];
+                      if (hasDescripcion) valueParts.push(p.descripcion);
+                      if (hasEstado) valueParts.push(estadoLabel(p.estado));
+                      const value = valueParts.join(' · ');
+                      return (
+                        <Row
+                          key={`${consulta.id}-personalizado-${pIdx}`}
+                          icon={<FaStickyNote />}
+                          label={`${p.nombre}:`}
+                          value={value}
+                        />
+                      );
+                    })}
                   </>
                 )}
               </Group>

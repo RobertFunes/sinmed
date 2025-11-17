@@ -280,6 +280,7 @@ const modify = async (req, res) => {
         .map((it) => ({
           nombre: (it?.nombre ?? '').toString().trim(),
           descripcion: (it?.descripcion ?? '').toString().trim(),
+          estado: (it?.estado ?? '').toString().trim(),
         }))
         .filter((it) => it.nombre.length > 0 || it.descripcion.length > 0);
 

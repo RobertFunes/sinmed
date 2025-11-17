@@ -246,9 +246,10 @@ const mapApiToForm = (api) => {
     if (!Number.isFinite(cid)) return;
     const nombre = toStr(it?.nombre);
     const descripcion = toStr(it?.descripcion);
-    if (!nombre && !descripcion) return;
+    const estado = toStr(it?.estado);
+    if (!nombre && !descripcion && !estado) return;
     const list = personalizadosByConsulta.get(cid) || [];
-    list.push({ nombre, descripcion });
+    list.push({ nombre, descripcion, estado });
     personalizadosByConsulta.set(cid, list);
   });
 
@@ -270,6 +271,7 @@ const mapApiToForm = (api) => {
     personalizados: (personalizadosByConsulta.get(Number(row?.id_consulta)) || []).map((p) => ({
       nombre: toStr(p?.nombre),
       descripcion: toStr(p?.descripcion),
+      estado: toStr(p?.estado),
     })),
   }));
 
@@ -308,6 +310,7 @@ const mapApiToForm = (api) => {
       personalizados: toArr(consulta.personalizados).map((p) => ({
         nombre: toStr(p?.nombre),
         descripcion: toStr(p?.descripcion),
+        estado: toStr(p?.estado),
       })),
     })),
   );

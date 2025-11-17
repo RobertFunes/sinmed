@@ -77,6 +77,7 @@ const ConsultasSection = ({
   handleAgregarPersonalizado,
   handleEliminarPersonalizado,
   handleActualizarPersonalizado,
+  handleTogglePersonalizadoEstado,
 }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -368,26 +369,53 @@ const ConsultasSection = ({
               </TwoColumnRow>
               {toArr(consulta.personalizados).length > 0 && (
                 <ListContainer>
-                  {toArr(consulta.personalizados).map((p, pIdx) => (
-                    <ItemCard key={`${uid}-pers-${pIdx}`}>
-                      <TwoColumnRow>
-                        <FieldGroup>
-                          <Label>Título</Label>
-                          <Input value={p.nombre} onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'nombre', e.target.value)} placeholder="Escribe el título" maxLength={100} />
-                        </FieldGroup>
-                        <FieldGroup>
-                          <Label>Descripción</Label>
-                          <TextArea value={p.descripcion} onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)} rows={3} placeholder="Describe el contenido" />
-                        </FieldGroup>
-                      </TwoColumnRow>
-                      <ItemActions>
-                        <DangerButton type="button" onClick={() => requestDeletePersonalizado(uid, pIdx)} disabled={isLoading}>
-                          <FaTrash />
-                          <ButtonLabel>Eliminar</ButtonLabel>
-                        </DangerButton>
-                      </ItemActions>
-                    </ItemCard>
-                  ))}
+                  {toArr(consulta.personalizados).map((p, pIdx) => {
+                    const isOldestConsulta = String(uid) === String(oldestConsultaUid ?? '');
+                    const estadoValue = toStr(p.estado);
+                    const showEstadoChecklist = !isOldestConsulta;
+                    return (
+                      <ItemCard key={`${uid}-pers-${pIdx}`}>
+                        <TwoColumnRow>
+                          <FieldGroup>
+                            <Label>Título</Label>
+                            <Input value={p.nombre} onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'nombre', e.target.value)} placeholder="Escribe el título" maxLength={100} />
+                          </FieldGroup>
+                          <FieldGroup>
+                            <Label>Descripción</Label>
+                            <TextArea value={p.descripcion} onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)} rows={3} placeholder="Describe el contenido" />
+                          </FieldGroup>
+                          {showEstadoChecklist && (
+                            <FieldGroup>
+                              <Label>Seguimiento</Label>
+                              <EstadoChecklist>
+                                {SISTEMA_ESTADO_OPTIONS.map((option) => {
+                                  const optionId = `${uid}-pers-${pIdx}-${option.value}`;
+                                  const checked = estadoValue === option.value;
+                                  return (
+                                    <EstadoOptionLabel key={option.value} htmlFor={optionId}>
+                                      <EstadoCheckbox
+                                        id={optionId}
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => handleTogglePersonalizadoEstado(uid, pIdx, option.value)}
+                                      />
+                                      <span>{option.label}</span>
+                                    </EstadoOptionLabel>
+                                  );
+                                })}
+                              </EstadoChecklist>
+                            </FieldGroup>
+                          )}
+                        </TwoColumnRow>
+                        <ItemActions>
+                          <DangerButton type="button" onClick={() => requestDeletePersonalizado(uid, pIdx)} disabled={isLoading}>
+                            <FaTrash />
+                            <ButtonLabel>Eliminar</ButtonLabel>
+                          </DangerButton>
+                        </ItemActions>
+                      </ItemCard>
+                    );
+                  })}
                 </ListContainer>
               )}
               <FieldGroup>
