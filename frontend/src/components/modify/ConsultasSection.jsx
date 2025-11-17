@@ -297,6 +297,20 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
               )}
+              {displayNumber >= 2 && (
+                <FieldGroup>
+                  <Label htmlFor={`${diagnosticoId}_notas_evolucion`}>
+                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas de evolución
+                  </Label>
+                  <TextArea
+                    id={`${diagnosticoId}_notas_evolucion`}
+                    value={consulta.notas_evolucion || ''}
+                    onChange={handleConsultaFieldChange(uid, 'notas_evolucion')}
+                    rows={2}
+                    placeholder="Notas de evolución a partir de esta consulta"
+                  />
+                </FieldGroup>
+              )}
               {sistemasSeleccionados.length > 0 && (
                 <ListContainer>
                   {sistemasSeleccionados.map((s, sistemaIdx) => {

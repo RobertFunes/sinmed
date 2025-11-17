@@ -263,6 +263,7 @@ const mapApiToForm = (api) => {
     medicamentos: toStr(row?.medicamentos),
     tratamiento: toStr(row?.tratamiento),
     notas: toStr(row?.notas),
+    notas_evolucion: toStr(row?.notas_evolucion),
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),

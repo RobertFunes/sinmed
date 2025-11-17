@@ -145,6 +145,7 @@ const createEmptyConsulta = () => ({
   medicamentos: '',
   tratamiento: '',
   notas: '',
+  notas_evolucion: '',
   interrogatorio_aparatos: [],
   personalizados: [],
 });

@@ -283,10 +283,11 @@ const buildConsultas = (data = {}) => {
         medicamentos: toStr(row?.medicamentos),
         tratamiento: toStr(row?.tratamiento),
         notas: toStr(row?.notas),
+        notas_evolucion: toStr(row?.notas_evolucion),
         interrogatorio: mapSistemasFromSource(row),
       };
       const hasData =
-        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas']
+        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion']
           .some((key) => present(base[key])) || present(base.interrogatorio);
       return hasData ? base : null;
     })
@@ -716,6 +717,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <Row icon={<FaPills />} label="Medicamentos:" value={consulta.medicamentos} />
                 <Row icon={<FaPrescriptionBottleAlt />} label="Tratamiento:" value={consulta.tratamiento} />
                 <Row icon={<FaStickyNote />} label="Notas:" value={consulta.notas} />
+                <Row icon={<FaStickyNote />} label="Notas de evolución:" value={consulta.notas_evolucion} />
                 {consulta.interrogatorio.length > 0 && (
                   <>
                     <h4 style={{ color: 'black',alignSelf:'center'}}>Interrogatorio por aparatos y sistemas</h4>
