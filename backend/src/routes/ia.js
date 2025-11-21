@@ -16,7 +16,7 @@ router.post('/gemini',checkAuth, async (req, res) => {
       const info = getInfo('gemini');
       return res.status(429).json({ ok: false, error: 'Límite mensual de mensajes alcanzado', ...info });
     }
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`;
     const body = {
       contents: [{ parts: [{ text: prompt }] }]
     };
