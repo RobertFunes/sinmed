@@ -9,7 +9,6 @@ import ConfirmModal from './ConfirmModal.jsx';
 import {
   Container,
   InfoBar,
-  WhatsappBubble,
   FieldRow,
   Label,
   Input,
@@ -17,27 +16,10 @@ import {
   TextArea,
   Button,
   ResultArea,
-  LoadingSpinner,
   WhatsAppButton,
-  ModeSwitch,
-  ModeCheckbox ,
-  ModeSlider ,
-
 } from './MessageGenerator.styles.jsx';
-// ⬆️ justo después de los imports
-const blobToBase64 = (blob) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result); // "data:image/png;base64,AAAA..."
-    reader.onerror   = reject;
-    reader.readAsDataURL(blob);
-  });
 
 export default function MessageGenerator({ profile = {} }) {
-  /* ------ Estado de disponibilidad del servicio ------ */
-  const [serviceReady, setServiceReady] = useState(false);
-  const [statusMsg, setStatusMsg] = useState('');
-  const [checking, setChecking] = useState(true);
   // Límites IA
   const [limits, setLimits] = useState(null);
   const [limitsLoading, setLimitsLoading] = useState(true);
@@ -48,43 +30,11 @@ export default function MessageGenerator({ profile = {} }) {
   const [content, setContent]     = useState('');
   const [generated, setGenerated] = useState('');
   const [loading, setLoading]     = useState(false);
-  const [imageSrc, setImageSrc]     = useState('');   // lo que <img> mostrará
-  const [imageB64, setImageB64]     = useState('');   // para mandarla por WhatsApp
-  const [imgLoading, setImgLoading] = useState(false);
   const [confirmSend, setConfirmSend] = useState(false);
-  const [mode, setMode] = useState('text');   // 'texto' | 'imagen'
-  const [confirmSendImg, setConfirmSendImg] = useState(false);
   // Resumen IA
   const [summaryPrompt, setSummaryPrompt] = useState('');
   const [summaryResult, setSummaryResult] = useState('');
   const [summaryLoading, setSummaryLoading] = useState(false);
-  const messagingDisabled = !serviceReady;
-  const serviceStatusMessage = statusMsg || '❌ Escanea el código QR para habilitar las funciones avanzadas de WhatsApp.';
-  const ensureServiceReady = () => {
-    if (messagingDisabled) {
-      alert(serviceStatusMessage);
-      return false;
-    }
-    return true;
-  };
-  /* ------ Comprobación del endpoint /what/status ------ */
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${url}/whats/status`, {
-          method: 'GET',
-          credentials: 'include' // también puede ser 'same-origin'
-        });
-        const json = await res.json();
-        setServiceReady(json.isAuth === true);
-        setStatusMsg(json.message || '');
-      } catch (err) {
-        console.error('❌ Error al verificar /what/status:', err);
-      } finally {
-        setChecking(false);
-      }
-    })();
-  }, []);
 
   // Cargar límites IA (silencioso)
   useEffect(() => {
@@ -126,7 +76,6 @@ ${objetivo}
 Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni viñetas. Devuelve solo el texto del mensaje listo para enviar.`.trim();
   }, [profile, policyContext, tone, content]);
   const handleSendWhatsApp = async () => {
-    if (!ensureServiceReady()) return;
     setLoading(true);
     try {
       /* payload que tu Express entiende */
@@ -163,17 +112,11 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(messageRaw)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
-  const askConfirmSendImg = () => setConfirmSendImg(true);
   const askConfirmSend = () => setConfirmSend(true);
   const cancelConfirmSend = () => setConfirmSend(false);
   const confirmSendWhatsApp = () => {
     setConfirmSend(false);
     handleSendWhatsApp();
-  };
-  const cancelConfirmSendImg = () => setConfirmSendImg(false);
-  const confirmSendImageWhatsApp = () => {
-    setConfirmSendImg(false);
-    handleSendImageWhatsApp();
   };
   // Generar resumen con IA (mismo endpoint que el mensaje)
   const handleGenerateSummary = async () => {
@@ -199,58 +142,6 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       setSummaryLoading(false);
     }
   };
-  const handleGenerateImage = async () => {
-    if (!ensureServiceReady()) return;
-    setImgLoading(true);
-    setImageSrc('');
-    setImageB64('');
-
-    try {
-      const res = await fetch(`${url}/ia/image`, {
-        method : 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({ prompt: content })
-      });
-      if (!res.ok) throw new Error('😓 Error al generar la imagen');
-
-      /* ────────────────────────────────────
-         Backend manda  «Content‑Type: image/png»
-      ──────────────────────────────────── */
-      const blob   = await res.blob();            // PNG crudo
-      setImageSrc(URL.createObjectURL(blob));
-
-      /* 👉 Base‑64 (por si la quieres mandar luego) */
-      const dataUrl = await blobToBase64(blob);   // 👈 seguro, asíncrono
-      setImageB64(dataUrl);  
-    } catch (err) {
-      alert(`❌ ${err.message || 'Error inesperado'}`);
-    } finally {
-      setImgLoading(false);
-    }
-  };
-
-  const handleSendImageWhatsApp = async () => {
-    if (!ensureServiceReady()) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`${url}/whats/send-image`, {
-        method : 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({
-          number  : phone || profile.telefono_movil,
-          imageB64: imageB64          // 👈 mandamos el base‑64
-        })
-      });
-      if (!res.ok) throw new Error('🚧 No se pudo enviar la imagen');
-      alert('✅ Imagen enviada por WhatsApp');
-    } catch (err) {
-      alert(`❌ ${err.message || 'Error inesperado'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
   /* ------ Petición a /ia/gemini ------ */
   const handleGenerate = async () => {
     setLoading(true);
@@ -272,20 +163,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       setLoading(false);
     }
   };
-  useEffect(() => {
-    return () => {
-      if (imageSrc.startsWith('blob:')) URL.revokeObjectURL(imageSrc);
-    };
-  }, [imageSrc]);
   /* ------ Render ------ */
-  if (checking) {
-    return (
-      <Container>
-        <LoadingSpinner>⏳ Comprobando servicio…</LoadingSpinner>
-      </Container>
-    );
-  }
-
   return (
     <>
       <Container>
@@ -321,23 +199,6 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
             <TextArea rows={10} value={summaryResult} onChange={(e) => setSummaryResult(e.target.value)} />
           </FieldRow>
         ) : null}
-        {!serviceReady && (
-          <FieldRow>
-            <WhatsappBubble>{serviceStatusMessage}</WhatsappBubble>
-          </FieldRow>
-        )}
-        <FieldRow>
-          <Label>Modo: {mode === 'text' ? 'Texto 💬' : 'Imagen 🖼️'}</Label>
-          <ModeSwitch $disabled={messagingDisabled}>
-            <ModeCheckbox
-              type="checkbox"
-              checked={mode === 'image'}
-              disabled={messagingDisabled}
-              onChange={e => setMode(e.target.checked ? 'image' : 'text')}
-            />
-            <ModeSlider />
-          </ModeSwitch>
-        </FieldRow>
         <FieldRow>
           <Label>Número telefónico 📱</Label>
           <Input
@@ -349,8 +210,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         </FieldRow>
 
         {/* Tono */}
-        {mode === 'text' && (<>
-          <FieldRow>
+        <FieldRow>
           <Label>Tono 🗣️</Label>
           <Select value={tone} onChange={e => setTone(e.target.value)}>
             <option value="Amigable">Amigable 😊</option>
@@ -365,10 +225,6 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
             <option value="Prudente">Prudente 🦉</option>
           </Select>
         </FieldRow>
-        
-        
-        </>)}
-        
 
         {/* Contenido */}
         <FieldRow>
@@ -383,69 +239,38 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 
         {/* Botón */}
         <section className="buttons">
-          {mode === 'text' && (<> 
-            <Button disabled={loading} onClick={handleGenerate}>
+          <Button disabled={loading} onClick={handleGenerate}>
             {loading ? 'Generando…' : 'Generar mensaje ✨💬'}
-            </Button>
-          </>)}
-          {mode === 'image' && (<> 
-            <Button
-              disabled={messagingDisabled || imgLoading || !content.trim()}
-              onClick={handleGenerateImage}
-            >
-              {imgLoading ? 'Generando imagen…' : 'Generar imagen ✨🖼️'}
-            </Button>
-          </>)}
-          
+          </Button>
         </section>
-        {mode === 'text' && (<>
-          <FieldRow>
-          
-            <Label>Mensaje ✉️</Label>
-            <TextArea
-              rows={15}
-              value={generated}
-              placeholder="Aquí aparecerá el mensaje que se enviará…"
-              onChange={e => setGenerated(e.target.value)}
-            />
-          </FieldRow>
-        </>)}
+        <FieldRow>
+          <Label>Mensaje ✉️</Label>
+          <TextArea
+            rows={15}
+            value={generated}
+            placeholder="Aquí aparecerá el mensaje que se enviará…"
+            onChange={e => setGenerated(e.target.value)}
+          />
+        </FieldRow>
         
         {/* Errores se notifican con alert; no render persistente */}
-        {generated && mode === 'text' && (
+        {generated && (
           <ResultArea>
             <strong>➡️Mensaje Final:</strong>
             <p>{generated}</p>
           </ResultArea>
         )}
-        {mode === 'text' && (
-          <section className="buttons">
-            <WhatsAppButton
-              disabled={messagingDisabled || loading || !generated.trim()}
-              onClick={askConfirmSend}
-            >
-              <FaWhatsapp size={18} /> Enviar por WhatsApp
-            </WhatsAppButton>
-            <WhatsAppButton type="button" onClick={handleOpenWhatsAppWeb}>
-              <FaWhatsapp size={18} /> Enviar por whats web
-            </WhatsAppButton>
-          </section>
-        )}
-        {mode === 'image' && (<>
-          <FieldRow>
-            {imageSrc && (
-              <img
-                src={imageSrc}
-                alt="Generada"
-              />
-            )}
-          </FieldRow>
-        </>)}
-        {imageSrc && mode === 'image' && (
-          <WhatsAppButton disabled={messagingDisabled || loading} onClick={askConfirmSendImg}>
-            <FaWhatsapp size={18} /> Enviar imagen por WhatsApp
+        <section className="buttons">
+          <WhatsAppButton
+            disabled={loading || !generated.trim()}
+            onClick={askConfirmSend}
+          >
+            <FaWhatsapp size={18} /> Enviar por WhatsApp
           </WhatsAppButton>
-        )}
+          <WhatsAppButton type="button" onClick={handleOpenWhatsAppWeb}>
+            <FaWhatsapp size={18} /> Enviar por whats web
+          </WhatsAppButton>
+        </section>
 
         {/* Errores se notifican con alert; no render persistente */}
         <ConfirmModal
@@ -454,13 +279,6 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
           confirmLabel="Enviar"
           onCancel={cancelConfirmSend}
           onConfirm={confirmSendWhatsApp}
-        />
-        <ConfirmModal
-          open={confirmSendImg}
-          text="¿Enviar la imagen por WhatsApp?"
-          confirmLabel="Enviar"
-          onCancel={cancelConfirmSendImg}
-          onConfirm={confirmSendImageWhatsApp}
         />
       </Container>
     </>

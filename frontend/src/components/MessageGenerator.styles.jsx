@@ -1,13 +1,8 @@
 // src/components/MessageGenerator.styles.jsx
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 
 /* 🎨 Paleta minimalista */
 import { Palette } from '../helpers/theme';
-
-/* ✨ Animación para el spinner */
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`;
 
 /* 📦 Layout principal */
 export const Container = styled.div`
@@ -39,75 +34,6 @@ export const InfoBar = styled.div`
   font-size: 0.9rem;
   margin-bottom: 16px;
 `;
-export const ModeSwitch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 52px;
-  height: 28px;
-  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
-`;
-
-export const ModeCheckbox = styled.input`
-  opacity: 0;
-  width: 0;
-  height: 0;
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-
-  &:checked + span {
-    background: ${Palette.primary};
-  }
-  &:checked + span:before {
-    transform: translateX(24px);
-  }
-
-  &:disabled + span {
-    filter: grayscale(0.35);
-  }
-`;
-
-export const ModeSlider = styled.span`
-  position: absolute;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
-  background: ${Palette.border};
-  border-radius: 34px;
-  transition: .3s;
-
-  &:before {
-    content: "";
-    position: absolute;
-    height: 22px; width: 22px;
-    left: 3px; bottom: 3px;
-    background: ${Palette.background};
-    border-radius: 50%;
-    transition: .3s;
-  }
-`;
-/* 💬 Burbuja tipo WhatsApp */
-export const WhatsappBubble = styled.div`
-  position: relative;
-  background: ${Palette.background};
-  color: ${Palette.text};
-  padding: 12px 14px;
-  border-radius: 12px 12px 12px 0;
-  line-height: 1.4;
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: -8px;
-    bottom: 0;
-    width: 0;
-    height: 0;
-    border-top: 8px solid ${Palette.background};
-    border-right: 8px solid transparent;
-  }
-`;
-
 /* 🏷️ Filas de campo */
 export const FieldRow = styled.div`
   display: flex;
@@ -189,24 +115,7 @@ export const ResultArea = styled.div`
 `;
 
 /* ⏳ Spinner / estados */
-export const LoadingSpinner = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  font-weight: 600;
-  color: ${Palette.muted};
 
-  &::before {
-    content: '';
-    width: 1.2rem;
-    height: 1.2rem;
-    border: 3px solid ${Palette.primary};
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: ${spin} 0.8s linear infinite;
-  }
-`;
 
 /* 🚨 Mensaje de error */
 export const ErrorMsg = styled.div`
