@@ -8,7 +8,7 @@ const FILE = path.join(DATA_DIR, 'ia-usage.json');
 
 const DEFAULTS = {
   month: null, // YYYY-MM
-  gemini: { used: 0, limit: 250 }, // mensajes
+  gemini: { used: 0, limit: 350 }, // mensajes
   image: { used: 0, limit: 40 },   // imágenes
 };
 
@@ -37,8 +37,8 @@ function load() {
     const parsed = JSON.parse(raw);
     state = {
       month: parsed.month || nowMonth(),
-      gemini: { used: Number(parsed?.gemini?.used) || 0, limit: Number(parsed?.gemini?.limit) || DEFAULTS.gemini.limit },
-      image:  { used: Number(parsed?.image?.used)  || 0, limit: Number(parsed?.image?.limit)  || DEFAULTS.image.limit },
+      gemini: { used: Number(parsed?.gemini?.used) || 0, limit: DEFAULTS.gemini.limit },
+      image:  { used: Number(parsed?.image?.used)  || 0, limit: DEFAULTS.image.limit },
     };
     ensureMonth();
   } catch (e) {

@@ -1,14 +1,14 @@
 // src/components/MessageGenerator.jsx
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { FaWhatsapp } from 'react-icons/fa'; 
 // 🌐 Recupera la URL base desde helper/url.js
 import { url } from '../helpers/url.js';
-import ConfirmModal from './ConfirmModal.jsx';
 // 🖌️  Estilos: los crearás en MessageGenerator.styles.jsx en el siguiente paso
 import {
   Container,
   InfoBar,
+  SummaryButtonsRow,
   FieldRow,
   Label,
   Input,
@@ -30,11 +30,12 @@ export default function MessageGenerator({ profile = {} }) {
   const [content, setContent]     = useState('');
   const [generated, setGenerated] = useState('');
   const [loading, setLoading]     = useState(false);
-  const [confirmSend, setConfirmSend] = useState(false);
   // Resumen IA
   const [summaryPrompt, setSummaryPrompt] = useState('');
   const [summaryResult, setSummaryResult] = useState('');
   const [summaryLoading, setSummaryLoading] = useState(false);
+
+  const summaryResultRef = useRef(null);
 
   // Cargar límites IA (silencioso)
   useEffect(() => {
@@ -75,28 +76,6 @@ ${objetivo}
 
 Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni viñetas. Devuelve solo el texto del mensaje listo para enviar.`.trim();
   }, [profile, policyContext, tone, content]);
-  const handleSendWhatsApp = async () => {
-    setLoading(true);
-    try {
-      /* payload que tu Express entiende */
-      const res = await fetch(`${url}/whats/send`, {
-        method : 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({
-          number : phone || profile.telefono_movil,      // número limpio
-          message: generated.trim() || content.trim(),   // mensaje final
-        }),
-      });
-      if (!res.ok) throw new Error('🚧 No se pudo enviar el WhatsApp');
-
-      alert('✅ Mensaje enviado por WhatsApp');
-    } catch (err) {
-      alert(`❌ ${err.message || 'Error inesperado'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
   const handleOpenWhatsAppWeb = () => {
     const numberRaw = phone || profile.telefono_movil || '';
     const messageRaw = (generated || content || '').trim();
@@ -112,15 +91,10 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(messageRaw)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
-  const askConfirmSend = () => setConfirmSend(true);
-  const cancelConfirmSend = () => setConfirmSend(false);
-  const confirmSendWhatsApp = () => {
-    setConfirmSend(false);
-    handleSendWhatsApp();
-  };
   // Generar resumen con IA (mismo endpoint que el mensaje)
-  const handleGenerateSummary = async () => {
-    const userPrompt = String(summaryPrompt || '').trim();
+  const handleGenerateSummary = async (promptOverride) => {
+    const rawPrompt = typeof promptOverride === 'string' ? promptOverride : summaryPrompt;
+    const userPrompt = String(rawPrompt || '').trim();
     if (!userPrompt) return;
     const datosPerfil = JSON.stringify(profile || {}, null, 2);
     const fullPrompt = `Toma el siguiente perfil y ${userPrompt}. Devuelve solo el texto, sin Markdown.\n\nPerfil del cliente (JSON):\n${datosPerfil}`;
@@ -136,12 +110,32 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       if (!res.ok) throw new Error('Error al invocar la IA');
       const { respuesta } = await res.json();
       setSummaryResult((respuesta || '').replace(/\*\*/g, '*'));
+      setLimits((prev) => {
+        if (!prev || !prev.gemini) return prev;
+        const used = (prev.gemini.used || 0) + 1;
+        const limit = prev.gemini.limit || 0;
+        return {
+          ...prev,
+          gemini: {
+            ...prev.gemini,
+            used,
+            remaining: Math.max(0, limit - used),
+          },
+        };
+      });
     } catch (err) {
       alert(`⚠️ ${err.message || 'Error inesperado'}`);
     } finally {
       setSummaryLoading(false);
     }
   };
+
+  useEffect(() => {
+    const el = summaryResultRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [summaryResult]);
   /* ------ Petición a /ia/gemini ------ */
   const handleGenerate = async () => {
     setLoading(true);
@@ -157,6 +151,19 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       const { respuesta } = await res.json();
       const clean = (respuesta || '🤖 Sin respuesta de la IA').replace(/\*\*/g, '*');
       setGenerated(clean);
+      setLimits((prev) => {
+        if (!prev || !prev.gemini) return prev;
+        const used = (prev.gemini.used || 0) + 1;
+        const limit = prev.gemini.limit || 0;
+        return {
+          ...prev,
+          gemini: {
+            ...prev.gemini,
+            used,
+            remaining: Math.max(0, limit - used),
+          },
+        };
+      });
     } catch (err) {
       alert(`❌ ${err.message || 'Error inesperado'}`);
     } finally {
@@ -170,8 +177,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {/* Info de uso IA (discreta) */}
         {!limitsLoading && limits && limits.ok && (
           <InfoBar>
-            <span>• Texto: {limits.gemini.used}/{limits.gemini.limit}</span>
-            <span>• Imágenes: {limits.image.used}/{limits.image.limit}</span>
+            <span>• IA texto: {limits.gemini.used}/{limits.gemini.limit}</span>
             <span>• Reseteo: {String(limits.gemini.resetAt || '').slice(0,10)}</span>
           </InfoBar>
         )}
@@ -181,6 +187,52 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {/* Resumen IA */}
         <FieldRow>
           <Label>Generar resumen, consultar con IA</Label>
+          <SummaryButtonsRow>
+            <Button
+              type="button"
+              disabled={summaryLoading}
+              onClick={() =>
+                handleGenerateSummary(
+                  'Haz un resumen clínico general de este paciente en un máximo de 3 párrafos. Enfatiza diagnósticos principales, comorbilidades, tratamiento actual, antecedentes relevantes y factores de riesgo más importantes. Usa lenguaje para profesionales de salud.'
+                )
+              }
+            >
+              Resumen general
+            </Button>
+            <Button
+              type="button"
+              disabled={summaryLoading}
+              onClick={() =>
+                handleGenerateSummary(
+                  'Resume la última consulta de este paciente en 5 puntos claros: 1) motivo de consulta, 2) hallazgos relevantes, 3) diagnóstico o impresión clínica principal, 4) tratamiento o indicaciones que se dieron y 5) recomendaciones o plan de seguimiento. Usa lenguaje pensado para otro profesional de salud.'
+                )
+              }
+            >
+              Resumen de la última consulta
+            </Button>
+            <Button
+              type="button"
+              disabled={summaryLoading}
+              onClick={() =>
+                handleGenerateSummary(
+                  'Con base en este perfil, identifica los principales riesgos de salud y banderas rojas. Explica en forma de lista: 1) riesgos clave, 2) qué habría que vigilar de cerca y 3) qué signos o situaciones deberían considerarse alerta para atención inmediata. Usa un lenguaje claro y directo para profesionales de salud.'
+                )
+              }
+            >
+              Riesgos y alertas
+            </Button>
+            <Button
+              type="button"
+              disabled={summaryLoading}
+              onClick={() =>
+                handleGenerateSummary(
+                  'Genera una guía breve para el médico sobre cómo explicarle al paciente su situación clínica. Incluye: 1) ideas clave que debe comunicar al paciente, 2) ejemplos o metáforas sencillas que puede usar y 3) recomendaciones prácticas que debería transmitir. Redacta el resultado como instrucciones internas para el médico, no como un mensaje directo al paciente.'
+                )
+              }
+            >
+              Resumen explicable al paciente
+            </Button>
+          </SummaryButtonsRow>
           <Input
             type="text"
             value={summaryPrompt}
@@ -196,7 +248,12 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {summaryResult ? (
           <FieldRow>
             <Label>Resultado</Label>
-            <TextArea rows={10} value={summaryResult} onChange={(e) => setSummaryResult(e.target.value)} />
+            <TextArea
+              rows={3}
+              ref={summaryResultRef}
+              value={summaryResult}
+              onChange={(e) => setSummaryResult(e.target.value)}
+            />
           </FieldRow>
         ) : null}
         <FieldRow>
@@ -261,25 +318,10 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
           </ResultArea>
         )}
         <section className="buttons">
-          <WhatsAppButton
-            disabled={loading || !generated.trim()}
-            onClick={askConfirmSend}
-          >
-            <FaWhatsapp size={18} /> Enviar por WhatsApp
-          </WhatsAppButton>
           <WhatsAppButton type="button" onClick={handleOpenWhatsAppWeb}>
             <FaWhatsapp size={18} /> Enviar por whats web
           </WhatsAppButton>
         </section>
-
-        {/* Errores se notifican con alert; no render persistente */}
-        <ConfirmModal
-          open={confirmSend}
-          text="¿Enviar el mensaje por WhatsApp?"
-          confirmLabel="Enviar"
-          onCancel={cancelConfirmSend}
-          onConfirm={confirmSendWhatsApp}
-        />
       </Container>
     </>
   );

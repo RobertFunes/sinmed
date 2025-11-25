@@ -34,6 +34,13 @@ export const InfoBar = styled.div`
   font-size: 0.9rem;
   margin-bottom: 16px;
 `;
+
+export const SummaryButtonsRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 8px;
+`;
 /* 🏷️ Filas de campo */
 export const FieldRow = styled.div`
   display: flex;
