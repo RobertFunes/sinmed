@@ -226,11 +226,11 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
               disabled={summaryLoading}
               onClick={() =>
                 handleGenerateSummary(
-                  'Genera una guía breve para el médico sobre cómo explicarle al paciente su situación clínica. Incluye: 1) ideas clave que debe comunicar al paciente, 2) ejemplos o metáforas sencillas que puede usar y 3) recomendaciones prácticas que debería transmitir. Redacta el resultado como instrucciones internas para el médico, no como un mensaje directo al paciente.'
+                  'Considerando el historial completo de este paciente, resume en una sola vista todas las consultas registradas: principales motivos de consulta, diagnósticos, tratamientos indicados, cambios relevantes en la evolución y eventos importantes. Presenta el resumen pensado para un médico que necesita ponerse al día rápido con el caso.'
                 )
               }
             >
-              Resumen explicable al paciente
+              Resumen de todas las consultas
             </Button>
           </SummaryButtonsRow>
           <Input
