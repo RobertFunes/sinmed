@@ -11,8 +11,7 @@ const Header = () => {
 
         </LogoLink>
         <NavButton as={Link} to="/add">
-          <FaUserPlus fontSize={"1.5rem"}/> 
-          <FaPlusCircle />
+          <FaUserPlus fontSize={"1.5rem"}/> Agregar
         </NavButton>
         <NavButton as={Link} to="/pending" className="agenda">
           <FaComments /> Pendientes
@@ -25,7 +24,7 @@ const Header = () => {
           <FaCalendarAlt /> Calendario
         </NavButton>
         <NavButton as={Link} to="/search" className="agenda">
-          <FaSearch style={{ fontSize: '1.5rem' }} />
+          <FaSearch style={{ fontSize: '1.5rem' }} /> Buscar
         </NavButton>
       </NavBar>
     </header>

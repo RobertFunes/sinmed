@@ -9,7 +9,6 @@ const FILE = path.join(DATA_DIR, 'ia-usage.json');
 const DEFAULTS = {
   month: null, // YYYY-MM
   gemini: { used: 0, limit: 350 }, // mensajes
-  image: { used: 0, limit: 40 },   // imágenes
 };
 
 let state = null;
@@ -38,7 +37,6 @@ function load() {
     state = {
       month: parsed.month || nowMonth(),
       gemini: { used: Number(parsed?.gemini?.used) || 0, limit: DEFAULTS.gemini.limit },
-      image:  { used: Number(parsed?.image?.used)  || 0, limit: DEFAULTS.image.limit },
     };
     ensureMonth();
   } catch (e) {
@@ -68,31 +66,27 @@ function ensureMonth() {
   if (state.month !== cur) {
     state.month = cur;
     state.gemini.used = 0;
-    state.image.used = 0;
     save();
   }
 }
 
-function canUse(kind) {
+function canUse() {
   ensureMonth();
-  const k = kind === 'image' ? 'image' : 'gemini';
-  const used = state[k].used;
-  const limit = state[k].limit;
+  const used = state.gemini.used;
+  const limit = state.gemini.limit;
   return used < limit;
 }
 
-function consume(kind, n = 1) {
+function consume(n = 1) {
   ensureMonth();
-  const k = kind === 'image' ? 'image' : 'gemini';
-  state[k].used = Math.max(0, (state[k].used || 0)) + n;
+  state.gemini.used = Math.max(0, (state.gemini.used || 0)) + n;
   save();
 }
 
-function getInfo(kind) {
+function getInfo() {
   ensureMonth();
-  const k = kind === 'image' ? 'image' : 'gemini';
-  const used = state[k].used;
-  const limit = state[k].limit;
+  const used = state.gemini.used;
+  const limit = state.gemini.limit;
   const remaining = Math.max(0, limit - used);
   return {
     month: state.month,

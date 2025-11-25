@@ -5,7 +5,6 @@ const path = require('path');
 require('dotenv').config();
 const cookieParser = require('cookie-parser'); 
 const iaRoutes = require('./routes/ia');
-const whatsRoutes = require('./routes/whats');
 const userRoutes = require('./routes/user');
 const searchRoutes = require('./routes/search');
 const citasCleanup = require('./jobs/citasCleanup');
@@ -28,7 +27,6 @@ app.use(cookieParser());
 app.use('/api', userRoutes);
 app.use('/api', searchRoutes);
 app.use('/ia', iaRoutes);
-app.use('/whats', whatsRoutes);
 
 
 
@@ -38,7 +36,7 @@ app.use(express.static(frontendPath));
 // Sirve el index.html para /, /add y /pending
 const indexFile = path.join(frontendPath, 'index.html');
 
-app.get(['/', '/add', '/pending', '/login', '/link', '/profile/:id', '/calendar', '/calendar/new'], (req, res) => {
+app.get(['/', '/add', '/pending', '/login', '/profile/:id', '/calendar', '/calendar/new'], (req, res) => {
   res.sendFile(indexFile);
 });
 
