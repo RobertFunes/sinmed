@@ -1,42 +1,8 @@
 // Header.jsx
-import { useEffect, useState } from 'react';
-import { FaUserPlus, FaComments, FaUser , FaLink, FaPlusCircle, FaSearch, FaCalendarAlt } from 'react-icons/fa';
+import { FaUserPlus, FaComments, FaUser, FaPlusCircle, FaSearch, FaCalendarAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { NavBar, NavButton,LogoLink } from './Header.styles.jsx';
-import { url } from '../helpers/url.js';
-// Header.jsx
-
 const Header = () => {
-  const [isConnected, setIsConnected] = useState(null); // null = sin saber todavía ??
-  useEffect(() => {
-    const getStatus = async () => {
-      try {
-        const res = await fetch(`${url}/whats/status`, {
-          method: 'GET',
-          credentials: 'include' // o 'same-origin' si es mismo dominio
-        });
-
-        const data = await res.json();
-        setIsConnected(data?.isAuth === true); // true ?  | false ?
-      } catch (err) {
-        console.error('Error consultando estado de WhatsApp:', err);
-        setIsConnected(false); // asumimos desconectado si algo falla ??
-      }
-    };
-
-    getStatus();          // primer chequeo
-    const interval = setInterval(getStatus, 60_000); // refresco cada 60 s ??
-
-    return () => clearInterval(interval); // limpiar al desmontar
-  }, []);
-  // clase dinámica según el estado
-  const linkStatusClass =
-    isConnected === null
-      ? ''                      // aún cargando
-      : isConnected
-      ? 'connected'            // verde ??
-      : 'disconnected';        // rojo ??
-
   return (
     <header>
       <NavBar>
@@ -61,14 +27,6 @@ const Header = () => {
         <NavButton as={Link} to="/search" className="agenda">
           <FaSearch style={{ fontSize: '1.5rem' }} />
         </NavButton>
-        <NavButton
-          as={Link}
-          to="/link"
-          className={`whatsapp-status ${linkStatusClass}`}
-        >
-          <FaLink /> Link
-        </NavButton>
-        
       </NavBar>
     </header>
   );

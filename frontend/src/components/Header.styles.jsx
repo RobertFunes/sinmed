@@ -41,23 +41,6 @@ export const NavButton = styled.button`
     color: #ffffff;
   }
 
-  /* ----- ESTADOS PERSONALIZADOS ----- */
-  &.connected {
-    background: #28a745; /* verde Bootstrap */
-    color: #ffffff;
-    &:hover {
-      background: #218838;
-    }
-  }
-
-  &.disconnected {
-    background: #dc3545; /* rojo Bootstrap */
-    color: #ffffff;
-    &:hover {
-      background: #c82333;
-    }
-  }
-
   /* tus estilos existentes ↓ */
   &.delete {
     color: #222831;

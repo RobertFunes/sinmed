@@ -6,7 +6,6 @@ import App from './pages/App.jsx';
 import Login from './pages/Login.jsx';
 import Add from './pages/Add.jsx';
 import RequireAuth from './components/RequireAuth.jsx';
-import Link from './pages/Link.jsx';
 import Interact from './pages/Pending.jsx';
 import Profile from './pages/Profile.jsx';
 import Modify from './pages/Modify.jsx';
@@ -34,7 +33,6 @@ const router = createBrowserRouter([
       { path: '/', element: <App /> },
       { path: '/add', element: <Add /> },
       { path: '/profile/:id', element: <Profile /> },
-      { path: '/link', element: <Link /> },
       { path: '/pending', element: <Interact /> },
       { path: '/modify/:id', element: <Modify /> },
       { path: '/calendar', element: <Calendar /> },
