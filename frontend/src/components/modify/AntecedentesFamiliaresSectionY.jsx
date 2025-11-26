@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaUsers, FaPlusCircle, FaTrash } from 'react-icons/fa';
 import {
   Summary,
@@ -34,8 +34,28 @@ const AntecedentesFamiliaresSectionY = ({
   isOpen,
   onToggle,
   isLoading,
+  autoFocusIndex,
+  onAutoFocusHandled,
 }) => {
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
+  const descripcionRefs = React.useRef([]);
+
+  useEffect(() => {
+    if (
+      autoFocusIndex == null ||
+      !Number.isInteger(autoFocusIndex) ||
+      autoFocusIndex < 0
+    ) return;
+    const el = descripcionRefs.current[autoFocusIndex];
+    if (!el || typeof el.focus !== 'function') return;
+    el.focus();
+    if (typeof el.select === 'function') {
+      el.select();
+    }
+    if (typeof onAutoFocusHandled === 'function') {
+      onAutoFocusHandled();
+    }
+  }, [autoFocusIndex, onAutoFocusHandled]);
 
   const selectedAntecedente =
     deleteCandidateIdx !== null ? formData.antecedentes_familiares[deleteCandidateIdx] : null;
@@ -78,6 +98,9 @@ const AntecedentesFamiliaresSectionY = ({
                   <TextArea
                     value={a.descripcion}
                     onChange={(e) => updateAntecedenteField(idx, 'descripcion', e.target.value)}
+                    ref={(el) => {
+                      descripcionRefs.current[idx] = el;
+                    }}
                     rows={3}
                     placeholder="Detalles relevantes, familiar afectado, edad de inicio, etc."
                   />

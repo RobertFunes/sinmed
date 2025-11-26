@@ -675,8 +675,18 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             {antecedentesFamiliares.map((item, idx) => (
               <Group key={`af-${idx}`}>
                 
-                <Row icon={<FaUsers />} label="Antecedente:" value={item.nombre} />
-                <Row icon={<FaStickyNote />} label="Descripción:" value={item.descripcion} />
+                <Row
+                  icon={<FaUsers />}
+                  label="Antecedente:"
+                  value={item.nombre}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'nombre', index: idx }) : undefined}
+                />
+                <Row
+                  icon={<FaStickyNote />}
+                  label="Descripción:"
+                  value={item.descripcion}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'descripcion', index: idx }) : undefined}
+                />
               </Group>
             ))}
           </Stack>

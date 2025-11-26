@@ -208,6 +208,7 @@ const Modify = () => {
   const fechaLegadoRef = useRef(null);
   const recordatorioRef = useRef(null);
   const recordatorioDescRef = useRef(null);
+  const [autoFocusAntecedenteIndex, setAutoFocusAntecedenteIndex] = useState(null);
   const imcAutoCalcRef = useRef(false);
   const updateSnapshot = useCallback((data, payload) => {
     if (!data) return;
@@ -254,6 +255,7 @@ const Modify = () => {
   useEffect(() => {
     if (isLoading) return;
     const target = location && location.state && location.state.editTarget;
+
     if (target && target.section === 'datos') {
       setOpenSection('datos');
       setTimeout(() => {
@@ -297,6 +299,11 @@ const Modify = () => {
           focusRef.current.focus();
         }
       }, 0);
+    } else if (target && target.section === 'familiares') {
+      setOpenSection('familiares');
+      if (Number.isInteger(target.index)) {
+        setAutoFocusAntecedenteIndex(target.index);
+      }
     } else {
       setOpenSection('datos');
     }
@@ -751,6 +758,8 @@ const Modify = () => {
               isOpen={openSection === 'familiares'}
               onToggle={handleToggle('familiares')}
               isLoading={isLoading}
+              autoFocusIndex={autoFocusAntecedenteIndex}
+              onAutoFocusHandled={() => setAutoFocusAntecedenteIndex(null)}
             />
 
             {/* 🧗 Hábitos y alimentación -> payload.antecedentes_personales */}
