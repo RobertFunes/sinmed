@@ -38,7 +38,18 @@ export default function Profile() {
   if (loading) return (<><Header /><p style={{ textAlign: 'center' }}>Cargando perfil… ⏳</p></>);
   if (error) return (<><Header /><p style={{ textAlign: 'center' }}>❌ {error}</p></>);
 
-  const handleEditProfile = () => navigate(`/modify/${id}`);
+  const handleEditProfile = (target) => {
+    if (
+      target &&
+      typeof target === 'object' &&
+      Object.prototype.hasOwnProperty.call(target, 'section') &&
+      Object.prototype.hasOwnProperty.call(target, 'field')
+    ) {
+      navigate(`/modify/${id}`, { state: { editTarget: target } });
+    } else {
+      navigate(`/modify/${id}`);
+    }
+  };
   const askDeleteProfile = () => setToDelete({ id, label: data.nombre });
   const cancelDelete = () => setToDelete(null);
 

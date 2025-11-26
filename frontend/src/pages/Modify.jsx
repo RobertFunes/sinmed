@@ -1,6 +1,6 @@
 // modify.jsx (actualizado para edicion de perfiles)
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useBeforeUnload, useBlocker } from 'react-router-dom';
+import { useParams, useBeforeUnload, useBlocker, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton, CancelButton } from './Add.styles';
 import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
@@ -10,7 +10,7 @@ import { useSubmitPerfilModify, buildPayloadWithConsultas } from '../components/
 import ConfirmModal from '../components/ConfirmModal';
 
 // iconos
-import { FaSave, FaArrowUp } from 'react-icons/fa';
+import { FaSave, FaArrowUp, FaUser } from 'react-icons/fa';
 import { FloatingSave } from './modify.styles';
 import DatosPersonalesSection from '../components/modify/DatosPersonalesSection';
 import AntecedentesFamiliaresSectionY from '../components/modify/AntecedentesFamiliaresSectionY';
@@ -153,6 +153,8 @@ const createEmptyConsulta = () => ({
 // buildPayloadWithConsultas fue movido al hook useSubmitPerfilModify
 
 const Modify = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const { formData, setFormData, isLoading, original } = usePerfilModify(id);
@@ -192,6 +194,20 @@ const Modify = () => {
   };
   const [nuevoInspeccion, setNuevoInspeccion] = useState('');
   const nombreRef = useRef(null);
+  const generoRef = useRef(null);
+  const fechaNacimientoRef = useRef(null);
+  const telefonoMovilRef = useRef(null);
+  const correoElectronicoRef = useRef(null);
+  const referidoPorRef = useRef(null);
+  const residenciaRef = useRef(null);
+  const ocupacionRef = useRef(null);
+  const escolaridadRef = useRef(null);
+  const estadoCivilRef = useRef(null);
+  const tipoSangreRef = useRef(null);
+  const idLegadoRef = useRef(null);
+  const fechaLegadoRef = useRef(null);
+  const recordatorioRef = useRef(null);
+  const recordatorioDescRef = useRef(null);
   const imcAutoCalcRef = useRef(false);
   const updateSnapshot = useCallback((data, payload) => {
     if (!data) return;
@@ -227,13 +243,64 @@ const Modify = () => {
   // Al terminar de prellenar, reiniciar estados de UI auxiliares
   useEffect(() => {
     if (isLoading) return;
-    setOpenSection('datos');
     setNuevoAntecedente('');
     setNuevoHabito('');
     setNuevoPatologico('');
     setNuevoSistemaPorConsulta({});
     setNuevoInspeccion('');
   }, [isLoading]);
+
+  // Si venimos desde el perfil con un campo objetivo, abrir sección y enfocar
+  useEffect(() => {
+    if (isLoading) return;
+    const target = location && location.state && location.state.editTarget;
+    if (target && target.section === 'datos') {
+      setOpenSection('datos');
+      setTimeout(() => {
+        const focusRef = (() => {
+          switch (target.field) {
+            case 'genero':
+              return generoRef;
+            case 'nombre':
+              return nombreRef;
+            case 'fecha_nacimiento':
+              return fechaNacimientoRef;
+            case 'telefono_movil':
+              return telefonoMovilRef;
+            case 'correo_electronico':
+              return correoElectronicoRef;
+            case 'referido_por':
+              return referidoPorRef;
+            case 'residencia':
+              return residenciaRef;
+            case 'ocupacion':
+              return ocupacionRef;
+            case 'escolaridad':
+              return escolaridadRef;
+            case 'estado_civil':
+              return estadoCivilRef;
+            case 'tipo_sangre':
+              return tipoSangreRef;
+            case 'id_legado':
+              return idLegadoRef;
+            case 'fecha_legado':
+              return fechaLegadoRef;
+            case 'recordatorio':
+              return recordatorioRef;
+            case 'recordatorio_desc':
+              return recordatorioDescRef;
+            default:
+              return null;
+          }
+        })();
+        if (focusRef && focusRef.current && typeof focusRef.current.focus === 'function') {
+          focusRef.current.focus();
+        }
+      }, 0);
+    } else {
+      setOpenSection('datos');
+    }
+  }, [isLoading, location]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -641,6 +708,13 @@ const Modify = () => {
             <span>Editar</span> historia clinica{formData.nombre ? ` de ${formData.nombre}` : ''}.
           </Title>
 
+          {isLoading && (
+            <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+              Cargando datos del perfil...
+            </p>
+          )}
+
+          {!isLoading && (
           <Form ref={formElRef} onSubmit={handleSubmit} noValidate>
             {/* 🧍 Datos personales -> payload.datos_personales */}
             <DatosPersonalesSection
@@ -649,6 +723,20 @@ const Modify = () => {
               isOpen={openSection === 'datos'}
               onToggle={handleToggle('datos')}
               nombreRef={nombreRef}
+              generoRef={generoRef}
+              fechaNacimientoRef={fechaNacimientoRef}
+              telefonoMovilRef={telefonoMovilRef}
+              correoElectronicoRef={correoElectronicoRef}
+              referidoPorRef={referidoPorRef}
+              residenciaRef={residenciaRef}
+              ocupacionRef={ocupacionRef}
+              escolaridadRef={escolaridadRef}
+              estadoCivilRef={estadoCivilRef}
+              tipoSangreRef={tipoSangreRef}
+              idLegadoRef={idLegadoRef}
+              fechaLegadoRef={fechaLegadoRef}
+              recordatorioRef={recordatorioRef}
+              recordatorioDescRef={recordatorioDescRef}
             />
 
             {/* 👪 Antecedentes familiares -> payload.antecedentes_familiares[] */}
@@ -771,6 +859,15 @@ const Modify = () => {
               </SubmitButton>
               <SubmitButton
                 type="button"
+                onClick={() => navigate(`/profile/${id}`)}
+                title="Ver perfil"
+                aria-label="Ver perfil"
+                disabled={isSubmitting || isLoading}
+              >
+                <FaUser />
+              </SubmitButton>
+              <SubmitButton
+                type="button"
                 onClick={() => formElRef.current?.requestSubmit?.()}
                 title="Guardar cambios"
                 aria-label="Guardar cambios"
@@ -780,6 +877,7 @@ const Modify = () => {
               </SubmitButton>
             </FloatingSave>
           </Form>
+          )}
         </FormCard>
       </AddContainer>
       <ConfirmModal

@@ -36,7 +36,27 @@ const Required = () => (
   />
 );
 
-const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRef }) => {
+const DatosPersonalesSection = ({
+  formData,
+  onChange,
+  isOpen,
+  onToggle,
+  nombreRef,
+  generoRef,
+  fechaNacimientoRef,
+  telefonoMovilRef,
+  correoElectronicoRef,
+  referidoPorRef,
+  residenciaRef,
+  ocupacionRef,
+  escolaridadRef,
+  estadoCivilRef,
+  tipoSangreRef,
+  idLegadoRef,
+  fechaLegadoRef,
+  recordatorioRef,
+  recordatorioDescRef,
+}) => {
   return (
     <details open={isOpen} onToggle={onToggle}>
       <Summary>
@@ -71,6 +91,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <Select
             id="genero"
             name="genero"
+            ref={generoRef}
             value={formData.genero}
             onChange={onChange}
           >
@@ -93,6 +114,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             id="fecha_nacimiento"
             type="date"
             name="fecha_nacimiento"
+            ref={fechaNacimientoRef}
             value={formData.fecha_nacimiento}
             onChange={onChange}
           />
@@ -107,6 +129,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             id="telefono_movil"
             type="tel"
             name="telefono_movil"
+            ref={telefonoMovilRef}
             value={formData.telefono_movil}
             onChange={onChange}
             maxLength={20}
@@ -126,6 +149,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             id="correo_electronico"
             type="email"
             name="correo_electronico"
+            ref={correoElectronicoRef}
             value={formData.correo_electronico}
             onChange={onChange}
             maxLength={100}
@@ -140,6 +164,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <Input
             id="referido_por"
             name="referido_por"
+            ref={referidoPorRef}
             value={formData.referido_por}
             onChange={onChange}
             maxLength={100}
@@ -157,6 +182,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
         <TextArea
           id="residencia"
           name="residencia"
+          ref={residenciaRef}
           value={formData.residencia}
           onChange={onChange}
           maxLength={255}
@@ -175,6 +201,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <Input
             id="ocupacion"
             name="ocupacion"
+            ref={ocupacionRef}
             value={formData.ocupacion}
             onChange={onChange}
             maxLength={50}
@@ -189,6 +216,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <Input
             id="escolaridad"
             name="escolaridad"
+            ref={escolaridadRef}
             value={formData.escolaridad}
             onChange={onChange}
             maxLength={100}
@@ -205,6 +233,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <Select
             id="estado_civil"
             name="estado_civil"
+            ref={estadoCivilRef}
             value={formData.estado_civil}
             onChange={onChange}
           >
@@ -225,6 +254,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <Input
             id="tipo_sangre"
             name="tipo_sangre"
+            ref={tipoSangreRef}
             value={formData.tipo_sangre}
             onChange={onChange}
             maxLength={10}
@@ -245,6 +275,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             name="id_legado"
             type="number"
             min="0"
+            ref={idLegadoRef}
             value={formData.id_legado}
             onChange={onChange}
             placeholder="Ej. 12345"
@@ -259,6 +290,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             id="fecha_legado"
             name="fecha_legado"
             type="date"
+            ref={fechaLegadoRef}
             value={formData.fecha_legado}
             onChange={onChange}
           />
@@ -276,6 +308,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
             id="recordatorio"
             name="recordatorio"
             type="date"
+            ref={recordatorioRef}
             value={formData.recordatorio}
             onChange={onChange}
           />
@@ -288,6 +321,7 @@ const DatosPersonalesSection = ({ formData, onChange, isOpen, onToggle, nombreRe
           <TextArea
             id="recordatorio_desc"
             name="recordatorio_desc"
+            ref={recordatorioDescRef}
             value={formData.recordatorio_desc}
             onChange={onChange}
             rows={3}

@@ -338,15 +338,21 @@ const groupPersonalizadosByConsulta = (items) => {
   return map;
 };
 
-const Row = ({ icon, label, value }) => {
+const Row = ({ icon, label, value, onClick }) => {
   if (!present(value)) return null;
+  const clickable = typeof onClick === 'function';
   return (
     <FieldRow>
       <Label>
         {icon ? <span className="icon">{icon}</span> : null}
         {label}
       </Label>
-      <Value>{value}</Value>
+      <Value
+        onClick={onClick || undefined}
+        style={clickable ? { cursor: 'pointer' } : undefined}
+      >
+        {value}
+      </Value>
     </FieldRow>
   );
 };
@@ -499,13 +505,75 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const personalRows = personalOrder
     .filter((key) => key !== 'alergico' && present(personalData[key]))
     .flatMap((key) => {
-      const rows = [
-        <Row key={key} icon={iconFor(key)} label={labelFor(key)} value={personalData[key]} />,
-      ];
+      const rowProps = {
+        key,
+        icon: iconFor(key),
+        label: labelFor(key),
+        value: personalData[key],
+      };
+      if (typeof onEditProfile === 'function') {
+        switch (key) {
+          case 'genero':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'genero' });
+            break;
+          case 'nombre':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'nombre' });
+            break;
+          case 'fecha_nacimiento':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'fecha_nacimiento' });
+            break;
+          case 'telefono_movil':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'telefono_movil' });
+            break;
+          case 'correo_electronico':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'correo_electronico' });
+            break;
+          case 'residencia':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'residencia' });
+            break;
+          case 'ocupacion':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'ocupacion' });
+            break;
+          case 'escolaridad':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'escolaridad' });
+            break;
+          case 'estado_civil':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'estado_civil' });
+            break;
+          case 'tipo_sangre':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'tipo_sangre' });
+            break;
+          case 'referido_por':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'referido_por' });
+            break;
+          case 'id_legado':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'id_legado' });
+            break;
+          case 'fecha_legado':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'fecha_legado' });
+            break;
+          case 'recordatorio':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'recordatorio' });
+            break;
+          case 'recordatorio_desc':
+            rowProps.onClick = () => onEditProfile({ section: 'datos', field: 'recordatorio_desc' });
+            break;
+          default:
+            break;
+        }
+      }
+      const rows = [<Row {...rowProps} />];
       if (key === 'fecha_nacimiento' && present(ageDisplay)) {
-        rows.push(
-          <Row key="edad" icon={<FaClock />} label="Edad:" value={ageDisplay} />,
-        );
+        const ageRowProps = {
+          key: 'edad',
+          icon: <FaClock />,
+          label: 'Edad:',
+          value: ageDisplay,
+        };
+        if (typeof onEditProfile === 'function') {
+          ageRowProps.onClick = () => onEditProfile({ section: 'datos', field: 'fecha_nacimiento' });
+        }
+        rows.push(<Row {...ageRowProps} />);
       }
       return rows;
     });
@@ -783,10 +851,19 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       )}
 
       <FloatingActions>
-        <ActionButton onClick={onEditProfile} title="Editar perfil" aria-label="Editar perfil">
+        <ActionButton
+          onClick={() => onEditProfile && onEditProfile()}
+          title="Editar perfil"
+          aria-label="Editar perfil"
+        >
           <FaEdit />
         </ActionButton>
-        <ActionButton className="delete" onClick={onDeleteProfile} title="Eliminar perfil" aria-label="Eliminar perfil">
+        <ActionButton
+          className="delete"
+          onClick={onDeleteProfile}
+          title="Eliminar perfil"
+          aria-label="Eliminar perfil"
+        >
           <FaTrashAlt />
         </ActionButton>
       </FloatingActions>
