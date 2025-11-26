@@ -151,7 +151,7 @@ const ConsultasSection = ({
         />
       </FieldGroup>
       <FieldGroup>
-        <Label htmlFor="consulta_medicamentos"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Medicamentos</Label>
+        <Label htmlFor="consulta_medicamentos"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos</Label>
         <TextArea
           id="consulta_medicamentos"
           name="medicamentos"

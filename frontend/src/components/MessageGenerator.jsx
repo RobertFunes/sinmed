@@ -1,5 +1,5 @@
 // src/components/MessageGenerator.jsx
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { FaWhatsapp } from 'react-icons/fa'; 
 // 🌐 Recupera la URL base desde helper/url.js
@@ -34,8 +34,6 @@ export default function MessageGenerator({ profile = {} }) {
   const [summaryPrompt, setSummaryPrompt] = useState('');
   const [summaryResult, setSummaryResult] = useState('');
   const [summaryLoading, setSummaryLoading] = useState(false);
-
-  const summaryResultRef = useRef(null);
 
   // Cargar límites IA (silencioso)
   useEffect(() => {
@@ -109,7 +107,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       });
       if (!res.ok) throw new Error('Error al invocar la IA');
       const { respuesta } = await res.json();
-      setSummaryResult((respuesta || '').replace(/\*\*/g, '*'));
+      setSummaryResult(respuesta || '');
       setLimits((prev) => {
         if (!prev || !prev.gemini) return prev;
         const used = (prev.gemini.used || 0) + 1;
@@ -130,12 +128,77 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     }
   };
 
-  useEffect(() => {
-    const el = summaryResultRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [summaryResult]);
+  const renderFormattedText = (text) => {
+    if (!text) return null;
+
+    const formatInlineBold = (segment) => {
+      const parts = [];
+      const boldRegex = /\*\*(.+?)\*\*/g;
+      let last = 0;
+      let m;
+      let k = 0;
+      while ((m = boldRegex.exec(segment)) !== null) {
+        if (m.index > last) {
+          parts.push(
+            <span key={`t-${k++}`}>{segment.slice(last, m.index)}</span>
+          );
+        }
+        parts.push(
+          <strong key={`b-${k++}`} style={{ fontSize: '1.05em' }}>
+            {m[1]}
+          </strong>
+        );
+        last = boldRegex.lastIndex;
+      }
+      if (last < segment.length) {
+        parts.push(<span key={`t-${k++}`}>{segment.slice(last)}</span>);
+      }
+      return parts;
+    };
+
+    const lines = text.split(/\r?\n/);
+    const elements = [];
+    let bullets = [];
+    let key = 0;
+
+    const flushBullets = () => {
+      if (!bullets.length) return;
+      elements.push(
+        <ul
+          key={`ul-${key++}`}
+          style={{ paddingLeft: '1.2rem', margin: '0.35rem 0' }}
+        >
+          {bullets}
+        </ul>
+      );
+      bullets = [];
+    };
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      const bulletMatch = trimmed.match(/^\*\s+(.*)$/);
+      if (bulletMatch) {
+        bullets.push(
+          <li key={`li-${key++}`} style={{ marginBottom: '0.15rem' }}>
+            {formatInlineBold(bulletMatch[1])}
+          </li>
+        );
+        return;
+      }
+      flushBullets();
+      if (trimmed.length === 0) {
+        elements.push(<br key={`br-${key++}`} />);
+        return;
+      }
+      elements.push(
+        <div key={`line-${key++}`}>{formatInlineBold(line)}</div>
+      );
+    });
+    flushBullets();
+
+    return elements;
+  };
+
   /* ------ Petición a /ia/gemini ------ */
   const handleGenerate = async () => {
     setLoading(true);
@@ -149,8 +212,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       });
       if (!res.ok) throw new Error('😓 Error al invocar la IA');
       const { respuesta } = await res.json();
-      const clean = (respuesta || '🤖 Sin respuesta de la IA').replace(/\*\*/g, '*');
-      setGenerated(clean);
+      setGenerated(respuesta || '🤖 Sin respuesta de la IA');
       setLimits((prev) => {
         if (!prev || !prev.gemini) return prev;
         const used = (prev.gemini.used || 0) + 1;
@@ -248,12 +310,9 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {summaryResult ? (
           <FieldRow>
             <Label>Resultado</Label>
-            <TextArea
-              rows={3}
-              ref={summaryResultRef}
-              value={summaryResult}
-              onChange={(e) => setSummaryResult(e.target.value)}
-            />
+            <ResultArea>
+              <p>{renderFormattedText(summaryResult)}</p>
+            </ResultArea>
           </FieldRow>
         ) : null}
         <FieldRow>
@@ -314,7 +373,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {generated && (
           <ResultArea>
             <strong>➡️Mensaje Final:</strong>
-            <p>{generated}</p>
+            <p>{renderFormattedText(generated)}</p>
           </ResultArea>
         )}
         <section className="buttons">

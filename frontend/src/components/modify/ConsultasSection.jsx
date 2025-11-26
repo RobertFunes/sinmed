@@ -291,7 +291,7 @@ const ConsultasSection = ({
               </FieldGroup>
               <FieldGroup>
                 <Label htmlFor={`${diagnosticoId}_meds`}>
-                  <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos
+                  <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos
                 </Label>
                 <TextArea
                   id={`${diagnosticoId}_meds`}

@@ -19,7 +19,7 @@ const profileOptions = [
 // Eliminado: búsqueda de pólizas. Solo perfiles.
 
 export default function Search() {
-  const [criteria, setCriteria] = useState(profileOptions[0].value);
+  const [criteria, setCriteria] = useState('id');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [noResults, setNoResults] = useState(false);
