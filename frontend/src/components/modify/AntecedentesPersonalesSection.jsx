@@ -226,26 +226,6 @@ const AntecedentesPersonalesSection = ({
 
       <TwoColumnRow>
         <FieldGroup>
-          <Label htmlFor="hay_cambios">Cambios en la alimentación</Label>
-          <Select id="hay_cambios" name="hay_cambios" value={formData.hay_cambios} onChange={handleChange}>
-            <option value="">-- Selecciona --</option>
-            <option value="Si">Sí</option>
-            <option value="No">No</option>
-          </Select>
-        </FieldGroup>
-        {formData.hay_cambios === 'Si' && (
-          <FieldGroup>
-            <Label htmlFor="cambio_tipo">
-              <FaExchangeAlt style={{ marginRight: '0.5rem' }} />
-              Tipo de cambio
-            </Label>
-            <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
-          </FieldGroup>
-        )}
-      </TwoColumnRow>
-
-      <TwoColumnRow>
-        <FieldGroup>
           <Label htmlFor="alimentos_que_le_caen_mal">Alimentos que le caen mal</Label>
           <TextArea
             id="alimentos_que_le_caen_mal"
@@ -339,6 +319,26 @@ const AntecedentesPersonalesSection = ({
               onChange={handleChange}
               placeholder="Especifica las vacunas"
             />
+          </FieldGroup>
+        )}
+      </TwoColumnRow>
+
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="hay_cambios">Cambios en la alimentación</Label>
+          <Select id="hay_cambios" name="hay_cambios" value={formData.hay_cambios} onChange={handleChange}>
+            <option value="">-- Selecciona --</option>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </Select>
+        </FieldGroup>
+        {formData.hay_cambios === 'Si' && (
+          <FieldGroup>
+            <Label htmlFor="cambio_tipo">
+              <FaExchangeAlt style={{ marginRight: '0.5rem' }} />
+              Tipo de cambio
+            </Label>
+            <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
           </FieldGroup>
         )}
       </TwoColumnRow>
