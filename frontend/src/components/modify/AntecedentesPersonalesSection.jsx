@@ -35,6 +35,17 @@ const AntecedentesPersonalesSection = ({
   onToggle,
   isLoading,
   handleChange,
+  calidadRef,
+  alimentosCaenMalRef,
+  componentesDietaRef,
+  desayunoRef,
+  comidaRef,
+  cenaRef,
+  hayCambiosRef,
+  cambioTipoRef,
+  cambioCausaRef,
+  cambioTiempoRef,
+  vacunasRef,
 }) => {
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
   const [vacunasRespuesta, setVacunasRespuesta] = useState(() =>
@@ -215,7 +226,13 @@ const AntecedentesPersonalesSection = ({
       <TwoColumnRow>
         <FieldGroup>
           <Label htmlFor="alimentacion_calidad">Alimentación (calidad)</Label>
-          <Select id="calidad" name="calidad" value={formData.calidad} onChange={handleChange}>
+          <Select
+            id="calidad"
+            name="calidad"
+            ref={calidadRef}
+            value={formData.calidad}
+            onChange={handleChange}
+          >
             <option value="">-- Selecciona --</option>
             <option value="Buena">Buena</option>
             <option value="Regular">Regular</option>
@@ -230,6 +247,7 @@ const AntecedentesPersonalesSection = ({
           <TextArea
             id="alimentos_que_le_caen_mal"
             name="alimentos_que_le_caen_mal"
+            ref={alimentosCaenMalRef}
             value={formData.alimentos_que_le_caen_mal}
             onChange={handleChange}
             rows={2}
@@ -241,6 +259,7 @@ const AntecedentesPersonalesSection = ({
           <TextArea
             id="componentes_habituales_dieta"
             name="componentes_habituales_dieta"
+            ref={componentesDietaRef}
             value={formData.componentes_habituales_dieta}
             onChange={handleChange}
             rows={2}
@@ -255,6 +274,7 @@ const AntecedentesPersonalesSection = ({
           <TextArea
             id="desayuno"
             name="desayuno"
+            ref={desayunoRef}
             value={formData.desayuno}
             onChange={handleChange}
             rows={2}
@@ -266,6 +286,7 @@ const AntecedentesPersonalesSection = ({
           <TextArea
             id="comida"
             name="comida"
+            ref={comidaRef}
             value={formData.comida}
             onChange={handleChange}
             rows={2}
@@ -280,6 +301,7 @@ const AntecedentesPersonalesSection = ({
           <TextArea
             id="cena"
             name="cena"
+            ref={cenaRef}
             value={formData.cena}
             onChange={handleChange}
             rows={2}
@@ -315,6 +337,7 @@ const AntecedentesPersonalesSection = ({
             <Input
               id="vacunas"
               name="vacunas"
+              ref={vacunasRef}
               value={formData.vacunas}
               onChange={handleChange}
               placeholder="Especifica las vacunas"
@@ -326,7 +349,13 @@ const AntecedentesPersonalesSection = ({
       <TwoColumnRow>
         <FieldGroup>
           <Label htmlFor="hay_cambios">Cambios en la alimentación</Label>
-          <Select id="hay_cambios" name="hay_cambios" value={formData.hay_cambios} onChange={handleChange}>
+          <Select
+            id="hay_cambios"
+            name="hay_cambios"
+            ref={hayCambiosRef}
+            value={formData.hay_cambios}
+            onChange={handleChange}
+          >
             <option value="">-- Selecciona --</option>
             <option value="Si">Sí</option>
             <option value="No">No</option>
@@ -338,7 +367,13 @@ const AntecedentesPersonalesSection = ({
               <FaExchangeAlt style={{ marginRight: '0.5rem' }} />
               Tipo de cambio
             </Label>
-            <Input id="cambio_tipo" name="cambio_tipo" value={formData.cambio_tipo} onChange={handleChange} />
+            <Input
+              id="cambio_tipo"
+              name="cambio_tipo"
+              ref={cambioTipoRef}
+              value={formData.cambio_tipo}
+              onChange={handleChange}
+            />
           </FieldGroup>
         )}
       </TwoColumnRow>
@@ -350,14 +385,27 @@ const AntecedentesPersonalesSection = ({
               <FaExclamationCircle style={{ marginRight: '0.5rem' }} />
               Causa del cambio
             </Label>
-            <Input id="cambio_causa" name="cambio_causa" value={formData.cambio_causa} onChange={handleChange} />
+            <Input
+              id="cambio_causa"
+              name="cambio_causa"
+              ref={cambioCausaRef}
+              value={formData.cambio_causa}
+              onChange={handleChange}
+            />
           </FieldGroup>
           <FieldGroup>
             <Label htmlFor="cambio_tiempo">
               <FaClock style={{ marginRight: '0.5rem' }} />
               Tiempo
             </Label>
-            <Input id="cambio_tiempo" name="cambio_tiempo" value={formData.cambio_tiempo} onChange={handleChange} placeholder="Ej. 6 meses" />
+            <Input
+              id="cambio_tiempo"
+              name="cambio_tiempo"
+              ref={cambioTiempoRef}
+              value={formData.cambio_tiempo}
+              onChange={handleChange}
+              placeholder="Ej. 6 meses"
+            />
           </FieldGroup>
         </TwoColumnRow>
       )}

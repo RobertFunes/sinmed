@@ -587,17 +587,17 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
 
   const antecedentesPersonales = data.antecedentes_personales || {};
   const apGenerales = [
-    { label: 'Calidad de la alimentación:', value: antecedentesPersonales.calidad },
-    { label: 'Alimentos que le caen mal:', value: antecedentesPersonales.alimentos_que_le_caen_mal },
-    { label: 'Componentes habituales de la dieta:', value: antecedentesPersonales.componentes_habituales_dieta },
-    { label: 'Desayuno habitual:', value: antecedentesPersonales.desayuno },
-    { label: 'Comida habitual:', value: antecedentesPersonales.comida },
-    { label: 'Cena habitual:', value: antecedentesPersonales.cena },
-    { label: 'Cambios en la alimentación:', value: antecedentesPersonales.hay_cambios },
-    { label: 'Vacunas:', value: antecedentesPersonales.vacunas, icon: <FaSyringe /> },
-    { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt /> },
-    { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa, icon: <FaExclamationCircle /> },
-    { label: 'Tiempo del cambio:', value: antecedentesPersonales.cambio_tiempo, icon: <FaClock /> },
+    { label: 'Calidad de la alimentación:', value: antecedentesPersonales.calidad, field: 'calidad' },
+    { label: 'Alimentos que le caen mal:', value: antecedentesPersonales.alimentos_que_le_caen_mal, field: 'alimentos_que_le_caen_mal' },
+    { label: 'Componentes habituales de la dieta:', value: antecedentesPersonales.componentes_habituales_dieta, field: 'componentes_habituales_dieta' },
+    { label: 'Desayuno habitual:', value: antecedentesPersonales.desayuno, field: 'desayuno' },
+    { label: 'Comida habitual:', value: antecedentesPersonales.comida, field: 'comida' },
+    { label: 'Cena habitual:', value: antecedentesPersonales.cena, field: 'cena' },
+    { label: 'Cambios en la alimentación:', value: antecedentesPersonales.hay_cambios, field: 'hay_cambios' },
+    { label: 'Vacunas:', value: antecedentesPersonales.vacunas, icon: <FaSyringe />, field: 'vacunas' },
+    { label: 'Tipo de cambio:', value: antecedentesPersonales.cambio_tipo, icon: <FaExchangeAlt />, field: 'cambio_tipo' },
+    { label: 'Causa del cambio:', value: antecedentesPersonales.cambio_causa, icon: <FaExclamationCircle />, field: 'cambio_causa' },
+    { label: 'Tiempo del cambio:', value: antecedentesPersonales.cambio_tiempo, icon: <FaClock />, field: 'cambio_tiempo' },
   ].filter((row) => present(row.value));
   const apHabitos = buildHabitos(antecedentesPersonales);
 
@@ -698,8 +698,14 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
           <h3>Antecedentes Personales</h3>
           {apGenerales.length > 0 && (
             <TwoColumnRow>
-              {apGenerales.map(({ label, value, icon }, idx) => (
-                <Row key={`ap-${idx}`} icon={icon ?? null} label={label} value={value} />
+              {apGenerales.map(({ label, value, icon, field }, idx) => (
+                <Row
+                  key={`ap-${idx}`}
+                  icon={icon ?? null}
+                  label={label}
+                  value={value}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'personales', field }) : undefined}
+                />
               ))}
             </TwoColumnRow>
           )}

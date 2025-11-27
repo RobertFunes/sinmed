@@ -208,6 +208,17 @@ const Modify = () => {
   const fechaLegadoRef = useRef(null);
   const recordatorioRef = useRef(null);
   const recordatorioDescRef = useRef(null);
+  const calidadRef = useRef(null);
+  const alimentosCaenMalRef = useRef(null);
+  const componentesDietaRef = useRef(null);
+  const desayunoRef = useRef(null);
+  const comidaRef = useRef(null);
+  const cenaRef = useRef(null);
+  const hayCambiosRef = useRef(null);
+  const cambioTipoRef = useRef(null);
+  const cambioCausaRef = useRef(null);
+  const cambioTiempoRef = useRef(null);
+  const vacunasRef = useRef(null);
   const [autoFocusAntecedenteIndex, setAutoFocusAntecedenteIndex] = useState(null);
   const imcAutoCalcRef = useRef(false);
   const updateSnapshot = useCallback((data, payload) => {
@@ -304,6 +315,41 @@ const Modify = () => {
       if (Number.isInteger(target.index)) {
         setAutoFocusAntecedenteIndex(target.index);
       }
+    } else if (target && target.section === 'personales') {
+      setOpenSection('personales');
+      setTimeout(() => {
+        const focusRef = (() => {
+          switch (target.field) {
+            case 'calidad':
+              return calidadRef;
+            case 'alimentos_que_le_caen_mal':
+              return alimentosCaenMalRef;
+            case 'componentes_habituales_dieta':
+              return componentesDietaRef;
+            case 'desayuno':
+              return desayunoRef;
+            case 'comida':
+              return comidaRef;
+            case 'cena':
+              return cenaRef;
+            case 'hay_cambios':
+              return hayCambiosRef;
+            case 'cambio_tipo':
+              return cambioTipoRef;
+            case 'cambio_causa':
+              return cambioCausaRef;
+            case 'cambio_tiempo':
+              return cambioTiempoRef;
+            case 'vacunas':
+              return vacunasRef;
+            default:
+              return null;
+          }
+        })();
+        if (focusRef && focusRef.current && typeof focusRef.current.focus === 'function') {
+          focusRef.current.focus();
+        }
+      }, 0);
     } else {
       setOpenSection('datos');
     }
@@ -774,6 +820,17 @@ const Modify = () => {
               onToggle={handleToggle('personales')}
               isLoading={isLoading}
               handleChange={handleChange}
+              calidadRef={calidadRef}
+              alimentosCaenMalRef={alimentosCaenMalRef}
+              componentesDietaRef={componentesDietaRef}
+              desayunoRef={desayunoRef}
+              comidaRef={comidaRef}
+              cenaRef={cenaRef}
+              hayCambiosRef={hayCambiosRef}
+              cambioTipoRef={cambioTipoRef}
+              cambioCausaRef={cambioCausaRef}
+              cambioTiempoRef={cambioTiempoRef}
+              vacunasRef={vacunasRef}
             />
 
             {/* 👶 Gineco-Obstétricos -> payload.gineco_obstetricos (solo si no es Hombre) */}
