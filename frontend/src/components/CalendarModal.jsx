@@ -133,10 +133,6 @@ export default function CalendarModal({
 
   const handleDelay = async (days) => {
     if (isUpdating || isDeleting) return;
-    if (!eventId) {
-      alert('No se pudo determinar el ID de la cita.');
-      return;
-    }
     const startDate = toDate(start);
     const endDate = toDate(end);
     if (!startDate) {
@@ -152,7 +148,6 @@ export default function CalendarModal({
     const nextStart = addDays(startDate, days);
     const nextEnd = endDate ? addDays(endDate, days) : addDays(startDate, days);
     const payload = {
-      id_cita: Number(eventId),
       nombre: name,
       telefono: phone || null,
       inicio_utc: toApiDateTime(nextStart),
@@ -166,7 +161,7 @@ export default function CalendarModal({
     try {
       setIsUpdating(true);
       const response = await fetch(`${url}/api/calendar`, {
-        method: 'PUT',
+        method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -175,10 +170,10 @@ export default function CalendarModal({
         const errText = await response.text().catch(() => '');
         throw new Error(errText || `HTTP ${response.status}`);
       }
-      alert(`Cita aplazada ${days} días correctamente.`);
+      alert(`Cita copiada ${days} días después correctamente.`);
       window.location.reload();
     } catch (err) {
-      alert(`No se pudo aplazar la cita: ${err?.message || String(err)}`);
+      alert(`No se pudo copiar la cita: ${err?.message || String(err)}`);
     } finally {
       setIsUpdating(false);
       setPendingDelay(null);
