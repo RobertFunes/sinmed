@@ -51,6 +51,19 @@ const ExploracionFisicaSection = ({
   removeInspeccionAt,
   updateInspeccionDesc,
   isLoading,
+  pesoActualRef,
+  pesoAnteriorRef,
+  pesoDeseadoRef,
+  pesoIdealRef,
+  tallaRef,
+  imcRef,
+  taRef,
+  pamRef,
+  fcRef,
+  frRef,
+  temperaturaRef,
+  caderaRef,
+  cinturaRef,
 }) => {
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
 
@@ -73,67 +86,169 @@ const ExploracionFisicaSection = ({
       <TwoColumnRow $cols={3}>
         <FieldGroup>
           <Label htmlFor="peso_actual"><FaWeight style={{ marginRight: '0.5rem' }} />Peso actual (kg)</Label>
-          <Input id="peso_actual" name="peso_actual" value={formData.peso_actual} onChange={onChange} inputMode="decimal" placeholder="Ej. 72" />
+          <Input
+            id="peso_actual"
+            name="peso_actual"
+            value={formData.peso_actual}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 72"
+            ref={pesoActualRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="peso_anterior"><FaHistory style={{ marginRight: '0.5rem' }} />Peso anterior (kg)</Label>
-          <Input id="peso_anterior" name="peso_anterior" value={formData.peso_anterior} onChange={onChange} inputMode="decimal" placeholder="Ej. 75" />
+          <Input
+            id="peso_anterior"
+            name="peso_anterior"
+            value={formData.peso_anterior}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 75"
+            ref={pesoAnteriorRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="talla_cm"><FaRulerVertical style={{ marginRight: '0.5rem' }} />Talla (cm)</Label>
-          <Input id="talla_cm" name="talla_cm" value={formData.talla_cm} onChange={onChange} inputMode="decimal" placeholder="Ej. 170" />
+          <Input
+            id="talla_cm"
+            name="talla_cm"
+            value={formData.talla_cm}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 170"
+            ref={tallaRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 
       <TwoColumnRow $cols={3}>
         <FieldGroup>
           <Label htmlFor="peso_deseado"><FaBullseye style={{ marginRight: '0.5rem' }} />Peso deseado (kg)</Label>
-          <Input id="peso_deseado" name="peso_deseado" value={formData.peso_deseado} onChange={onChange} inputMode="decimal" placeholder="Ej. 68" />
+          <Input
+            id="peso_deseado"
+            name="peso_deseado"
+            value={formData.peso_deseado}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 68"
+            ref={pesoDeseadoRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="peso_ideal"><FaBalanceScale style={{ marginRight: '0.5rem' }} />Peso ideal (kg)</Label>
-          <Input id="peso_ideal" name="peso_ideal" value={formData.peso_ideal} onChange={onChange} inputMode="decimal" placeholder="Ej. 70" />
+          <Input
+            id="peso_ideal"
+            name="peso_ideal"
+            value={formData.peso_ideal}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 70"
+            ref={pesoIdealRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="imc"><FaChartBar style={{ marginRight: '0.5rem' }} />IMC</Label>
-          <Input id="imc" name="imc" value={formData.imc} readOnly placeholder="Ej. 24.90" />
+          <Input
+            id="imc"
+            name="imc"
+            value={formData.imc}
+            readOnly
+            placeholder="Ej. 24.90"
+            ref={imcRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 
       <TwoColumnRow $cols={3}>
         <FieldGroup>
           <Label htmlFor="ta_mmhg"><FaHeart style={{ marginRight: '0.5rem' }} />TA (mmHg)</Label>
-          <Input id="ta_mmhg" name="ta_mmhg" value={formData.ta_mmhg} onChange={onChange} placeholder="Ej. 120/80" />
+          <Input
+            id="ta_mmhg"
+            name="ta_mmhg"
+            value={formData.ta_mmhg}
+            onChange={onChange}
+            placeholder="Ej. 120/80"
+            ref={taRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="frecuencia_cardiaca"><FaHeart style={{ marginRight: '0.5rem' }} />FC (frecuencia cardiaca)</Label>
-          <Input id="frecuencia_cardiaca" name="frecuencia_cardiaca" value={formData.frecuencia_cardiaca} onChange={onChange} inputMode="numeric" placeholder="lpm" />
+          <Input
+            id="frecuencia_cardiaca"
+            name="frecuencia_cardiaca"
+            value={formData.frecuencia_cardiaca}
+            onChange={onChange}
+            inputMode="numeric"
+            placeholder="lpm"
+            ref={fcRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="pam"><FaHeart style={{ marginRight: '0.5rem' }} />PAM (mmHg)</Label>
-          <Input id="pam" name="pam" value={formData.pam} onChange={onChange} placeholder="Auto" readOnly />
+          <Input
+            id="pam"
+            name="pam"
+            value={formData.pam}
+            onChange={onChange}
+            placeholder="Auto"
+            readOnly
+            ref={pamRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 
       <TwoColumnRow $cols={3}>
         <FieldGroup>
           <Label htmlFor="frecuencia_respiratoria"><GiLungs style={{ marginRight: '0.5rem' }} />FR (frecuencia respiratoria)</Label>
-          <Input id="frecuencia_respiratoria" name="frecuencia_respiratoria" value={formData.frecuencia_respiratoria} onChange={onChange} inputMode="numeric" placeholder="rpm" />
+          <Input
+            id="frecuencia_respiratoria"
+            name="frecuencia_respiratoria"
+            value={formData.frecuencia_respiratoria}
+            onChange={onChange}
+            inputMode="numeric"
+            placeholder="rpm"
+            ref={frRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="temperatura_c"><FaThermometerHalf style={{ marginRight: '0.5rem' }} />Temp (°C)</Label>
-          <Input id="temperatura_c" name="temperatura_c" value={formData.temperatura_c} onChange={onChange} inputMode="decimal" placeholder="Ej. 36.7" />
+          <Input
+            id="temperatura_c"
+            name="temperatura_c"
+            value={formData.temperatura_c}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 36.7"
+            ref={temperaturaRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="cadera_cm"><FaRulerCombined style={{ marginRight: '0.5rem' }} />Cadera (cm)</Label>
-          <Input id="cadera_cm" name="cadera_cm" value={formData.cadera_cm} onChange={onChange} inputMode="decimal" placeholder="Ej. 95" />
+          <Input
+            id="cadera_cm"
+            name="cadera_cm"
+            value={formData.cadera_cm}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 95"
+            ref={caderaRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 
       <TwoColumnRow $cols={4}>
         <FieldGroup>
           <Label htmlFor="cintura_cm"><FaRulerHorizontal style={{ marginRight: '0.5rem' }} />Cintura (cm)</Label>
-          <Input id="cintura_cm" name="cintura_cm" value={formData.cintura_cm} onChange={onChange} inputMode="decimal" placeholder="Ej. 80" />
+          <Input
+            id="cintura_cm"
+            name="cintura_cm"
+            value={formData.cintura_cm}
+            onChange={onChange}
+            inputMode="decimal"
+            placeholder="Ej. 80"
+            ref={cinturaRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 

@@ -641,18 +641,19 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     : {};
 
   const efRows = [
-    { label: 'Peso actual (kg):', value: efSource.peso_actual, icon: <FaWeight /> },
-    { label: 'Peso anterior (kg):', value: efSource.peso_anterior, icon: <FaHistory /> },
-    { label: 'Peso deseado (kg):', value: efSource.peso_deseado, icon: <FaBullseye /> },
-    { label: 'Peso ideal (kg):', value: efSource.peso_ideal, icon: <FaBalanceScale /> },
-    { label: 'Talla (cm):', value: efSource.talla_cm, icon: <FaRulerVertical /> },
-    { label: 'IMC:', value: efSource.imc, icon: <FaChartBar /> },
-    { label: 'TA (mmHg):', value: efSource.ta_mmhg, icon: <FaHeart /> },
-    { label: 'Frecuencia cardiaca:', value: efSource.frecuencia_cardiaca, icon: <FaHeart /> },
-    { label: 'Frecuencia respiratoria:', value: efSource.frecuencia_respiratoria, icon: <GiLungs /> },
-    { label: 'Temperatura (°C):', value: efSource.temperatura_c, icon: <FaThermometerHalf /> },
-    { label: 'Cadera (cm):', value: efSource.cadera_cm, icon: <FaRulerCombined /> },
-    { label: 'Cintura (cm):', value: efSource.cintura_cm, icon: <FaRulerHorizontal /> },
+    { label: 'Peso actual (kg):', value: efSource.peso_actual, icon: <FaWeight />, field: 'peso_actual' },
+    { label: 'Peso anterior (kg):', value: efSource.peso_anterior, icon: <FaHistory />, field: 'peso_anterior' },
+    { label: 'Peso deseado (kg):', value: efSource.peso_deseado, icon: <FaBullseye />, field: 'peso_deseado' },
+    { label: 'Peso ideal (kg):', value: efSource.peso_ideal, icon: <FaBalanceScale />, field: 'peso_ideal' },
+    { label: 'Talla (cm):', value: efSource.talla_cm, icon: <FaRulerVertical />, field: 'talla_cm' },
+    { label: 'IMC:', value: efSource.imc, icon: <FaChartBar />, field: 'imc' },
+    { label: 'TA (mmHg):', value: efSource.ta_mmhg, icon: <FaHeart />, field: 'ta_mmhg' },
+    { label: 'PAM (mmHg):', value: efSource.pam, icon: <FaHeart />, field: 'pam' },
+    { label: 'Frecuencia cardiaca:', value: efSource.frecuencia_cardiaca, icon: <FaHeart />, field: 'frecuencia_cardiaca' },
+    { label: 'Frecuencia respiratoria:', value: efSource.frecuencia_respiratoria, icon: <GiLungs />, field: 'frecuencia_respiratoria' },
+    { label: 'Temperatura (°C):', value: efSource.temperatura_c, icon: <FaThermometerHalf />, field: 'temperatura_c' },
+    { label: 'Cadera (cm):', value: efSource.cadera_cm, icon: <FaRulerCombined />, field: 'cadera_cm' },
+    { label: 'Cintura (cm):', value: efSource.cintura_cm, icon: <FaRulerHorizontal />, field: 'cintura_cm' },
   ].filter((row) => present(row.value));
 
   const inspeccion = mapInspectionFromSource(efSource);
@@ -822,8 +823,14 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
           <h3>Exploración Física</h3>
           {efRows.length > 0 && (
             <TwoColumnRow>
-              {efRows.map(({ label, value, icon }, idx) => (
-                <Row key={`ef-${idx}`} icon={icon ?? null} label={label} value={value} />
+              {efRows.map(({ label, value, icon, field }, idx) => (
+                <Row
+                  key={`ef-${idx}`}
+                  icon={icon ?? null}
+                  label={label}
+                  value={value}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'exploracion', field }) : undefined}
+                />
               ))}
             </TwoColumnRow>
           )}

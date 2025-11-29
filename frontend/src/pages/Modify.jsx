@@ -228,6 +228,19 @@ const Modify = () => {
   const habitoToxTipoRef = useRef(null);
   const habitoToxTiempoActivoRef = useRef(null);
   const habitoToxTiempoInactivoRef = useRef(null);
+  const efPesoActualRef = useRef(null);
+  const efPesoAnteriorRef = useRef(null);
+  const efPesoDeseadoRef = useRef(null);
+  const efPesoIdealRef = useRef(null);
+  const efTallaRef = useRef(null);
+  const efImcRef = useRef(null);
+  const efTaRef = useRef(null);
+  const efPamRef = useRef(null);
+  const efFcRef = useRef(null);
+  const efFrRef = useRef(null);
+  const efTempRef = useRef(null);
+  const efCaderaRef = useRef(null);
+  const efCinturaRef = useRef(null);
   const ginecoEdadMenarcaRef = useRef(null);
   const ginecoCicloRef = useRef(null);
   const ginecoCantidadRef = useRef(null);
@@ -438,6 +451,45 @@ const Modify = () => {
       if (Number.isInteger(target.index)) {
         setAutoFocusPatologicoIndex(target.index);
       }
+    } else if (target && target.section === 'exploracion') {
+      setOpenSection('exploracion');
+      setTimeout(() => {
+        const focusRef = (() => {
+          switch (target.field) {
+            case 'peso_actual':
+              return efPesoActualRef;
+            case 'peso_anterior':
+              return efPesoAnteriorRef;
+            case 'peso_deseado':
+              return efPesoDeseadoRef;
+            case 'peso_ideal':
+              return efPesoIdealRef;
+            case 'talla_cm':
+              return efTallaRef;
+            case 'imc':
+              return efImcRef;
+            case 'ta_mmhg':
+              return efTaRef;
+            case 'pam':
+              return efPamRef;
+            case 'frecuencia_cardiaca':
+              return efFcRef;
+            case 'frecuencia_respiratoria':
+              return efFrRef;
+            case 'temperatura_c':
+              return efTempRef;
+            case 'cadera_cm':
+              return efCaderaRef;
+            case 'cintura_cm':
+              return efCinturaRef;
+            default:
+              return null;
+          }
+        })();
+        if (focusRef && focusRef.current && typeof focusRef.current.focus === 'function') {
+          focusRef.current.focus();
+        }
+      }, 0);
     } else {
       setOpenSection('datos');
     }
@@ -1009,6 +1061,19 @@ const Modify = () => {
               removeInspeccionAt={removeInspeccionAt}
               updateInspeccionDesc={updateInspeccionDesc}
               isLoading={isLoading}
+              pesoActualRef={efPesoActualRef}
+              pesoAnteriorRef={efPesoAnteriorRef}
+              pesoDeseadoRef={efPesoDeseadoRef}
+              pesoIdealRef={efPesoIdealRef}
+              tallaRef={efTallaRef}
+              imcRef={efImcRef}
+              taRef={efTaRef}
+              pamRef={efPamRef}
+              fcRef={efFcRef}
+              frRef={efFrRef}
+              temperaturaRef={efTempRef}
+              caderaRef={efCaderaRef}
+              cinturaRef={efCinturaRef}
             />
 
             
