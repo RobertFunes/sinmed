@@ -713,19 +713,43 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             <>
               <h4 style={{ color: 'black', textAlign: 'center' }}>Hábitos</h4>
               <Stack>
-                {apHabitos.map((habito, idx) => (
-                  <Group key={`habito-${idx}`}>
-                    <GroupTitle>{habito.titulo}</GroupTitle>
-                    {habito.rows.map(({ label, value, icon }, rowIdx) => (
-                      <Row
-                        key={`habito-${idx}-${rowIdx}`}
-                        icon={icon ?? null}
-                        label={label}
-                        value={value}
-                      />
-                    ))}
-                  </Group>
-                ))}
+                {apHabitos.map((habito, idx) => {
+                  const t = normalize(habito.titulo);
+                  return (
+                    <Group key={`habito-${idx}`}>
+                      <GroupTitle>{habito.titulo}</GroupTitle>
+                      {habito.rows.map(({ label, value, icon }, rowIdx) => {
+                        let field = null;
+                        if (t.includes('alcohol')) {
+                          if (rowIdx === 0) field = 'habito_alcoholismo_bebidas';
+                          else if (rowIdx === 1) field = 'habito_alcoholismo_tiempo_activo';
+                          else if (rowIdx === 2) field = 'habito_alcoholismo_tiempo_inactivo';
+                        } else if (t.includes('taba')) {
+                          if (rowIdx === 0) field = 'habito_tabaquismo_cigarrillos';
+                          else if (rowIdx === 1) field = 'habito_tabaquismo_tiempo_activo';
+                          else if (rowIdx === 2) field = 'habito_tabaquismo_tiempo_inactivo';
+                        } else if (t.includes('toxico')) {
+                          if (rowIdx === 0) field = 'habito_toxicomanias_tipo';
+                          else if (rowIdx === 1) field = 'habito_toxicomanias_tiempo_activo';
+                          else if (rowIdx === 2) field = 'habito_toxicomanias_tiempo_inactivo';
+                        }
+                        return (
+                          <Row
+                            key={`habito-${idx}-${rowIdx}`}
+                            icon={icon ?? null}
+                            label={label}
+                            value={value}
+                            onClick={
+                              field && onEditProfile
+                                ? () => onEditProfile({ section: 'personales', field })
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </Group>
+                  );
+                })}
               </Stack>
             </>
           )}

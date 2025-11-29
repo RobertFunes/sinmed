@@ -219,6 +219,15 @@ const Modify = () => {
   const cambioCausaRef = useRef(null);
   const cambioTiempoRef = useRef(null);
   const vacunasRef = useRef(null);
+  const habitoAlcoholBebidasRef = useRef(null);
+  const habitoAlcoholTiempoActivoRef = useRef(null);
+  const habitoAlcoholTiempoInactivoRef = useRef(null);
+  const habitoTabaCigsRef = useRef(null);
+  const habitoTabaTiempoActivoRef = useRef(null);
+  const habitoTabaTiempoInactivoRef = useRef(null);
+  const habitoToxTipoRef = useRef(null);
+  const habitoToxTiempoActivoRef = useRef(null);
+  const habitoToxTiempoInactivoRef = useRef(null);
   const [autoFocusAntecedenteIndex, setAutoFocusAntecedenteIndex] = useState(null);
   const imcAutoCalcRef = useRef(false);
   const updateSnapshot = useCallback((data, payload) => {
@@ -342,6 +351,24 @@ const Modify = () => {
               return cambioTiempoRef;
             case 'vacunas':
               return vacunasRef;
+            case 'habito_alcoholismo_bebidas':
+              return habitoAlcoholBebidasRef;
+            case 'habito_alcoholismo_tiempo_activo':
+              return habitoAlcoholTiempoActivoRef;
+            case 'habito_alcoholismo_tiempo_inactivo':
+              return habitoAlcoholTiempoInactivoRef;
+            case 'habito_tabaquismo_cigarrillos':
+              return habitoTabaCigsRef;
+            case 'habito_tabaquismo_tiempo_activo':
+              return habitoTabaTiempoActivoRef;
+            case 'habito_tabaquismo_tiempo_inactivo':
+              return habitoTabaTiempoInactivoRef;
+            case 'habito_toxicomanias_tipo':
+              return habitoToxTipoRef;
+            case 'habito_toxicomanias_tiempo_activo':
+              return habitoToxTiempoActivoRef;
+            case 'habito_toxicomanias_tiempo_inactivo':
+              return habitoToxTiempoInactivoRef;
             default:
               return null;
           }
@@ -820,6 +847,15 @@ const Modify = () => {
               onToggle={handleToggle('personales')}
               isLoading={isLoading}
               handleChange={handleChange}
+              habitoAlcoholBebidasRef={habitoAlcoholBebidasRef}
+              habitoAlcoholTiempoActivoRef={habitoAlcoholTiempoActivoRef}
+              habitoAlcoholTiempoInactivoRef={habitoAlcoholTiempoInactivoRef}
+              habitoTabaCigsRef={habitoTabaCigsRef}
+              habitoTabaTiempoActivoRef={habitoTabaTiempoActivoRef}
+              habitoTabaTiempoInactivoRef={habitoTabaTiempoInactivoRef}
+              habitoToxTipoRef={habitoToxTipoRef}
+              habitoToxTiempoActivoRef={habitoToxTiempoActivoRef}
+              habitoToxTiempoInactivoRef={habitoToxTiempoInactivoRef}
               calidadRef={calidadRef}
               alimentosCaenMalRef={alimentosCaenMalRef}
               componentesDietaRef={componentesDietaRef}
