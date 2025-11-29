@@ -257,6 +257,7 @@ const Modify = () => {
   const ginecoFechaMenopausiaRef = useRef(null);
   const [autoFocusAntecedenteIndex, setAutoFocusAntecedenteIndex] = useState(null);
   const [autoFocusPatologicoIndex, setAutoFocusPatologicoIndex] = useState(null);
+  const [autoFocusConsultaTarget, setAutoFocusConsultaTarget] = useState(null);
   const imcAutoCalcRef = useRef(false);
   const updateSnapshot = useCallback((data, payload) => {
     if (!data) return;
@@ -490,6 +491,28 @@ const Modify = () => {
           focusRef.current.focus();
         }
       }, 0);
+    } else if (target && target.section === 'consultas') {
+      setOpenSection('consultas');
+      // Buscar consulta por id_consulta o por índice (orden UI)
+      const allConsultas = toArr(formData.consultas);
+      let targetConsulta = null;
+      if (target.id_consulta != null) {
+        const cid = Number(target.id_consulta);
+        if (Number.isFinite(cid) && cid > 0) {
+          targetConsulta = allConsultas.find((c) => Number(c.id_consulta) === cid) || null;
+        }
+      }
+      if (!targetConsulta && Number.isInteger(target.index)) {
+        const uiOrder = sortConsultasAsc(allConsultas).slice().reverse();
+        targetConsulta = uiOrder[target.index] || null;
+      }
+      const uid = targetConsulta?.uid;
+      if (uid) {
+        setOpenConsultaUid(uid);
+        if (target.field) {
+          setAutoFocusConsultaTarget({ uid, field: target.field });
+        }
+      }
     } else {
       setOpenSection('datos');
     }
@@ -1047,6 +1070,8 @@ const Modify = () => {
               handleEliminarPersonalizado={handleEliminarPersonalizado}
               handleActualizarPersonalizado={handleActualizarPersonalizado}
               handleTogglePersonalizadoEstado={handleTogglePersonalizadoEstado}
+              autoFocusTarget={autoFocusConsultaTarget}
+              onAutoFocusHandled={() => setAutoFocusConsultaTarget(null)}
             />
             {/* 🩺 Exploración física -> payload.exploracion_fisica */}
             <ExploracionFisicaSection

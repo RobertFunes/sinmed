@@ -861,15 +861,150 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <GroupTitle>
                   Consulta {totalConsultas - idx}{present(consulta.fecha_consulta) ? ` · ${consulta.fecha_consulta}` : ''}
                 </GroupTitle>
-                <Row icon={<FaCalendarDay />} label="Fecha de consulta:" value={consulta.fecha_consulta} />
-                <Row icon={<FaBell />} label="Recordatorio:" value={consulta.recordatorio} />
-                <Row icon={<FaNotesMedical />} label="Padecimiento actual:" value={consulta.padecimiento_actual} />
-                <Row icon={<FaDiagnoses />} label="Diagnóstico:" value={consulta.diagnostico} />
-                <Row icon={<FaPills />} label="Medicamentos:" value={consulta.medicamentos} />
-                <Row icon={<FaPrescriptionBottleAlt />} label="Tratamiento:" value={consulta.tratamiento} />
-                <Row icon={<FaClipboardCheck />} label="Oreja:" value={consulta.oreja} />
-                <Row icon={<FaStickyNote />} label="Notas:" value={consulta.notas} />
-                <Row icon={<FaStickyNote />} label="Notas de evolución:" value={consulta.notas_evolucion} />
+                <Row
+                  icon={<FaCalendarDay />}
+                  label="Fecha de consulta:"
+                  value={consulta.fecha_consulta}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'fecha_consulta',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaBell />}
+                  label="Recordatorio:"
+                  value={consulta.recordatorio}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'recordatorio',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaNotesMedical />}
+                  label="Padecimiento actual:"
+                  value={consulta.padecimiento_actual}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'padecimiento_actual',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaDiagnoses />}
+                  label="Diagnóstico:"
+                  value={consulta.diagnostico}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'diagnostico',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaPills />}
+                  label="Medicamentos:"
+                  value={consulta.medicamentos}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'medicamentos',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaPrescriptionBottleAlt />}
+                  label="Tratamiento:"
+                  value={consulta.tratamiento}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'tratamiento',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaClipboardCheck />}
+                  label="Oreja:"
+                  value={consulta.oreja}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'oreja',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaStickyNote />}
+                  label="Notas:"
+                  value={consulta.notas}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'notas',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaStickyNote />}
+                  label="Notas de evolución:"
+                  value={consulta.notas_evolucion}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'notas_evolucion',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
                 {consulta.interrogatorio.length > 0 && (
                   <>
                     <h4 style={{ color: 'black',alignSelf:'center'}}>Interrogatorio por aparatos y sistemas</h4>

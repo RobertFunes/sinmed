@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Palette } from '../../helpers/theme';
 import {
@@ -78,8 +78,21 @@ const ConsultasSection = ({
   handleEliminarPersonalizado,
   handleActualizarPersonalizado,
   handleTogglePersonalizadoEstado,
+  autoFocusTarget,
+  onAutoFocusHandled,
 }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const fieldRefs = useRef({});
+
+  const registerFieldRef = (uid, field) => (el) => {
+    if (!uid || !field) return;
+    if (!fieldRefs.current[uid]) fieldRefs.current[uid] = {};
+    if (el) {
+      fieldRefs.current[uid][field] = el;
+    } else {
+      delete fieldRefs.current[uid][field];
+    }
+  };
 
   const resolveConsulta = (uid) => {
     if (!uid) return null;
@@ -158,6 +171,22 @@ const ConsultasSection = ({
     }
     return '';
   })();
+
+  useEffect(() => {
+    if (!autoFocusTarget || !autoFocusTarget.uid || !autoFocusTarget.field) return;
+    const { uid, field } = autoFocusTarget;
+    const refMap = fieldRefs.current || {};
+    const el = refMap[uid] && refMap[uid][field];
+    if (el && typeof el.focus === 'function') {
+      el.focus();
+      if (typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    if (typeof onAutoFocusHandled === 'function') {
+      onAutoFocusHandled();
+    }
+  }, [autoFocusTarget, onAutoFocusHandled]);
   return (
     <details open={isOpen} onToggle={onToggle}>
       <Summary>Consultas</Summary>
@@ -218,13 +247,25 @@ const ConsultasSection = ({
                   <Label htmlFor={fechaId}>
                     <FaCalendarDay style={{ marginRight: '0.5rem' }} />Fecha de consulta
                   </Label>
-                  <Input type="date" id={fechaId} value={consulta.fecha_consulta || ''} onChange={handleConsultaFieldChange(uid, 'fecha_consulta')} />
+                  <Input
+                    type="date"
+                    id={fechaId}
+                    value={consulta.fecha_consulta || ''}
+                    onChange={handleConsultaFieldChange(uid, 'fecha_consulta')}
+                    ref={registerFieldRef(uid, 'fecha_consulta')}
+                  />
                 </FieldGroup>
                 <FieldGroup>
                   <Label htmlFor={recordatorioId}>
                     <FaBell style={{ marginRight: '0.5rem' }} />Recordatorio
                   </Label>
-                  <Input type="date" id={recordatorioId} value={consulta.recordatorio || ''} onChange={handleConsultaFieldChange(uid, 'recordatorio')} />
+                  <Input
+                    type="date"
+                    id={recordatorioId}
+                    value={consulta.recordatorio || ''}
+                    onChange={handleConsultaFieldChange(uid, 'recordatorio')}
+                    ref={registerFieldRef(uid, 'recordatorio')}
+                  />
                 </FieldGroup>
               </TwoColumnRow>
               <FieldGroup>
@@ -235,6 +276,7 @@ const ConsultasSection = ({
                       type="checkbox"
                       name={`oreja_izquierda_${uid}`}
                       checked={orejaValue === 'izquierda'}
+                      ref={registerFieldRef(uid, 'oreja')}
                       onChange={(e) => {
                         const next = e.target.checked ? 'izquierda' : (orejaValue === 'izquierda' ? '' : orejaValue);
                         handleConsultaFieldChange(uid, 'oreja')({ target: { value: next } });
@@ -268,6 +310,7 @@ const ConsultasSection = ({
                     onChange={handleConsultaFieldChange(uid, 'notas')}
                     rows={2}
                     placeholder="Notas adicionales"
+                    ref={registerFieldRef(uid, 'notas')}
                   />
                 </FieldGroup>
               )}
@@ -275,7 +318,14 @@ const ConsultasSection = ({
                 <Label htmlFor={padecimientoId}>
                   <FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual
                 </Label>
-                <TextArea id={padecimientoId} value={consulta.padecimiento_actual || ''} onChange={handleConsultaFieldChange(uid, 'padecimiento_actual')} rows={2} placeholder="Describe el padecimiento actual" />
+                <TextArea
+                  id={padecimientoId}
+                  value={consulta.padecimiento_actual || ''}
+                  onChange={handleConsultaFieldChange(uid, 'padecimiento_actual')}
+                  rows={2}
+                  placeholder="Describe el padecimiento actual"
+                  ref={registerFieldRef(uid, 'padecimiento_actual')}
+                />
               </FieldGroup>
               <FieldGroup>
                 <Label htmlFor={diagnosticoId}>
@@ -287,6 +337,7 @@ const ConsultasSection = ({
                   onChange={handleConsultaFieldChange(uid, 'diagnostico')}
                   rows={2}
                   placeholder="Especifica el diagnóstico"
+                  ref={registerFieldRef(uid, 'diagnostico')}
                 />
               </FieldGroup>
               <FieldGroup>
@@ -299,6 +350,7 @@ const ConsultasSection = ({
                   onChange={handleConsultaFieldChange(uid, 'medicamentos')}
                   rows={2}
                   placeholder="Medicamentos actuales o prescritos"
+                  ref={registerFieldRef(uid, 'medicamentos')}
                 />
               </FieldGroup>
               <FieldGroup>
@@ -311,6 +363,7 @@ const ConsultasSection = ({
                   onChange={handleConsultaFieldChange(uid, 'tratamiento')}
                   rows={2}
                   placeholder="Describe el plan de tratamiento"
+                  ref={registerFieldRef(uid, 'tratamiento')}
                 />
               </FieldGroup>
               {displayNumber < 2 && (
@@ -324,6 +377,7 @@ const ConsultasSection = ({
                     onChange={handleConsultaFieldChange(uid, 'notas')}
                     rows={2}
                     placeholder="Notas adicionales"
+                    ref={registerFieldRef(uid, 'notas')}
                   />
                 </FieldGroup>
               )}
@@ -338,6 +392,7 @@ const ConsultasSection = ({
                     onChange={handleConsultaFieldChange(uid, 'notas_evolucion')}
                     rows={2}
                     placeholder="Notas de evolución a partir de esta consulta"
+                    ref={registerFieldRef(uid, 'notas_evolucion')}
                   />
                 </FieldGroup>
               )}
