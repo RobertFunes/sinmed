@@ -174,9 +174,19 @@ const ConsultasSection = ({
 
   useEffect(() => {
     if (!autoFocusTarget || !autoFocusTarget.uid || !autoFocusTarget.field) return;
-    const { uid, field } = autoFocusTarget;
+    const { uid, field, interrogatorioIndex, personalizadoIndex } = autoFocusTarget;
     const refMap = fieldRefs.current || {};
-    const el = refMap[uid] && refMap[uid][field];
+
+    let key = field;
+    if (field === 'interrogatorio_desc' && Number.isInteger(interrogatorioIndex)) {
+      key = `interrogatorio_desc_${interrogatorioIndex}`;
+    } else if (field === 'interrogatorio_estado' && Number.isInteger(interrogatorioIndex)) {
+      key = `interrogatorio_estado_${interrogatorioIndex}`;
+    } else if (field === 'personalizado' && Number.isInteger(personalizadoIndex)) {
+      key = `personalizado_${personalizadoIndex}`;
+    }
+
+    const el = refMap[uid] && refMap[uid][key];
     if (el && typeof el.focus === 'function') {
       el.focus();
       if (typeof el.scrollIntoView === 'function') {
@@ -431,7 +441,13 @@ const ConsultasSection = ({
                           </FieldGroup>
                           <FieldGroup>
                             <Label>{`Descripción de aparato ${s.nombre?.toLowerCase?.() || ''}`}</Label>
-                            <TextArea value={s.descripcion} onChange={(e) => handleActualizarSistemaDesc(uid, sistemaIdx, e.target.value)} rows={3} placeholder={`Detalle de ${s.nombre?.toLowerCase?.() || ''}`} />
+                            <TextArea
+                              value={s.descripcion}
+                              onChange={(e) => handleActualizarSistemaDesc(uid, sistemaIdx, e.target.value)}
+                              rows={3}
+                              placeholder={`Detalle de ${s.nombre?.toLowerCase?.() || ''}`}
+                              ref={registerFieldRef(uid, `interrogatorio_desc_${sistemaIdx}`)}
+                            />
                           </FieldGroup>
                         </TwoColumnRow>
 
@@ -477,11 +493,22 @@ const ConsultasSection = ({
                         <TwoColumnRow>
                           <FieldGroup>
                             <Label>Título</Label>
-                            <Input value={p.nombre} onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'nombre', e.target.value)} placeholder="Escribe el título" maxLength={100} />
+                            <Input
+                              value={p.nombre}
+                              onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'nombre', e.target.value)}
+                              placeholder="Escribe el título"
+                              maxLength={100}
+                            />
                           </FieldGroup>
                           <FieldGroup>
                             <Label>Descripción</Label>
-                            <TextArea value={p.descripcion} onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)} rows={3} placeholder="Describe el contenido" />
+                            <TextArea
+                              value={p.descripcion}
+                              onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)}
+                              rows={3}
+                              placeholder="Describe el contenido"
+                              ref={registerFieldRef(uid, `personalizado_${pIdx}`)}
+                            />
                           </FieldGroup>
                           {showEstadoChecklist && (
                             <FieldGroup>

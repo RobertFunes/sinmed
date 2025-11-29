@@ -1016,6 +1016,18 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                             icon={<FaClipboardCheck />}
                             label={`${item.nombre}:`}
                             value={item.descripcion}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'interrogatorio_desc',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                      interrogatorioIndex: interrogatorioIdx,
+                                    })
+                                : undefined
+                            }
                           />
                         ),
                         present(item.estado)
@@ -1025,6 +1037,18 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                               icon={null}
                               label={"Seguimiento:"}
                               value={estadoLabel(item.estado)}
+                              onClick={
+                                onEditProfile
+                                  ? () =>
+                                      onEditProfile({
+                                        section: 'consultas',
+                                        field: 'interrogatorio_estado',
+                                        id_consulta: consulta.id_consulta,
+                                        index: idx,
+                                        interrogatorioIndex: interrogatorioIdx,
+                                      })
+                                  : undefined
+                              }
                             />
                           )
                           : null,
@@ -1048,6 +1072,18 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                           icon={<FaStickyNote />}
                           label={`${p.nombre}:`}
                           value={value}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'personalizado',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                    personalizadoIndex: pIdx,
+                                  })
+                              : undefined
+                          }
                         />
                       );
                     })}

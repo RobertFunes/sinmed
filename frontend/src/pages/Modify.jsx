@@ -510,7 +510,12 @@ const Modify = () => {
       if (uid) {
         setOpenConsultaUid(uid);
         if (target.field) {
-          setAutoFocusConsultaTarget({ uid, field: target.field });
+          setAutoFocusConsultaTarget({
+            uid,
+            field: target.field,
+            interrogatorioIndex: Number.isInteger(target.interrogatorioIndex) ? target.interrogatorioIndex : undefined,
+            personalizadoIndex: Number.isInteger(target.personalizadoIndex) ? target.personalizadoIndex : undefined,
+          });
         }
       }
     } else {
