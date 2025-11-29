@@ -670,186 +670,6 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         </Section>
       )}
 
-      {antecedentesFamiliares.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Familiares</h3>
-          <Stack>
-            {antecedentesFamiliares.map((item, idx) => (
-              <Group key={`af-${idx}`}>
-                
-                <Row
-                  icon={<FaUsers />}
-                  label="Antecedente:"
-                  value={item.nombre}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'nombre', index: idx }) : undefined}
-                />
-                <Row
-                  icon={<FaStickyNote />}
-                  label="Descripción:"
-                  value={item.descripcion}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'descripcion', index: idx }) : undefined}
-                />
-              </Group>
-            ))}
-          </Stack>
-        </Section>
-      )}
-
-      {(apGenerales.length > 0 || apHabitos.length > 0) && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Personales</h3>
-          {apGenerales.length > 0 && (
-            <TwoColumnRow>
-              {apGenerales.map(({ label, value, icon, field }, idx) => (
-                <Row
-                  key={`ap-${idx}`}
-                  icon={icon ?? null}
-                  label={label}
-                  value={value}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'personales', field }) : undefined}
-                />
-              ))}
-            </TwoColumnRow>
-          )}
-          {apHabitos.length > 0 && (
-            <>
-              <h4 style={{ color: 'black', textAlign: 'center' }}>Hábitos</h4>
-              <Stack>
-                {apHabitos.map((habito, idx) => {
-                  const t = normalize(habito.titulo);
-                  return (
-                    <Group key={`habito-${idx}`}>
-                      <GroupTitle>{habito.titulo}</GroupTitle>
-                      {habito.rows.map(({ label, value, icon }, rowIdx) => {
-                        let field = null;
-                        if (t.includes('alcohol')) {
-                          if (rowIdx === 0) field = 'habito_alcoholismo_bebidas';
-                          else if (rowIdx === 1) field = 'habito_alcoholismo_tiempo_activo';
-                          else if (rowIdx === 2) field = 'habito_alcoholismo_tiempo_inactivo';
-                        } else if (t.includes('taba')) {
-                          if (rowIdx === 0) field = 'habito_tabaquismo_cigarrillos';
-                          else if (rowIdx === 1) field = 'habito_tabaquismo_tiempo_activo';
-                          else if (rowIdx === 2) field = 'habito_tabaquismo_tiempo_inactivo';
-                        } else if (t.includes('toxico')) {
-                          if (rowIdx === 0) field = 'habito_toxicomanias_tipo';
-                          else if (rowIdx === 1) field = 'habito_toxicomanias_tiempo_activo';
-                          else if (rowIdx === 2) field = 'habito_toxicomanias_tiempo_inactivo';
-                        }
-                        return (
-                          <Row
-                            key={`habito-${idx}-${rowIdx}`}
-                            icon={icon ?? null}
-                            label={label}
-                            value={value}
-                            onClick={
-                              field && onEditProfile
-                                ? () => onEditProfile({ section: 'personales', field })
-                                : undefined
-                            }
-                          />
-                        );
-                      })}
-                    </Group>
-                  );
-                })}
-              </Stack>
-            </>
-          )}
-        </Section>
-      )}
-
-      {ginecoRows.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Gineco-Obstétricos</h3>
-          <TwoColumnRow>
-            {ginecoRows.map(({ label, value, icon, field }, idx) => (
-              <Row
-                key={`gineco-${idx}`}
-                icon={icon ?? null}
-                label={label}
-                value={value}
-                onClick={onEditProfile ? () => onEditProfile({ section: 'gineco', field }) : undefined}
-              />
-            ))}
-          </TwoColumnRow>
-        </Section>
-      )}
-
-      {patologicos.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Personales Patológicos</h3>
-          <Stack>
-            {patologicos.map((item, idx) => (
-              <Group key={item.id || `pat-${idx}`}>
-                <GroupTitle>Registro {idx + 1}</GroupTitle>
-                <Row
-                  icon={<FaFileMedical />}
-                  label="Antecedente:"
-                  value={item.antecedente}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'patologicos',
-                            field: 'antecedente',
-                            index: item.index,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaStickyNote />}
-                  label="Descripción:"
-                  value={item.descripcion}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'patologicos',
-                            field: 'descripcion',
-                            index: item.index,
-                          })
-                      : undefined
-                  }
-                />
-              </Group>
-            ))}
-          </Stack>
-        </Section>
-      )}
-
-      {(efRows.length > 0 || inspeccion.length > 0) && (
-        <Section $alergico={isAllergic}>
-          <h3>Exploración Física</h3>
-          {efRows.length > 0 && (
-            <TwoColumnRow>
-              {efRows.map(({ label, value, icon, field }, idx) => (
-                <Row
-                  key={`ef-${idx}`}
-                  icon={icon ?? null}
-                  label={label}
-                  value={value}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'exploracion', field }) : undefined}
-                />
-              ))}
-            </TwoColumnRow>
-          )}
-          {inspeccion.length > 0 && (
-            <>
-              <h4 style={{ color: 'black', textAlign: 'center' }}>Inspección general</h4>
-              <Stack>
-                {inspeccion.map((item, idx) => (
-                  <Group key={`ins-${idx}`}>
-                    <GroupTitle>{item.nombre}</GroupTitle>
-                    <Row icon={<FaStethoscope />} label="Descripción:" value={item.descripcion} />
-                  </Group>
-                ))}
-              </Stack>
-            </>
-          )}
-        </Section>
-      )}
-
       {consultas.length > 0 && (
         <Section $alergico={isAllergic}>
           <h3>Consultas</h3>
@@ -1099,6 +919,186 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <Row icon={<FaStickyNote />} label="Pronóstico general:" value={pronostico} />
               </Group>
             </Stack>
+          )}
+        </Section>
+      )}
+
+      {antecedentesFamiliares.length > 0 && (
+        <Section $alergico={isAllergic}>
+          <h3>Antecedentes Familiares</h3>
+          <Stack>
+            {antecedentesFamiliares.map((item, idx) => (
+              <Group key={`af-${idx}`}>
+                
+                <Row
+                  icon={<FaUsers />}
+                  label="Antecedente:"
+                  value={item.nombre}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'nombre', index: idx }) : undefined}
+                />
+                <Row
+                  icon={<FaStickyNote />}
+                  label="Descripción:"
+                  value={item.descripcion}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'descripcion', index: idx }) : undefined}
+                />
+              </Group>
+            ))}
+          </Stack>
+        </Section>
+      )}
+
+      {(apGenerales.length > 0 || apHabitos.length > 0) && (
+        <Section $alergico={isAllergic}>
+          <h3>Antecedentes Personales</h3>
+          {apGenerales.length > 0 && (
+            <TwoColumnRow>
+              {apGenerales.map(({ label, value, icon, field }, idx) => (
+                <Row
+                  key={`ap-${idx}`}
+                  icon={icon ?? null}
+                  label={label}
+                  value={value}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'personales', field }) : undefined}
+                />
+              ))}
+            </TwoColumnRow>
+          )}
+          {apHabitos.length > 0 && (
+            <>
+              <h4 style={{ color: 'black', textAlign: 'center' }}>Hábitos</h4>
+              <Stack>
+                {apHabitos.map((habito, idx) => {
+                  const t = normalize(habito.titulo);
+                  return (
+                    <Group key={`habito-${idx}`}>
+                      <GroupTitle>{habito.titulo}</GroupTitle>
+                      {habito.rows.map(({ label, value, icon }, rowIdx) => {
+                        let field = null;
+                        if (t.includes('alcohol')) {
+                          if (rowIdx === 0) field = 'habito_alcoholismo_bebidas';
+                          else if (rowIdx === 1) field = 'habito_alcoholismo_tiempo_activo';
+                          else if (rowIdx === 2) field = 'habito_alcoholismo_tiempo_inactivo';
+                        } else if (t.includes('taba')) {
+                          if (rowIdx === 0) field = 'habito_tabaquismo_cigarrillos';
+                          else if (rowIdx === 1) field = 'habito_tabaquismo_tiempo_activo';
+                          else if (rowIdx === 2) field = 'habito_tabaquismo_tiempo_inactivo';
+                        } else if (t.includes('toxico')) {
+                          if (rowIdx === 0) field = 'habito_toxicomanias_tipo';
+                          else if (rowIdx === 1) field = 'habito_toxicomanias_tiempo_activo';
+                          else if (rowIdx === 2) field = 'habito_toxicomanias_tiempo_inactivo';
+                        }
+                        return (
+                          <Row
+                            key={`habito-${idx}-${rowIdx}`}
+                            icon={icon ?? null}
+                            label={label}
+                            value={value}
+                            onClick={
+                              field && onEditProfile
+                                ? () => onEditProfile({ section: 'personales', field })
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </Group>
+                  );
+                })}
+              </Stack>
+            </>
+          )}
+        </Section>
+      )}
+
+      {ginecoRows.length > 0 && (
+        <Section $alergico={isAllergic}>
+          <h3>Antecedentes Gineco-Obstétricos</h3>
+          <TwoColumnRow>
+            {ginecoRows.map(({ label, value, icon, field }, idx) => (
+              <Row
+                key={`gineco-${idx}`}
+                icon={icon ?? null}
+                label={label}
+                value={value}
+                onClick={onEditProfile ? () => onEditProfile({ section: 'gineco', field }) : undefined}
+              />
+            ))}
+          </TwoColumnRow>
+        </Section>
+      )}
+
+      {patologicos.length > 0 && (
+        <Section $alergico={isAllergic}>
+          <h3>Antecedentes Personales Patológicos</h3>
+          <Stack>
+            {patologicos.map((item, idx) => (
+              <Group key={item.id || `pat-${idx}`}>
+                <GroupTitle>Registro {idx + 1}</GroupTitle>
+                <Row
+                  icon={<FaFileMedical />}
+                  label="Antecedente:"
+                  value={item.antecedente}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'patologicos',
+                            field: 'antecedente',
+                            index: item.index,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaStickyNote />}
+                  label="Descripción:"
+                  value={item.descripcion}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'patologicos',
+                            field: 'descripcion',
+                            index: item.index,
+                          })
+                      : undefined
+                  }
+                />
+              </Group>
+            ))}
+          </Stack>
+        </Section>
+      )}
+
+      {(efRows.length > 0 || inspeccion.length > 0) && (
+        <Section $alergico={isAllergic}>
+          <h3>Exploración Física</h3>
+          {efRows.length > 0 && (
+            <TwoColumnRow>
+              {efRows.map(({ label, value, icon, field }, idx) => (
+                <Row
+                  key={`ef-${idx}`}
+                  icon={icon ?? null}
+                  label={label}
+                  value={value}
+                  onClick={onEditProfile ? () => onEditProfile({ section: 'exploracion', field }) : undefined}
+                />
+              ))}
+            </TwoColumnRow>
+          )}
+          {inspeccion.length > 0 && (
+            <>
+              <h4 style={{ color: 'black', textAlign: 'center' }}>Inspección general</h4>
+              <Stack>
+                {inspeccion.map((item, idx) => (
+                  <Group key={`ins-${idx}`}>
+                    <GroupTitle>{item.nombre}</GroupTitle>
+                    <Row icon={<FaStethoscope />} label="Descripción:" value={item.descripcion} />
+                  </Group>
+                ))}
+              </Stack>
+            </>
           )}
         </Section>
       )}
