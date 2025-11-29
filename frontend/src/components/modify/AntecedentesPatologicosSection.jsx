@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Summary,
   TwoColumnRow,
@@ -34,8 +34,11 @@ const AntecedentesPatologicosSection = ({
   isOpen,
   onToggle,
   isLoading,
+  autoFocusIndex,
+  onAutoFocusHandled,
 }) => {
   const [deleteCandidateIdx, setDeleteCandidateIdx] = useState(null);
+  const descRefs = useRef([]);
 
   const selectedPatologico =
     deleteCandidateIdx !== null ? formData.antecedentes_personales_patologicos[deleteCandidateIdx] : null;
@@ -47,6 +50,21 @@ const AntecedentesPatologicosSection = ({
     removePatologicoAt(deleteCandidateIdx);
     setDeleteCandidateIdx(null);
   };
+
+  useEffect(() => {
+    if (typeof autoFocusIndex === 'number') {
+      const el = descRefs.current[autoFocusIndex];
+      if (el && typeof el.focus === 'function') {
+        el.focus();
+        if (typeof el.scrollIntoView === 'function') {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+      if (typeof onAutoFocusHandled === 'function') {
+        onAutoFocusHandled();
+      }
+    }
+  }, [autoFocusIndex, onAutoFocusHandled]);
 
   return (
     <details open={isOpen} onToggle={onToggle}>
@@ -70,6 +88,9 @@ const AntecedentesPatologicosSection = ({
                     onChange={(e) => updatePatologicoDesc(idx, e.target.value)}
                     rows={3}
                     placeholder={`Detalle de ${p.antecedente.toLowerCase()}`}
+                    ref={(el) => {
+                      descRefs.current[idx] = el;
+                    }}
                   />
                 </FieldGroup>
               </TwoColumnRow>

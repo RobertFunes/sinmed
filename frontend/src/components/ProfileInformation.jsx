@@ -606,20 +606,20 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     : data.gineco_obstetricos || {};
 
   const ginecoRows = [
-    { label: 'Edad de menarca:', value: ginecoSource.edad_primera_menstruacion, icon: <FaFemale /> },
-    { label: 'Ciclo / días:', value: ginecoSource.ciclo_dias, icon: <FaCalendarAlt /> },
-    { label: 'Cantidad:', value: ginecoSource.cantidad, icon: <FaTint /> },
-    { label: 'Dolor:', value: ginecoSource.dolor },
-    { label: 'Fecha de última menstruación:', value: formatDate(ginecoSource.fecha_ultima_menstruacion), icon: <FaCalendarCheck /> },
-    { label: 'Vida sexual activa:', value: ginecoSource.vida_sexual_activa },
-    { label: 'Anticoncepción:', value: ginecoSource.anticoncepcion },
-    { label: 'Tipo de anticonceptivo:', value: ginecoSource.tipo_anticonceptivo, icon: <FaPills /> },
-    { label: 'Gestas:', value: ginecoSource.gestas, icon: <FaBaby /> },
-    { label: 'Partos:', value: ginecoSource.partos, icon: <FaBabyCarriage /> },
-    { label: 'Cesáreas:', value: ginecoSource.cesareas, icon: <FaProcedures /> },
-    { label: 'Abortos:', value: ginecoSource.abortos, icon: <FaHeartbeat /> },
-    { label: 'Fecha del último parto:', value: formatDate(ginecoSource.fecha_ultimo_parto), icon: <FaCalendarDay /> },
-    { label: 'Fecha de menopausia:', value: formatDate(ginecoSource.fecha_menopausia), icon: <FaCalendarTimes /> },
+    { label: 'Edad de menarca:', value: ginecoSource.edad_primera_menstruacion, icon: <FaFemale />, field: 'gineco_edad_menarca' },
+    { label: 'Ciclo / días:', value: ginecoSource.ciclo_dias, icon: <FaCalendarAlt />, field: 'gineco_ciclo' },
+    { label: 'Cantidad:', value: ginecoSource.cantidad, icon: <FaTint />, field: 'gineco_cantidad' },
+    { label: 'Dolor:', value: ginecoSource.dolor, field: 'gineco_dolor' },
+    { label: 'Fecha de última menstruación:', value: formatDate(ginecoSource.fecha_ultima_menstruacion), icon: <FaCalendarCheck />, field: 'gineco_fecha_ultima_menstruacion' },
+    { label: 'Vida sexual activa:', value: ginecoSource.vida_sexual_activa, field: 'gineco_vida_sexual_activa' },
+    { label: 'Anticoncepción:', value: ginecoSource.anticoncepcion, field: 'gineco_anticoncepcion' },
+    { label: 'Tipo de anticonceptivo:', value: ginecoSource.tipo_anticonceptivo, icon: <FaPills />, field: 'gineco_tipo_anticonceptivo' },
+    { label: 'Gestas:', value: ginecoSource.gestas, icon: <FaBaby />, field: 'gineco_gestas' },
+    { label: 'Partos:', value: ginecoSource.partos, icon: <FaBabyCarriage />, field: 'gineco_partos' },
+    { label: 'Cesáreas:', value: ginecoSource.cesareas, icon: <FaProcedures />, field: 'gineco_cesareas' },
+    { label: 'Abortos:', value: ginecoSource.abortos, icon: <FaHeartbeat />, field: 'gineco_abortos' },
+    { label: 'Fecha del último parto:', value: formatDate(ginecoSource.fecha_ultimo_parto), icon: <FaCalendarDay />, field: 'gineco_fecha_ultimo_parto' },
+    { label: 'Fecha de menopausia:', value: formatDate(ginecoSource.fecha_menopausia), icon: <FaCalendarTimes />, field: 'gineco_fecha_menopausia' },
   ].filter((row) => present(row.value));
 
   const patologicos = toArr(data.antecedentes_personales_patologicos)
@@ -627,6 +627,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
       id: item?.id || `app-${idx}`,
       antecedente: toStr(item?.antecedente),
       descripcion: toStr(item?.descripcion),
+      index: idx,
     }))
     .filter((item) => present(item.antecedente) || present(item.descripcion));
 
@@ -760,8 +761,14 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         <Section $alergico={isAllergic}>
           <h3>Antecedentes Gineco-Obstétricos</h3>
           <TwoColumnRow>
-            {ginecoRows.map(({ label, value, icon }, idx) => (
-              <Row key={`gineco-${idx}`} icon={icon ?? null} label={label} value={value} />
+            {ginecoRows.map(({ label, value, icon, field }, idx) => (
+              <Row
+                key={`gineco-${idx}`}
+                icon={icon ?? null}
+                label={label}
+                value={value}
+                onClick={onEditProfile ? () => onEditProfile({ section: 'gineco', field }) : undefined}
+              />
             ))}
           </TwoColumnRow>
         </Section>
@@ -774,8 +781,36 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
             {patologicos.map((item, idx) => (
               <Group key={item.id || `pat-${idx}`}>
                 <GroupTitle>Registro {idx + 1}</GroupTitle>
-                <Row icon={<FaFileMedical />} label="Antecedente:" value={item.antecedente} />
-                <Row icon={<FaStickyNote />} label="Descripción:" value={item.descripcion} />
+                <Row
+                  icon={<FaFileMedical />}
+                  label="Antecedente:"
+                  value={item.antecedente}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'patologicos',
+                            field: 'antecedente',
+                            index: item.index,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaStickyNote />}
+                  label="Descripción:"
+                  value={item.descripcion}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'patologicos',
+                            field: 'descripcion',
+                            index: item.index,
+                          })
+                      : undefined
+                  }
+                />
               </Group>
             ))}
           </Stack>

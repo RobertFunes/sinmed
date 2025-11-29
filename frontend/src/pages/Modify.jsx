@@ -228,7 +228,22 @@ const Modify = () => {
   const habitoToxTipoRef = useRef(null);
   const habitoToxTiempoActivoRef = useRef(null);
   const habitoToxTiempoInactivoRef = useRef(null);
+  const ginecoEdadMenarcaRef = useRef(null);
+  const ginecoCicloRef = useRef(null);
+  const ginecoCantidadRef = useRef(null);
+  const ginecoDolorRef = useRef(null);
+  const ginecoFechaUltimaMenstruacionRef = useRef(null);
+  const ginecoVidaSexualActivaRef = useRef(null);
+  const ginecoAnticoncepcionRef = useRef(null);
+  const ginecoTipoAnticonceptivoRef = useRef(null);
+  const ginecoGestasRef = useRef(null);
+  const ginecoPartosRef = useRef(null);
+  const ginecoCesareasRef = useRef(null);
+  const ginecoAbortosRef = useRef(null);
+  const ginecoFechaUltimoPartoRef = useRef(null);
+  const ginecoFechaMenopausiaRef = useRef(null);
   const [autoFocusAntecedenteIndex, setAutoFocusAntecedenteIndex] = useState(null);
+  const [autoFocusPatologicoIndex, setAutoFocusPatologicoIndex] = useState(null);
   const imcAutoCalcRef = useRef(false);
   const updateSnapshot = useCallback((data, payload) => {
     if (!data) return;
@@ -377,6 +392,52 @@ const Modify = () => {
           focusRef.current.focus();
         }
       }, 0);
+    } else if (target && target.section === 'gineco') {
+      setOpenSection('gineco');
+      setTimeout(() => {
+        const focusRef = (() => {
+          switch (target.field) {
+            case 'gineco_edad_menarca':
+              return ginecoEdadMenarcaRef;
+            case 'gineco_ciclo':
+              return ginecoCicloRef;
+            case 'gineco_cantidad':
+              return ginecoCantidadRef;
+            case 'gineco_dolor':
+              return ginecoDolorRef;
+            case 'gineco_fecha_ultima_menstruacion':
+              return ginecoFechaUltimaMenstruacionRef;
+            case 'gineco_vida_sexual_activa':
+              return ginecoVidaSexualActivaRef;
+            case 'gineco_anticoncepcion':
+              return ginecoAnticoncepcionRef;
+            case 'gineco_tipo_anticonceptivo':
+              return ginecoTipoAnticonceptivoRef;
+            case 'gineco_gestas':
+              return ginecoGestasRef;
+            case 'gineco_partos':
+              return ginecoPartosRef;
+            case 'gineco_cesareas':
+              return ginecoCesareasRef;
+            case 'gineco_abortos':
+              return ginecoAbortosRef;
+            case 'gineco_fecha_ultimo_parto':
+              return ginecoFechaUltimoPartoRef;
+            case 'gineco_fecha_menopausia':
+              return ginecoFechaMenopausiaRef;
+            default:
+              return null;
+          }
+        })();
+        if (focusRef && focusRef.current && typeof focusRef.current.focus === 'function') {
+          focusRef.current.focus();
+        }
+      }, 0);
+    } else if (target && target.section === 'patologicos') {
+      setOpenSection('patologicos');
+      if (Number.isInteger(target.index)) {
+        setAutoFocusPatologicoIndex(target.index);
+      }
     } else {
       setOpenSection('datos');
     }
@@ -876,6 +937,20 @@ const Modify = () => {
                 onChange={handleChange}
                 isOpen={openSection === 'gineco'}
                 onToggle={handleToggle('gineco')}
+                edadMenarcaRef={ginecoEdadMenarcaRef}
+                cicloRef={ginecoCicloRef}
+                cantidadRef={ginecoCantidadRef}
+                dolorRef={ginecoDolorRef}
+                fechaUltimaMenstruacionRef={ginecoFechaUltimaMenstruacionRef}
+                vidaSexualActivaRef={ginecoVidaSexualActivaRef}
+                anticoncepcionRef={ginecoAnticoncepcionRef}
+                tipoAnticonceptivoRef={ginecoTipoAnticonceptivoRef}
+                gestasRef={ginecoGestasRef}
+                partosRef={ginecoPartosRef}
+                cesareasRef={ginecoCesareasRef}
+                abortosRef={ginecoAbortosRef}
+                fechaUltimoPartoRef={ginecoFechaUltimoPartoRef}
+                fechaMenopausiaRef={ginecoFechaMenopausiaRef}
               />
             )}
 
@@ -890,6 +965,8 @@ const Modify = () => {
               isOpen={openSection === 'patologicos'}
               onToggle={handleToggle('patologicos')}
               isLoading={isLoading}
+              autoFocusIndex={autoFocusPatologicoIndex}
+              onAutoFocusHandled={() => setAutoFocusPatologicoIndex(null)}
             />
             {/* 📅 Consultas (padecimiento + interrogatorio) -> payload.consultas */}
             <ConsultasSection

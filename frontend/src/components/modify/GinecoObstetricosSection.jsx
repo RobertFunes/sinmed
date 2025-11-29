@@ -21,7 +21,26 @@ import {
   FaCalendarTimes,
 } from 'react-icons/fa';
 
-const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
+const GinecoObstetricosSection = ({
+  formData,
+  onChange,
+  isOpen,
+  onToggle,
+  edadMenarcaRef,
+  cicloRef,
+  cantidadRef,
+  dolorRef,
+  fechaUltimaMenstruacionRef,
+  vidaSexualActivaRef,
+  anticoncepcionRef,
+  tipoAnticonceptivoRef,
+  gestasRef,
+  partosRef,
+  cesareasRef,
+  abortosRef,
+  fechaUltimoPartoRef,
+  fechaMenopausiaRef,
+}) => {
   return (
     <details open={isOpen} onToggle={onToggle}>
       <Summary>Gineco-Obstétricos</Summary>
@@ -38,6 +57,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             onChange={onChange}
             placeholder="Ej. 12"
             inputMode="numeric"
+            ref={edadMenarcaRef}
           />
         </FieldGroup>
         <FieldGroup>
@@ -50,6 +70,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             value={formData.gineco_ciclo}
             onChange={onChange}
             placeholder="Ej. 28 días"
+            ref={cicloRef}
           />
         </FieldGroup>
       </TwoColumnRow>
@@ -65,11 +86,18 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             value={formData.gineco_cantidad}
             onChange={onChange}
             placeholder="Ej. Moderado"
+            ref={cantidadRef}
           />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="gineco_dolor">Dolor</Label>
-          <Select id="gineco_dolor" name="gineco_dolor" value={formData.gineco_dolor} onChange={onChange}>
+          <Select
+            id="gineco_dolor"
+            name="gineco_dolor"
+            value={formData.gineco_dolor}
+            onChange={onChange}
+            ref={dolorRef}
+          >
             <option value="">-- Selecciona --</option>
             <option value="Si">Si</option>
             <option value="No">No</option>
@@ -88,6 +116,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             value={formData.gineco_fecha_ultima_menstruacion}
             onChange={onChange}
             placeholder="Ej. 10/2024, hace 3 meses, etc."
+            ref={fechaUltimaMenstruacionRef}
           />
         </FieldGroup>
         <FieldGroup>
@@ -97,6 +126,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             name="gineco_vida_sexual_activa"
             value={formData.gineco_vida_sexual_activa}
             onChange={onChange}
+            ref={vidaSexualActivaRef}
           >
             <option value="">-- Selecciona --</option>
             <option value="Si">Si</option>
@@ -114,6 +144,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
               name="gineco_anticoncepcion"
               value={formData.gineco_anticoncepcion}
               onChange={onChange}
+              ref={anticoncepcionRef}
             >
               <option value="">-- Selecciona --</option>
               <option value="Si">Si</option>
@@ -130,6 +161,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
                 name="gineco_tipo_anticonceptivo"
                 value={formData.gineco_tipo_anticonceptivo}
                 onChange={onChange}
+                ref={tipoAnticonceptivoRef}
               />
             </FieldGroup>
           )}
@@ -141,13 +173,25 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
           <Label htmlFor="gineco_gestas">
             <FaBaby style={{ marginRight: '0.5rem' }} />Gestas
           </Label>
-          <Input id="gineco_gestas" name="gineco_gestas" value={formData.gineco_gestas} onChange={onChange} />
+          <Input
+            id="gineco_gestas"
+            name="gineco_gestas"
+            value={formData.gineco_gestas}
+            onChange={onChange}
+            ref={gestasRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="gineco_partos">
             <FaBabyCarriage style={{ marginRight: '0.5rem' }} />Partos
           </Label>
-          <Input id="gineco_partos" name="gineco_partos" value={formData.gineco_partos} onChange={onChange} />
+          <Input
+            id="gineco_partos"
+            name="gineco_partos"
+            value={formData.gineco_partos}
+            onChange={onChange}
+            ref={partosRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 
@@ -156,13 +200,25 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
           <Label htmlFor="gineco_cesareas">
             <FaProcedures style={{ marginRight: '0.5rem' }} />Cesáreas
           </Label>
-          <Input id="gineco_cesareas" name="gineco_cesareas" value={formData.gineco_cesareas} onChange={onChange} />
+          <Input
+            id="gineco_cesareas"
+            name="gineco_cesareas"
+            value={formData.gineco_cesareas}
+            onChange={onChange}
+            ref={cesareasRef}
+          />
         </FieldGroup>
         <FieldGroup>
           <Label htmlFor="gineco_abortos">
             <FaHeartbeat style={{ marginRight: '0.5rem' }} />Abortos
           </Label>
-          <Input id="gineco_abortos" name="gineco_abortos" value={formData.gineco_abortos} onChange={onChange} />
+          <Input
+            id="gineco_abortos"
+            name="gineco_abortos"
+            value={formData.gineco_abortos}
+            onChange={onChange}
+            ref={abortosRef}
+          />
         </FieldGroup>
       </TwoColumnRow>
 
@@ -177,6 +233,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             value={formData.gineco_fecha_ultimo_parto}
             onChange={onChange}
             placeholder="Ej. 2019, cesárea, etc."
+            ref={fechaUltimoPartoRef}
           />
         </FieldGroup>
         <FieldGroup>
@@ -189,6 +246,7 @@ const GinecoObstetricosSection = ({ formData, onChange, isOpen, onToggle }) => {
             value={formData.gineco_fecha_menopausia}
             onChange={onChange}
             placeholder="Ej. 2015, menopausia quirúrgica, etc."
+            ref={fechaMenopausiaRef}
           />
         </FieldGroup>
       </TwoColumnRow>
