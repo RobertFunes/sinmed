@@ -114,7 +114,7 @@ Please change the parent <Route path="${R}"> to <Route path="${R==="/"?"*":`${R}
     opacity: 0.5;
     cursor: not-allowed;
   }
-`,xr="http://localhost:5003",_e={primary:"#541212",secondary:"#4F959D",accent:"#4FB7B3",dark:"#205781",text:"#000000",title:"#415E72",muted:"#4F959D",background:"#FFFFFF",border:"#415E72"},H7=je.div`
+`,xr="",_e={primary:"#541212",secondary:"#4F959D",accent:"#4FB7B3",dark:"#205781",text:"#000000",title:"#415E72",muted:"#4F959D",background:"#FFFFFF",border:"#415E72"},H7=je.div`
   background: ${_e.background};
   border-radius: 12px;
   padding: 16px 20px;
