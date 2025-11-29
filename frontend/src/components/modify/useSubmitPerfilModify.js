@@ -133,7 +133,7 @@ export const useSubmitPerfilModify = (id) => {
           const errJson = await res.json();
           if (errJson?.error) message = errJson.error;
         } catch {}
-        alert(message);
+        alert(`❌🔴 ${message}`);
         return false;
       }
       if (typeof opts.onSuccess === 'function') {
@@ -144,7 +144,7 @@ export const useSubmitPerfilModify = (id) => {
       return true;
     } catch (err) {
       console.error('[useSubmitPerfilModify] Error al actualizar perfil:', err);
-      alert('Error de red al intentar modificar el perfil');
+      alert('❌🔴 Error de red al intentar modificar el perfil');
       return false;
     } finally {
       setIsSubmitting(false);

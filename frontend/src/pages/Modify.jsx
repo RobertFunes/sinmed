@@ -458,7 +458,7 @@ const Modify = () => {
       onSuccess: () => {
         updateSnapshot(formData);
         allowNavigationRef.current = true;
-        alert('Perfil actualizado correctamente');
+        alert('✅ Perfil actualizado correctamente');
         window.location.reload();
       },
     });
