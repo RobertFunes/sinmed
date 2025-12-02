@@ -312,7 +312,7 @@ const ConsultasSection = ({
               {displayNumber >= 2 && (
                 <FieldGroup>
                   <Label htmlFor={notasId}>
-                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas
+                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Nota anterior
                   </Label>
                   <TextArea
                     id={notasId}

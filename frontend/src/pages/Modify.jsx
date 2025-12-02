@@ -86,12 +86,12 @@ const sortConsultasAsc = (entries = []) => {
     // Primary: by date ascending (oldest first) when both have valid dates and are different
     if (aHasDate && bHasDate && da !== db) return da - db;
 
-    // Fallback: by numeric id (highest first) when dates are equal or unavailable
-    const ida = extractNumericId(a.item);
-    const idb = extractNumericId(b.item);
-    const aHasId = Number.isFinite(ida);
-    const bHasId = Number.isFinite(idb);
-    if (aHasId && bHasId && ida !== idb) return idb - ida; // highest id first
+  // Fallback: by numeric id (lowest first) when dates are equal or unavailable
+  const ida = extractNumericId(a.item);
+  const idb = extractNumericId(b.item);
+  const aHasId = Number.isFinite(ida);
+  const bHasId = Number.isFinite(idb);
+  if (aHasId && bHasId && ida !== idb) return ida - idb; // lowest id first (más antiguo primero)
 
     // If one has date and the other doesn't, prefer the one with a valid date
     if (aHasDate !== bHasDate) return aHasDate ? -1 : 1;
@@ -735,21 +735,40 @@ const Modify = () => {
   };
 
   const handleNuevaConsulta = () => {
-    // Crear nueva consulta y autocompletar desde la más reciente
-    const current = toArr(formData.consultas);
-    const last = sortConsultasAsc(current)[current.length - 1] || null;
-    const nueva = createEmptyConsulta();
-    if (last) {
-      nueva.padecimiento_actual = toStr(last.padecimiento_actual);
-      nueva.diagnostico = toStr(last.diagnostico);
-      nueva.medicamentos = toStr(last.medicamentos);
-      nueva.oreja = toStr(last.oreja);
-      nueva.interrogatorio_aparatos = deepClone(toArr(last.interrogatorio_aparatos));
-      // Copiar también los personalizados de la última consulta para mantener continuidad visual
-      nueva.personalizados = deepClone(toArr(last.personalizados));
-    }
-    updateConsultas((list) => [nueva, ...list]);
-    setNuevoSistemaPorConsulta((prev) => ({ ...prev, [nueva.uid]: '' }));
+    // Crear nueva consulta y autocompletar desde la más reciente (orden UI)
+    const nuevaBase = createEmptyConsulta();
+    setFormData((prev) => {
+      // Clonar todo el arreglo de consultas para evitar cualquier referencia compartida
+      const current = deepClone(toArr(prev.consultas));
+      // Ordenar como en la UI: más reciente primero
+      const uiOrderDesc = sortConsultasAsc(current).slice().reverse();
+      const totalExisting = uiOrderDesc.length;
+      const previous = uiOrderDesc[0] || null; // consulta inmediatamente anterior
+      const nueva = { ...nuevaBase };
+
+      if (previous) {
+        nueva.padecimiento_actual = toStr(previous.padecimiento_actual);
+        nueva.diagnostico = toStr(previous.diagnostico);
+        nueva.medicamentos = toStr(previous.medicamentos);
+        nueva.oreja = toStr(previous.oreja);
+        // Nota anterior: en la 2ª consulta copia "notas" de la 1ª;
+        // a partir de la 3ª copia "notas_evolucion" de la consulta previa
+        if (totalExisting === 1) {
+          nueva.notas = toStr(previous.notas);
+        } else if (totalExisting >= 2) {
+          nueva.notas = toStr(previous.notas_evolucion);
+        }
+        nueva.interrogatorio_aparatos = deepClone(toArr(previous.interrogatorio_aparatos));
+        // Copiar también los personalizados de la última consulta para mantener continuidad visual
+        nueva.personalizados = deepClone(toArr(previous.personalizados));
+      }
+
+      const updated = [nueva, ...current];
+      const sorted = sortConsultasAsc(updated);
+      return syncPrimaryConsulta({ ...prev, consultas: sorted }, sorted);
+    });
+
+    setNuevoSistemaPorConsulta((prev) => ({ ...prev, [nuevaBase.uid]: '' }));
   };
 
   const handleEliminarConsulta = (uid) => {
