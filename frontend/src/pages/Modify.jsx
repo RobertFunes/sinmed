@@ -735,15 +735,13 @@ const Modify = () => {
   };
 
   const handleNuevaConsulta = () => {
-    // Crear nueva consulta y autocompletar desde la más reciente (orden UI)
+    // Crear nueva consulta y autocompletar desde la consulta más reciente (orden cronológico)
     const nuevaBase = createEmptyConsulta();
     setFormData((prev) => {
-      // Clonar todo el arreglo de consultas para evitar cualquier referencia compartida
-      const current = deepClone(toArr(prev.consultas));
-      // Ordenar como en la UI: más reciente primero
-      const uiOrderDesc = sortConsultasAsc(current).slice().reverse();
-      const totalExisting = uiOrderDesc.length;
-      const previous = uiOrderDesc[0] || null; // consulta inmediatamente anterior
+      // Siempre trabajar sobre las consultas ordenadas ascendente por fecha/id
+      const currentAsc = sortConsultasAsc(toArr(prev.consultas));
+      const totalExisting = currentAsc.length;
+      const previous = currentAsc[totalExisting - 1] || null; // consulta inmediatamente anterior (más reciente)
       const nueva = { ...nuevaBase };
 
       if (previous) {
@@ -764,8 +762,8 @@ const Modify = () => {
         nueva.personalizados = deepClone(toArr(previous.personalizados));
       }
 
-      const updated = [nueva, ...current];
-      const sorted = sortConsultasAsc(updated);
+      const updatedAsc = [...currentAsc, nueva];
+      const sorted = sortConsultasAsc(updatedAsc);
       return syncPrimaryConsulta({ ...prev, consultas: sorted }, sorted);
     });
 
