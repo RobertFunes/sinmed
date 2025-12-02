@@ -750,6 +750,7 @@ const Modify = () => {
         nueva.padecimiento_actual = toStr(previous.padecimiento_actual);
         nueva.diagnostico = toStr(previous.diagnostico);
         nueva.medicamentos = toStr(previous.medicamentos);
+        nueva.tratamiento = toStr(previous.tratamiento);
         nueva.oreja = toStr(previous.oreja);
         // Nota anterior: en la 2ª consulta copia "notas" de la 1ª;
         // a partir de la 3ª copia "notas_evolucion" de la consulta previa
