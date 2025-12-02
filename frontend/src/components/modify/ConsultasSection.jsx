@@ -309,21 +309,6 @@ const ConsultasSection = ({
                 </AlergicoOptions>
               </FieldGroup>
 
-              {displayNumber >= 2 && (
-                <FieldGroup>
-                  <Label htmlFor={notasId}>
-                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Nota anterior
-                  </Label>
-                  <TextArea
-                    id={notasId}
-                    value={consulta.notas || ''}
-                    onChange={handleConsultaFieldChange(uid, 'notas')}
-                    rows={2}
-                    placeholder="Notas adicionales"
-                    ref={registerFieldRef(uid, 'notas')}
-                  />
-                </FieldGroup>
-              )}
               <FieldGroup>
                 <Label htmlFor={padecimientoId}>
                   <FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual
@@ -392,19 +377,34 @@ const ConsultasSection = ({
                 </FieldGroup>
               )}
               {displayNumber >= 2 && (
-                <FieldGroup>
-                  <Label htmlFor={`${diagnosticoId}_notas_evolucion`}>
-                    <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas de evolución
-                  </Label>
-                  <TextArea
-                    id={`${diagnosticoId}_notas_evolucion`}
-                    value={consulta.notas_evolucion || ''}
-                    onChange={handleConsultaFieldChange(uid, 'notas_evolucion')}
-                    rows={2}
-                    placeholder="Notas de evolución a partir de esta consulta"
-                    ref={registerFieldRef(uid, 'notas_evolucion')}
-                  />
-                </FieldGroup>
+                <React.Fragment>
+                  <FieldGroup>
+                    <Label htmlFor={`${diagnosticoId}_notas_evolucion`}>
+                      <FaStickyNote style={{ marginRight: '0.5rem' }} />Notas de evolución
+                    </Label>
+                    <TextArea
+                      id={`${diagnosticoId}_notas_evolucion`}
+                      value={consulta.notas_evolucion || ''}
+                      onChange={handleConsultaFieldChange(uid, 'notas_evolucion')}
+                      rows={2}
+                      placeholder="Notas de evolución a partir de esta consulta"
+                      ref={registerFieldRef(uid, 'notas_evolucion')}
+                    />
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label htmlFor={notasId}>
+                      <FaStickyNote style={{ marginRight: '0.5rem' }} />Nota anterior
+                    </Label>
+                    <TextArea
+                      id={notasId}
+                      value={consulta.notas || ''}
+                      onChange={handleConsultaFieldChange(uid, 'notas')}
+                      rows={2}
+                      placeholder="Notas adicionales"
+                      ref={registerFieldRef(uid, 'notas')}
+                    />
+                  </FieldGroup>
+                </React.Fragment>
               )}
               {sistemasSeleccionados.length > 0 && (
                 <ListContainer>
