@@ -285,10 +285,14 @@ const buildConsultas = (data = {}) => {
         notas: toStr(row?.notas),
         notas_evolucion: toStr(row?.notas_evolucion),
         oreja: toStr(row?.oreja),
+        agua: toStr(row?.agua),
+        laboratorios: toStr(row?.laboratorios),
+        presion: toStr(row?.presion),
+        glucosa: toStr(row?.glucosa),
         interrogatorio: mapSistemasFromSource(row),
       };
       const hasData =
-        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja']
+        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa']
           .some((key) => present(base[key])) || present(base.interrogatorio);
       return hasData ? base : null;
     })
@@ -309,10 +313,14 @@ const buildConsultas = (data = {}) => {
       medicamentos: toStr(fallbackSource.medicamentos),
       tratamiento: toStr(fallbackSource.tratamiento),
       notas: toStr(fallbackSource.notas),
+      agua: toStr(fallbackSource.agua),
+      laboratorios: toStr(fallbackSource.laboratorios),
+      presion: toStr(fallbackSource.presion),
+      glucosa: toStr(fallbackSource.glucosa),
       interrogatorio: mapSistemasFromSource(fallbackSource),
     };
     const hasData =
-      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas']
+      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa']
         .some((key) => present(fallback[key])) || present(fallback.interrogatorio);
     if (hasData) consultas.push(fallback);
   }
@@ -771,6 +779,70 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                           onEditProfile({
                             section: 'consultas',
                             field: 'tratamiento',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaTint />}
+                  label="Agua:"
+                  value={consulta.agua}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'agua',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaFileMedical />}
+                  label="Laboratorios:"
+                  value={consulta.laboratorios}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'laboratorios',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaHeart />}
+                  label="Presión:"
+                  value={consulta.presion}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'presion',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaChartBar />}
+                  label="Glucosa:"
+                  value={consulta.glucosa}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'glucosa',
                             id_consulta: consulta.id_consulta,
                             index: idx,
                           })
