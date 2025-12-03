@@ -708,6 +708,10 @@ const add = async (req, res) => {
       tratamiento: clean(consRaw.tratamiento),
       notas: clean(consRaw.notas),
       oreja: clean(consRaw.oreja),
+      agua: clean(consRaw.agua),
+      laboratorios: clean(consRaw.laboratorios),
+      presion: clean(consRaw.presion),
+      glucosa: clean(consRaw.glucosa),
     };
     const arr = Array.isArray(consRaw.interrogatorio_aparatos)
       ? consRaw.interrogatorio_aparatos
