@@ -48,6 +48,7 @@ export const initialState = {
   laboratorios: '',            // estudios de laboratorio
   presion: '',                 // presión arterial (anotaciones)
   glucosa: '',                 // glucosa (anotaciones)
+  consulta_pam: '',            // PAM calculada/manual de la consulta
   calidad: '',
   alimentos_que_le_caen_mal: '',
   componentes_habituales_dieta: '',

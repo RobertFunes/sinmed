@@ -85,6 +85,7 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
       laboratorios: trimValue(consulta?.laboratorios),
       presion: trimValue(consulta?.presion),
       glucosa: trimValue(consulta?.glucosa),
+      pam: trimValue(consulta?.pam),
     };
 
     const interrogatorio_aparatos = toArr(consulta?.interrogatorio_aparatos).map((item) => {

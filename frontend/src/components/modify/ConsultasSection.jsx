@@ -238,6 +238,7 @@ const ConsultasSection = ({
         const laboratoriosId = `laboratorios_${uid}`;
         const presionId = `presion_${uid}`;
         const glucosaId = `glucosa_${uid}`;
+        const pamId = `pam_${uid}`;
         const selectId = `select_sistema_${uid}`;
         const sistemasSeleccionados = toArr(consulta.interrogatorio_aparatos);
         const opcionesDisponibles = SISTEMAS_OPCIONES.filter((opt) => !sistemasSeleccionados.some((s) => normalize(s.nombre) === normalize(opt)));
@@ -410,6 +411,16 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
               </TwoColumnRow>
+              <FieldGroup>
+                <Label htmlFor={pamId}>PAM</Label>
+                <Input
+                  id={pamId}
+                  value={consulta.pam || ''}
+                  onChange={handleConsultaFieldChange(uid, 'pam')}
+                  placeholder="Calculada o manual"
+                  ref={registerFieldRef(uid, 'pam')}
+                />
+              </FieldGroup>
               {displayNumber < 2 && (
                 <FieldGroup>
                   <Label htmlFor={notasId}>

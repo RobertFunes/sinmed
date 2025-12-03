@@ -269,6 +269,7 @@ const mapApiToForm = (api) => {
     laboratorios: toStr(row?.laboratorios),
     presion: toStr(row?.presion),
     glucosa: toStr(row?.glucosa),
+    pam: toStr(row?.pam),
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),
@@ -299,6 +300,7 @@ const mapApiToForm = (api) => {
         laboratorios: toStr(fallbackSource.laboratorios),
         presion: toStr(fallbackSource.presion),
         glucosa: toStr(fallbackSource.glucosa),
+        pam: toStr(fallbackSource.pam),
         interrogatorio_aparatos: mapSistemasFromSource(fallbackSource).map((item) => ({
           nombre: toStr(item?.nombre),
           descripcion: toStr(item?.descripcion),
@@ -343,6 +345,7 @@ const mapApiToForm = (api) => {
     assignIf('laboratorios', lastConsulta.laboratorios);
     assignIf('presion', lastConsulta.presion);
     assignIf('glucosa', lastConsulta.glucosa);
+    assignIf('consulta_pam', lastConsulta.pam);
     next.interrogatorio_aparatos = toArr(lastConsulta.interrogatorio_aparatos);
   } else {
     assignIf('fecha_consulta', legacy && legacy.fecha_consulta);
@@ -356,6 +359,7 @@ const mapApiToForm = (api) => {
     assignIf('laboratorios', legacy && legacy.laboratorios);
     assignIf('presion', legacy && legacy.presion);
     assignIf('glucosa', legacy && legacy.glucosa);
+    assignIf('consulta_pam', legacy && legacy.pam);
     next.interrogatorio_aparatos = mapSistemasFromSource({ ...(legacy || {}), ...(dt || {}) });
   }
 

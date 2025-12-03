@@ -151,6 +151,7 @@ const createEmptyConsulta = () => ({
   laboratorios: '',
   presion: '',
   glucosa: '',
+  pam: '',
   interrogatorio_aparatos: [],
   personalizados: [],
 });
@@ -189,6 +190,7 @@ const Modify = () => {
   const [nuevoHabito, setNuevoHabito] = useState('');
   const [nuevoPatologico, setNuevoPatologico] = useState('');
   const [nuevoSistemaPorConsulta, setNuevoSistemaPorConsulta] = useState({});
+  const [pamManualPorConsulta, setPamManualPorConsulta] = useState({});
   // Toggle exclusivo para 'alérgico': permite ninguno o sólo uno (Sí/No)
   const toggleAlergico = (valor) => (e) => {
     const checked = e.target.checked;
@@ -794,12 +796,37 @@ const Modify = () => {
     });
   };
 
+  const computePamFromPresion = (str) => {
+    const pStr = (str || '').trim();
+    const match = pStr.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+    if (!match) return '';
+    const sist = parseFloat(match[1]);
+    const diast = parseFloat(match[2]);
+    if (!Number.isFinite(sist) || !Number.isFinite(diast)) return '';
+    const pam = ((sist - diast) / 3) + diast;
+    return Number.isFinite(pam) ? pam.toFixed(2) : '';
+  };
+
   const handleConsultaFieldChange = (uid, field) => (event) => {
     const { value } = event.target;
+    if (field === 'pam') {
+      setPamManualPorConsulta((prev) => ({
+        ...prev,
+        [uid]: value.trim() !== '',
+      }));
+    }
     updateConsultas((current) =>
-      current.map((consulta) =>
-        consulta.uid === uid ? { ...consulta, [field]: value } : consulta,
-      ),
+      current.map((consulta) => {
+        if (consulta.uid !== uid) return consulta;
+        const next = { ...consulta, [field]: value };
+        if (field === 'presion') {
+          const isManual = pamManualPorConsulta[uid];
+          if (!isManual) {
+            next.pam = computePamFromPresion(value);
+          }
+        }
+        return next;
+      }),
     );
   };
 

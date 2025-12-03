@@ -67,6 +67,7 @@ const Add = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const allowNavigationRef = useRef(false);
+  const consultaPamManualRef = useRef(false);
   const blocker = useBlocker(() => hasChanges && !allowNavigationRef.current);
   const blockerState = blocker.state;
 
@@ -93,6 +94,9 @@ const Add = () => {
       const suffix = digits.startsWith('52') ? digits.slice(2) : digits;
       setFormData(prev => ({ ...prev, [name]: `52${suffix}` }));
       return;
+    }
+    if (name === 'consulta_pam') {
+      consultaPamManualRef.current = value.trim() !== '';
     }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -148,6 +152,22 @@ const Add = () => {
     }
     setFormData((prev) => (prev.pam === pamValue ? prev : { ...prev, pam: pamValue }));
   }, [formData.ta_mmhg]);
+
+  useEffect(() => {
+    if (consultaPamManualRef.current) return;
+    const pStr = (formData.presion || '').trim();
+    const match = pStr.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+    let pamValue = '';
+    if (match) {
+      const sist = parseFloat(match[1]);
+      const diast = parseFloat(match[2]);
+      if (Number.isFinite(sist) && Number.isFinite(diast)) {
+        const pam = ((sist - diast) / 3) + diast;
+        if (Number.isFinite(pam)) pamValue = pam.toFixed(2);
+      }
+    }
+    setFormData((prev) => (prev.consulta_pam === pamValue ? prev : { ...prev, consulta_pam: pamValue }));
+  }, [formData.presion]);
 
   const handleSubmit = async e => {
     e.preventDefault();

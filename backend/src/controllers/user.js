@@ -716,6 +716,7 @@ const add = async (req, res) => {
       laboratorios: clean(consRaw.laboratorios),
       presion: clean(consRaw.presion),
       glucosa: clean(consRaw.glucosa),
+      pam: clean(consRaw.pam),
     };
     const arr = Array.isArray(consRaw.interrogatorio_aparatos)
       ? consRaw.interrogatorio_aparatos

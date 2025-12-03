@@ -99,6 +99,7 @@ export const buildNestedPayload = (data) => {
     laboratorios: trim(data.laboratorios),
     presion: trim(data.presion),
     glucosa: trim(data.glucosa),
+    pam: trim(data.consulta_pam),
     interrogatorio_aparatos: (data.interrogatorio_aparatos || []).map((s) => ({
       nombre: trim(s.nombre),
       descripcion: trim(s.descripcion),

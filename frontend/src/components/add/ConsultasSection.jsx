@@ -218,6 +218,16 @@ const ConsultasSection = ({
         </FieldGroup>
       </TwoColumnRow>
       <FieldGroup>
+        <Label htmlFor="consulta_pam">PAM</Label>
+        <Input
+          id="consulta_pam"
+          name="consulta_pam"
+          value={formData.consulta_pam}
+          onChange={handleChange}
+          placeholder="Calculada o manual"
+        />
+      </FieldGroup>
+      <FieldGroup>
         <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
         <TextArea
           id="consulta_notas"
