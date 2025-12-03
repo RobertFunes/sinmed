@@ -1,6 +1,7 @@
 // src/pages/Calendar.jsx
 import Header from '../components/Header.jsx';
 import CalendarModal from '../components/CalendarModal.jsx';
+import CloneDayModal from '../components/CloneDayModal.jsx';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../helpers/url.js';
@@ -58,6 +59,7 @@ export default function Calendar() {
   const [date, setDate] = useState(() => new Date()); // controla la fecha visible
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
 
   const openModalForEvent = (event) => {
     setSelectedEvent(event);
@@ -67,6 +69,14 @@ export default function Calendar() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedEvent(null);
+  };
+
+  const openCloneModal = () => {
+    setIsCloneModalOpen(true);
+  };
+
+  const closeCloneModal = () => {
+    setIsCloneModalOpen(false);
   };
 
   const toNaiveString = (value) => {
@@ -134,6 +144,21 @@ export default function Calendar() {
     d.setHours(22, 0, 0, 0);
     return d;
   }, []);
+
+  const eventsForSelectedDay = useMemo(() => {
+    if (view !== 'day') return [];
+    const target = new Date(date);
+    if (Number.isNaN(target.getTime())) return [];
+    target.setHours(0, 0, 0, 0);
+    return events.filter((ev) => {
+      const src = ev?.start;
+      const d = src instanceof Date ? src : (src ? new Date(src) : null);
+      if (!d || Number.isNaN(d.getTime())) return false;
+      const day = new Date(d);
+      day.setHours(0, 0, 0, 0);
+      return day.getTime() === target.getTime();
+    });
+  }, [events, view, date]);
 
   // Render personalizado: en vista semanal ocultar texto del evento
   const EventContent = ({ title }) => {
@@ -294,7 +319,14 @@ export default function Calendar() {
       <Page>
         <HeaderRow>
           <Title>Calendario</Title>
-          <NewButtonLink to="/calendar/new">Crear nueva cita</NewButtonLink>
+          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            <NewButtonLink to="/calendar/new">Crear nueva cita</NewButtonLink>
+            {view === 'day' && (
+              <NewButtonLink as="button" type="button" onClick={openCloneModal}>
+                Clonar este día
+              </NewButtonLink>
+            )}
+          </div>
         </HeaderRow>
         <CalendarContainer>
           <BigCalendar
@@ -340,6 +372,12 @@ export default function Calendar() {
           onClose={closeModal}
           onDelete={handleDeleteEvent}
           onModify={handleModifyEvent}
+        />
+        <CloneDayModal
+          visible={isCloneModalOpen}
+          onClose={closeCloneModal}
+          events={eventsForSelectedDay}
+          sourceDate={date}
         />
       </Page>
     </>

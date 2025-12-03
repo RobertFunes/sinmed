@@ -385,6 +385,80 @@ const listCalendar = async (_req, res) => {
   }
 };
 
+// POST /cloneday
+// Body: { source_date: 'YYYY-MM-DD', target_date: 'YYYY-MM-DD', events: [{ id_cita?, nombre, telefono, color, inicio_utc, fin_utc }] }
+const cloneDay = async (req, res) => {
+  try {
+    const { source_date, target_date, events } = req.body || {};
+    if (!source_date || !target_date) {
+      return res.status(400).json({ ok: false, error: 'source_date y target_date son obligatorios' });
+    }
+    if (!Array.isArray(events) || events.length === 0) {
+      return res.status(400).json({ ok: false, error: 'No hay eventos para clonar' });
+    }
+
+    const parseYMD = (value) => {
+      if (!value) return null;
+      const str = String(value).trim();
+      const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return null;
+      const y = Number(m[1]);
+      const mo = Number(m[2]);
+      const d = Number(m[3]);
+      if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return null;
+      return new Date(y, mo - 1, d, 0, 0, 0, 0);
+    };
+
+    const srcDate = parseYMD(source_date);
+    const dstDate = parseYMD(target_date);
+    if (!srcDate || !dstDate) {
+      return res.status(400).json({ ok: false, error: 'Formato de fecha inválido (use YYYY-MM-DD)' });
+    }
+
+    const dayDiffMs = dstDate.getTime() - srcDate.getTime();
+
+    const addDaysKeepingTime = (raw) => {
+      if (!raw) return null;
+      const base = new Date(raw);
+      if (Number.isNaN(base.getTime())) return null;
+      const shifted = new Date(base.getTime() + dayDiffMs);
+      return shifted;
+    };
+
+    const toNaiveLocal = (d) => {
+      if (!(d instanceof Date) || Number.isNaN(d.getTime())) return null;
+      const pad = (v) => String(v).padStart(2, '0');
+      const y = d.getFullYear();
+      const m = pad(d.getMonth() + 1);
+      const day = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mm = pad(d.getMinutes());
+      const ss = pad(d.getSeconds());
+      return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
+    };
+
+    let created = 0;
+    for (const ev of events) {
+      const startShifted = addDaysKeepingTime(ev.inicio_utc || ev.start);
+      const endShifted = addDaysKeepingTime(ev.fin_utc || ev.end || ev.inicio_utc);
+      if (!startShifted || !endShifted) continue;
+      const inicio_utc = toNaiveLocal(startShifted);
+      const fin_utc = toNaiveLocal(endShifted);
+      if (!inicio_utc || !fin_utc) continue;
+      const nombre = ev.nombre || ev.title || 'Sin título';
+      const telefono = ev.telefono || null;
+      const color = ev.color || null;
+      const r = await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono, color });
+      if (r && r.id_cita) created += 1;
+    }
+
+    return res.status(201).json({ ok: true, created });
+  } catch (err) {
+    console.error('Error al clonar día:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 const deleteCalendar = async (req, res) => {
   try {
     const id = Number(req.params?.id);
@@ -902,7 +976,8 @@ module.exports = {
   updateCalendar,
   listCalendar,
   deleteCalendar,
-  getLimits
+  getLimits,
+  cloneDay
 };
 
 

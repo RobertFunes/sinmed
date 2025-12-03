@@ -226,12 +226,6 @@ const mapInspectionFromSource = (ef = {}) => {
     .filter(Boolean);
 };
 
-const normalize = (text) =>
-  String(text ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-
 const mapPatologicoLabel = (value) => {
   const raw = String(value ?? '');
   const norm = normalize(raw);
