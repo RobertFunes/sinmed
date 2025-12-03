@@ -256,6 +256,7 @@ const modify = async (req, res) => {
         laboratorios: clean(entry?.laboratorios),
         presion: clean(entry?.presion),
         glucosa: clean(entry?.glucosa),
+        pam: clean(entry?.pam),
       };
       const interrogatorio = Array.isArray(entry?.interrogatorio_aparatos)
         ? entry.interrogatorio_aparatos

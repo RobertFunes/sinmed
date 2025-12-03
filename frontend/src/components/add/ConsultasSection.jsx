@@ -150,17 +150,29 @@ const ConsultasSection = ({
           placeholder="Especifica el diagnóstico"
         />
       </FieldGroup>
-      <FieldGroup>
-        <Label htmlFor="consulta_medicamentos"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos</Label>
-        <TextArea
-          id="consulta_medicamentos"
-          name="medicamentos"
-          value={formData.medicamentos}
-          onChange={handleChange}
-          rows={3}
-          placeholder="Medicamentos actuales o recetados"
-        />
-      </FieldGroup>
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="consulta_medicamentos"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos</Label>
+          <TextArea
+            id="consulta_medicamentos"
+            name="medicamentos"
+            value={formData.medicamentos}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Medicamentos actuales o recetados"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="consulta_pam">PAM</Label>
+          <Input
+            id="consulta_pam"
+            name="consulta_pam"
+            value={formData.consulta_pam}
+            onChange={handleChange}
+            placeholder="Calculada o manual"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
       <FieldGroup>
         <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
         <TextArea
@@ -217,16 +229,6 @@ const ConsultasSection = ({
           />
         </FieldGroup>
       </TwoColumnRow>
-      <FieldGroup>
-        <Label htmlFor="consulta_pam">PAM</Label>
-        <Input
-          id="consulta_pam"
-          name="consulta_pam"
-          value={formData.consulta_pam}
-          onChange={handleChange}
-          placeholder="Calculada o manual"
-        />
-      </FieldGroup>
       <FieldGroup>
         <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
         <TextArea

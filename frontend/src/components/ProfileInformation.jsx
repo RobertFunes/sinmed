@@ -289,10 +289,11 @@ const buildConsultas = (data = {}) => {
         laboratorios: toStr(row?.laboratorios),
         presion: toStr(row?.presion),
         glucosa: toStr(row?.glucosa),
+        pam: toStr(row?.pam),
         interrogatorio: mapSistemasFromSource(row),
       };
       const hasData =
-        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa']
+        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
           .some((key) => present(base[key])) || present(base.interrogatorio);
       return hasData ? base : null;
     })
@@ -317,10 +318,11 @@ const buildConsultas = (data = {}) => {
       laboratorios: toStr(fallbackSource.laboratorios),
       presion: toStr(fallbackSource.presion),
       glucosa: toStr(fallbackSource.glucosa),
+      pam: toStr(fallbackSource.pam),
       interrogatorio: mapSistemasFromSource(fallbackSource),
     };
     const hasData =
-      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa']
+      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
         .some((key) => present(fallback[key])) || present(fallback.interrogatorio);
     if (hasData) consultas.push(fallback);
   }
@@ -827,6 +829,22 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                           onEditProfile({
                             section: 'consultas',
                             field: 'presion',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
+                  icon={<FaHeart />}
+                  label="PAM:"
+                  value={consulta.pam}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'pam',
                             id_consulta: consulta.id_consulta,
                             index: idx,
                           })

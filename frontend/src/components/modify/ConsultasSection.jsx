@@ -340,19 +340,31 @@ const ConsultasSection = ({
                   ref={registerFieldRef(uid, 'diagnostico')}
                 />
               </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor={`${diagnosticoId}_meds`}>
-                  <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos
-                </Label>
-                <TextArea
-                  id={`${diagnosticoId}_meds`}
-                  value={consulta.medicamentos || ''}
-                  onChange={handleConsultaFieldChange(uid, 'medicamentos')}
-                  rows={2}
-                  placeholder="Medicamentos actuales o prescritos"
-                  ref={registerFieldRef(uid, 'medicamentos')}
-                />
-              </FieldGroup>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={`${diagnosticoId}_meds`}>
+                    <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos
+                  </Label>
+                  <TextArea
+                    id={`${diagnosticoId}_meds`}
+                    value={consulta.medicamentos || ''}
+                    onChange={handleConsultaFieldChange(uid, 'medicamentos')}
+                    rows={2}
+                    placeholder="Medicamentos actuales o prescritos"
+                    ref={registerFieldRef(uid, 'medicamentos')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={pamId}>PAM</Label>
+                  <Input
+                    id={pamId}
+                    value={consulta.pam || ''}
+                    onChange={handleConsultaFieldChange(uid, 'pam')}
+                    placeholder="Calculada o manual"
+                    ref={registerFieldRef(uid, 'pam')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
               <FieldGroup>
                 <Label htmlFor={tratamientoId}>
                   <FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento
@@ -411,16 +423,6 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
               </TwoColumnRow>
-              <FieldGroup>
-                <Label htmlFor={pamId}>PAM</Label>
-                <Input
-                  id={pamId}
-                  value={consulta.pam || ''}
-                  onChange={handleConsultaFieldChange(uid, 'pam')}
-                  placeholder="Calculada o manual"
-                  ref={registerFieldRef(uid, 'pam')}
-                />
-              </FieldGroup>
               {displayNumber < 2 && (
                 <FieldGroup>
                   <Label htmlFor={notasId}>
