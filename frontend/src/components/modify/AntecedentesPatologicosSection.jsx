@@ -24,6 +24,14 @@ const normalize = (text) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 
+const mapPatologicoLabel = (value) => {
+  const raw = String(value ?? '');
+  const norm = normalize(raw);
+  if (norm === 'psiquiatrico') return 'Psicoemocional';
+  if (norm === 'reumatologico') return 'Musculoesqueletico';
+  return raw;
+};
+
 const AntecedentesPatologicosSection = ({
   formData,
   nuevoPatologico,
@@ -74,26 +82,32 @@ const AntecedentesPatologicosSection = ({
         <ListContainer>
           {formData.antecedentes_personales_patologicos.map((p, idx) => (
             <ItemCard key={idx}>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label>
-                    <FaFileMedical style={{ marginRight: '0.5rem' }} />Antecedente
-                  </Label>
-                  <Input value={p.antecedente} disabled />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>{`Descripción de antecedente: ${p.antecedente.toLowerCase()}`}</Label>
-                  <TextArea
-                    value={p.descripcion}
-                    onChange={(e) => updatePatologicoDesc(idx, e.target.value)}
-                    rows={3}
-                    placeholder={`Detalle de ${p.antecedente.toLowerCase()}`}
-                    ref={(el) => {
-                      descRefs.current[idx] = el;
-                    }}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
+              {(() => {
+                const displayName = mapPatologicoLabel(p.antecedente);
+                const lower = displayName.toLowerCase();
+                return (
+                  <TwoColumnRow>
+                    <FieldGroup>
+                      <Label>
+                        <FaFileMedical style={{ marginRight: '0.5rem' }} />Antecedente
+                      </Label>
+                      <Input value={displayName} disabled />
+                    </FieldGroup>
+                    <FieldGroup>
+                      <Label>{`Descripción de antecedente: ${lower}`}</Label>
+                      <TextArea
+                        value={p.descripcion}
+                        onChange={(e) => updatePatologicoDesc(idx, e.target.value)}
+                        rows={3}
+                        placeholder={`Detalle de ${lower}`}
+                        ref={(el) => {
+                          descRefs.current[idx] = el;
+                        }}
+                      />
+                    </FieldGroup>
+                  </TwoColumnRow>
+                );
+              })()}
               <ItemActions>
                 <DangerButton type="button" onClick={() => requestDeletePatologico(idx)}>
                   <FaTrash />
@@ -117,7 +131,7 @@ const AntecedentesPatologicosSection = ({
               (opt) => !formData.antecedentes_personales_patologicos.some((p) => normalize(p.antecedente) === normalize(opt)),
             ).map((opt) => (
               <option key={opt} value={opt}>
-                {opt}
+                {mapPatologicoLabel(opt)}
               </option>
             ))}
           </Select>

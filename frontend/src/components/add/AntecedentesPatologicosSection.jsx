@@ -18,6 +18,20 @@ import {
 import { PATOLOGICOS_OPCIONES } from '../../helpers/add/catalogos';
 import ConfirmModal from '../ConfirmModal';
 
+const normalize = (text) =>
+  String(text ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+const mapPatologicoLabel = (value) => {
+  const raw = String(value ?? '');
+  const norm = normalize(raw);
+  if (norm === 'psiquiatrico') return 'Psicoemocional';
+  if (norm === 'reumatologico') return 'Musculoesqueletico';
+  return raw;
+};
+
 const AntecedentesPatologicosSection = ({
   formData,
   nuevoPatologico,
@@ -48,23 +62,29 @@ const AntecedentesPatologicosSection = ({
         <ListContainer>
           {formData.antecedentes_personales_patologicos.map((p, idx) => (
             <ItemCard key={idx}>
+              {(() => {
+                const displayName = mapPatologicoLabel(p.antecedente);
+                const lower = displayName.toLowerCase();
+                return (
               <TwoColumnRow>
                 <FieldGroup>
                   <Label>
                     <FaFileMedical style={{ marginRight: '0.5rem' }} />Antecedente
                   </Label>
-                  <Input value={p.antecedente} disabled />
+                  <Input value={displayName} disabled />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label>{`Descripción de antecedente: ${p.antecedente.toLowerCase()}`}</Label>
+                  <Label>{`Descripción de antecedente: ${lower}`}</Label>
                   <TextArea
                     value={p.descripcion}
                     onChange={(e) => updatePatologicoDesc(idx, e.target.value)}
                     rows={3}
-                    placeholder={`Detalle de ${p.antecedente.toLowerCase()}`}
+                    placeholder={`Detalle de ${lower}`}
                   />
                 </FieldGroup>
               </TwoColumnRow>
+                );
+              })()}
               <ItemActions>
                 <DangerButton type="button" onClick={() => requestDeletePatologico(idx)}>
                   <FaTrash />
@@ -89,7 +109,7 @@ const AntecedentesPatologicosSection = ({
               (opt) => !formData.antecedentes_personales_patologicos.some((p) => p.antecedente === opt),
             ).map((opt) => (
               <option key={opt} value={opt}>
-                {opt}
+                {mapPatologicoLabel(opt)}
               </option>
             ))}
           </Select>

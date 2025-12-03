@@ -226,6 +226,20 @@ const mapInspectionFromSource = (ef = {}) => {
     .filter(Boolean);
 };
 
+const normalize = (text) =>
+  String(text ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+const mapPatologicoLabel = (value) => {
+  const raw = String(value ?? '');
+  const norm = normalize(raw);
+  if (norm === 'psiquiatrico') return 'Psicoemocional';
+  if (norm === 'reumatologico') return 'Musculoesqueletico';
+  return raw;
+};
+
 const buildHabitos = (ap = {}) => {
   const habitos = [];
 
@@ -633,12 +647,16 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   ].filter((row) => present(row.value));
 
   const patologicos = toArr(data.antecedentes_personales_patologicos)
-    .map((item, idx) => ({
-      id: item?.id || `app-${idx}`,
-      antecedente: toStr(item?.antecedente),
-      descripcion: toStr(item?.descripcion),
-      index: idx,
-    }))
+    .map((item, idx) => {
+      const antecedenteRaw = toStr(item?.antecedente);
+      return {
+        id: item?.id || `app-${idx}`,
+        antecedente: antecedenteRaw,
+        antecedente_display: mapPatologicoLabel(antecedenteRaw),
+        descripcion: toStr(item?.descripcion),
+        index: idx,
+      };
+    })
     .filter((item) => present(item.antecedente) || present(item.descripcion));
 
   const { consultas, pronostico } = buildConsultas(data);
@@ -1128,7 +1146,7 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                 <Row
                   icon={<FaFileMedical />}
                   label="Antecedente:"
-                  value={item.antecedente}
+                  value={item.antecedente_display}
                   onClick={
                     onEditProfile
                       ? () =>
