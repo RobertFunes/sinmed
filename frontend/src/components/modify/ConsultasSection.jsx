@@ -234,6 +234,10 @@ const ConsultasSection = ({
         const diagnosticoId = `diagnostico_${uid}`;
         const tratamientoId = `tratamiento_${uid}`;
         const notasId = `notas_${uid}`;
+        const aguaId = `agua_${uid}`;
+        const laboratoriosId = `laboratorios_${uid}`;
+        const presionId = `presion_${uid}`;
+        const glucosaId = `glucosa_${uid}`;
         const selectId = `select_sistema_${uid}`;
         const sistemasSeleccionados = toArr(consulta.interrogatorio_aparatos);
         const opcionesDisponibles = SISTEMAS_OPCIONES.filter((opt) => !sistemasSeleccionados.some((s) => normalize(s.nombre) === normalize(opt)));
@@ -361,6 +365,51 @@ const ConsultasSection = ({
                   ref={registerFieldRef(uid, 'tratamiento')}
                 />
               </FieldGroup>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={aguaId}>Agua</Label>
+                  <Input
+                    id={aguaId}
+                    value={consulta.agua || ''}
+                    onChange={handleConsultaFieldChange(uid, 'agua')}
+                    placeholder="Indica consumo o indicaciones de agua"
+                    ref={registerFieldRef(uid, 'agua')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={laboratoriosId}>Laboratorios</Label>
+                  <TextArea
+                    id={laboratoriosId}
+                    value={consulta.laboratorios || ''}
+                    onChange={handleConsultaFieldChange(uid, 'laboratorios')}
+                    rows={2}
+                    placeholder="Resultados o indicaciones de laboratorio"
+                    ref={registerFieldRef(uid, 'laboratorios')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={presionId}>Presión</Label>
+                  <Input
+                    id={presionId}
+                    value={consulta.presion || ''}
+                    onChange={handleConsultaFieldChange(uid, 'presion')}
+                    placeholder="Ej. 120/80 mmHg"
+                    ref={registerFieldRef(uid, 'presion')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={glucosaId}>Glucosa</Label>
+                  <Input
+                    id={glucosaId}
+                    value={consulta.glucosa || ''}
+                    onChange={handleConsultaFieldChange(uid, 'glucosa')}
+                    placeholder="Ej. 90 mg/dL"
+                    ref={registerFieldRef(uid, 'glucosa')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
               {displayNumber < 2 && (
                 <FieldGroup>
                   <Label htmlFor={notasId}>

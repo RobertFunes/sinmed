@@ -252,6 +252,10 @@ const modify = async (req, res) => {
         notas: clean(entry?.notas),
         notas_evolucion: clean(entry?.notas_evolucion),
         oreja: clean(entry?.oreja),
+        agua: clean(entry?.agua),
+        laboratorios: clean(entry?.laboratorios),
+        presion: clean(entry?.presion),
+        glucosa: clean(entry?.glucosa),
       };
       const interrogatorio = Array.isArray(entry?.interrogatorio_aparatos)
         ? entry.interrogatorio_aparatos

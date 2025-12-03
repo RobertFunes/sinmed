@@ -146,6 +146,11 @@ const createEmptyConsulta = () => ({
   tratamiento: '',
   notas: '',
   notas_evolucion: '',
+  oreja: '',
+  agua: '',
+  laboratorios: '',
+  presion: '',
+  glucosa: '',
   interrogatorio_aparatos: [],
   personalizados: [],
 });
@@ -721,6 +726,11 @@ const Modify = () => {
       medicamentos: last.medicamentos || '',
       tratamiento: last.tratamiento || '',
       notas: last.notas || '',
+      oreja: last.oreja || '',
+      agua: last.agua || '',
+      laboratorios: last.laboratorios || '',
+      presion: last.presion || '',
+      glucosa: last.glucosa || '',
       interrogatorio_aparatos: toArr(last.interrogatorio_aparatos),
     };
   };
@@ -750,6 +760,10 @@ const Modify = () => {
         nueva.medicamentos = toStr(previous.medicamentos);
         nueva.tratamiento = toStr(previous.tratamiento);
         nueva.oreja = toStr(previous.oreja);
+        nueva.agua = toStr(previous.agua);
+        nueva.laboratorios = toStr(previous.laboratorios);
+        nueva.presion = toStr(previous.presion);
+        nueva.glucosa = toStr(previous.glucosa);
         // Nota anterior: en la 2ª consulta copia "notas" de la 1ª;
         // a partir de la 3ª copia "notas_evolucion" de la consulta previa
         if (totalExisting === 1) {

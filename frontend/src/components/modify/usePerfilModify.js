@@ -265,6 +265,10 @@ const mapApiToForm = (api) => {
     notas: toStr(row?.notas),
     notas_evolucion: toStr(row?.notas_evolucion),
     oreja: toStr(row?.oreja),
+    agua: toStr(row?.agua),
+    laboratorios: toStr(row?.laboratorios),
+    presion: toStr(row?.presion),
+    glucosa: toStr(row?.glucosa),
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),
@@ -285,12 +289,16 @@ const mapApiToForm = (api) => {
       {
         uid: generateConsultaUid(),
         fecha_consulta: toStr(fallbackSource.fecha_consulta),
-      recordatorio: toStr(fallbackSource.recordatorio),
-      padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
-      diagnostico: toStr(fallbackSource.diagnostico),
-      medicamentos: toStr(fallbackSource.medicamentos),
-      tratamiento: toStr(fallbackSource.tratamiento),
-      notas: toStr(fallbackSource.notas),
+        recordatorio: toStr(fallbackSource.recordatorio),
+        padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
+        diagnostico: toStr(fallbackSource.diagnostico),
+        medicamentos: toStr(fallbackSource.medicamentos),
+        tratamiento: toStr(fallbackSource.tratamiento),
+        notas: toStr(fallbackSource.notas),
+        agua: toStr(fallbackSource.agua),
+        laboratorios: toStr(fallbackSource.laboratorios),
+        presion: toStr(fallbackSource.presion),
+        glucosa: toStr(fallbackSource.glucosa),
         interrogatorio_aparatos: mapSistemasFromSource(fallbackSource).map((item) => ({
           nombre: toStr(item?.nombre),
           descripcion: toStr(item?.descripcion),
@@ -331,6 +339,10 @@ const mapApiToForm = (api) => {
     if (!toStr(lastConsulta.tratamiento).trim()) assignIf('tratamiento', dt && dt.tratamiento);
     assignIf('notas', lastConsulta.notas);
     if (!toStr(lastConsulta.notas).trim()) assignIf('notas', dt && dt.notas);
+    assignIf('agua', lastConsulta.agua);
+    assignIf('laboratorios', lastConsulta.laboratorios);
+    assignIf('presion', lastConsulta.presion);
+    assignIf('glucosa', lastConsulta.glucosa);
     next.interrogatorio_aparatos = toArr(lastConsulta.interrogatorio_aparatos);
   } else {
     assignIf('fecha_consulta', legacy && legacy.fecha_consulta);
@@ -340,6 +352,10 @@ const mapApiToForm = (api) => {
     assignIf('medicamentos', legacy && legacy.medicamentos);
     assignIf('tratamiento', dt && dt.tratamiento);
     assignIf('notas', dt && dt.notas);
+    assignIf('agua', legacy && legacy.agua);
+    assignIf('laboratorios', legacy && legacy.laboratorios);
+    assignIf('presion', legacy && legacy.presion);
+    assignIf('glucosa', legacy && legacy.glucosa);
     next.interrogatorio_aparatos = mapSistemasFromSource({ ...(legacy || {}), ...(dt || {}) });
   }
 
