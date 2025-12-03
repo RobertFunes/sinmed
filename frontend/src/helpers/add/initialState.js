@@ -43,6 +43,11 @@ export const initialState = {
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
   personalizados: [],          // [{ nombre: string, descripcion: string }]
   oreja: '',                   // 'izquierda' | 'derecha' | ''
+  // Campos adicionales de la consulta
+  agua: '',                    // consumo de agua / indicaciones
+  laboratorios: '',            // estudios de laboratorio
+  presion: '',                 // presión arterial (anotaciones)
+  glucosa: '',                 // glucosa (anotaciones)
   calidad: '',
   alimentos_que_le_caen_mal: '',
   componentes_habituales_dieta: '',

@@ -172,6 +172,51 @@ const ConsultasSection = ({
           placeholder="Describe el plan de tratamiento"
         />
       </FieldGroup>
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="consulta_agua">Agua</Label>
+          <Input
+            id="consulta_agua"
+            name="agua"
+            value={formData.agua}
+            onChange={handleChange}
+            placeholder="Indica consumo o indicaciones de agua"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="consulta_laboratorios">Laboratorios</Label>
+          <TextArea
+            id="consulta_laboratorios"
+            name="laboratorios"
+            value={formData.laboratorios}
+            onChange={handleChange}
+            rows={2}
+            placeholder="Resultados o indicaciones de laboratorio"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="consulta_presion">Presión</Label>
+          <Input
+            id="consulta_presion"
+            name="presion"
+            value={formData.presion}
+            onChange={handleChange}
+            placeholder="Ej. 120/80 mmHg"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="consulta_glucosa">Glucosa</Label>
+          <Input
+            id="consulta_glucosa"
+            name="glucosa"
+            value={formData.glucosa}
+            onChange={handleChange}
+            placeholder="Ej. 90 mg/dL"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
       <FieldGroup>
         <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
         <TextArea
