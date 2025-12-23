@@ -61,16 +61,16 @@ const parseDateValue = (value) => {
 };
 
 const extractNumericId = (entry) => {
-  const raw = entry?.id ?? entry?.uid;
+  const raw = entry?.id_consulta ?? entry?.id ?? entry?.uid;
   if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
   const str = String(raw ?? '').trim();
   if (!str) return Number.NaN;
   const matches = str.match(/\d+/g);
   if (!matches || matches.length === 0) return Number.NaN;
-  // Prefer the last numeric group (e.g., incremental id or timestamp)
-  const last = matches[matches.length - 1];
-  const num = parseInt(last, 10);
-  return Number.isFinite(num) ? num : Number.NaN;
+  // Prefer the largest numeric group (usually timestamp or incremental id)
+  const nums = matches.map((value) => parseInt(value, 10)).filter(Number.isFinite);
+  if (nums.length === 0) return Number.NaN;
+  return Math.max(...nums);
 };
 
 const sortConsultasAsc = (entries = []) => {
@@ -766,11 +766,11 @@ const Modify = () => {
         nueva.laboratorios = toStr(previous.laboratorios);
         nueva.presion = toStr(previous.presion);
         nueva.glucosa = toStr(previous.glucosa);
-        // Nota anterior: en la 2ª consulta copia "notas" de la 1ª;
-        // a partir de la 3ª copia "notas_evolucion" de la consulta previa
+        // En la 2ª consulta copia "notas" de la 1ª;
+        // a partir de la 3ª, "notas" toma la evolución anterior
         if (totalExisting === 1) {
           nueva.notas = toStr(previous.notas);
-        } else if (totalExisting >= 2) {
+        } else {
           nueva.notas = toStr(previous.notas_evolucion);
         }
         nueva.interrogatorio_aparatos = deepClone(toArr(previous.interrogatorio_aparatos));

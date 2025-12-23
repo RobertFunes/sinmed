@@ -16,15 +16,15 @@ const parseDateValue = (value) => {
   return Number.isNaN(parsed) ? Number.NaN : parsed;
 };
 const extractNumericId = (entry) => {
-  const raw = entry?.id ?? entry?.uid;
+  const raw = entry?.id_consulta ?? entry?.id ?? entry?.uid;
   if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
   const str = String(raw ?? '').trim();
   if (!str) return Number.NaN;
   const matches = str.match(/\d+/g);
   if (!matches || matches.length === 0) return Number.NaN;
-  const last = matches[matches.length - 1];
-  const num = parseInt(last, 10);
-  return Number.isFinite(num) ? num : Number.NaN;
+  const nums = matches.map((value) => parseInt(value, 10)).filter(Number.isFinite);
+  if (nums.length === 0) return Number.NaN;
+  return Math.max(...nums);
 };
 const sortConsultasAsc = (entries = []) => {
   const decorated = entries.map((item, index) => ({ item, index }));
@@ -38,7 +38,7 @@ const sortConsultasAsc = (entries = []) => {
     const idb = extractNumericId(b.item);
     const aHasId = Number.isFinite(ida);
     const bHasId = Number.isFinite(idb);
-    if (aHasId && bHasId && ida !== idb) return idb - ida;
+    if (aHasId && bHasId && ida !== idb) return ida - idb;
     if (aHasDate !== bHasDate) return aHasDate ? -1 : 1;
     return a.index - b.index;
   });
