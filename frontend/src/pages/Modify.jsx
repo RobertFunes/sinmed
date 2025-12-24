@@ -797,11 +797,19 @@ const Modify = () => {
   };
 
   const computePamFromPresion = (str) => {
-    const pStr = (str || '').trim();
-    const match = pStr.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
-    if (!match) return '';
-    const sist = parseFloat(match[1]);
-    const diast = parseFloat(match[2]);
+    const pStr = String(str ?? '').trim();
+    const slashIndex = pStr.indexOf('/');
+    if (slashIndex < 0) return '';
+
+    const leftPart = pStr.slice(0, slashIndex);
+    const rightPart = pStr.slice(slashIndex + 1);
+
+    const leftMatches = leftPart.match(/\d+(?:\.\d+)?/g) || [];
+    const rightMatches = rightPart.match(/\d+(?:\.\d+)?/g) || [];
+    if (leftMatches.length === 0 || rightMatches.length === 0) return '';
+
+    const sist = parseFloat(leftMatches[leftMatches.length - 1]); // último número antes del slash
+    const diast = parseFloat(rightMatches[0]); // primer número después del slash
     if (!Number.isFinite(sist) || !Number.isFinite(diast)) return '';
     const pam = ((sist - diast) / 3) + diast;
     return Number.isFinite(pam) ? pam.toFixed(2) : '';

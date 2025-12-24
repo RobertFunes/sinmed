@@ -115,6 +115,14 @@ const normalize = (text) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 
+const displaySistemaLabel = (name) => {
+  const raw = toStr(name);
+  const norm = normalize(raw);
+  if (norm === 'psiquiatrico') return 'Psicoemocional';
+  if (norm === 'reumatologico' || norm === 'reumatologo') return 'Musculoesquelético';
+  return raw;
+};
+
 const findMatchingLabel = (options, needle, fallback) => {
   const normalizedNeedle = normalize(needle);
   const exact = options.find((opt) => normalize(opt) === normalizedNeedle);
@@ -183,7 +191,7 @@ const sortConsultasDesc = (entries = []) => {
 const mapSistemasFromSource = (source = {}) => {
   const direct = toArr(source?.interrogatorio_aparatos)
     .map((item) => {
-      const nombre = toStr(item?.nombre);
+      const nombre = displaySistemaLabel(toStr(item?.nombre));
       const descripcion = toStr(item?.descripcion);
       const estado = toStr(item?.estado);
       if (!present(nombre) && !present(descripcion) && !present(estado)) return null;
@@ -195,7 +203,7 @@ const mapSistemasFromSource = (source = {}) => {
 
   return SISTEMA_FIELD_MAPPINGS
     .map(({ needle, descKeys, estadoKey }) => {
-      const label = findMatchingLabel(SISTEMAS_OPCIONES, needle, needle);
+      const label = displaySistemaLabel(findMatchingLabel(SISTEMAS_OPCIONES, needle, needle));
       const descripcion = toArr(descKeys)
         .map((key) => toStr(source?.[key]).trim())
         .find((value) => value.length > 0);
@@ -228,10 +236,7 @@ const mapInspectionFromSource = (ef = {}) => {
 
 const mapPatologicoLabel = (value) => {
   const raw = String(value ?? '');
-  const norm = normalize(raw);
-  if (norm === 'psiquiatrico') return 'Psicoemocional';
-  if (norm === 'reumatologico') return 'Musculoesqueletico';
-  return raw;
+  return displaySistemaLabel(raw);
 };
 
 const buildHabitos = (ap = {}) => {

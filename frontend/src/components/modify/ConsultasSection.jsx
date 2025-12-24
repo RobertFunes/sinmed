@@ -44,9 +44,10 @@ const NestedToolbar = styled.div`
   margin-left: 1rem;
 `;
 const InnerSummary = styled(Summary)`
-  background: #f7fbff;
-  border-left: 4px solid ${Palette.primary};
+  background: ${({ $isLatest }) => ($isLatest ? '#d32f2f' : '#f7fbff')};
+  border-left: 4px solid ${({ $isLatest }) => ($isLatest ? '#b71c1c' : Palette.primary)};
   border-radius: 4px;
+  color: ${({ $isLatest }) => ($isLatest ? '#fff' : Palette.primary)};
 `;
 
 const toStr = (value) => (value == null ? '' : String(value));
@@ -56,6 +57,12 @@ const normalize = (text) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
+
+const displaySistemaLabel = (name) => {
+  if (name === 'Psiquiátrico' || name === 'Psiquiatrico') return 'Psicoemocional';
+  if (name === 'Reumatológico' || name === 'Reumatologico' || name === 'Reumatólogo' || name === 'Reumatologo') return 'Musculoesquelético';
+  return name;
+};
 
 const ConsultasSection = ({
   isOpen,
@@ -151,7 +158,7 @@ const ConsultasSection = ({
   const modalText = (() => {
     if (!deleteTarget) return '';
     if (deleteTarget.type === 'sistema') {
-      const nombre = selectedSistema?.nombre || 'este sistema';
+      const nombre = displaySistemaLabel(selectedSistema?.nombre) || 'este sistema';
       return `Vas a eliminar el sistema "${nombre}". Esta acción no se puede deshacer.`;
     }
     if (deleteTarget.type === 'personalizado') {
@@ -232,6 +239,7 @@ const ConsultasSection = ({
         const totalConsultas = consultasOrdenadas.length;
         const displayNumber = Math.max(1, totalConsultas - idx);
         const titulo = `Consulta ${displayNumber}`;
+        const isLatestConsulta = idx === 0;
         const uid = consulta.uid || `consulta-${idx}`;
         const fechaId = `fecha_consulta_${uid}`;
         const recordatorioId = `recordatorio_${uid}`;
@@ -253,7 +261,7 @@ const ConsultasSection = ({
         return (
           <div key={uid} style={{ marginBottom: '2.5rem' }}>
             <NestedDetails open={openConsultaUid === uid} onToggle={handleToggleConsulta(uid)}>
-              <InnerSummary>{titulo}</InnerSummary>
+              <InnerSummary $isLatest={isLatestConsulta}>{titulo}</InnerSummary>
 
               <ItemActions style={{ justifyContent: 'flex-end' }}>
                 <DangerButton type="button" onClick={() => requestDeleteConsulta(uid)} disabled={isLoading}>
@@ -360,17 +368,17 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor={presionId}>
-                    <FaTachometerAlt style={{ marginRight: '0.5rem' }} />
-                    Presión
+                  <Label htmlFor={glucosaId}>
+                    <FaVial style={{ marginRight: '0.5rem' }} />
+                    Glucosa
                   </Label>
                   <TextArea
-                    id={presionId}
-                    value={consulta.presion || ''}
-                    onChange={handleConsultaFieldChange(uid, 'presion')}
+                    id={glucosaId}
+                    value={consulta.glucosa || ''}
+                    onChange={handleConsultaFieldChange(uid, 'glucosa')}
                     rows={3}
-                    placeholder="Ej. 120/80 mmHg"
-                    ref={registerFieldRef(uid, 'presion')}
+                    placeholder="Ej. 90 mg/dL"
+                    ref={registerFieldRef(uid, 'glucosa')}
                   />
                 </FieldGroup>
               </TwoColumnRow>
@@ -418,6 +426,20 @@ const ConsultasSection = ({
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
+                  <Label htmlFor={presionId}>
+                    <FaTachometerAlt style={{ marginRight: '0.5rem' }} />
+                    Presión
+                  </Label>
+                  <TextArea
+                    id={presionId}
+                    value={consulta.presion || ''}
+                    onChange={handleConsultaFieldChange(uid, 'presion')}
+                    rows={3}
+                    placeholder="Ej. 120/80 mmHg"
+                    ref={registerFieldRef(uid, 'presion')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
                   <Label htmlFor={pamId}>
                     <FaHeartbeat style={{ marginRight: '0.5rem' }} />
                     PAM
@@ -428,19 +450,6 @@ const ConsultasSection = ({
                     onChange={handleConsultaFieldChange(uid, 'pam')}
                     placeholder="Calculada o manual"
                     ref={registerFieldRef(uid, 'pam')}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor={glucosaId}>
-                    <FaVial style={{ marginRight: '0.5rem' }} />
-                    Glucosa
-                  </Label>
-                  <Input
-                    id={glucosaId}
-                    value={consulta.glucosa || ''}
-                    onChange={handleConsultaFieldChange(uid, 'glucosa')}
-                    placeholder="Ej. 90 mg/dL"
-                    ref={registerFieldRef(uid, 'glucosa')}
                   />
                 </FieldGroup>
               </TwoColumnRow>
@@ -503,7 +512,7 @@ const ConsultasSection = ({
                             <Label>
                               <FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema
                             </Label>
-                            <Input value={s.nombre} disabled />
+                            <Input value={displaySistemaLabel(s.nombre)} disabled />
                             {showEstadoChecklist && (
                               <FieldGroup>
                                 <Label>Seguimiento</Label>
@@ -523,12 +532,12 @@ const ConsultasSection = ({
                             )}
                           </FieldGroup>
                           <FieldGroup>
-                            <Label>{`Descripción de aparato ${s.nombre?.toLowerCase?.() || ''}`}</Label>
+                            <Label>{`Descripción de aparato ${displaySistemaLabel(s.nombre)?.toLowerCase?.() || ''}`}</Label>
                             <TextArea
                               value={s.descripcion}
                               onChange={(e) => handleActualizarSistemaDesc(uid, sistemaIdx, e.target.value)}
                               rows={3}
-                              placeholder={`Detalle de ${s.nombre?.toLowerCase?.() || ''}`}
+                              placeholder={`Detalle de ${displaySistemaLabel(s.nombre)?.toLowerCase?.() || ''}`}
                               ref={registerFieldRef(uid, `interrogatorio_desc_${sistemaIdx}`)}
                             />
                           </FieldGroup>
@@ -552,7 +561,7 @@ const ConsultasSection = ({
                     <option value="">-- Selecciona --</option>
                     {opcionesDisponibles.map((opt) => (
                       <option key={opt} value={opt}>
-                        {opt}
+                        {displaySistemaLabel(opt)}
                       </option>
                     ))}
                   </Select>

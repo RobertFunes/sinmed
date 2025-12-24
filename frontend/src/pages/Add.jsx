@@ -37,6 +37,26 @@ const Add = () => {
   const initialFormRef = useRef(null);
   const initialPayloadStringRef = useRef('');
 
+  const computePamFromPressure = useCallback((value) => {
+    const str = String(value ?? '').trim();
+    const slashIndex = str.indexOf('/');
+    if (slashIndex < 0) return '';
+
+    const leftPart = str.slice(0, slashIndex);
+    const rightPart = str.slice(slashIndex + 1);
+
+    const leftMatches = leftPart.match(/\d+(?:\.\d+)?/g) || [];
+    const rightMatches = rightPart.match(/\d+(?:\.\d+)?/g) || [];
+    if (leftMatches.length === 0 || rightMatches.length === 0) return '';
+
+    const sist = parseFloat(leftMatches[leftMatches.length - 1]);
+    const diast = parseFloat(rightMatches[0]);
+    if (!Number.isFinite(sist) || !Number.isFinite(diast)) return '';
+
+    const pam = ((sist - diast) / 3) + diast;
+    return Number.isFinite(pam) ? pam.toFixed(2) : '';
+  }, []);
+
   if (!initialFormRef.current) {
     const freshForm = buildInitialForm();
     initialFormRef.current = freshForm;
@@ -139,35 +159,15 @@ const Add = () => {
   }, [formData.peso_actual, formData.talla_cm]);
 
   useEffect(() => {
-    const taStr = (formData.ta_mmhg || '').trim();
-    const match = taStr.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
-    let pamValue = '';
-    if (match) {
-      const sist = parseFloat(match[1]);
-      const diast = parseFloat(match[2]);
-      if (Number.isFinite(sist) && Number.isFinite(diast)) {
-        const pam = ((sist - diast) / 3) + diast;
-        if (Number.isFinite(pam)) pamValue = pam.toFixed(2);
-      }
-    }
+    const pamValue = computePamFromPressure(formData.ta_mmhg);
     setFormData((prev) => (prev.pam === pamValue ? prev : { ...prev, pam: pamValue }));
-  }, [formData.ta_mmhg]);
+  }, [computePamFromPressure, formData.ta_mmhg]);
 
   useEffect(() => {
     if (consultaPamManualRef.current) return;
-    const pStr = (formData.presion || '').trim();
-    const match = pStr.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
-    let pamValue = '';
-    if (match) {
-      const sist = parseFloat(match[1]);
-      const diast = parseFloat(match[2]);
-      if (Number.isFinite(sist) && Number.isFinite(diast)) {
-        const pam = ((sist - diast) / 3) + diast;
-        if (Number.isFinite(pam)) pamValue = pam.toFixed(2);
-      }
-    }
+    const pamValue = computePamFromPressure(formData.presion);
     setFormData((prev) => (prev.consulta_pam === pamValue ? prev : { ...prev, consulta_pam: pamValue }));
-  }, [formData.presion]);
+  }, [computePamFromPressure, formData.presion]);
 
   const handleSubmit = async e => {
     e.preventDefault();
