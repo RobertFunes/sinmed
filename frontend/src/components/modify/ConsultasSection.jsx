@@ -28,6 +28,11 @@ import {
   FaStickyNote,
   FaCalendarDay,
   FaPills,
+  FaFlask,
+  FaHeartbeat,
+  FaTachometerAlt,
+  FaTint,
+  FaVial,
 } from 'react-icons/fa';
 import { EstadoChecklist, EstadoOptionLabel, EstadoCheckbox } from '../../pages/modify.styles';
 import ConfirmModal from '../ConfirmModal';
@@ -355,13 +360,17 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor={pamId}>PAM</Label>
-                  <Input
-                    id={pamId}
-                    value={consulta.pam || ''}
-                    onChange={handleConsultaFieldChange(uid, 'pam')}
-                    placeholder="Calculada o manual"
-                    ref={registerFieldRef(uid, 'pam')}
+                  <Label htmlFor={presionId}>
+                    <FaTachometerAlt style={{ marginRight: '0.5rem' }} />
+                    Presión
+                  </Label>
+                  <TextArea
+                    id={presionId}
+                    value={consulta.presion || ''}
+                    onChange={handleConsultaFieldChange(uid, 'presion')}
+                    rows={3}
+                    placeholder="Ej. 120/80 mmHg"
+                    ref={registerFieldRef(uid, 'presion')}
                   />
                 </FieldGroup>
               </TwoColumnRow>
@@ -380,7 +389,10 @@ const ConsultasSection = ({
               </FieldGroup>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor={aguaId}>Agua</Label>
+                  <Label htmlFor={aguaId}>
+                    <FaTint style={{ marginRight: '0.5rem' }} />
+                    Agua
+                  </Label>
                   <Input
                     id={aguaId}
                     value={consulta.agua || ''}
@@ -390,7 +402,10 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor={laboratoriosId}>Laboratorios</Label>
+                  <Label htmlFor={laboratoriosId}>
+                    <FaFlask style={{ marginRight: '0.5rem' }} />
+                    Laboratorios
+                  </Label>
                   <TextArea
                     id={laboratoriosId}
                     value={consulta.laboratorios || ''}
@@ -403,17 +418,23 @@ const ConsultasSection = ({
               </TwoColumnRow>
               <TwoColumnRow>
                 <FieldGroup>
-                  <Label htmlFor={presionId}>Presión</Label>
+                  <Label htmlFor={pamId}>
+                    <FaHeartbeat style={{ marginRight: '0.5rem' }} />
+                    PAM
+                  </Label>
                   <Input
-                    id={presionId}
-                    value={consulta.presion || ''}
-                    onChange={handleConsultaFieldChange(uid, 'presion')}
-                    placeholder="Ej. 120/80 mmHg"
-                    ref={registerFieldRef(uid, 'presion')}
+                    id={pamId}
+                    value={consulta.pam || ''}
+                    onChange={handleConsultaFieldChange(uid, 'pam')}
+                    placeholder="Calculada o manual"
+                    ref={registerFieldRef(uid, 'pam')}
                   />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label htmlFor={glucosaId}>Glucosa</Label>
+                  <Label htmlFor={glucosaId}>
+                    <FaVial style={{ marginRight: '0.5rem' }} />
+                    Glucosa
+                  </Label>
                   <Input
                     id={glucosaId}
                     value={consulta.glucosa || ''}

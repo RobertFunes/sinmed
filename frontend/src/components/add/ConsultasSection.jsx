@@ -28,8 +28,19 @@ import {
   FaDiagnoses,
   FaPrescriptionBottleAlt,
   FaStickyNote,
+  FaFlask,
+  FaHeartbeat,
+  FaTachometerAlt,
+  FaTint,
+  FaVial,
 } from 'react-icons/fa';
 import ConfirmModal from '../ConfirmModal';
+
+const displaySistemaLabel = (name) => {
+  if (name === 'Psiquiátrico' || name === 'Psiquiatrico') return 'Psicoemocional';
+  if (name === 'Reumatológico' || name === 'Reumatologico' || name === 'Reumatólogo' || name === 'Reumatologo') return 'Musculoesquelético';
+  return name;
+};
 
 const ConsultasSection = ({
   formData,
@@ -163,13 +174,17 @@ const ConsultasSection = ({
           />
         </FieldGroup>
         <FieldGroup>
-          <Label htmlFor="consulta_pam">PAM</Label>
-          <Input
-            id="consulta_pam"
-            name="consulta_pam"
-            value={formData.consulta_pam}
+          <Label htmlFor="consulta_glucosa">
+            <FaVial style={{ marginRight: '0.5rem' }} />
+            Glucosa
+          </Label>
+          <TextArea
+            id="consulta_glucosa"
+            name="glucosa"
+            value={formData.glucosa}
             onChange={handleChange}
-            placeholder="Calculada o manual"
+            rows={3}
+            placeholder="Ej. 90 mg/dL"
           />
         </FieldGroup>
       </TwoColumnRow>
@@ -186,7 +201,10 @@ const ConsultasSection = ({
       </FieldGroup>
       <TwoColumnRow>
         <FieldGroup>
-          <Label htmlFor="consulta_agua">Agua</Label>
+          <Label htmlFor="consulta_agua">
+            <FaTint style={{ marginRight: '0.5rem' }} />
+            Agua
+          </Label>
           <Input
             id="consulta_agua"
             name="agua"
@@ -196,7 +214,10 @@ const ConsultasSection = ({
           />
         </FieldGroup>
         <FieldGroup>
-          <Label htmlFor="consulta_laboratorios">Laboratorios</Label>
+          <Label htmlFor="consulta_laboratorios">
+            <FaFlask style={{ marginRight: '0.5rem' }} />
+            Laboratorios
+          </Label>
           <TextArea
             id="consulta_laboratorios"
             name="laboratorios"
@@ -209,23 +230,30 @@ const ConsultasSection = ({
       </TwoColumnRow>
       <TwoColumnRow>
         <FieldGroup>
-          <Label htmlFor="consulta_presion">Presión</Label>
-          <Input
+          <Label htmlFor="consulta_presion">
+            <FaTachometerAlt style={{ marginRight: '0.5rem' }} />
+            Presión
+          </Label>
+          <TextArea
             id="consulta_presion"
             name="presion"
             value={formData.presion}
             onChange={handleChange}
+            rows={3}
             placeholder="Ej. 120/80 mmHg"
           />
         </FieldGroup>
         <FieldGroup>
-          <Label htmlFor="consulta_glucosa">Glucosa</Label>
+          <Label htmlFor="consulta_pam">
+            <FaHeartbeat style={{ marginRight: '0.5rem' }} />
+            PAM
+          </Label>
           <Input
-            id="consulta_glucosa"
-            name="glucosa"
-            value={formData.glucosa}
+            id="consulta_pam"
+            name="consulta_pam"
+            value={formData.consulta_pam}
             onChange={handleChange}
-            placeholder="Ej. 90 mg/dL"
+            placeholder="Calculada o manual"
           />
         </FieldGroup>
       </TwoColumnRow>
@@ -243,16 +271,19 @@ const ConsultasSection = ({
       
       {formData.interrogatorio_aparatos.length > 0 && (
         <ListContainer>
-          {formData.interrogatorio_aparatos.map((s, idx) => (
+          {formData.interrogatorio_aparatos.map((s, idx) => {
+            const sistemaNombre = displaySistemaLabel(s.nombre);
+            const sistemaNombreLower = sistemaNombre.toLowerCase();
+            return (
             <ItemCard key={idx}>
               <TwoColumnRow>
                 <FieldGroup>
                   <Label><FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema</Label>
-                  <Input value={s.nombre} disabled />
+                  <Input value={sistemaNombre} disabled />
                 </FieldGroup>
                 <FieldGroup>
-                  <Label>{`Descripción de aparato ${s.nombre.toLowerCase()}`}</Label>
-                  <TextArea value={s.descripcion} onChange={(e) => updateSistemaDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${s.nombre.toLowerCase()}`} />
+                  <Label>{`Descripción de aparato ${sistemaNombreLower}`}</Label>
+                  <TextArea value={s.descripcion} onChange={(e) => updateSistemaDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${sistemaNombreLower}`} />
                 </FieldGroup>
               </TwoColumnRow>
               <ItemActions>
@@ -262,7 +293,8 @@ const ConsultasSection = ({
                 </DangerButton>
               </ItemActions>
             </ItemCard>
-          ))}
+          );
+        })}
         </ListContainer>
       )}
       <TwoColumnRow>
@@ -272,7 +304,7 @@ const ConsultasSection = ({
             <option value="">-- Selecciona --</option>
             {SISTEMAS_OPCIONES.filter((opt) => !formData.interrogatorio_aparatos.some((s) => s.nombre === opt)).map((opt) => (
               <option key={opt} value={opt}>
-                {opt}
+                {displaySistemaLabel(opt)}
               </option>
             ))}
           </Select>
