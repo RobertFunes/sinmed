@@ -764,10 +764,7 @@ const Modify = () => {
         nueva.medicamentos = toStr(previous.medicamentos);
         nueva.tratamiento = toStr(previous.tratamiento);
         nueva.oreja = toStr(previous.oreja);
-        nueva.agua = toStr(previous.agua);
         nueva.laboratorios = toStr(previous.laboratorios);
-        nueva.presion = toStr(previous.presion);
-        nueva.glucosa = toStr(previous.glucosa);
         // En la 2ª consulta copia "notas" de la 1ª;
         // a partir de la 3ª, "notas" toma la evolución anterior
         if (totalExisting === 1) {
