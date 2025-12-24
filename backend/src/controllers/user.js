@@ -781,6 +781,7 @@ const add = async (req, res) => {
     const consPayload = {
       fecha_consulta: clean(toYMD(consRaw.fecha_consulta)),
       recordatorio: clean(toYMD(consRaw.recordatorio)),
+      fum: clean(norm(consRaw.fum)),
       padecimiento_actual: clean(consRaw.padecimiento_actual),
       diagnostico: clean(consRaw.diagnostico),
       medicamentos: clean(consRaw.medicamentos),

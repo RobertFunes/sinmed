@@ -291,6 +291,7 @@ const buildConsultas = (data = {}) => {
         id_consulta: row?.id_consulta,
         fecha_consulta: formatDate(row?.fecha_consulta),
         recordatorio: formatDate(row?.recordatorio),
+        fum: toStr(row?.fum),
         padecimiento_actual: toStr(row?.padecimiento_actual),
         diagnostico: toStr(row?.diagnostico),
         medicamentos: toStr(row?.medicamentos),
@@ -306,7 +307,7 @@ const buildConsultas = (data = {}) => {
         interrogatorio: mapSistemasFromSource(row),
       };
       const hasData =
-        ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
+        ['fecha_consulta', 'recordatorio', 'fum', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
           .some((key) => present(base[key])) || present(base.interrogatorio);
       return hasData ? base : null;
     })
@@ -322,6 +323,7 @@ const buildConsultas = (data = {}) => {
       id: 'consulta-legacy',
       fecha_consulta: formatDate(fallbackSource.fecha_consulta),
       recordatorio: formatDate(fallbackSource.recordatorio),
+      fum: toStr(fallbackSource.fum),
       padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
       diagnostico: toStr(fallbackSource.diagnostico),
       medicamentos: toStr(fallbackSource.medicamentos),
@@ -335,7 +337,7 @@ const buildConsultas = (data = {}) => {
       interrogatorio: mapSistemasFromSource(fallbackSource),
     };
     const hasData =
-      ['fecha_consulta', 'recordatorio', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
+      ['fecha_consulta', 'recordatorio', 'fum', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
         .some((key) => present(fallback[key])) || present(fallback.interrogatorio);
     if (hasData) consultas.push(fallback);
   }
@@ -725,6 +727,22 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                   }
                 />
                 <Row
+                  icon={<FaClipboardCheck />}
+                  label="Oreja:"
+                  value={consulta.oreja}
+                  onClick={
+                    onEditProfile
+                      ? () =>
+                          onEditProfile({
+                            section: 'consultas',
+                            field: 'oreja',
+                            id_consulta: consulta.id_consulta,
+                            index: idx,
+                          })
+                      : undefined
+                  }
+                />
+                <Row
                   icon={<FaBell />}
                   label="Recordatorio:"
                   value={consulta.recordatorio}
@@ -739,6 +757,11 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                           })
                       : undefined
                   }
+                />
+                <Row
+                  icon={<FaCalendarAlt />}
+                  label="FUM:"
+                  value={consulta.fum}
                 />
                 <Row
                   icon={<FaNotesMedical />}
@@ -878,22 +901,6 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                           onEditProfile({
                             section: 'consultas',
                             field: 'glucosa',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaClipboardCheck />}
-                  label="Oreja:"
-                  value={consulta.oreja}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'oreja',
                             id_consulta: consulta.id_consulta,
                             index: idx,
                           })

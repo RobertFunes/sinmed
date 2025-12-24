@@ -20,6 +20,7 @@ import {
 } from '../../pages/Add.styles';
 import {
   FaCalendarDay,
+  FaCalendarAlt,
   FaBell,
   FaNotesMedical,
   FaPlusCircle,
@@ -59,6 +60,7 @@ const ConsultasSection = ({
   toggleAlergico,
 }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const isMujer = (formData.genero || '').trim() === 'Mujer';
 
   const selectedItem = (() => {
     if (!deleteTarget) return null;
@@ -296,6 +298,22 @@ const ConsultasSection = ({
           );
         })}
         </ListContainer>
+      )}
+      {isMujer && (
+        <FieldGroup>
+          <Label htmlFor="consulta_fum">
+            <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
+            FUM
+          </Label>
+          <Input
+            type="text"
+            id="consulta_fum"
+            name="fum"
+            value={formData.fum || ''}
+            onChange={handleChange}
+            placeholder="Escribe la FUM"
+          />
+        </FieldGroup>
       )}
       <TwoColumnRow>
         <FieldGroup>
