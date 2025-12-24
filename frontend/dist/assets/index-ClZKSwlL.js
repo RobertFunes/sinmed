@@ -114,7 +114,7 @@ Please change the parent <Route path="${E}"> to <Route path="${E==="/"?"*":`${E}
     opacity: 0.5;
     cursor: not-allowed;
   }
-`,wr="http://192.168.0.105:5003",ge={primary:"#541212",secondary:"#4F959D",accent:"#4FB7B3",dark:"#205781",text:"#000000",title:"#415E72",muted:"#4F959D",background:"#FFFFFF",border:"#415E72"},tN=xe.div`
+`,wr="",ge={primary:"#541212",secondary:"#4F959D",accent:"#4FB7B3",dark:"#205781",text:"#000000",title:"#415E72",muted:"#4F959D",background:"#FFFFFF",border:"#415E72"},tN=xe.div`
   background: ${ge.background};
   border-radius: 12px;
   padding: 16px 20px;
