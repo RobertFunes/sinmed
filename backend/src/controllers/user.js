@@ -241,15 +241,16 @@ const modify = async (req, res) => {
     };
 
     // Construye pares { row, pers } por cada entrada cruda
-    const consPairs = consRaw.map((entry) => {
-      const row = {
-        fecha_consulta: clean(toYMD(entry?.fecha_consulta)),
-        recordatorio: clean(toYMD(entry?.recordatorio)),
-        padecimiento_actual: clean(entry?.padecimiento_actual),
-        diagnostico: clean(entry?.diagnostico),
-        medicamentos: clean(entry?.medicamentos),
-        tratamiento: clean(entry?.tratamiento),
-        notas: clean(entry?.notas),
+	    const consPairs = consRaw.map((entry) => {
+	      const row = {
+	        fecha_consulta: clean(toYMD(entry?.fecha_consulta)),
+	        recordatorio: clean(toYMD(entry?.recordatorio)),
+	        fum: clean(norm(entry?.fum)),
+	        padecimiento_actual: clean(entry?.padecimiento_actual),
+	        diagnostico: clean(entry?.diagnostico),
+	        medicamentos: clean(entry?.medicamentos),
+	        tratamiento: clean(entry?.tratamiento),
+	        notas: clean(entry?.notas),
         notas_evolucion: clean(entry?.notas_evolucion),
         oreja: clean(entry?.oreja),
         agua: clean(entry?.agua),

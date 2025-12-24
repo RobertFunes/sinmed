@@ -26,6 +26,7 @@ import {
   FaDiagnoses,
   FaPrescriptionBottleAlt,
   FaStickyNote,
+  FaCalendarAlt,
   FaCalendarDay,
   FaPills,
   FaFlask,
@@ -67,6 +68,7 @@ const displaySistemaLabel = (name) => {
 const ConsultasSection = ({
   isOpen,
   onToggle,
+  genero,
   alergico,
   toggleAlergico,
   isLoading,
@@ -95,6 +97,7 @@ const ConsultasSection = ({
 }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const fieldRefs = useRef({});
+  const isMujer = (genero || '').trim() === 'Mujer';
 
   const registerFieldRef = (uid, field) => (el) => {
     if (!uid || !field) return;
@@ -243,6 +246,7 @@ const ConsultasSection = ({
         const uid = consulta.uid || `consulta-${idx}`;
         const fechaId = `fecha_consulta_${uid}`;
         const recordatorioId = `recordatorio_${uid}`;
+        const fumId = `fum_${uid}`;
         const padecimientoId = `padecimiento_${uid}`;
         const diagnosticoId = `diagnostico_${uid}`;
         const tratamientoId = `tratamiento_${uid}`;
@@ -553,6 +557,22 @@ const ConsultasSection = ({
                     );
                   })}
                 </ListContainer>
+              )}
+              {isMujer && (
+                <FieldGroup>
+                  <Label htmlFor={fumId}>
+                    <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
+                    FUM
+                  </Label>
+                  <Input
+                    type="text"
+                    id={fumId}
+                    value={consulta.fum || ''}
+                    onChange={handleConsultaFieldChange(uid, 'fum')}
+                    placeholder="Escribe la FUM"
+                    ref={registerFieldRef(uid, 'fum')}
+                  />
+                </FieldGroup>
               )}
               <TwoColumnRow>
                 <FieldGroup>

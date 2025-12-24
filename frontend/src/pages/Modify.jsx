@@ -140,6 +140,7 @@ const createEmptyConsulta = () => ({
   uid: generateConsultaUid(),
   fecha_consulta: todayISO(),
   recordatorio: '',
+  fum: '',
   padecimiento_actual: '',
   diagnostico: '',
   medicamentos: '',
@@ -757,6 +758,7 @@ const Modify = () => {
       const nueva = { ...nuevaBase };
 
       if (previous) {
+        nueva.fum = toStr(previous.fum);
         nueva.padecimiento_actual = toStr(previous.padecimiento_actual);
         nueva.diagnostico = toStr(previous.diagnostico);
         nueva.medicamentos = toStr(previous.medicamentos);
@@ -1119,6 +1121,7 @@ const Modify = () => {
             <ConsultasSection
               isOpen={openSection === 'consultas'}
               onToggle={handleToggle('consultas')}
+              genero={formData.genero}
               alergico={formData.alergico}
               toggleAlergico={toggleAlergico}
               isLoading={isLoading}

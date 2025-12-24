@@ -70,10 +70,12 @@ const findSistemaConfig = (nombre) => SISTEMA_FIELD_LOOKUP[normalize(nombre)] ||
 
 export const buildPayloadWithConsultas = (data, idPerfil) => {
   const base = buildNestedPayload(data);
+  const isMujer = trimValue(data?.genero) === 'Mujer';
   const consultas = sortConsultasAsc(toArr(data?.consultas)).map((consulta) => {
     const payload = {
       fecha_consulta: trimValue(consulta?.fecha_consulta),
       recordatorio: trimValue(consulta?.recordatorio),
+      fum: isMujer ? trimValue(consulta?.fum) : '',
       padecimiento_actual: trimValue(consulta?.padecimiento_actual),
       diagnostico: trimValue(consulta?.diagnostico),
       medicamentos: trimValue(consulta?.medicamentos),
