@@ -15,6 +15,10 @@ export const Container = styled.div`
 export const Title = styled.h1`
   margin: 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   font-size: clamp(2rem, 3vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -22,6 +26,28 @@ export const Title = styled.h1`
   text-shadow:
     0 2px 18px ${Palette.dark}55,
     0 0 30px ${Palette.accent}33;
+
+  .titleGlass {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.05rem;
+    border-radius: 18px;
+    border: 1px solid ${Palette.accent}55;
+    background: linear-gradient(135deg, ${Palette.secondary}2b, ${Palette.accent}24);
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.22),
+      0 1px 0 ${Palette.accent}33 inset;
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+  }
+
+  .titleIcon {
+    margin-left: 1.1rem;
+    font-size: 0.9em;
+    opacity: 0.95;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+  }
 `;
 
 export const Subtitle = styled.p`
@@ -30,6 +56,24 @@ export const Subtitle = styled.p`
   font-size: 1.1rem;
   color: ${Palette.background};
   opacity: 0.9;
+
+  &::after {
+    content: '';
+    display: block;
+    height: 4px;
+    width: min(420px, 90%);
+    margin: 14px auto 0;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      ${Palette.primary},
+      ${Palette.accent},
+      ${Palette.secondary},
+      transparent
+    );
+    opacity: 0.95;
+  }
 `;
 
 export const SwitchRow = styled.div`

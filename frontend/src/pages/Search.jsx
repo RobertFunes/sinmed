@@ -15,6 +15,7 @@ import ContactCard from '../components/ContactCard.jsx';
 import Header from '../components/Header.jsx';
 import { url } from '../helpers/url.js';
 import { FaSearch } from 'react-icons/fa';
+import { FcSearch } from 'react-icons/fc';
 
 const profileOptions = [
   { value: 'name', label: 'Nombre' },
@@ -89,7 +90,12 @@ export default function Search() {
     <>
       <Header />
       <Container>
-        <Title>Buscar</Title>
+        <Title>
+          <span className="titleGlass">
+            Buscar perfil en base de datos
+            <FcSearch className="titleIcon" aria-hidden="true" focusable="false" />
+          </span>
+        </Title>
         <Subtitle>Encuentra perfiles por nombre, ID o número</Subtitle>
 
         <SearchForm

@@ -10,7 +10,9 @@ export const PendingTitle = styled.h1`
   text-align: center;
   margin: 0;
   font-family: 'Nunito', sans-serif;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
+  text-shadow:
+    0 2px 18px ${Palette.dark}55,
+    0 0 30px ${Palette.accent}33;
   background-image: url('/bg5.png');
   background-repeat: repeat;
   background-position: top left;

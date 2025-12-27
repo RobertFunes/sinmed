@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Card,
   Name,
+  NameDivider,
   InfoSection,
   InfoRow,
   ButtonRow,
@@ -50,6 +51,7 @@ export default function ContactCard(props) {
   return (
     <Card>
       <Name>{name}</Name>
+      <NameDivider aria-hidden="true" />
 
       <InfoSection>
         <InfoRow>
@@ -78,19 +80,25 @@ export default function ContactCard(props) {
         </InfoRow>
         <InfoRow>
           <MdOutlineNumbers />
-          <span>ID: {id}</span>
+          <span>ID: {id ?? '-'}</span>
         </InfoRow>
       </InfoSection>
 
       <ButtonRow>
-        <ActionButton className="delete" onClick={onDelete}>
-          <FaTrashAlt />
+        <ActionButton className="icon view" onClick={handleView} aria-label="Ver perfil" title="Ver">
+          <FaEye />
         </ActionButton>
-        <ActionButton onClick={handleModify}>
+        <ActionButton className="icon edit" onClick={handleModify} aria-label="Editar perfil" title="Editar">
           <FaEdit />
         </ActionButton>
-        <ActionButton onClick={handleView}>
-          <FaEye />
+        <ActionButton
+          className="icon delete"
+          onClick={onDelete}
+          disabled={!onDelete}
+          aria-label="Eliminar perfil"
+          title="Eliminar"
+        >
+          <FaTrashAlt />
         </ActionButton>
       </ButtonRow>
     </Card>
