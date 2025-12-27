@@ -1,10 +1,10 @@
 // src/components/MessageGenerator.styles.jsx
 import styled from 'styled-components';
 
-/* 🎨 Paleta minimalista */
+/* Paleta */
 import { Palette } from '../helpers/theme';
 
-/* 📦 Layout principal */
+/* Layout principal */
 export const Container = styled.div`
   max-width: 1840px;
   margin: 40px auto;
@@ -41,7 +41,7 @@ export const SummaryButtonsRow = styled.div`
   gap: 20px;
   margin-bottom: 8px;
 `;
-/* 🏷️ Filas de campo */
+/* Filas de campo */
 export const FieldRow = styled.div`
   display: flex;
   flex-direction: column;
@@ -57,14 +57,21 @@ export const FieldRow = styled.div`
   }
 `;
 
-/* 🔖 Etiquetas */
+/* Etiquetas */
 export const Label = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-size: 1.2rem;
   font-weight: 600;
   color: ${Palette.muted};
+
+  svg {
+    color: ${Palette.secondary};
+  }
 `;
 
-/* 📝 Inputs genéricos */
+/* Inputs genéricos */
 const baseInput = `
   width: 100%;
   padding: 10px 12px;
@@ -92,7 +99,7 @@ export const TextArea = styled.textarea`
   min-height: 180px;
 `;
 
-/* 🚀 Botón principal */
+/* Botón principal */
 
 export const Button = styled.button`
   background: ${Palette.primary};
@@ -103,6 +110,10 @@ export const Button = styled.button`
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
   transition: transform 0.1s ease, filter 0.2s ease, box-shadow 0.15s ease;
   max-width: 300px;
   &:hover { filter: brightness(0.96); }
@@ -110,7 +121,7 @@ export const Button = styled.button`
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 `;
 
-/* ⚙️ Área de resultado */
+/* Área de resultado */
 export const ResultArea = styled.div`
   margin-top: 16px;
   padding: 14px 16px;
@@ -118,13 +129,19 @@ export const ResultArea = styled.div`
   border: 1px solid ${Palette.border};
   border-radius: 10px;
   color: ${Palette.text};
+
+  strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
   p { margin: 8px 0 0; white-space: pre-wrap; }
 `;
 
-/* ⏳ Spinner / estados */
+/* Spinner / estados */
 
 
-/* 🚨 Mensaje de error */
+/* Mensaje de error */
 export const ErrorMsg = styled.div`
   margin-top: 12px;
   padding: 10px 12px;

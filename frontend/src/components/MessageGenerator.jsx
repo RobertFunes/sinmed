@@ -1,10 +1,18 @@
 // src/components/MessageGenerator.jsx
 import { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { FaWhatsapp } from 'react-icons/fa'; 
-// 🌐 Recupera la URL base desde helper/url.js
+import {
+  FaArrowRight,
+  FaCommentDots,
+  FaEnvelope,
+  FaMagic,
+  FaMobileAlt,
+  FaPenNib,
+  FaWhatsapp,
+} from 'react-icons/fa';
+// Recupera la URL base desde helper/url.js
 import { url } from '../helpers/url.js';
-// 🖌️  Estilos: los crearás en MessageGenerator.styles.jsx en el siguiente paso
+// Estilos
 import {
   Container,
   InfoBar,
@@ -43,7 +51,7 @@ export default function MessageGenerator({ profile = {} }) {
         if (!res.ok) return;
         const json = await res.json();
         setLimits(json);
-      } catch (_) {
+      } catch {
         /* ignore */
       } finally {
         setLimitsLoading(false);
@@ -54,7 +62,7 @@ export default function MessageGenerator({ profile = {} }) {
   /* ------ Contexto (perfil + pólizas) y prompt minimalista ------ */
   // Eliminado contexto de pólizas: ahora solo usamos datos del paciente
 
-  const policyContext = [];
+  const policyContext = useMemo(() => [], []);
   const prompt = useMemo(() => {
     const datosPerfil = JSON.stringify(profile || {}, null, 2);
     const datosPolizas = JSON.stringify(policyContext || [], null, 2);
@@ -122,7 +130,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         };
       });
     } catch (err) {
-      alert(`⚠️ ${err.message || 'Error inesperado'}`);
+      alert(err.message || 'Error inesperado');
     } finally {
       setSummaryLoading(false);
     }
@@ -210,9 +218,9 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         headers: { 'Content-Type': 'application/json' },
         body   : JSON.stringify({ prompt }),
       });
-      if (!res.ok) throw new Error('😓 Error al invocar la IA');
+      if (!res.ok) throw new Error('Error al invocar la IA');
       const { respuesta } = await res.json();
-      setGenerated(respuesta || '🤖 Sin respuesta de la IA');
+      setGenerated(respuesta || 'Sin respuesta de la IA');
       setLimits((prev) => {
         if (!prev || !prev.gemini) return prev;
         const used = (prev.gemini.used || 0) + 1;
@@ -227,7 +235,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         };
       });
     } catch (err) {
-      alert(`❌ ${err.message || 'Error inesperado'}`);
+      alert(err.message || 'Error inesperado');
     } finally {
       setLoading(false);
     }
@@ -316,7 +324,10 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
           </FieldRow>
         ) : null}
         <FieldRow>
-          <Label>Número telefónico 📱</Label>
+          <Label>
+            <FaMobileAlt aria-hidden="true" focusable="false" />
+            Número telefónico
+          </Label>
           <Input
             type="tel"
             value={phone}
@@ -327,24 +338,30 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 
         {/* Tono */}
         <FieldRow>
-          <Label>Tono 🗣️</Label>
+          <Label>
+            <FaCommentDots aria-hidden="true" focusable="false" />
+            Tono
+          </Label>
           <Select value={tone} onChange={e => setTone(e.target.value)}>
-            <option value="Amigable">Amigable 😊</option>
-            <option value="Profesional">Profesional 🧐</option>
-            <option value="Serio">Serio 😐</option>
-            <option value="Urgente">Urgente ⚠️</option>
-            <option value="Empático">Empático 🤗</option>
-            <option value="Resolutivo">Resolutivo 🔧</option>
-            <option value="Celebratorio">Celebratorio 🎉</option>
-            <option value="Recordatorio">Recordatorio ⏰</option>
-            <option value="Directo">Directo ➡️ </option>
-            <option value="Prudente">Prudente 🦉</option>
+            <option value="Amigable">Amigable</option>
+            <option value="Profesional">Profesional</option>
+            <option value="Serio">Serio</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Empático">Empático</option>
+            <option value="Resolutivo">Resolutivo</option>
+            <option value="Celebratorio">Celebratorio</option>
+            <option value="Recordatorio">Recordatorio</option>
+            <option value="Directo">Directo</option>
+            <option value="Prudente">Prudente</option>
           </Select>
         </FieldRow>
 
         {/* Contenido */}
         <FieldRow>
-          <Label>Tema / objetivo / Instrucción ✍️</Label>
+          <Label>
+            <FaPenNib aria-hidden="true" focusable="false" />
+            Tema / objetivo / Instrucción
+          </Label>
           <TextArea
             rows={4}
             value={content}
@@ -356,11 +373,19 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {/* Botón */}
         <section className="buttons">
           <Button disabled={loading} onClick={handleGenerate}>
-            {loading ? 'Generando…' : 'Generar mensaje ✨💬'}
+            {loading ? 'Generando…' : (
+              <>
+                <FaMagic aria-hidden="true" focusable="false" />
+                Generar mensaje
+              </>
+            )}
           </Button>
         </section>
         <FieldRow>
-          <Label>Mensaje ✉️</Label>
+          <Label>
+            <FaEnvelope aria-hidden="true" focusable="false" />
+            Mensaje
+          </Label>
           <TextArea
             rows={15}
             value={generated}
@@ -372,7 +397,9 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         {/* Errores se notifican con alert; no render persistente */}
         {generated && (
           <ResultArea>
-            <strong>➡️Mensaje Final:</strong>
+            <strong>
+              <FaArrowRight aria-hidden="true" focusable="false" /> Mensaje final:
+            </strong>
             <p>{renderFormattedText(generated)}</p>
           </ResultArea>
         )}

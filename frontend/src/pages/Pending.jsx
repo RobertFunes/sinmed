@@ -6,6 +6,7 @@ import { url } from '../helpers/url.js';
 // 🆕 Componente reutilizable
 import InteractCard from '../components/InteractCard.jsx';
 import ProfileReminderCard from '../components/ProfileReminderCard.jsx';
+import { FaBirthdayCake, FaRegClock, FaUserClock } from 'react-icons/fa';
 
 // 👉 Mantén solo los contenedores de estilo generales
 import { Container, SectionTitle } from './Pending.styles.jsx';
@@ -119,7 +120,12 @@ function Pending() {
     <>
       <Header />
       <Container>
-        <SectionTitle>Recordatorios de perfil ⏰</SectionTitle>
+        <SectionTitle>
+          <span className="titleGlass">
+            Recordatorios de perfil
+            <FaUserClock className="titleIcon" aria-hidden="true" focusable="false" />
+          </span>
+        </SectionTitle>
         <div className="overdue">
           {profileReminders.length
             ? profileReminders.map((item) => (
@@ -143,7 +149,12 @@ function Pending() {
               ))
             : <p>🎉 No hay recordatorios de perfil</p>}
         </div>
-        <SectionTitle>Recordatorios de consultas (≤ 30 días) ⏰</SectionTitle>
+        <SectionTitle>
+          <span className="titleGlass">
+            Recordatorios de consultas (≤ 30 días)
+            <FaRegClock className="titleIcon" aria-hidden="true" focusable="false" />
+          </span>
+        </SectionTitle>
         <div className="overdue">
           {reminders.length
             ? reminders.map((item) => (
@@ -166,7 +177,12 @@ function Pending() {
             : <p>🎉 ¡No hay recordatorios próximos!</p>}
         </div>
 
-        <SectionTitle>Próximos cumpleaños (≤ 30 días) 🎂</SectionTitle>
+        <SectionTitle>
+          <span className="titleGlass">
+            Próximos cumpleaños (≤ 30 días)
+            <FaBirthdayCake className="titleIcon" aria-hidden="true" focusable="false" />
+          </span>
+        </SectionTitle>
         <div className="overdue">
           {birthdays.length
             ? birthdays.map((item) => (
