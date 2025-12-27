@@ -9,10 +9,12 @@ export const Container = styled.div`
   max-width: 1840px;
   margin: 40px auto;
   padding: 24px;
-  background: ${Palette.background};
-  border: 1px solid ${Palette.border};
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  background: linear-gradient(180deg, ${Palette.background}, ${Palette.background});
+  border: 1px solid ${Palette.border}55;
+  border-radius: 16px;
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.65) inset;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   .buttons{
     display: flex;
@@ -20,26 +22,64 @@ export const Container = styled.div`
     margin-top: 16px;
     justify-content: flex-end;
   }
+
+  .divider {
+    border: 0;
+    height: 1px;
+    margin: 20px 0;
+    background: linear-gradient(90deg, transparent, ${Palette.border}55, transparent);
+  }
+
+  .section {
+    border-radius: 14px;
+    border: 1px solid ${Palette.border}33;
+    padding: 14px 14px 6px;
+    background: linear-gradient(135deg, ${Palette.secondary}0f, ${Palette.accent}10);
+  }
+
+  .sectionHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .sectionTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: ${Palette.title};
+
+    svg {
+      color: ${Palette.secondary};
+    }
+  }
+
 `;
 export const InfoBar = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  color: ${Palette.background};
-  background: ${Palette.dark};
-  border: 1px solid ${Palette.border};
-  border-radius: 8px;
+  color: ${Palette.dark};
+  background: linear-gradient(135deg, ${Palette.accent}22, ${Palette.secondary}1c);
+  border: 1px solid ${Palette.accent}44;
+  border-radius: 999px;
   padding: 8px 12px;
   font-size: 0.9rem;
-  margin-bottom: 16px;
+  width: fit-content;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
 `;
 
 export const SummaryButtonsRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
 `;
 /* Filas de campo */
 export const FieldRow = styled.div`
@@ -119,6 +159,30 @@ export const Button = styled.button`
   &:hover { filter: brightness(0.96); }
   &:active { transform: translateY(1px); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  &.primary {
+    max-width: none;
+    min-width: 220px;
+    box-shadow:
+      0 14px 34px ${Palette.primary}33,
+      0 0 0 1px ${Palette.primary}33;
+  }
+
+  &.chip {
+    max-width: none;
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    background: ${Palette.background};
+    color: ${Palette.title};
+    border: 1px solid ${Palette.border}44;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+
+    &:hover {
+      background: ${Palette.accent}12;
+      filter: none;
+    }
+  }
 `;
 
 /* Área de resultado */

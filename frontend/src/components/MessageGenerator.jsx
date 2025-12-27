@@ -8,6 +8,7 @@ import {
   FaMagic,
   FaMobileAlt,
   FaPenNib,
+  FaRobot,
   FaWhatsapp,
 } from 'react-icons/fa';
 // Recupera la URL base desde helper/url.js
@@ -244,21 +245,23 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
   return (
     <>
       <Container>
-        {/* Info de uso IA (discreta) */}
-        {!limitsLoading && limits && limits.ok && (
-          <InfoBar>
-            <span>• IA texto: {limits.gemini.used}/{limits.gemini.limit}</span>
-            <span>• Reseteo: {String(limits.gemini.resetAt || '').slice(0,10)}</span>
-          </InfoBar>
-        )}
+        <section className="section aiSection" aria-label="Resumen con IA">
+          <div className="sectionHeader">
+            <div className="sectionTitle">
+              <FaRobot aria-hidden="true" focusable="false" />
+              Generar resumen, consultar con IA
+            </div>
+            {!limitsLoading && limits && limits.ok && (
+              <InfoBar>
+                <span>IA texto: {limits.gemini.used}/{limits.gemini.limit}</span>
+                <span>Reseteo: {String(limits.gemini.resetAt || '').slice(0, 10)}</span>
+              </InfoBar>
+            )}
+          </div>
 
-        
-
-        {/* Resumen IA */}
-        <FieldRow>
-          <Label>Generar resumen, consultar con IA</Label>
           <SummaryButtonsRow>
             <Button
+              className="chip"
               type="button"
               disabled={summaryLoading}
               onClick={() =>
@@ -270,6 +273,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
               Resumen general
             </Button>
             <Button
+              className="chip"
               type="button"
               disabled={summaryLoading}
               onClick={() =>
@@ -281,6 +285,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
               Resumen de la última consulta
             </Button>
             <Button
+              className="chip"
               type="button"
               disabled={summaryLoading}
               onClick={() =>
@@ -292,6 +297,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
               Riesgos y alertas
             </Button>
             <Button
+              className="chip"
               type="button"
               disabled={summaryLoading}
               onClick={() =>
@@ -303,26 +309,43 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
               Resumen de todas las consultas
             </Button>
           </SummaryButtonsRow>
-          <Input
-            type="text"
-            value={summaryPrompt}
-            placeholder="Ej: Resume el perfil en 5 puntos claros"
-            onChange={(e) => setSummaryPrompt(e.target.value)}
-          />
-          <div className="buttons">
-            <Button disabled={summaryLoading || !summaryPrompt.trim()} onClick={handleGenerateSummary}>
-              {summaryLoading ? 'Generando…' : 'Generar'}
-            </Button>
-          </div>
-        </FieldRow>
-        {summaryResult ? (
+
           <FieldRow>
-            <Label>Resultado</Label>
-            <ResultArea>
-              <p>{renderFormattedText(summaryResult)}</p>
-            </ResultArea>
+            <Label>Prompt personalizado</Label>
+            <Input
+              type="text"
+              value={summaryPrompt}
+              placeholder="Ej: Resume el perfil en 5 puntos claros"
+              onChange={(e) => setSummaryPrompt(e.target.value)}
+            />
+            <div className="buttons">
+              <Button
+                className="primary"
+                disabled={summaryLoading || !summaryPrompt.trim()}
+                onClick={handleGenerateSummary}
+              >
+                {summaryLoading ? 'Generando…' : (
+                  <>
+                    <FaMagic aria-hidden="true" focusable="false" />
+                    Generar
+                  </>
+                )}
+              </Button>
+            </div>
           </FieldRow>
-        ) : null}
+
+          {summaryResult ? (
+            <FieldRow>
+              <Label>Resultado</Label>
+              <ResultArea>
+                <p>{renderFormattedText(summaryResult)}</p>
+              </ResultArea>
+            </FieldRow>
+          ) : null}
+        </section>
+
+        <hr className="divider" aria-hidden="true" />
+
         <FieldRow>
           <Label>
             <FaMobileAlt aria-hidden="true" focusable="false" />
@@ -343,16 +366,16 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
             Tono
           </Label>
           <Select value={tone} onChange={e => setTone(e.target.value)}>
-            <option value="Amigable">Amigable</option>
-            <option value="Profesional">Profesional</option>
-            <option value="Serio">Serio</option>
-            <option value="Urgente">Urgente</option>
-            <option value="Empático">Empático</option>
-            <option value="Resolutivo">Resolutivo</option>
-            <option value="Celebratorio">Celebratorio</option>
-            <option value="Recordatorio">Recordatorio</option>
-            <option value="Directo">Directo</option>
-            <option value="Prudente">Prudente</option>
+            <option value="Amigable">Amigable 😊</option>
+            <option value="Profesional">Profesional 🧐</option>
+            <option value="Serio">Serio 😐</option>
+            <option value="Urgente">Urgente ⚠️</option>
+            <option value="Empático">Empático 🤗</option>
+            <option value="Resolutivo">Resolutivo 🔧</option>
+            <option value="Celebratorio">Celebratorio 🎉</option>
+            <option value="Recordatorio">Recordatorio ⏰</option>
+            <option value="Directo">Directo ➡️</option>
+            <option value="Prudente">Prudente 🦉</option>
           </Select>
         </FieldRow>
 
@@ -372,7 +395,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 
         {/* Botón */}
         <section className="buttons">
-          <Button disabled={loading} onClick={handleGenerate}>
+          <Button className="primary" disabled={loading} onClick={handleGenerate}>
             {loading ? 'Generando…' : (
               <>
                 <FaMagic aria-hidden="true" focusable="false" />
