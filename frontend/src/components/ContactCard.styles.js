@@ -8,7 +8,10 @@ export const Card = styled.div`
   background: ${Palette.background};
   border-radius: 12px;
   padding: 16px 20px;
-  box-shadow: 0 2px 8px rgba(34, 40, 49, 0.08); /* sombra con Pure Black */
+  border: 1px solid rgba(65, 94, 114, 0.18);
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -16,6 +19,22 @@ export const Card = styled.div`
   font-family: 'Nunito', sans-serif;
   min-height: 350px;
   max-width: 500px;
+  transition: transform 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, ${Palette.primary}, ${Palette.accent}, ${Palette.secondary});
+    opacity: 0.95;
+  }
 `;
 
 /* Nombre del cliente */
