@@ -4,12 +4,14 @@ import { url } from '../helpers/url.js';
 import ContactCard from '../components/ContactCard.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import Header from '../components/Header.jsx';
+import { FaAngleDoubleLeft, FaAngleLeft, FaAngleRight, FaAngleDoubleRight } from 'react-icons/fa';
 
 export default function Nav() {
   const [profiles, setProfiles] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 50;
+  const maxPageButtons = 7;
 
   /* ---------- Modal de confirmación ---------- */
   const [deleteStage, setDeleteStage] = useState({ step: 0, id: null, nombre: '' });
@@ -30,6 +32,7 @@ export default function Nav() {
       if (!res.ok) throw new Error('No se pudo eliminar');
 
       setProfiles(prev => prev.filter(p => p.id_perfil !== id));
+      setTotal(prev => Math.max(0, prev - 1));
       alert(`✅ ${nombre} eliminado`);
     } catch (err) {
       console.error('Error al eliminar:', err);
@@ -57,8 +60,33 @@ export default function Nav() {
   }, [page]);
 
   const totalPages = Math.ceil(total / limit) || 1;
+  useEffect(() => {
+    setPage(prev => Math.min(Math.max(1, prev), totalPages));
+  }, [totalPages]);
+
   const nextPage = () => page < totalPages && setPage(prev => prev + 1);
   const prevPage = () => page > 1 && setPage(prev => prev - 1);
+  const goToPage = (target) => {
+    const next = Math.min(Math.max(1, Number(target)), totalPages);
+    setPage(next);
+  };
+
+  const getPageItems = () => {
+    if (totalPages <= maxPageButtons) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const siblings = 1;
+    const left = Math.max(page - siblings, 2);
+    const right = Math.min(page + siblings, totalPages - 1);
+
+    const items = [1];
+    if (left > 2) items.push('…');
+    for (let i = left; i <= right; i++) items.push(i);
+    if (right < totalPages - 1) items.push('…');
+    items.push(totalPages);
+    return items;
+  };
 
 
   /* ---------- Render ---------- */
@@ -83,9 +111,49 @@ export default function Nav() {
       </ContactListContainer>
 
       <PaginationContainer>
-        <button onClick={prevPage} disabled={page === 1}>Anterior</button>
-        <span>Página {page} de {totalPages}</span>
-        <button onClick={nextPage} disabled={page >= totalPages}>Siguiente</button>
+        <button onClick={() => goToPage(1)} disabled={page === 1} aria-label="Primera página">
+          <FaAngleDoubleLeft aria-hidden="true" focusable="false" />
+        </button>
+        <button onClick={prevPage} disabled={page === 1} aria-label="Página anterior">
+          <FaAngleLeft aria-hidden="true" focusable="false" />
+        </button>
+
+        <div className="pages" role="navigation" aria-label="Paginación">
+          {getPageItems().map((item, idx) => {
+            if (item === '…') {
+              return (
+                <span key={`ellipsis-${idx}`} className="ellipsis" aria-hidden="true">
+                  …
+                </span>
+              );
+            }
+
+            const n = item;
+            const isActive = n === page;
+            return (
+              <button
+                key={n}
+                onClick={() => goToPage(n)}
+                disabled={isActive}
+                data-active={isActive ? 'true' : 'false'}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {n}
+              </button>
+            );
+          })}
+        </div>
+
+        <button onClick={nextPage} disabled={page >= totalPages} aria-label="Página siguiente">
+          <FaAngleRight aria-hidden="true" focusable="false" />
+        </button>
+        <button onClick={() => goToPage(totalPages)} disabled={page >= totalPages} aria-label="Última página">
+          <FaAngleDoubleRight aria-hidden="true" focusable="false" />
+        </button>
+
+        <span className="meta">
+          Página {page} de {totalPages}
+        </span>
       </PaginationContainer>
 
       <ConfirmModal

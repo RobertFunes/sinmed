@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Palette } from '../helpers/theme';
 
 export const PendingTitle = styled.h1`
   color: white;
@@ -34,21 +35,67 @@ export const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   padding: 1rem 0;
 
   button {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 2.25rem;
     border: none;
     border-radius: 4px;
-    background-color: #2d72d9;
-    color: white;
+    background-color: ${Palette.primary};
+    color: ${Palette.background};
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: filter 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+    &:hover:not([disabled]) {
+      filter: brightness(0.92);
+    }
+
+    &:focus-visible {
+      outline: 2px solid ${Palette.accent};
+      outline-offset: 2px;
+    }
+  }
+
+  button[data-active='true'] {
+    background-color: ${Palette.secondary};
+    color: ${Palette.background};
   }
 
   button[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  button[data-active='true'][disabled] {
+    opacity: 1;
+  }
+
+  .pages {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ellipsis {
+    padding: 0 0.25rem;
+    color: ${Palette.background};
+    opacity: 0.85;
+  }
+
+  .meta {
+    color: ${Palette.background};
+    opacity: 0.9;
+    font-family: 'Nunito', sans-serif;
+    margin-left: 0.5rem;
   }
 `;
 
