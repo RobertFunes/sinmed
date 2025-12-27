@@ -4,7 +4,13 @@ import { url } from '../helpers/url.js';
 import ContactCard from '../components/ContactCard.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import Header from '../components/Header.jsx';
-import { FaAngleDoubleLeft, FaAngleLeft, FaAngleRight, FaAngleDoubleRight } from 'react-icons/fa';
+import {
+  FaAngleDoubleLeft,
+  FaAngleLeft,
+  FaAngleRight,
+  FaAngleDoubleRight,
+  FaDatabase,
+} from 'react-icons/fa';
 
 export default function Nav() {
   const [profiles, setProfiles] = useState([]);
@@ -93,7 +99,12 @@ export default function Nav() {
   return (
     <>
       <Header />
-      <PendingTitle>Perfiles en base de datos 📁</PendingTitle>
+      <PendingTitle>
+        <span className="titleGlass">
+          Perfiles en base de datos
+          <FaDatabase className="titleIcon" aria-hidden="true" focusable="false" />
+        </span>
+      </PendingTitle>
 
       <ContactListContainer>
         {profiles.map(p => (

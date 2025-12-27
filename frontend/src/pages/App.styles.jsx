@@ -3,16 +3,64 @@ import { Palette } from '../helpers/theme';
 
 export const PendingTitle = styled.h1`
   color: white;
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: clamp(2.25rem, 3.1vw, 3.3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-align: center;
   margin: 0;
   font-family: 'Nunito', sans-serif;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
   background-image: url('/bg5.png');
   background-repeat: repeat;
   background-position: top left;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding-top: 60px;
   padding-bottom: 40px;
+
+  &::after {
+    content: '';
+    display: block;
+    height: 4px;
+    width: min(420px, 90%);
+    margin: 14px auto 0;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      ${Palette.primary},
+      ${Palette.accent},
+      ${Palette.secondary},
+      transparent
+    );
+    opacity: 0.95;
+  }
+
+  .titleGlass {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.05rem;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.22),
+      0 1px 0 rgba(255, 255, 255, 0.12) inset;
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+  }
+
+  .titleIcon {
+    margin-left: 0.7rem;
+    font-size: 1.05em;
+    opacity: 0.95;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+  }
 `;
 
 export const ContactListContainer = styled.section`
