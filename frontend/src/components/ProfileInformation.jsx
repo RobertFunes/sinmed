@@ -1226,37 +1226,49 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
         {antecedentesFamiliares.length > 0 && (
           <Card variant="outlined" sx={sectionCardSx}>
             <CardHeader
-              title={<Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>Antecedentes Familiares</Typography>}
+              title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                    Antecedentes Familiares
+                  </Typography>
+                  <Chip
+                    size="small"
+                    label="Familiar"
+                    sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }}
+                  />
+                  <Chip
+                    size="small"
+                    label={`${antecedentesFamiliares.length} registros`}
+                    sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }}
+                  />
+                </Box>
+              }
               sx={{ pb: 0.5 }}
             />
             <CardContent sx={{ pt: 1 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {antecedentesFamiliares.map((item, idx) => (
-                  <Card
-                    key={`af-${idx}`}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 3,
-                      borderColor: 'rgba(255,255,255,0.10)',
-                      bgcolor: 'rgba(255,255,255,0.03)',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <CardHeader
-                      title={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
-                            Registro {idx + 1}
-                          </Typography>
-                          <Chip size="small" label="Familiar" sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }} />
-                        </Box>
-                      }
-                      sx={{ pb: 0.5 }}
-                    />
-                    <CardContent sx={{ pt: 1 }}>
-                      <Row
-                        icon={<FaUsers />}
-                        label="Antecedente:"
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  gap: 1.5,
+                  alignItems: { xs: 'stretch', md: 'center' },
+                }}
+              >
+	                {antecedentesFamiliares.map((item, idx) => (
+	                  <Card
+	                    key={`af-${idx}`}
+	                    variant="outlined"
+	                    sx={{
+	                      borderRadius: 3,
+	                      borderColor: 'rgba(255,255,255,0.10)',
+	                      bgcolor: 'rgba(255,255,255,0.03)',
+	                      overflow: 'hidden',
+	                    }}
+	                  >
+	                    <CardContent sx={{ pt: 1 }}>
+	                      <Row
+	                        icon={<FaUsers />}
+	                        label="Antecedente:"
                         value={item.nombre}
                         onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'nombre', index: idx }) : undefined}
                       />
