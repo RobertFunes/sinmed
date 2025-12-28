@@ -48,17 +48,20 @@ import {
 import { MdEmail, MdHome, MdWork } from 'react-icons/md';
 import { GiLungs } from 'react-icons/gi';
 import { ActionButton } from './ContactCard.styles.js';
+import { Virtuoso } from 'react-virtuoso';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  Section,
-  FieldRow,
-  Label,
-  Value,
-  TwoColumnRow,
-  Stack,
-  Group,
-  GroupTitle,
-  FloatingActions,
-} from './ProfileInformation.styles.jsx';
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Chip,
+  Divider,
+  Typography,
+} from '@mui/material';
 import {
   HABITOS_OPCIONES,
   SISTEMAS_OPCIONES,
@@ -367,18 +370,81 @@ const Row = ({ icon, label, value, onClick }) => {
   if (!present(value)) return null;
   const clickable = typeof onClick === 'function';
   return (
-    <FieldRow>
-      <Label>
-        {icon ? <span className="icon">{icon}</span> : null}
-        {label}
-      </Label>
-      <Value
-        onClick={onClick || undefined}
-        style={clickable ? { cursor: 'pointer' } : undefined}
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', sm: '220px 1fr' },
+        alignItems: 'start',
+        gap: 1.25,
+        py: 1,
+      }}
+    >
+      <Typography
+        variant="body2"
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 1,
+          fontWeight: 700,
+          letterSpacing: 0.1,
+          color: 'rgba(255,255,255,0.72)',
+        }}
       >
-        {value}
-      </Value>
-    </FieldRow>
+        {icon ? <Box component="span" sx={{ display: 'inline-flex' }}>{icon}</Box> : null}
+        {label}
+      </Typography>
+      <Box
+        onClick={onClick || undefined}
+        role={clickable ? 'button' : undefined}
+        tabIndex={clickable ? 0 : undefined}
+        onKeyDown={
+          clickable
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onClick();
+                }
+              }
+            : undefined
+        }
+        sx={{
+          cursor: clickable ? 'pointer' : 'default',
+          userSelect: 'text',
+          borderRadius: 2,
+          border: '1px solid rgba(255,255,255,0.12)',
+          bgcolor: 'rgba(255,255,255,0.06)',
+          px: 1.5,
+          py: 1.1,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          overflowWrap: 'anywhere',
+          transition: 'border-color 120ms ease, background-color 120ms ease, transform 120ms ease',
+          '&:hover': clickable
+            ? {
+                borderColor: 'rgba(255,255,255,0.28)',
+                bgcolor: 'rgba(255,255,255,0.08)',
+                transform: 'translateY(-1px)',
+              }
+            : undefined,
+          '&:focus-visible': clickable
+            ? { outline: '2px solid rgba(144, 202, 249, 0.75)', outlineOffset: 2 }
+            : undefined,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            m: 0,
+            color: 'rgba(255,255,255,0.9)',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {value}
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 
@@ -386,6 +452,7 @@ Row.propTypes = {
   icon: PropTypes.node,
   label: PropTypes.string.isRequired,
   value: PropTypes.node,
+  onClick: PropTypes.func,
 };
 
 export default function ProfileInformation({ data, onEditProfile, onDeleteProfile }) {
@@ -396,11 +463,6 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     'residencia', 'ocupacion', 'escolaridad', 'estado_civil', 'tipo_sangre', 'referido_por',
     'alergico', 'creado', 'actualizado', 'id_legado', 'fecha_legado', 'recordatorio', 'recordatorio_desc',
   ];
-
-  const getDateStr = (value) => {
-    const str = formatDate(value);
-    return str || null;
-  };
 
   const computeMaxDates = () => {
     let creadoSrc = data.creado || null;
@@ -688,552 +750,778 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
   const inspeccion = mapInspectionFromSource(efSource);
   const totalConsultas = consultas.length;
 
+  const sectionCardSx = {
+    borderRadius: 3,
+    border: '1px solid rgba(255,255,255,0.10)',
+    bgcolor: isAllergic ? 'rgba(0,0,0,0.9)' : 'rgba(34, 40, 49, 0.78)',
+    color: 'rgba(255,255,255,0.92)',
+    backdropFilter: 'blur(14px)',
+    WebkitBackdropFilter: 'blur(14px)',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.28)',
+    overflow: 'hidden',
+  };
+
+  const gridTwoColSx = {
+    display: 'grid',
+    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+    gap: 1.5,
+  };
+
   return (
     <>
-      {personalRows.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Datos Personales</h3>
-          <TwoColumnRow>
-            {personalRows}
-          </TwoColumnRow>
-        </Section>
-      )}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        {personalRows.length > 0 && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                    Datos Personales
+                  </Typography>
+                  {present(personalData.id_perfil) ? (
+                    <Chip size="small" label={`ID ${personalData.id_perfil}`} sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }} />
+                  ) : null}
+                  {present(personalData.alergico) ? (
+                    <Chip
+                      size="small"
+                      label={`Alérgico: ${personalData.alergico}`}
+                      color={String(personalData.alergico || '').trim() === 'Si' ? 'error' : 'default'}
+                      variant={String(personalData.alergico || '').trim() === 'Si' ? 'filled' : 'outlined'}
+                      sx={{
+                        borderColor: 'rgba(255,255,255,0.18)',
+                        bgcolor: String(personalData.alergico || '').trim() === 'Si' ? 'rgba(211, 47, 47, 0.9)' : 'transparent',
+                        color: 'rgba(255,255,255,0.92)',
+                      }}
+                    />
+                  ) : null}
+                </Box>
+              }
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              <Box sx={gridTwoColSx}>{personalRows}</Box>
+            </CardContent>
+          </Card>
+        )}
 
-      {consultas.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Consultas</h3>
-          {/* Mostrar estado de alergias al inicio de la sección Consultas */}
-          <Row icon={<FaExclamationCircle />} label={"Alérgico:"} value={personalData.alergico} />
-          <Stack>
-            {consultas.map((consulta, idx) => (
-              <Group key={consulta.id || `consulta-${idx}`}>
-                <GroupTitle>
-                  Consulta {totalConsultas - idx}{present(consulta.fecha_consulta) ? ` · ${consulta.fecha_consulta}` : ''}
-                </GroupTitle>
-                <Row
-                  icon={<FaCalendarDay />}
-                  label="Fecha de consulta:"
-                  value={consulta.fecha_consulta}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'fecha_consulta',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaClipboardCheck />}
-                  label="Oreja:"
-                  value={consulta.oreja}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'oreja',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaBell />}
-                  label="Recordatorio:"
-                  value={consulta.recordatorio}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'recordatorio',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaCalendarAlt />}
-                  label="FUM:"
-                  value={consulta.fum}
-                />
-                <Row
-                  icon={<FaNotesMedical />}
-                  label="Padecimiento actual:"
-                  value={consulta.padecimiento_actual}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'padecimiento_actual',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaDiagnoses />}
-                  label="Diagnóstico:"
-                  value={consulta.diagnostico}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'diagnostico',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaPills />}
-                  label="Medicamentos:"
-                  value={consulta.medicamentos}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'medicamentos',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaPrescriptionBottleAlt />}
-                  label="Tratamiento:"
-                  value={consulta.tratamiento}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'tratamiento',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaTint />}
-                  label="Agua:"
-                  value={consulta.agua}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'agua',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaFileMedical />}
-                  label="Laboratorios:"
-                  value={consulta.laboratorios}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'laboratorios',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaHeart />}
-                  label="Presión:"
-                  value={consulta.presion}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'presion',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaHeart />}
-                  label="PAM:"
-                  value={consulta.pam}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'pam',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaChartBar />}
-                  label="Glucosa:"
-                  value={consulta.glucosa}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'glucosa',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaStickyNote />}
-                  label="Notas:"
-                  value={consulta.notas}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'notas',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaStickyNote />}
-                  label="Notas de evolución:"
-                  value={consulta.notas_evolucion}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'consultas',
-                            field: 'notas_evolucion',
-                            id_consulta: consulta.id_consulta,
-                            index: idx,
-                          })
-                      : undefined
-                  }
-                />
-                {consulta.interrogatorio.length > 0 && (
-                  <>
-                    <h4 style={{ color: 'black',alignSelf:'center'}}>Interrogatorio por aparatos y sistemas</h4>
-                    {consulta.interrogatorio.map((item, interrogatorioIdx) => (
-                      [
-                        (
+        {consultas.length > 0 && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                    Consultas
+                  </Typography>
+                  <Chip
+                    size="small"
+                    label={`${totalConsultas} ${totalConsultas === 1 ? 'consulta' : 'consultas'}`}
+                    sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }}
+                  />
+                </Box>
+              }
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              <Row icon={<FaExclamationCircle />} label={"Alérgico:"} value={personalData.alergico} />
+              <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+
+            <Box
+              sx={{
+                borderRadius: 3,
+                border: '1px solid rgba(255,255,255,0.10)',
+                bgcolor: 'rgba(0,0,0,0.14)',
+                overflow: 'hidden',
+              }}
+            >
+              <Virtuoso
+                data={consultas}
+                style={{ height: 'min(70vh, 860px)' }}
+                computeItemKey={(index, item) => item?.id ?? `consulta-${index}`}
+                itemContent={(idx, consulta) => (
+                  <Box sx={{ px: { xs: 1, sm: 1.5 }, py: 1 }}>
+                    <Accordion
+                      disableGutters
+                      defaultExpanded={idx === 0}
+                      sx={{
+                        bgcolor: 'transparent',
+                        color: 'inherit',
+                        borderRadius: 2,
+                        border: '1px solid rgba(255,255,255,0.10)',
+                        overflow: 'hidden',
+                        '&:before': { display: 'none' },
+                        mb: 1.25,
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'rgba(255,255,255,0.75)' }} />}
+                        sx={{
+                          bgcolor: 'rgba(255,255,255,0.04)',
+                          '& .MuiAccordionSummary-content': { my: 1 },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.25, width: '100%', flexWrap: 'wrap' }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                            Consulta {totalConsultas - idx}
+                            {present(consulta.fecha_consulta) ? ` · ${consulta.fecha_consulta}` : ''}
+                          </Typography>
+                          <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                            {present(consulta.oreja) ? (
+                              <Chip size="small" label={`Oreja: ${consulta.oreja}`} sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.92)' }} />
+                            ) : null}
+                            {present(consulta.recordatorio) ? (
+                              <Chip size="small" variant="outlined" label={`Recordatorio: ${consulta.recordatorio}`} sx={{ borderColor: 'rgba(255,255,255,0.20)', color: 'rgba(255,255,255,0.88)' }} />
+                            ) : null}
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ pt: 0.5 }}>
+                        <Box sx={gridTwoColSx}>
                           <Row
-                            key={`${consulta.id}-interrogatorio-${interrogatorioIdx}-desc`}
-                            icon={<FaClipboardCheck />}
-                            label={`${item.nombre}:`}
-                            value={item.descripcion}
+                            icon={<FaCalendarDay />}
+                            label="Fecha de consulta:"
+                            value={consulta.fecha_consulta}
                             onClick={
                               onEditProfile
                                 ? () =>
                                     onEditProfile({
                                       section: 'consultas',
-                                      field: 'interrogatorio_desc',
+                                      field: 'fecha_consulta',
                                       id_consulta: consulta.id_consulta,
                                       index: idx,
-                                      interrogatorioIndex: interrogatorioIdx,
                                     })
                                 : undefined
                             }
                           />
-                        ),
-                        present(item.estado)
-                          ? (
-                            <Row
-                              key={`${consulta.id}-interrogatorio-${interrogatorioIdx}-estado`}
-                              icon={null}
-                              label={"Seguimiento:"}
-                              value={estadoLabel(item.estado)}
-                              onClick={
-                                onEditProfile
-                                  ? () =>
-                                      onEditProfile({
-                                        section: 'consultas',
-                                        field: 'interrogatorio_estado',
-                                        id_consulta: consulta.id_consulta,
-                                        index: idx,
-                                        interrogatorioIndex: interrogatorioIdx,
-                                      })
-                                  : undefined
-                              }
-                            />
-                          )
-                          : null,
-                      ]
-                    ))}
-                  </>
-                )}
-                {present(consulta.id_consulta) && present(personalizadosByConsulta.get(consulta.id_consulta)) && (
-                  <>
-                    <h4 style={{ color: 'black', alignSelf: 'center' }}>Personalizados</h4>
-                    {toArr(personalizadosByConsulta.get(consulta.id_consulta)).map((p, pIdx) => {
-                      const hasDescripcion = present(p.descripcion);
-                      const hasEstado = present(p.estado);
-                      const valueParts = [];
-                      if (hasDescripcion) valueParts.push(p.descripcion);
-                      if (hasEstado) valueParts.push(estadoLabel(p.estado));
-                      const value = valueParts.join(' · ');
-                      return (
+                          <Row
+                            icon={<FaClipboardCheck />}
+                            label="Oreja:"
+                            value={consulta.oreja}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'oreja',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaBell />}
+                            label="Recordatorio:"
+                            value={consulta.recordatorio}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'recordatorio',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row icon={<FaCalendarAlt />} label="FUM:" value={consulta.fum} />
+                          <Row
+                            icon={<FaTint />}
+                            label="Agua:"
+                            value={consulta.agua}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'agua',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaFileMedical />}
+                            label="Laboratorios:"
+                            value={consulta.laboratorios}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'laboratorios',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaHeart />}
+                            label="Presión:"
+                            value={consulta.presion}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'presion',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaHeart />}
+                            label="PAM:"
+                            value={consulta.pam}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'pam',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaChartBar />}
+                            label="Glucosa:"
+                            value={consulta.glucosa}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'glucosa',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                        </Box>
+
+                        <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+
                         <Row
-                          key={`${consulta.id}-personalizado-${pIdx}`}
-                          icon={<FaStickyNote />}
-                          label={`${p.nombre}:`}
-                          value={value}
+                          icon={<FaNotesMedical />}
+                          label="Padecimiento actual:"
+                          value={consulta.padecimiento_actual}
                           onClick={
                             onEditProfile
                               ? () =>
                                   onEditProfile({
                                     section: 'consultas',
-                                    field: 'personalizado',
+                                    field: 'padecimiento_actual',
                                     id_consulta: consulta.id_consulta,
                                     index: idx,
-                                    personalizadoIndex: pIdx,
                                   })
                               : undefined
                           }
                         />
-                      );
-                    })}
-                  </>
+                        <Row
+                          icon={<FaDiagnoses />}
+                          label="Diagnóstico:"
+                          value={consulta.diagnostico}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'diagnostico',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                  })
+                              : undefined
+                          }
+                        />
+                        <Row
+                          icon={<FaPills />}
+                          label="Medicamentos:"
+                          value={consulta.medicamentos}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'medicamentos',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                  })
+                              : undefined
+                          }
+                        />
+                        <Row
+                          icon={<FaPrescriptionBottleAlt />}
+                          label="Tratamiento:"
+                          value={consulta.tratamiento}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'tratamiento',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                  })
+                              : undefined
+                          }
+                        />
+                        <Row
+                          icon={<FaStickyNote />}
+                          label="Notas:"
+                          value={consulta.notas}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'notas',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                  })
+                              : undefined
+                          }
+                        />
+                        <Row
+                          icon={<FaStickyNote />}
+                          label="Notas de evolución:"
+                          value={consulta.notas_evolucion}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'notas_evolucion',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                  })
+                              : undefined
+                          }
+                        />
+
+                        {consulta.interrogatorio.length > 0 && (
+                          <Box sx={{ mt: 1.5 }}>
+                            <Divider sx={{ mb: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)', mb: 0.75 }}>
+                              Interrogatorio por aparatos y sistemas
+                            </Typography>
+                            {consulta.interrogatorio.map((item, interrogatorioIdx) => (
+                              <Box key={`${consulta.id}-interrogatorio-${interrogatorioIdx}`} sx={{ mb: 0.75 }}>
+                                <Row
+                                  icon={<FaClipboardCheck />}
+                                  label={`${item.nombre}:`}
+                                  value={item.descripcion}
+                                  onClick={
+                                    onEditProfile
+                                      ? () =>
+                                          onEditProfile({
+                                            section: 'consultas',
+                                            field: 'interrogatorio_desc',
+                                            id_consulta: consulta.id_consulta,
+                                            index: idx,
+                                            interrogatorioIndex: interrogatorioIdx,
+                                          })
+                                      : undefined
+                                  }
+                                />
+                                {present(item.estado) ? (
+                                  <Row
+                                    icon={null}
+                                    label={"Seguimiento:"}
+                                    value={estadoLabel(item.estado)}
+                                    onClick={
+                                      onEditProfile
+                                        ? () =>
+                                            onEditProfile({
+                                              section: 'consultas',
+                                              field: 'interrogatorio_estado',
+                                              id_consulta: consulta.id_consulta,
+                                              index: idx,
+                                              interrogatorioIndex: interrogatorioIdx,
+                                            })
+                                        : undefined
+                                    }
+                                  />
+                                ) : null}
+                              </Box>
+                            ))}
+                          </Box>
+                        )}
+
+                        {present(consulta.id_consulta) && present(personalizadosByConsulta.get(consulta.id_consulta)) && (
+                          <Box sx={{ mt: 1.5 }}>
+                            <Divider sx={{ mb: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)', mb: 0.75 }}>
+                              Personalizados
+                            </Typography>
+                            {toArr(personalizadosByConsulta.get(consulta.id_consulta)).map((p, pIdx) => {
+                              const hasDescripcion = present(p.descripcion);
+                              const hasEstado = present(p.estado);
+                              const valueParts = [];
+                              if (hasDescripcion) valueParts.push(p.descripcion);
+                              if (hasEstado) valueParts.push(estadoLabel(p.estado));
+                              const value = valueParts.join(' · ');
+                              return (
+                                <Row
+                                  key={`${consulta.id}-personalizado-${pIdx}`}
+                                  icon={<FaStickyNote />}
+                                  label={`${p.nombre}:`}
+                                  value={value}
+                                  onClick={
+                                    onEditProfile
+                                      ? () =>
+                                          onEditProfile({
+                                            section: 'consultas',
+                                            field: 'personalizado',
+                                            id_consulta: consulta.id_consulta,
+                                            index: idx,
+                                            personalizadoIndex: pIdx,
+                                          })
+                                      : undefined
+                                  }
+                                />
+                              );
+                            })}
+                          </Box>
+                        )}
+                      </AccordionDetails>
+                    </Accordion>
+                  </Box>
                 )}
-              </Group>
-            ))}
-          </Stack>
-          {present(pronostico) && (
-            <Stack>
-              <Group>
-                <GroupTitle>Pronóstico</GroupTitle>
-                <Row icon={<FaStickyNote />} label="Pronóstico general:" value={pronostico} />
-              </Group>
-            </Stack>
-          )}
-        </Section>
-      )}
-
-      {antecedentesFamiliares.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Familiares</h3>
-          <Stack>
-            {antecedentesFamiliares.map((item, idx) => (
-              <Group key={`af-${idx}`}>
-                
-                <Row
-                  icon={<FaUsers />}
-                  label="Antecedente:"
-                  value={item.nombre}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'nombre', index: idx }) : undefined}
-                />
-                <Row
-                  icon={<FaStickyNote />}
-                  label="Descripción:"
-                  value={item.descripcion}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'descripcion', index: idx }) : undefined}
-                />
-              </Group>
-            ))}
-          </Stack>
-        </Section>
-      )}
-
-      {(apGenerales.length > 0 || apHabitos.length > 0) && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Personales</h3>
-          {apGenerales.length > 0 && (
-            <TwoColumnRow>
-              {apGenerales.map(({ label, value, icon, field }, idx) => (
-                <Row
-                  key={`ap-${idx}`}
-                  icon={icon ?? null}
-                  label={label}
-                  value={value}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'personales', field }) : undefined}
-                />
-              ))}
-            </TwoColumnRow>
-          )}
-          {apHabitos.length > 0 && (
-            <>
-              <h4 style={{ color: 'black', textAlign: 'center' }}>Hábitos</h4>
-              <Stack>
-                {apHabitos.map((habito, idx) => {
-                  const t = normalize(habito.titulo);
-                  return (
-                    <Group key={`habito-${idx}`}>
-                      <GroupTitle>{habito.titulo}</GroupTitle>
-                      {habito.rows.map(({ label, value, icon }, rowIdx) => {
-                        let field = null;
-                        if (t.includes('alcohol')) {
-                          if (rowIdx === 0) field = 'habito_alcoholismo_bebidas';
-                          else if (rowIdx === 1) field = 'habito_alcoholismo_tiempo_activo';
-                          else if (rowIdx === 2) field = 'habito_alcoholismo_tiempo_inactivo';
-                        } else if (t.includes('taba')) {
-                          if (rowIdx === 0) field = 'habito_tabaquismo_cigarrillos';
-                          else if (rowIdx === 1) field = 'habito_tabaquismo_tiempo_activo';
-                          else if (rowIdx === 2) field = 'habito_tabaquismo_tiempo_inactivo';
-                        } else if (t.includes('toxico')) {
-                          if (rowIdx === 0) field = 'habito_toxicomanias_tipo';
-                          else if (rowIdx === 1) field = 'habito_toxicomanias_tiempo_activo';
-                          else if (rowIdx === 2) field = 'habito_toxicomanias_tiempo_inactivo';
-                        }
-                        return (
-                          <Row
-                            key={`habito-${idx}-${rowIdx}`}
-                            icon={icon ?? null}
-                            label={label}
-                            value={value}
-                            onClick={
-                              field && onEditProfile
-                                ? () => onEditProfile({ section: 'personales', field })
-                                : undefined
-                            }
-                          />
-                        );
-                      })}
-                    </Group>
-                  );
-                })}
-              </Stack>
-            </>
-          )}
-        </Section>
-      )}
-
-      {ginecoRows.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Gineco-Obstétricos</h3>
-          <TwoColumnRow>
-            {ginecoRows.map(({ label, value, icon, field }, idx) => (
-              <Row
-                key={`gineco-${idx}`}
-                icon={icon ?? null}
-                label={label}
-                value={value}
-                onClick={onEditProfile ? () => onEditProfile({ section: 'gineco', field }) : undefined}
               />
-            ))}
-          </TwoColumnRow>
-        </Section>
-      )}
+            </Box>
 
-      {patologicos.length > 0 && (
-        <Section $alergico={isAllergic}>
-          <h3>Antecedentes Personales Patológicos</h3>
-          <Stack>
-            {patologicos.map((item, idx) => (
-              <Group key={item.id || `pat-${idx}`}>
-                <GroupTitle>Registro {idx + 1}</GroupTitle>
-                <Row
-                  icon={<FaFileMedical />}
-                  label="Antecedente:"
-                  value={item.antecedente_display}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'patologicos',
-                            field: 'antecedente',
-                            index: item.index,
-                          })
-                      : undefined
-                  }
-                />
-                <Row
-                  icon={<FaStickyNote />}
-                  label="Descripción:"
-                  value={item.descripcion}
-                  onClick={
-                    onEditProfile
-                      ? () =>
-                          onEditProfile({
-                            section: 'patologicos',
-                            field: 'descripcion',
-                            index: item.index,
-                          })
-                      : undefined
-                  }
-                />
-              </Group>
-            ))}
-          </Stack>
-        </Section>
-      )}
+            {present(pronostico) && (
+              <Box sx={{ mt: 2 }}>
+                <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+                <Card variant="outlined" sx={{ borderRadius: 3, borderColor: 'rgba(255,255,255,0.12)', bgcolor: 'rgba(255,255,255,0.03)' }}>
+                  <CardHeader
+                    title={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                          Pronóstico
+                        </Typography>
+                        <Chip size="small" label="General" sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }} />
+                      </Box>
+                    }
+                    sx={{ pb: 0.5 }}
+                  />
+                  <CardContent sx={{ pt: 1 }}>
+                    <Row icon={<FaStickyNote />} label="Pronóstico general:" value={pronostico} />
+                  </CardContent>
+                </Card>
+              </Box>
+            )}
+            </CardContent>
+          </Card>
+        )}
 
-      {(efRows.length > 0 || inspeccion.length > 0) && (
-        <Section $alergico={isAllergic}>
-          <h3>Exploración Física</h3>
-          {efRows.length > 0 && (
-            <TwoColumnRow>
-              {efRows.map(({ label, value, icon, field }, idx) => (
-                <Row
-                  key={`ef-${idx}`}
-                  icon={icon ?? null}
-                  label={label}
-                  value={value}
-                  onClick={onEditProfile ? () => onEditProfile({ section: 'exploracion', field }) : undefined}
-                />
-              ))}
-            </TwoColumnRow>
-          )}
-          {inspeccion.length > 0 && (
-            <>
-              <h4 style={{ color: 'black', textAlign: 'center' }}>Inspección general</h4>
-              <Stack>
-                {inspeccion.map((item, idx) => (
-                  <Group key={`ins-${idx}`}>
-                    <GroupTitle>{item.nombre}</GroupTitle>
-                    <Row icon={<FaStethoscope />} label="Descripción:" value={item.descripcion} />
-                  </Group>
+        {antecedentesFamiliares.length > 0 && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={<Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>Antecedentes Familiares</Typography>}
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {antecedentesFamiliares.map((item, idx) => (
+                  <Card
+                    key={`af-${idx}`}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 3,
+                      borderColor: 'rgba(255,255,255,0.10)',
+                      bgcolor: 'rgba(255,255,255,0.03)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <CardHeader
+                      title={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                            Registro {idx + 1}
+                          </Typography>
+                          <Chip size="small" label="Familiar" sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }} />
+                        </Box>
+                      }
+                      sx={{ pb: 0.5 }}
+                    />
+                    <CardContent sx={{ pt: 1 }}>
+                      <Row
+                        icon={<FaUsers />}
+                        label="Antecedente:"
+                        value={item.nombre}
+                        onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'nombre', index: idx }) : undefined}
+                      />
+                      <Row
+                        icon={<FaStickyNote />}
+                        label="Descripción:"
+                        value={item.descripcion}
+                        onClick={onEditProfile ? () => onEditProfile({ section: 'familiares', field: 'descripcion', index: idx }) : undefined}
+                      />
+                    </CardContent>
+                  </Card>
                 ))}
-              </Stack>
-            </>
-          )}
-        </Section>
-      )}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
 
-      <FloatingActions>
-        <ActionButton
-          onClick={() => onEditProfile && onEditProfile()}
-          title="Editar perfil"
-          aria-label="Editar perfil"
-        >
+        {(apGenerales.length > 0 || apHabitos.length > 0) && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={<Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>Antecedentes Personales</Typography>}
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              {apGenerales.length > 0 && <Box sx={gridTwoColSx}>
+                {apGenerales.map(({ label, value, icon, field }, idx) => (
+                  <Row
+                    key={`ap-${idx}`}
+                    icon={icon ?? null}
+                    label={label}
+                    value={value}
+                    onClick={onEditProfile ? () => onEditProfile({ section: 'personales', field }) : undefined}
+                  />
+                ))}
+              </Box>}
+
+            {apHabitos.length > 0 && (
+              <Box sx={{ mt: apGenerales.length > 0 ? 2 : 0 }}>
+                <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                    Hábitos
+                  </Typography>
+                  <Chip size="small" label={`${apHabitos.length}`} sx={{ bgcolor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.92)' }} />
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
+                  {apHabitos.map((habito, idx) => {
+                    const t = normalize(habito.titulo);
+                    return (
+                      <Card
+                        key={`habito-${idx}`}
+                        variant="outlined"
+                        sx={{
+                          borderRadius: 3,
+                          borderColor: 'rgba(255,255,255,0.10)',
+                          bgcolor: 'rgba(255,255,255,0.03)',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <CardHeader
+                          title={<Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>{habito.titulo}</Typography>}
+                          sx={{ pb: 0.5 }}
+                        />
+                        <CardContent sx={{ pt: 1 }}>
+                          {habito.rows.map(({ label, value, icon }, rowIdx) => {
+                            let field = null;
+                            if (t.includes('alcohol')) {
+                              if (rowIdx === 0) field = 'habito_alcoholismo_bebidas';
+                              else if (rowIdx === 1) field = 'habito_alcoholismo_tiempo_activo';
+                              else if (rowIdx === 2) field = 'habito_alcoholismo_tiempo_inactivo';
+                            } else if (t.includes('taba')) {
+                              if (rowIdx === 0) field = 'habito_tabaquismo_cigarrillos';
+                              else if (rowIdx === 1) field = 'habito_tabaquismo_tiempo_activo';
+                              else if (rowIdx === 2) field = 'habito_tabaquismo_tiempo_inactivo';
+                            } else if (t.includes('toxico')) {
+                              if (rowIdx === 0) field = 'habito_toxicomanias_tipo';
+                              else if (rowIdx === 1) field = 'habito_toxicomanias_tiempo_activo';
+                              else if (rowIdx === 2) field = 'habito_toxicomanias_tiempo_inactivo';
+                            }
+                            return (
+                              <Row
+                                key={`habito-${idx}-${rowIdx}`}
+                                icon={icon ?? null}
+                                label={label}
+                                value={value}
+                                onClick={
+                                  field && onEditProfile
+                                    ? () => onEditProfile({ section: 'personales', field })
+                                    : undefined
+                                }
+                              />
+                            );
+                          })}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </Box>
+              </Box>
+            )}
+            </CardContent>
+          </Card>
+        )}
+
+        {ginecoRows.length > 0 && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={<Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>Antecedentes Gineco-Obstétricos</Typography>}
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              <Box sx={gridTwoColSx}>
+                {ginecoRows.map(({ label, value, icon, field }, idx) => (
+                  <Row
+                    key={`gineco-${idx}`}
+                    icon={icon ?? null}
+                    label={label}
+                    value={value}
+                    onClick={onEditProfile ? () => onEditProfile({ section: 'gineco', field }) : undefined}
+                  />
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+
+        {patologicos.length > 0 && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={<Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>Antecedentes Personales Patológicos</Typography>}
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {patologicos.map((item, idx) => (
+                  <Card
+                    key={item.id || `pat-${idx}`}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 3,
+                      borderColor: 'rgba(255,255,255,0.10)',
+                      bgcolor: 'rgba(255,255,255,0.03)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <CardHeader
+                      title={
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>
+                          Registro {idx + 1}
+                        </Typography>
+                      }
+                      sx={{ pb: 0.5 }}
+                    />
+                    <CardContent sx={{ pt: 1 }}>
+                      <Row
+                        icon={<FaFileMedical />}
+                        label="Antecedente:"
+                        value={item.antecedente_display}
+                        onClick={
+                          onEditProfile
+                            ? () =>
+                                onEditProfile({
+                                  section: 'patologicos',
+                                  field: 'antecedente',
+                                  index: item.index,
+                                })
+                            : undefined
+                        }
+                      />
+                      <Row
+                        icon={<FaStickyNote />}
+                        label="Descripción:"
+                        value={item.descripcion}
+                        onClick={
+                          onEditProfile
+                            ? () =>
+                                onEditProfile({
+                                  section: 'patologicos',
+                                  field: 'descripcion',
+                                  index: item.index,
+                                })
+                            : undefined
+                        }
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+
+        {(efRows.length > 0 || inspeccion.length > 0) && (
+          <Card variant="outlined" sx={sectionCardSx}>
+            <CardHeader
+              title={<Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>Exploración Física</Typography>}
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent sx={{ pt: 1 }}>
+              {efRows.length > 0 && (
+                <Box sx={gridTwoColSx}>
+                  {efRows.map(({ label, value, icon, field }, idx) => (
+                    <Row
+                      key={`ef-${idx}`}
+                      icon={icon ?? null}
+                      label={label}
+                      value={value}
+                      onClick={onEditProfile ? () => onEditProfile({ section: 'exploracion', field }) : undefined}
+                    />
+                  ))}
+                </Box>
+              )}
+              {inspeccion.length > 0 && (
+                <Box sx={{ mt: efRows.length > 0 ? 2 : 0 }}>
+                  <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)', mb: 1 }}>
+                    Inspección general
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    {inspeccion.map((item, idx) => (
+                      <Card
+                        key={`ins-${idx}`}
+                        variant="outlined"
+                        sx={{
+                          borderRadius: 3,
+                          borderColor: 'rgba(255,255,255,0.10)',
+                          bgcolor: 'rgba(255,255,255,0.03)',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <CardHeader
+                          title={<Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'rgba(255,255,255,0.92)' }}>{item.nombre}</Typography>}
+                          sx={{ pb: 0.5 }}
+                        />
+                        <CardContent sx={{ pt: 1 }}>
+                          <Row icon={<FaStethoscope />} label="Descripción:" value={item.descripcion} />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </Box>
+
+      <Box
+        sx={{
+          position: 'fixed',
+          right: { xs: 16, md: 50 },
+          bottom: { xs: 16, md: 50 },
+          display: 'flex',
+          gap: 2,
+          zIndex: 1000,
+          '& button': { padding: '20px 20px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
+        }}
+      >
+        <ActionButton onClick={() => onEditProfile && onEditProfile()} title="Editar perfil" aria-label="Editar perfil">
           <FaEdit />
         </ActionButton>
-        <ActionButton
-          className="delete"
-          onClick={onDeleteProfile}
-          title="Eliminar perfil"
-          aria-label="Eliminar perfil"
-        >
+        <ActionButton className="delete" onClick={onDeleteProfile} title="Eliminar perfil" aria-label="Eliminar perfil">
           <FaTrashAlt />
         </ActionButton>
-      </FloatingActions>
+      </Box>
     </>
   );
 }

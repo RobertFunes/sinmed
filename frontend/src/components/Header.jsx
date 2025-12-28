@@ -1,15 +1,11 @@
 // Header.jsx
-import { FaUserPlus, FaComments, FaUser, FaPlusCircle, FaSearch, FaCalendarAlt } from 'react-icons/fa';
+import { FaUserPlus, FaComments, FaUser, FaSearch, FaCalendarAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { NavBar, NavButton,LogoLink } from './Header.styles.jsx';
+import { NavBar, NavButton } from './Header.styles.jsx';
 const Header = () => {
   return (
     <header>
       <NavBar>
-        <LogoLink to="/">
-          <img src="/logo-delvalle.png" alt="del valle conecta" />
-
-        </LogoLink>
         <NavButton as={Link} to="/add">
           <FaUserPlus fontSize={"1.5rem"}/> Agregar
         </NavButton>

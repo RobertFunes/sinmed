@@ -1,10 +1,12 @@
 // src/pages/Profile.jsx
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Header from '../components/Header';
+import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url.js';
 import MessageGenerator from '../components/MessageGenerator.jsx';
-import { Container, Title, SwitchRow } from './Profile.styles.jsx';
+import { Container, Title } from './Profile.styles.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import ProfileInformation from '../components/ProfileInformation.jsx';
 
@@ -72,16 +74,56 @@ export default function Profile() {
     <>
       <Header />
       <Container>
-        <SwitchRow>
-          <label>
-            <input type="radio" name="profile-view" value="perfil" checked={view === 'perfil'} onChange={() => setView('perfil')} />
-            Perfil
-          </label>
-          <label>
-            <input type="radio" name="profile-view" value="ia" checked={view === 'ia'} onChange={() => setView('ia')} />
-            IA
-          </label>
-        </SwitchRow>
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+          <ToggleButtonGroup
+            color="primary"
+            exclusive
+            value={view}
+            onChange={(_, next) => {
+              if (next) setView(next);
+            }}
+            aria-label="Vista de perfil"
+            sx={{
+              bgcolor: 'rgba(0,0,0,0.35)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 3,
+              overflow: 'hidden',
+              '& .MuiToggleButton-root': {
+                px: 2.5,
+                py: 1,
+                fontWeight: 800,
+                textTransform: 'none',
+                color: 'rgba(255,255,255,0.82)',
+                borderColor: 'rgba(255,255,255,0.12)',
+              },
+            }}
+          >
+            <ToggleButton
+              value="perfil"
+              aria-label="Modo lectura de perfil"
+              sx={{
+                '&.Mui-selected': {
+                  color: '#fff',
+                  bgcolor: Palette.dark,
+                },
+              }}
+            >
+              Modo lectura de perfil
+            </ToggleButton>
+            <ToggleButton
+              value="ia"
+              aria-label="Modo inteligencia artificial"
+              sx={{
+                '&.Mui-selected': {
+                  color: '#fff',
+                  bgcolor: Palette.primary,
+                },
+              }}
+            >
+              Modo inteligencia artificial
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
         <Title>Perfil de {data.nombre} ID{id}</Title>
         
         {view === 'perfil' ? (

@@ -1,6 +1,5 @@
 // Header.styles.jsx (extiende tu NavButton actual)
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 export const NavBar = styled.div`
   display: flex;
   gap: 24px;
@@ -8,16 +7,6 @@ export const NavBar = styled.div`
   padding: 30px 24px;
   align-items: center;
   justify-content: center;
-`;
-export const LogoLink = styled(Link)`
-       /* lo empuja a la derecha */
-  display: flex;
-  align-items: center;
-
-  img {
-    height: 44px;            /* ajusta a gusto */
-    width: auto;
-  }
 `;
 
 export const NavButton = styled.button`
