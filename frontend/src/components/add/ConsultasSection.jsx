@@ -163,6 +163,28 @@ const ConsultasSection = ({
           placeholder="Especifica el diagnóstico"
         />
       </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
+        <TextArea
+          id="consulta_tratamiento"
+          name="tratamiento"
+          value={formData.tratamiento}
+          onChange={handleChange}
+          rows={4}
+          placeholder="Describe el plan de tratamiento"
+        />
+      </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
+        <TextArea
+          id="consulta_notas"
+          name="notas"
+          value={formData.notas}
+          onChange={handleChange}
+          rows={3}
+          placeholder="Notas adicionales"
+        />
+      </FieldGroup>
       <TwoColumnRow>
         <FieldGroup>
           <Label htmlFor="consulta_medicamentos"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos</Label>
@@ -190,17 +212,6 @@ const ConsultasSection = ({
           />
         </FieldGroup>
       </TwoColumnRow>
-      <FieldGroup>
-        <Label htmlFor="consulta_tratamiento"><FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento</Label>
-        <TextArea
-          id="consulta_tratamiento"
-          name="tratamiento"
-          value={formData.tratamiento}
-          onChange={handleChange}
-          rows={4}
-          placeholder="Describe el plan de tratamiento"
-        />
-      </FieldGroup>
       <TwoColumnRow>
         <FieldGroup>
           <Label htmlFor="consulta_agua">
@@ -215,14 +226,14 @@ const ConsultasSection = ({
             placeholder="Indica consumo o indicaciones de agua"
           />
         </FieldGroup>
-        <FieldGroup>
-          <Label htmlFor="consulta_laboratorios">
-            <FaFlask style={{ marginRight: '0.5rem' }} />
-            Laboratorios
-          </Label>
-          <TextArea
-            id="consulta_laboratorios"
-            name="laboratorios"
+	        <FieldGroup>
+	          <Label htmlFor="consulta_laboratorios">
+	            <FaFlask style={{ marginRight: '0.5rem' }} />
+	            Laboratorios y gabinetes
+	          </Label>
+	          <TextArea
+	            id="consulta_laboratorios"
+	            name="laboratorios"
             value={formData.laboratorios}
             onChange={handleChange}
             rows={2}
@@ -259,17 +270,22 @@ const ConsultasSection = ({
           />
         </FieldGroup>
       </TwoColumnRow>
-      <FieldGroup>
-        <Label htmlFor="consulta_notas"><FaStickyNote style={{ marginRight: '0.5rem' }} />Notas</Label>
-        <TextArea
-          id="consulta_notas"
-          name="notas"
-          value={formData.notas}
-          onChange={handleChange}
-          rows={3}
-          placeholder="Notas adicionales"
-        />
-      </FieldGroup>
+      {isMujer && (
+        <FieldGroup>
+          <Label htmlFor="consulta_fum">
+            <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
+            FUM (Luna)
+          </Label>
+          <Input
+            type="text"
+            id="consulta_fum"
+            name="fum"
+            value={formData.fum || ''}
+            onChange={handleChange}
+            placeholder="Escribe la FUM"
+          />
+        </FieldGroup>
+      )}
       
       {formData.interrogatorio_aparatos.length > 0 && (
         <ListContainer>
@@ -298,22 +314,6 @@ const ConsultasSection = ({
           );
         })}
         </ListContainer>
-      )}
-      {isMujer && (
-        <FieldGroup>
-          <Label htmlFor="consulta_fum">
-            <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
-            FUM
-          </Label>
-          <Input
-            type="text"
-            id="consulta_fum"
-            name="fum"
-            value={formData.fum || ''}
-            onChange={handleChange}
-            placeholder="Escribe la FUM"
-          />
-        </FieldGroup>
       )}
       <TwoColumnRow>
         <FieldGroup>

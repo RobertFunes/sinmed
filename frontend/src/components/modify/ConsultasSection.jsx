@@ -357,35 +357,6 @@ const ConsultasSection = ({
                   ref={registerFieldRef(uid, 'diagnostico')}
                 />
               </FieldGroup>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor={`${diagnosticoId}_meds`}>
-                    <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos
-                  </Label>
-                  <TextArea
-                    id={`${diagnosticoId}_meds`}
-                    value={consulta.medicamentos || ''}
-                    onChange={handleConsultaFieldChange(uid, 'medicamentos')}
-                    rows={2}
-                    placeholder="Medicamentos actuales o prescritos"
-                    ref={registerFieldRef(uid, 'medicamentos')}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor={glucosaId}>
-                    <FaVial style={{ marginRight: '0.5rem' }} />
-                    Glucosa
-                  </Label>
-                  <TextArea
-                    id={glucosaId}
-                    value={consulta.glucosa || ''}
-                    onChange={handleConsultaFieldChange(uid, 'glucosa')}
-                    rows={3}
-                    placeholder="Ej. 90 mg/dL"
-                    ref={registerFieldRef(uid, 'glucosa')}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
               <FieldGroup>
                 <Label htmlFor={tratamientoId}>
                   <FaPrescriptionBottleAlt style={{ marginRight: '0.5rem' }} />Tratamiento
@@ -399,64 +370,6 @@ const ConsultasSection = ({
                   ref={registerFieldRef(uid, 'tratamiento')}
                 />
               </FieldGroup>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor={aguaId}>
-                    <FaTint style={{ marginRight: '0.5rem' }} />
-                    Agua
-                  </Label>
-                  <Input
-                    id={aguaId}
-                    value={consulta.agua || ''}
-                    onChange={handleConsultaFieldChange(uid, 'agua')}
-                    placeholder="Indica consumo o indicaciones de agua"
-                    ref={registerFieldRef(uid, 'agua')}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor={laboratoriosId}>
-                    <FaFlask style={{ marginRight: '0.5rem' }} />
-                    Laboratorios
-                  </Label>
-                  <TextArea
-                    id={laboratoriosId}
-                    value={consulta.laboratorios || ''}
-                    onChange={handleConsultaFieldChange(uid, 'laboratorios')}
-                    rows={2}
-                    placeholder="Resultados o indicaciones de laboratorio"
-                    ref={registerFieldRef(uid, 'laboratorios')}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor={presionId}>
-                    <FaTachometerAlt style={{ marginRight: '0.5rem' }} />
-                    Presión
-                  </Label>
-                  <TextArea
-                    id={presionId}
-                    value={consulta.presion || ''}
-                    onChange={handleConsultaFieldChange(uid, 'presion')}
-                    rows={3}
-                    placeholder="Ej. 120/80 mmHg"
-                    ref={registerFieldRef(uid, 'presion')}
-                  />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label htmlFor={pamId}>
-                    <FaHeartbeat style={{ marginRight: '0.5rem' }} />
-                    PAM
-                  </Label>
-                  <Input
-                    id={pamId}
-                    value={consulta.pam || ''}
-                    onChange={handleConsultaFieldChange(uid, 'pam')}
-                    placeholder="Calculada o manual"
-                    ref={registerFieldRef(uid, 'pam')}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
               {displayNumber < 2 && (
                 <FieldGroup>
                   <Label htmlFor={notasId}>
@@ -501,6 +414,109 @@ const ConsultasSection = ({
                     />
                   </FieldGroup>
                 </React.Fragment>
+              )}
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={`${diagnosticoId}_meds`}>
+                    <FaPills style={{ marginRight: '0.5rem' }} />Medicamentos y suplementos
+                  </Label>
+                  <TextArea
+                    id={`${diagnosticoId}_meds`}
+                    value={consulta.medicamentos || ''}
+                    onChange={handleConsultaFieldChange(uid, 'medicamentos')}
+                    rows={2}
+                    placeholder="Medicamentos actuales o prescritos"
+                    ref={registerFieldRef(uid, 'medicamentos')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={laboratoriosId}>
+                    <FaFlask style={{ marginRight: '0.5rem' }} />
+                    Laboratorios y gabinetes
+                  </Label>
+                  <TextArea
+                    id={laboratoriosId}
+                    value={consulta.laboratorios || ''}
+                    onChange={handleConsultaFieldChange(uid, 'laboratorios')}
+                    rows={2}
+                    placeholder="Resultados o indicaciones de laboratorio"
+                    ref={registerFieldRef(uid, 'laboratorios')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={aguaId}>
+                    <FaTint style={{ marginRight: '0.5rem' }} />
+                    Agua
+                  </Label>
+                  <Input
+                    id={aguaId}
+                    value={consulta.agua || ''}
+                    onChange={handleConsultaFieldChange(uid, 'agua')}
+                    placeholder="Indica consumo o indicaciones de agua"
+                    ref={registerFieldRef(uid, 'agua')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={glucosaId}>
+                    <FaVial style={{ marginRight: '0.5rem' }} />
+                    Glucosa
+                  </Label>
+                  <TextArea
+                    id={glucosaId}
+                    value={consulta.glucosa || ''}
+                    onChange={handleConsultaFieldChange(uid, 'glucosa')}
+                    rows={3}
+                    placeholder="Ej. 90 mg/dL"
+                    ref={registerFieldRef(uid, 'glucosa')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={presionId}>
+                    <FaTachometerAlt style={{ marginRight: '0.5rem' }} />
+                    Presión
+                  </Label>
+                  <TextArea
+                    id={presionId}
+                    value={consulta.presion || ''}
+                    onChange={handleConsultaFieldChange(uid, 'presion')}
+                    rows={3}
+                    placeholder="Ej. 120/80 mmHg"
+                    ref={registerFieldRef(uid, 'presion')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={pamId}>
+                    <FaHeartbeat style={{ marginRight: '0.5rem' }} />
+                    PAM
+                  </Label>
+                  <Input
+                    id={pamId}
+                    value={consulta.pam || ''}
+                    onChange={handleConsultaFieldChange(uid, 'pam')}
+                    placeholder="Calculada o manual"
+                    ref={registerFieldRef(uid, 'pam')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              {isMujer && (
+                <FieldGroup>
+                  <Label htmlFor={fumId}>
+                    <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
+                    FUM (Luna)
+                  </Label>
+                  <Input
+                    type="text"
+                    id={fumId}
+                    value={consulta.fum || ''}
+                    onChange={handleConsultaFieldChange(uid, 'fum')}
+                    placeholder="Escribe la FUM"
+                    ref={registerFieldRef(uid, 'fum')}
+                  />
+                </FieldGroup>
               )}
               {sistemasSeleccionados.length > 0 && (
                 <ListContainer>
@@ -557,22 +573,6 @@ const ConsultasSection = ({
                     );
                   })}
                 </ListContainer>
-              )}
-              {isMujer && (
-                <FieldGroup>
-                  <Label htmlFor={fumId}>
-                    <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
-                    FUM
-                  </Label>
-                  <Input
-                    type="text"
-                    id={fumId}
-                    value={consulta.fum || ''}
-                    onChange={handleConsultaFieldChange(uid, 'fum')}
-                    placeholder="Escribe la FUM"
-                    ref={registerFieldRef(uid, 'fum')}
-                  />
-                </FieldGroup>
               )}
               <TwoColumnRow>
                 <FieldGroup>
