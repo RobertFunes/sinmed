@@ -288,36 +288,40 @@ const ConsultasSection = ({
           />
         </FieldGroup>
       </TwoColumnRow>
-      <FieldGroup>
-        <Label htmlFor="consulta_peso">Peso</Label>
-        <Input
-          id="consulta_peso"
-          name="peso"
-          value={formData.peso || ''}
-          onChange={handleChange}
-          placeholder="Peso reportado en consulta"
-        />
-      </FieldGroup>
-      <FieldGroup>
-        <Label htmlFor="consulta_ejercicio">Ejercicio</Label>
-        <Input
-          id="consulta_ejercicio"
-          name="ejercicio"
-          value={formData.ejercicio || ''}
-          onChange={handleChange}
-          placeholder="Actividad física o indicación"
-        />
-      </FieldGroup>
-      <FieldGroup>
-        <Label htmlFor="consulta_desparacitacion">Desparacitación</Label>
-        <Input
-          id="consulta_desparacitacion"
-          name="desparacitacion"
-          value={formData.desparacitacion || ''}
-          onChange={handleChange}
-          placeholder="Esquema o seguimiento"
-        />
-      </FieldGroup>
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="consulta_peso">Peso</Label>
+          <Input
+            id="consulta_peso"
+            name="peso"
+            value={formData.peso || ''}
+            onChange={handleChange}
+            placeholder="Peso reportado en consulta"
+          />
+        </FieldGroup>
+        <FieldGroup>
+          <Label htmlFor="consulta_ejercicio">Ejercicio</Label>
+          <Input
+            id="consulta_ejercicio"
+            name="ejercicio"
+            value={formData.ejercicio || ''}
+            onChange={handleChange}
+            placeholder="Actividad física o indicación"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
+      <TwoColumnRow>
+        <FieldGroup>
+          <Label htmlFor="consulta_desparacitacion">Desparacitación</Label>
+          <Input
+            id="consulta_desparacitacion"
+            name="desparacitacion"
+            value={formData.desparacitacion || ''}
+            onChange={handleChange}
+            placeholder="Esquema o seguimiento"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
       {isMujer && (
         <FieldGroup>
           <Label htmlFor="consulta_fum">

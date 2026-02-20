@@ -319,7 +319,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
                 onClick={handleAutocopyToHistoriaClinica}
                 disabled={savingHistoriaClinica || !latestIaOutput}
               >
-                {savingHistoriaClinica ? 'Guardando en historia clínica…' : 'Autocopiar último output a historia clínica'}
+                Copiar a Historia Clínica
               </Button>
             </div>
           </div>

@@ -41,8 +41,8 @@ const normalize = (text) =>
 
 const displayInspeccionLabel = (name) => {
   const norm = normalize(name);
-  if (norm === 'cabeza') return 'Cabeza-Lengua';
-  if (norm === 'extremidades') return 'Extremidades-Pulso';
+  if (norm === 'cabeza') return 'Cabeza';
+  if (norm === 'extremidades') return 'Extremidades';
   return name;
 };
 

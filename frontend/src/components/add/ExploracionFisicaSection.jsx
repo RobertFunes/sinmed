@@ -38,8 +38,8 @@ const displayInspeccionLabel = (name) => {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  if (norm === 'cabeza') return 'Cabeza-Lengua';
-  if (norm === 'extremidades') return 'Extremidades-Pulso';
+  if (norm === 'cabeza') return 'Cabeza';
+  if (norm === 'extremidades') return 'Extremidades';
   return name;
 };
 

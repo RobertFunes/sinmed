@@ -526,36 +526,40 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
               </TwoColumnRow>
-              <FieldGroup>
-                <Label htmlFor={pesoId}>Peso</Label>
-                <Input
-                  id={pesoId}
-                  value={consulta.peso || ''}
-                  onChange={handleConsultaFieldChange(uid, 'peso')}
-                  placeholder="Peso reportado en consulta"
-                  ref={registerFieldRef(uid, 'peso')}
-                />
-              </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor={ejercicioId}>Ejercicio</Label>
-                <Input
-                  id={ejercicioId}
-                  value={consulta.ejercicio || ''}
-                  onChange={handleConsultaFieldChange(uid, 'ejercicio')}
-                  placeholder="Actividad física o indicación"
-                  ref={registerFieldRef(uid, 'ejercicio')}
-                />
-              </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor={desparacitacionId}>Desparacitación</Label>
-                <Input
-                  id={desparacitacionId}
-                  value={consulta.desparacitacion || ''}
-                  onChange={handleConsultaFieldChange(uid, 'desparacitacion')}
-                  placeholder="Esquema o seguimiento"
-                  ref={registerFieldRef(uid, 'desparacitacion')}
-                />
-              </FieldGroup>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={pesoId}>Peso</Label>
+                  <Input
+                    id={pesoId}
+                    value={consulta.peso || ''}
+                    onChange={handleConsultaFieldChange(uid, 'peso')}
+                    placeholder="Peso reportado en consulta"
+                    ref={registerFieldRef(uid, 'peso')}
+                  />
+                </FieldGroup>
+                <FieldGroup>
+                  <Label htmlFor={ejercicioId}>Ejercicio</Label>
+                  <Input
+                    id={ejercicioId}
+                    value={consulta.ejercicio || ''}
+                    onChange={handleConsultaFieldChange(uid, 'ejercicio')}
+                    placeholder="Actividad física o indicación"
+                    ref={registerFieldRef(uid, 'ejercicio')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
+              <TwoColumnRow>
+                <FieldGroup>
+                  <Label htmlFor={desparacitacionId}>Desparacitación</Label>
+                  <Input
+                    id={desparacitacionId}
+                    value={consulta.desparacitacion || ''}
+                    onChange={handleConsultaFieldChange(uid, 'desparacitacion')}
+                    placeholder="Esquema o seguimiento"
+                    ref={registerFieldRef(uid, 'desparacitacion')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
               {isMujer && (
                 <FieldGroup>
                   <Label htmlFor={fumId}>
