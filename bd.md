@@ -195,6 +195,7 @@ Fecha de verificación: `2026-02-20`.
 | `cadera_cm` | `decimal(5,2)` | Si | `NULL` |  |
 | `cintura_cm` | `decimal(5,2)` | Si | `NULL` |  |
 | `cabeza` | `text` | Si | `NULL` |  |
+| `lengua` | `text` | Si | `NULL` |  |
 | `cuello` | `text` | Si | `NULL` |  |
 | `torax` | `text` | Si | `NULL` |  |
 | `abdomen` | `text` | Si | `NULL` |  |
@@ -306,7 +307,7 @@ Fecha de verificación: `2026-02-20`.
 
 - `antecedentes_personales` ahora incluye: `tiempo_inactivo_alc`, `tiempo_inactivo_tab`, `tiempo_inactivo_tox`, `alimentos_que_le_caen_mal`, `componentes_habituales_dieta`, `vacunas`, `desayuno`, `comida`, `cena`.
 - `gineco_obstetricos` maneja `fecha_ultima_menstruacion`, `fecha_ultimo_parto`, `fecha_menopausia` como `varchar(100)` (no `date`).
-- `exploracion_fisica`: `peso_ideal` es `varchar(100)`, existe `pam` (`varchar(20)`), no aparece `rtg`, y ahora existe `pulso` como columna independiente (`varchar(20)`).
+- `exploracion_fisica`: `peso_ideal` es `varchar(100)`, existe `pam` (`varchar(20)`), no aparece `rtg`, y ahora existen `pulso` (`varchar(20)`) y `lengua` (`text`) como columnas independientes.
 - `consultas` agrega: `oreja`, `notas_evolucion`, `medicamentos`, `agua`, `laboratorios`, `presion`, `glucosa`, `pam`, `peso`, `ejercicio`, `desparacitacion`, `fum`, `respiratorio_desc`/`respiratorio_estado`, y `historia_clinica`.
 - `perfil.alergico` es `varchar(25)`.
 - `personalizados` agrega `estado` (`varchar(50)`, nullable).

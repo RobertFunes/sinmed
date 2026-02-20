@@ -406,6 +406,7 @@ const mapApiToForm = (api) => {
 
   const inspectionMappings = [
     { needle: 'Cabeza', value: ef.cabeza },
+    { needle: 'Lengua', value: ef.lengua },
     { needle: 'Cuello', value: ef.cuello },
     { needle: 'Torax', value: ef.torax },
     { needle: 'Abdomen', value: ef.abdomen },

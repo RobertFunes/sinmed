@@ -78,6 +78,7 @@ export const SISTEMAS_OPCIONES = [
 
 export const INSPECCION_OPCIONES = [
   'Cabeza',
+  'Lengua',
   'Cuello',
   'Tórax',
   'Abdomen',

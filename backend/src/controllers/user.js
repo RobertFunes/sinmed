@@ -213,6 +213,7 @@ const modify = async (req, res) => {
       return it ? (it.descripcion ?? null) : null;
     };
     efPayload.cabeza = pick('cabeza');
+    efPayload.lengua = clean(pick('lengua') ?? efRaw.lengua);
     efPayload.cuello = pick('cuello');
     const torax = areas.find((a) => {
       const n = (a?.nombre || '').toLowerCase();
@@ -730,7 +731,7 @@ const add = async (req, res) => {
     // ============================================================================
     // 6) exploracion_fisica -> UPSERT 1:1 en `exploracion_fisica`
     //     - Recibe valores básicos y un array inspeccion_general[] que mapeamos a
-    //       columnas de texto: cabeza, cuello, torax, abdomen, genitales, extremidades
+    //       columnas de texto: cabeza, lengua, cuello, torax, abdomen, genitales, extremidades
     //     - Si hay peso_actual y talla_cm, calculamos IMC (kg/m^2) con 2 decimales
     // ============================================================================
     const efRaw = body.exploracion_fisica || {};
@@ -756,6 +757,7 @@ const add = async (req, res) => {
       return it ? (it.descripcion ?? null) : null;
     };
     efPayload.cabeza = pick('cabeza');
+    efPayload.lengua = clean(pick('lengua') ?? efRaw.lengua);
     efPayload.cuello = pick('cuello');
     // soporta "tórax" y "torax"
     const torax = areas.find((a) => {
