@@ -88,6 +88,7 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Endocrino', descKeys: ['endocrino_desc', 'endocrino'], estadoKey: 'endocrino_estado' },
   { needle: 'Organos de los sentidos', descKeys: ['organos_sentidos_desc', 'organos_sentidos'], estadoKey: 'organos_sentidos_estado' },
   { needle: 'Gastrointestinal', descKeys: ['gastrointestinal_desc', 'gastrointestinal'], estadoKey: 'gastrointestinal_estado' },
+  { needle: 'Respiratorio', descKeys: ['respiratorio_desc', 'respiratorio'], estadoKey: 'respiratorio_estado' },
   { needle: 'Cardiopulmonar', descKeys: ['cardiopulmonar_desc', 'cardiopulmonar'], estadoKey: 'cardiopulmonar_estado' },
   { needle: 'Genitourinario', descKeys: ['genitourinario_desc', 'genitourinario'], estadoKey: 'genitourinario_estado' },
   { needle: 'Genital femenino', descKeys: ['genital_femenino_desc', 'genital_femenino'], estadoKey: 'genital_femenino_estado' },
@@ -259,6 +260,7 @@ const mapApiToForm = (api) => {
     fecha_consulta: toStr(row?.fecha_consulta),
     recordatorio: toStr(row?.recordatorio),
     fum: toStr(row?.fum),
+    historia_clinica: toStr(row?.historia_clinica),
     padecimiento_actual: toStr(row?.padecimiento_actual),
     diagnostico: toStr(row?.diagnostico),
     medicamentos: toStr(row?.medicamentos),
@@ -271,6 +273,9 @@ const mapApiToForm = (api) => {
     presion: toStr(row?.presion),
     glucosa: toStr(row?.glucosa),
     pam: toStr(row?.pam),
+    peso: toStr(row?.peso),
+    ejercicio: toStr(row?.ejercicio),
+    desparacitacion: toStr(row?.desparacitacion),
     interrogatorio_aparatos: mapSistemasFromSource(row).map((item) => ({
       nombre: toStr(item?.nombre),
       descripcion: toStr(item?.descripcion),
@@ -293,6 +298,7 @@ const mapApiToForm = (api) => {
         fecha_consulta: toStr(fallbackSource.fecha_consulta),
         recordatorio: toStr(fallbackSource.recordatorio),
         fum: toStr(fallbackSource.fum),
+        historia_clinica: toStr(fallbackSource.historia_clinica),
         padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
         diagnostico: toStr(fallbackSource.diagnostico),
         medicamentos: toStr(fallbackSource.medicamentos),
@@ -303,6 +309,9 @@ const mapApiToForm = (api) => {
         presion: toStr(fallbackSource.presion),
         glucosa: toStr(fallbackSource.glucosa),
         pam: toStr(fallbackSource.pam),
+        peso: toStr(fallbackSource.peso),
+        ejercicio: toStr(fallbackSource.ejercicio),
+        desparacitacion: toStr(fallbackSource.desparacitacion),
         interrogatorio_aparatos: mapSistemasFromSource(fallbackSource).map((item) => ({
           nombre: toStr(item?.nombre),
           descripcion: toStr(item?.descripcion),
@@ -335,6 +344,7 @@ const mapApiToForm = (api) => {
   if (lastConsulta) {
     assignIf('fecha_consulta', lastConsulta.fecha_consulta);
     assignIf('consulta_recordatorio', lastConsulta.recordatorio);
+    assignIf('historia_clinica', lastConsulta.historia_clinica);
     assignIf('padecimiento_actual', lastConsulta.padecimiento_actual);
     assignIf('diagnostico', lastConsulta.diagnostico);
     assignIf('medicamentos', lastConsulta.medicamentos);
@@ -348,10 +358,14 @@ const mapApiToForm = (api) => {
     assignIf('presion', lastConsulta.presion);
     assignIf('glucosa', lastConsulta.glucosa);
     assignIf('consulta_pam', lastConsulta.pam);
+    assignIf('peso', lastConsulta.peso);
+    assignIf('ejercicio', lastConsulta.ejercicio);
+    assignIf('desparacitacion', lastConsulta.desparacitacion);
     next.interrogatorio_aparatos = toArr(lastConsulta.interrogatorio_aparatos);
   } else {
     assignIf('fecha_consulta', legacy && legacy.fecha_consulta);
     assignIf('consulta_recordatorio', legacy && legacy.recordatorio);
+    assignIf('historia_clinica', legacy && legacy.historia_clinica);
     assignIf('padecimiento_actual', legacy && legacy.padecimiento_actual);
     assignIf('diagnostico', dt && dt.diagnostico);
     assignIf('medicamentos', legacy && legacy.medicamentos);
@@ -362,6 +376,9 @@ const mapApiToForm = (api) => {
     assignIf('presion', legacy && legacy.presion);
     assignIf('glucosa', legacy && legacy.glucosa);
     assignIf('consulta_pam', legacy && legacy.pam);
+    assignIf('peso', legacy && legacy.peso);
+    assignIf('ejercicio', legacy && legacy.ejercicio);
+    assignIf('desparacitacion', legacy && legacy.desparacitacion);
     next.interrogatorio_aparatos = mapSistemasFromSource({ ...(legacy || {}), ...(dt || {}) });
   }
 
@@ -394,6 +411,7 @@ const mapApiToForm = (api) => {
     { needle: 'Abdomen', value: ef.abdomen },
     { needle: 'Genitales', value: ef.genitales },
     { needle: 'Extremidades', value: ef.extremidades },
+    { needle: 'Pulso', value: ef.pulso },
   ];
 
   next.inspeccion_general = inspectionMappings
@@ -456,4 +474,3 @@ export const usePerfilModify = (id) => {
 
   return { formData, setFormData, isLoading, original: originalRef.current };
 };
-

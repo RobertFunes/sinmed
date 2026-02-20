@@ -64,6 +64,7 @@ export const SISTEMAS_OPCIONES = [
   'Endocrino',
   'Órganos de los sentidos',
   'Gastrointestinal',
+  'Respiratorio',
   'Cardiopulmonar',
   'Genitourinario',
   'Genital femenino',
@@ -82,4 +83,5 @@ export const INSPECCION_OPCIONES = [
   'Abdomen',
   'Genitales',
   'Extremidades',
+  'Pulso',
 ];

@@ -4,4 +4,4 @@
 /backend/.wwebjs_auth
 /backend/.wwebjs_cache
 /backend/.env
-/backend/src/data
+/backend/src/data.DS_Store

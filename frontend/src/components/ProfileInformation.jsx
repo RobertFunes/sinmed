@@ -121,6 +121,7 @@ const normalize = (text) =>
 const displaySistemaLabel = (name) => {
   const raw = toStr(name);
   const norm = normalize(raw);
+  if (norm === 'cardiopulmonar') return 'Cardiocircular';
   if (norm === 'psiquiatrico') return 'Psicoemocional';
   if (norm === 'reumatologico' || norm === 'reumatologo') return 'Musculoesquelético';
   return raw;
@@ -140,6 +141,7 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Endocrino', descKeys: ['endocrino_desc', 'endocrino'], estadoKey: 'endocrino_estado' },
   { needle: 'Organos de los sentidos', descKeys: ['organos_sentidos_desc', 'organos_sentidos'], estadoKey: 'organos_sentidos_estado' },
   { needle: 'Gastrointestinal', descKeys: ['gastrointestinal_desc', 'gastrointestinal'], estadoKey: 'gastrointestinal_estado' },
+  { needle: 'Respiratorio', descKeys: ['respiratorio_desc', 'respiratorio'], estadoKey: 'respiratorio_estado' },
   { needle: 'Cardiopulmonar', descKeys: ['cardiopulmonar_desc', 'cardiopulmonar'], estadoKey: 'cardiopulmonar_estado' },
   { needle: 'Genitourinario', descKeys: ['genitourinario_desc', 'genitourinario'], estadoKey: 'genitourinario_estado' },
   { needle: 'Genital femenino', descKeys: ['genital_femenino_desc', 'genital_femenino'], estadoKey: 'genital_femenino_estado' },
@@ -217,6 +219,13 @@ const mapSistemasFromSource = (source = {}) => {
     .filter(Boolean);
 };
 
+const displayInspeccionLabel = (name) => {
+  const norm = normalize(name);
+  if (norm === 'cabeza') return 'Cabeza-Lengua';
+  if (norm === 'extremidades') return 'Extremidades-Pulso';
+  return name;
+};
+
 const mapInspectionFromSource = (ef = {}) => {
   const inspectionMappings = [
     { needle: 'Cabeza', value: ef.cabeza },
@@ -225,13 +234,14 @@ const mapInspectionFromSource = (ef = {}) => {
     { needle: 'Abdomen', value: ef.abdomen },
     { needle: 'Genitales', value: ef.genitales },
     { needle: 'Extremidades', value: ef.extremidades },
+    { needle: 'Pulso', value: ef.pulso },
   ];
 
   return inspectionMappings
     .map(({ needle, value }) => {
       const descripcion = toStr(value).trim();
       if (!descripcion) return null;
-      const nombre = findMatchingLabel(INSPECCION_OPCIONES, needle, needle);
+      const nombre = displayInspeccionLabel(findMatchingLabel(INSPECCION_OPCIONES, needle, needle));
       return { nombre, descripcion };
     })
     .filter(Boolean);
@@ -295,6 +305,7 @@ const buildConsultas = (data = {}) => {
         fecha_consulta: formatDate(row?.fecha_consulta),
         recordatorio: formatDate(row?.recordatorio),
         fum: toStr(row?.fum),
+        historia_clinica: toStr(row?.historia_clinica),
         padecimiento_actual: toStr(row?.padecimiento_actual),
         diagnostico: toStr(row?.diagnostico),
         medicamentos: toStr(row?.medicamentos),
@@ -307,10 +318,13 @@ const buildConsultas = (data = {}) => {
         presion: toStr(row?.presion),
         glucosa: toStr(row?.glucosa),
         pam: toStr(row?.pam),
+        peso: toStr(row?.peso),
+        ejercicio: toStr(row?.ejercicio),
+        desparacitacion: toStr(row?.desparacitacion),
         interrogatorio: mapSistemasFromSource(row),
       };
       const hasData =
-        ['fecha_consulta', 'recordatorio', 'fum', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
+        ['fecha_consulta', 'recordatorio', 'fum', 'historia_clinica', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'notas_evolucion', 'oreja', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam', 'peso', 'ejercicio', 'desparacitacion']
           .some((key) => present(base[key])) || present(base.interrogatorio);
       return hasData ? base : null;
     })
@@ -327,6 +341,7 @@ const buildConsultas = (data = {}) => {
       fecha_consulta: formatDate(fallbackSource.fecha_consulta),
       recordatorio: formatDate(fallbackSource.recordatorio),
       fum: toStr(fallbackSource.fum),
+      historia_clinica: toStr(fallbackSource.historia_clinica),
       padecimiento_actual: toStr(fallbackSource.padecimiento_actual),
       diagnostico: toStr(fallbackSource.diagnostico),
       medicamentos: toStr(fallbackSource.medicamentos),
@@ -337,10 +352,13 @@ const buildConsultas = (data = {}) => {
       presion: toStr(fallbackSource.presion),
       glucosa: toStr(fallbackSource.glucosa),
       pam: toStr(fallbackSource.pam),
+      peso: toStr(fallbackSource.peso),
+      ejercicio: toStr(fallbackSource.ejercicio),
+      desparacitacion: toStr(fallbackSource.desparacitacion),
       interrogatorio: mapSistemasFromSource(fallbackSource),
     };
     const hasData =
-      ['fecha_consulta', 'recordatorio', 'fum', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam']
+      ['fecha_consulta', 'recordatorio', 'fum', 'historia_clinica', 'padecimiento_actual', 'diagnostico', 'medicamentos', 'tratamiento', 'notas', 'agua', 'laboratorios', 'presion', 'glucosa', 'pam', 'peso', 'ejercicio', 'desparacitacion']
         .some((key) => present(fallback[key])) || present(fallback.interrogatorio);
     if (hasData) consultas.push(fallback);
   }
@@ -990,6 +1008,54 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
                             }
                           />
                           <Row
+                            icon={<FaWeight />}
+                            label="Peso:"
+                            value={consulta.peso}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'peso',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaExchangeAlt />}
+                            label="Ejercicio:"
+                            value={consulta.ejercicio}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'ejercicio',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
+                            icon={<FaSyringe />}
+                            label="Desparacitación:"
+                            value={consulta.desparacitacion}
+                            onClick={
+                              onEditProfile
+                                ? () =>
+                                    onEditProfile({
+                                      section: 'consultas',
+                                      field: 'desparacitacion',
+                                      id_consulta: consulta.id_consulta,
+                                      index: idx,
+                                    })
+                                : undefined
+                            }
+                          />
+                          <Row
                             icon={<FaChartBar />}
                             label="Glucosa:"
                             value={consulta.glucosa}
@@ -1009,6 +1075,22 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
 
                         <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.12)' }} />
 
+                        <Row
+                          icon={<FaNotesMedical />}
+                          label="Historia clínica:"
+                          value={consulta.historia_clinica}
+                          onClick={
+                            onEditProfile
+                              ? () =>
+                                  onEditProfile({
+                                    section: 'consultas',
+                                    field: 'historia_clinica',
+                                    id_consulta: consulta.id_consulta,
+                                    index: idx,
+                                  })
+                              : undefined
+                          }
+                        />
                         <Row
                           icon={<FaNotesMedical />}
                           label="Padecimiento actual:"

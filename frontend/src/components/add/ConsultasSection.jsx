@@ -38,6 +38,11 @@ import {
 import ConfirmModal from '../ConfirmModal';
 
 const displaySistemaLabel = (name) => {
+  const norm = String(name ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  if (norm === 'cardiopulmonar') return 'Cardiocircular';
   if (name === 'Psiquiátrico' || name === 'Psiquiatrico') return 'Psicoemocional';
   if (name === 'Reumatológico' || name === 'Reumatologico' || name === 'Reumatólogo' || name === 'Reumatologo') return 'Musculoesquelético';
   return name;
@@ -148,6 +153,19 @@ const ConsultasSection = ({
         </AlergicoOptions>
       </FieldGroup>
 
+      <TwoColumnRow>
+        <FieldGroup style={{ gridColumn: '1 / -1' }}>
+          <Label htmlFor="consulta_historia_clinica"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Historia clínica</Label>
+          <TextArea
+            id="consulta_historia_clinica"
+            name="historia_clinica"
+            value={formData.historia_clinica}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Describe la historia clínica"
+          />
+        </FieldGroup>
+      </TwoColumnRow>
       <FieldGroup>
         <Label htmlFor="consulta_padecimiento_actual"><FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual</Label>
         <TextArea id="consulta_padecimiento_actual" name="padecimiento_actual" value={formData.padecimiento_actual} onChange={handleChange} rows={3} placeholder="Describe el padecimiento actual" />
@@ -270,6 +288,36 @@ const ConsultasSection = ({
           />
         </FieldGroup>
       </TwoColumnRow>
+      <FieldGroup>
+        <Label htmlFor="consulta_peso">Peso</Label>
+        <Input
+          id="consulta_peso"
+          name="peso"
+          value={formData.peso || ''}
+          onChange={handleChange}
+          placeholder="Peso reportado en consulta"
+        />
+      </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_ejercicio">Ejercicio</Label>
+        <Input
+          id="consulta_ejercicio"
+          name="ejercicio"
+          value={formData.ejercicio || ''}
+          onChange={handleChange}
+          placeholder="Actividad física o indicación"
+        />
+      </FieldGroup>
+      <FieldGroup>
+        <Label htmlFor="consulta_desparacitacion">Desparacitación</Label>
+        <Input
+          id="consulta_desparacitacion"
+          name="desparacitacion"
+          value={formData.desparacitacion || ''}
+          onChange={handleChange}
+          placeholder="Esquema o seguimiento"
+        />
+      </FieldGroup>
       {isMujer && (
         <FieldGroup>
           <Label htmlFor="consulta_fum">
@@ -376,7 +424,7 @@ const ConsultasSection = ({
               ? `Vas a eliminar el personalizado "${selectedItem.nombre || 'Sin título'}". Esta acción no se puede deshacer.`
               : 'Vas a eliminar este personalizado. Esta acción no se puede deshacer.'
             : selectedItem
-              ? `Vas a eliminar el sistema "${selectedItem.nombre}". Esta acción no se puede deshacer.`
+              ? `Vas a eliminar el sistema "${displaySistemaLabel(selectedItem.nombre)}". Esta acción no se puede deshacer.`
               : 'Vas a eliminar este sistema. Esta acción no se puede deshacer.'
         }
         confirmLabel="Eliminar"

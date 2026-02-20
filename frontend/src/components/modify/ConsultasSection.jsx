@@ -60,6 +60,11 @@ const normalize = (text) =>
     .toLowerCase();
 
 const displaySistemaLabel = (name) => {
+  const norm = String(name ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  if (norm === 'cardiopulmonar') return 'Cardiocircular';
   if (name === 'Psiquiátrico' || name === 'Psiquiatrico') return 'Psicoemocional';
   if (name === 'Reumatológico' || name === 'Reumatologico' || name === 'Reumatólogo' || name === 'Reumatologo') return 'Musculoesquelético';
   return name;
@@ -247,6 +252,7 @@ const ConsultasSection = ({
         const fechaId = `fecha_consulta_${uid}`;
         const recordatorioId = `recordatorio_${uid}`;
         const fumId = `fum_${uid}`;
+        const historiaId = `historia_${uid}`;
         const padecimientoId = `padecimiento_${uid}`;
         const diagnosticoId = `diagnostico_${uid}`;
         const tratamientoId = `tratamiento_${uid}`;
@@ -256,6 +262,9 @@ const ConsultasSection = ({
         const presionId = `presion_${uid}`;
         const glucosaId = `glucosa_${uid}`;
         const pamId = `pam_${uid}`;
+        const pesoId = `peso_${uid}`;
+        const ejercicioId = `ejercicio_${uid}`;
+        const desparacitacionId = `desparacitacion_${uid}`;
         const selectId = `select_sistema_${uid}`;
         const sistemasSeleccionados = toArr(consulta.interrogatorio_aparatos);
         const opcionesDisponibles = SISTEMAS_OPCIONES.filter((opt) => !sistemasSeleccionados.some((s) => normalize(s.nombre) === normalize(opt)));
@@ -331,6 +340,21 @@ const ConsultasSection = ({
                 </AlergicoOptions>
               </FieldGroup>
 
+              <TwoColumnRow>
+                <FieldGroup style={{ gridColumn: '1 / -1' }}>
+                  <Label htmlFor={historiaId}>
+                    <FaNotesMedical style={{ marginRight: '0.5rem' }} />Historia clínica
+                  </Label>
+                  <TextArea
+                    id={historiaId}
+                    value={consulta.historia_clinica || ''}
+                    onChange={handleConsultaFieldChange(uid, 'historia_clinica')}
+                    rows={2}
+                    placeholder="Describe la historia clínica"
+                    ref={registerFieldRef(uid, 'historia_clinica')}
+                  />
+                </FieldGroup>
+              </TwoColumnRow>
               <FieldGroup>
                 <Label htmlFor={padecimientoId}>
                   <FaNotesMedical style={{ marginRight: '0.5rem' }} />Padecimiento actual
@@ -502,6 +526,36 @@ const ConsultasSection = ({
                   />
                 </FieldGroup>
               </TwoColumnRow>
+              <FieldGroup>
+                <Label htmlFor={pesoId}>Peso</Label>
+                <Input
+                  id={pesoId}
+                  value={consulta.peso || ''}
+                  onChange={handleConsultaFieldChange(uid, 'peso')}
+                  placeholder="Peso reportado en consulta"
+                  ref={registerFieldRef(uid, 'peso')}
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor={ejercicioId}>Ejercicio</Label>
+                <Input
+                  id={ejercicioId}
+                  value={consulta.ejercicio || ''}
+                  onChange={handleConsultaFieldChange(uid, 'ejercicio')}
+                  placeholder="Actividad física o indicación"
+                  ref={registerFieldRef(uid, 'ejercicio')}
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor={desparacitacionId}>Desparacitación</Label>
+                <Input
+                  id={desparacitacionId}
+                  value={consulta.desparacitacion || ''}
+                  onChange={handleConsultaFieldChange(uid, 'desparacitacion')}
+                  placeholder="Esquema o seguimiento"
+                  ref={registerFieldRef(uid, 'desparacitacion')}
+                />
+              </FieldGroup>
               {isMujer && (
                 <FieldGroup>
                   <Label htmlFor={fumId}>

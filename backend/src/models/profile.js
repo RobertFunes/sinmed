@@ -187,6 +187,32 @@ async function replaceConsultas(id_perfil, items = []) {
   return { inserted, insertIds };
 }
 
+async function updateLatestConsultaHistoriaClinica(id_perfil, historia_clinica) {
+  const id = Number(id_perfil);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error('id_perfil inválido');
+  }
+
+  const [latestRows] = await db.query(
+    'SELECT id_consulta FROM consultas WHERE id_perfil = ? ORDER BY fecha_consulta DESC, id_consulta DESC LIMIT 1',
+    [id],
+  );
+  const latest = latestRows?.[0];
+  if (!latest?.id_consulta) {
+    return { updated: false, id_consulta: null };
+  }
+
+  const texto = typeof historia_clinica === 'string' ? historia_clinica : String(historia_clinica ?? '');
+  const [result] = await db.query(
+    'UPDATE consultas SET historia_clinica = ? WHERE id_consulta = ?',
+    [texto, latest.id_consulta],
+  );
+  return {
+    updated: (result?.affectedRows ?? 0) > 0,
+    id_consulta: latest.id_consulta,
+  };
+}
+
 // Inserta N filas en tabla `personalizados` para un perfil/consulta dado
 // items: array de objetos { nombre, descripcion, estado? } (strings no nulos)
 async function addPersonalizados(id_perfil, id_consulta, items = []) {
@@ -654,6 +680,7 @@ module.exports = {
   upsertExploracionFisica,
   upsertConsultas,
   replaceConsultas,
+  updateLatestConsultaHistoriaClinica,
   addPersonalizados,
   deletePersonalizadosByPerfil,
   addAppointment,

@@ -52,6 +52,7 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Endocrino', estadoKey: 'endocrino_estado' },
   { needle: 'Organos de los sentidos', estadoKey: 'organos_sentidos_estado' },
   { needle: 'Gastrointestinal', estadoKey: 'gastrointestinal_estado' },
+  { needle: 'Respiratorio', estadoKey: 'respiratorio_estado' },
   { needle: 'Cardiopulmonar', estadoKey: 'cardiopulmonar_estado' },
   { needle: 'Genitourinario', estadoKey: 'genitourinario_estado' },
   { needle: 'Genital femenino', estadoKey: 'genital_femenino_estado' },
@@ -76,6 +77,7 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
       fecha_consulta: trimValue(consulta?.fecha_consulta),
       recordatorio: trimValue(consulta?.recordatorio),
       fum: isMujer ? trimValue(consulta?.fum) : '',
+      historia_clinica: trimValue(consulta?.historia_clinica),
       padecimiento_actual: trimValue(consulta?.padecimiento_actual),
       diagnostico: trimValue(consulta?.diagnostico),
       medicamentos: trimValue(consulta?.medicamentos),
@@ -88,6 +90,9 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
       presion: trimValue(consulta?.presion),
       glucosa: trimValue(consulta?.glucosa),
       pam: trimValue(consulta?.pam),
+      peso: trimValue(consulta?.peso),
+      ejercicio: trimValue(consulta?.ejercicio),
+      desparacitacion: trimValue(consulta?.desparacitacion),
     };
 
     const interrogatorio_aparatos = toArr(consulta?.interrogatorio_aparatos).map((item) => {
@@ -160,4 +165,3 @@ export const useSubmitPerfilModify = (id) => {
 
   return { isSubmitting, submit };
 };
-

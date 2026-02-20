@@ -39,6 +39,13 @@ const normalize = (text) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 
+const displayInspeccionLabel = (name) => {
+  const norm = normalize(name);
+  if (norm === 'cabeza') return 'Cabeza-Lengua';
+  if (norm === 'extremidades') return 'Extremidades-Pulso';
+  return name;
+};
+
 const ExploracionFisicaSection = ({
   formData,
   onChange,
@@ -255,33 +262,37 @@ const ExploracionFisicaSection = ({
       {/* Inspección general (dinámica) */}
       {formData.inspeccion_general.length > 0 && (
         <ListContainer>
-          {formData.inspeccion_general.map((s, idx) => (
-            <ItemCard key={idx}>
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label>
-                    <FaStethoscope style={{ marginRight: '0.5rem' }} />Área
-                  </Label>
-                  <Input value={s.nombre} disabled />
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>{`Descripción de ${s.nombre.toLowerCase()}`}</Label>
-                  <TextArea
-                    value={s.descripcion}
-                    onChange={(e) => updateInspeccionDesc(idx, e.target.value)}
-                    rows={3}
-                    placeholder={`Detalle de ${s.nombre.toLowerCase()}`}
-                  />
-                </FieldGroup>
-              </TwoColumnRow>
-              <ItemActions>
-                <DangerButton type="button" onClick={() => requestDeleteInspeccion(idx)}>
-                  <FaTrash />
-                  <ButtonLabel>Eliminar</ButtonLabel>
-                </DangerButton>
-              </ItemActions>
-            </ItemCard>
-          ))}
+          {formData.inspeccion_general.map((s, idx) => {
+            const areaLabel = displayInspeccionLabel(s.nombre);
+            const areaLabelLower = String(areaLabel || '').toLowerCase();
+            return (
+              <ItemCard key={idx}>
+                <TwoColumnRow>
+                  <FieldGroup>
+                    <Label>
+                      <FaStethoscope style={{ marginRight: '0.5rem' }} />Área
+                    </Label>
+                    <Input value={areaLabel} disabled />
+                  </FieldGroup>
+                  <FieldGroup>
+                    <Label>{`Descripción de ${areaLabelLower}`}</Label>
+                    <TextArea
+                      value={s.descripcion}
+                      onChange={(e) => updateInspeccionDesc(idx, e.target.value)}
+                      rows={3}
+                      placeholder={`Detalle de ${areaLabelLower}`}
+                    />
+                  </FieldGroup>
+                </TwoColumnRow>
+                <ItemActions>
+                  <DangerButton type="button" onClick={() => requestDeleteInspeccion(idx)}>
+                    <FaTrash />
+                    <ButtonLabel>Eliminar</ButtonLabel>
+                  </DangerButton>
+                </ItemActions>
+              </ItemCard>
+            );
+          })}
         </ListContainer>
       )}
       <TwoColumnRow>
@@ -297,7 +308,7 @@ const ExploracionFisicaSection = ({
               .filter((opt) => !formData.inspeccion_general.some((s) => normalize(s.nombre) === normalize(opt)))
               .map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt}
+                  {displayInspeccionLabel(opt)}
                 </option>
               ))}
           </Select>
@@ -318,7 +329,7 @@ const ExploracionFisicaSection = ({
         title="¿Eliminar área de inspección?"
         text={
           selectedInspeccion
-            ? `Vas a eliminar el área "${selectedInspeccion.nombre}". Esta acción no se puede deshacer.`
+            ? `Vas a eliminar el área "${displayInspeccionLabel(selectedInspeccion.nombre)}". Esta acción no se puede deshacer.`
             : 'Vas a eliminar este registro de inspección. Esta acción no se puede deshacer.'
         }
         confirmLabel="Eliminar"

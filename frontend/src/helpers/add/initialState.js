@@ -38,6 +38,7 @@ export const initialState = {
   fecha_consulta: '',          // fecha de la consulta (YYYY-MM-DD)
   consulta_recordatorio: '',   // fecha de recordatorio de la consulta
   // Padecimiento actual e interrogatorio por aparatos y sistemas
+  historia_clinica: '',
   padecimiento_actual: '',
   medicamentos: '',
   interrogatorio_aparatos: [], // [{ nombre: string, descripcion: string }]
@@ -48,6 +49,9 @@ export const initialState = {
   laboratorios: '',            // estudios de laboratorio
   presion: '',                 // presión arterial (anotaciones)
   glucosa: '',                 // glucosa (anotaciones)
+  peso: '',                    // peso reportado en consulta
+  ejercicio: '',               // notas de ejercicio
+  desparacitacion: '',         // estado/nota de desparacitación
   fum: '',                     // FUM (fecha de última menstruación) (YYYY-MM-DD)
   consulta_pam: '',            // PAM calculada/manual de la consulta
   calidad: '',

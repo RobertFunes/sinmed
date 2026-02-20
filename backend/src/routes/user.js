@@ -18,6 +18,7 @@ const {
   updateCalendar,
   listCalendar,
   deleteCalendar,
+  saveLatestConsultaHistoriaClinica,
   getLimits,
   cloneDay
 } = require('../controllers/user');
@@ -33,6 +34,7 @@ router.get('/pending', checkAuth,getPending);
 router.get('/profilepending', checkAuth, getProfilePending);
 router.post('/postpone',checkAuth, postpone);
 router.post('/profile/postpone', checkAuth, clearProfileReminder);
+router.post('/profile/:id/consultas/latest/historia-clinica', checkAuth, saveLatestConsultaHistoriaClinica);
 router.delete('/profile/:id', checkAuth,removeById);
 
 
@@ -56,4 +58,3 @@ router.get('/status', (req, res) => {
 
 
 module.exports = router;
-

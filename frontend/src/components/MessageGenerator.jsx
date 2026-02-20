@@ -28,7 +28,7 @@ import {
   WhatsAppButton,
 } from './MessageGenerator.styles.jsx';
 
-export default function MessageGenerator({ profile = {} }) {
+export default function MessageGenerator({ profile = {}, profileId, onHistoriaClinicaSaved }) {
   // Límites IA
   const [limits, setLimits] = useState(null);
   const [limitsLoading, setLimitsLoading] = useState(true);
@@ -43,6 +43,9 @@ export default function MessageGenerator({ profile = {} }) {
   const [summaryPrompt, setSummaryPrompt] = useState('');
   const [summaryResult, setSummaryResult] = useState('');
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [latestIaOutput, setLatestIaOutput] = useState('');
+  const [latestIaSource, setLatestIaSource] = useState('');
+  const [savingHistoriaClinica, setSavingHistoriaClinica] = useState(false);
 
   // Cargar límites IA (silencioso)
   useEffect(() => {
@@ -98,6 +101,50 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(messageRaw)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
+
+  const registerLatestOutput = (text, source) => {
+    const normalized = String(text || '').trim();
+    if (!normalized) return;
+    setLatestIaOutput(normalized);
+    setLatestIaSource(source);
+  };
+
+  const handleAutocopyToHistoriaClinica = async () => {
+    const targetProfileId = profileId ?? profile?.id_perfil;
+    if (!targetProfileId) {
+      alert('No se encontró el ID del perfil.');
+      return;
+    }
+    const historia = String(latestIaOutput || '').trim();
+    if (!historia) {
+      alert('Aún no hay un output de IA para copiar.');
+      return;
+    }
+
+    setSavingHistoriaClinica(true);
+    try {
+      const res = await fetch(`${url}/api/profile/${targetProfileId}/consultas/latest/historia-clinica`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ historia_clinica: historia }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload?.error || 'No se pudo guardar historia clínica');
+      }
+      onHistoriaClinicaSaved?.({
+        id_consulta: payload?.id_consulta,
+        historia_clinica: historia,
+      });
+      alert('✅ Último output de IA guardado en historia clínica de la última consulta.');
+    } catch (err) {
+      alert(err.message || 'Error inesperado al guardar historia clínica');
+    } finally {
+      setSavingHistoriaClinica(false);
+    }
+  };
+
   // Generar resumen con IA (mismo endpoint que el mensaje)
   const handleGenerateSummary = async (promptOverride) => {
     const rawPrompt = typeof promptOverride === 'string' ? promptOverride : summaryPrompt;
@@ -116,7 +163,9 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       });
       if (!res.ok) throw new Error('Error al invocar la IA');
       const { respuesta } = await res.json();
-      setSummaryResult(respuesta || '');
+      const output = respuesta || '';
+      setSummaryResult(output);
+      registerLatestOutput(output, 'resumen');
       setLimits((prev) => {
         if (!prev || !prev.gemini) return prev;
         const used = (prev.gemini.used || 0) + 1;
@@ -221,7 +270,9 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
       });
       if (!res.ok) throw new Error('Error al invocar la IA');
       const { respuesta } = await res.json();
-      setGenerated(respuesta || 'Sin respuesta de la IA');
+      const output = respuesta || 'Sin respuesta de la IA';
+      setGenerated(output);
+      registerLatestOutput(output, 'mensaje');
       setLimits((prev) => {
         if (!prev || !prev.gemini) return prev;
         const used = (prev.gemini.used || 0) + 1;
@@ -257,6 +308,20 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
                 <span>Reseteo: {String(limits.gemini.resetAt || '').slice(0, 10)}</span>
               </InfoBar>
             )}
+            {latestIaOutput ? (
+              <InfoBar>
+                <span>Último output IA: {latestIaSource === 'resumen' ? 'Resumen' : 'Interacción'}</span>
+              </InfoBar>
+            ) : null}
+            <div className="buttons">
+              <Button
+                type="button"
+                onClick={handleAutocopyToHistoriaClinica}
+                disabled={savingHistoriaClinica || !latestIaOutput}
+              >
+                {savingHistoriaClinica ? 'Guardando en historia clínica…' : 'Autocopiar último output a historia clínica'}
+              </Button>
+            </div>
           </div>
 
           <SummaryButtonsRow>
@@ -438,8 +503,9 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 
 MessageGenerator.propTypes = {
   profile: PropTypes.object,
+  profileId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onHistoriaClinicaSaved: PropTypes.func,
 };
-
 
 
 

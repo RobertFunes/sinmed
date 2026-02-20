@@ -70,6 +70,30 @@ export default function Profile() {
     }
   };
 
+  const handleHistoriaClinicaSaved = ({ id_consulta, historia_clinica }) => {
+    setData((prev) => {
+      if (!prev) return prev;
+      const consultas = Array.isArray(prev.consultas) ? [...prev.consultas] : [];
+      if (!consultas.length) return prev;
+
+      const targetConsultaId = Number(id_consulta);
+      let idx = -1;
+      if (Number.isInteger(targetConsultaId) && targetConsultaId > 0) {
+        idx = consultas.findIndex((it) => Number(it?.id_consulta) === targetConsultaId);
+      }
+      if (idx < 0) idx = 0;
+
+      consultas[idx] = {
+        ...consultas[idx],
+        historia_clinica,
+      };
+      return {
+        ...prev,
+        consultas,
+      };
+    });
+  };
+
   return (
     <>
       <Header />
@@ -136,7 +160,13 @@ export default function Profile() {
       </Container>
 
       {/* Generador de mensajes sin sección de pólizas */}
-      {view === 'ia' ? <MessageGenerator profile={data} /> : null}
+      {view === 'ia' ? (
+        <MessageGenerator
+          profile={data}
+          profileId={id}
+          onHistoriaClinicaSaved={handleHistoriaClinicaSaved}
+        />
+      ) : null}
 
       <ConfirmModal
         open={!!toDelete}
@@ -147,5 +177,4 @@ export default function Profile() {
     </>
   );
 } 
-
 

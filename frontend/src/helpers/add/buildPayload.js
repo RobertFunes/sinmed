@@ -90,6 +90,7 @@ export const buildNestedPayload = (data) => {
     fecha_consulta: trim(data.fecha_consulta),
     recordatorio: trim(data.consulta_recordatorio),
     fum: trim(data.genero) === 'Mujer' ? trim(data.fum) : '',
+    historia_clinica: trim(data.historia_clinica),
     padecimiento_actual: trim(data.padecimiento_actual),
     diagnostico: trim(data.diagnostico),
     medicamentos: trim(data.medicamentos),
@@ -101,6 +102,9 @@ export const buildNestedPayload = (data) => {
     presion: trim(data.presion),
     glucosa: trim(data.glucosa),
     pam: trim(data.consulta_pam),
+    peso: trim(data.peso),
+    ejercicio: trim(data.ejercicio),
+    desparacitacion: trim(data.desparacitacion),
     interrogatorio_aparatos: (data.interrogatorio_aparatos || []).map((s) => ({
       nombre: trim(s.nombre),
       descripcion: trim(s.descripcion),

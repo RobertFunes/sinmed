@@ -108,6 +108,7 @@ const SISTEMA_FIELD_MAPPINGS = [
   { needle: 'Endocrino', descKeys: ['endocrino_desc', 'endocrino'], estadoKey: 'endocrino_estado' },
   { needle: 'Organos de los sentidos', descKeys: ['organos_sentidos_desc', 'organos_sentidos'], estadoKey: 'organos_sentidos_estado' },
   { needle: 'Gastrointestinal', descKeys: ['gastrointestinal_desc', 'gastrointestinal'], estadoKey: 'gastrointestinal_estado' },
+  { needle: 'Respiratorio', descKeys: ['respiratorio_desc', 'respiratorio'], estadoKey: 'respiratorio_estado' },
   { needle: 'Cardiopulmonar', descKeys: ['cardiopulmonar_desc', 'cardiopulmonar'], estadoKey: 'cardiopulmonar_estado' },
   { needle: 'Genitourinario', descKeys: ['genitourinario_desc', 'genitourinario'], estadoKey: 'genitourinario_estado' },
   { needle: 'Genital femenino', descKeys: ['genital_femenino_desc', 'genital_femenino'], estadoKey: 'genital_femenino_estado' },
@@ -141,6 +142,7 @@ const createEmptyConsulta = () => ({
   fecha_consulta: todayISO(),
   recordatorio: '',
   fum: '',
+  historia_clinica: '',
   padecimiento_actual: '',
   diagnostico: '',
   medicamentos: '',
@@ -153,6 +155,9 @@ const createEmptyConsulta = () => ({
   presion: '',
   glucosa: '',
   pam: '',
+  peso: '',
+  ejercicio: '',
+  desparacitacion: '',
   interrogatorio_aparatos: [],
   personalizados: [],
 });
@@ -724,6 +729,7 @@ const Modify = () => {
       ...data,
       fecha_consulta: last.fecha_consulta || '',
       consulta_recordatorio: last.recordatorio || '',
+      historia_clinica: last.historia_clinica || '',
       padecimiento_actual: last.padecimiento_actual || '',
       diagnostico: last.diagnostico || '',
       medicamentos: last.medicamentos || '',
@@ -734,6 +740,9 @@ const Modify = () => {
       laboratorios: last.laboratorios || '',
       presion: last.presion || '',
       glucosa: last.glucosa || '',
+      peso: last.peso || '',
+      ejercicio: last.ejercicio || '',
+      desparacitacion: last.desparacitacion || '',
       interrogatorio_aparatos: toArr(last.interrogatorio_aparatos),
     };
   };
@@ -758,7 +767,11 @@ const Modify = () => {
       const nueva = { ...nuevaBase };
 
       if (previous) {
+        const consultaContinuidadFields = ['historia_clinica', 'peso', 'ejercicio', 'desparacitacion'];
         nueva.fum = toStr(previous.fum);
+        consultaContinuidadFields.forEach((fieldName) => {
+          nueva[fieldName] = toStr(previous?.[fieldName]);
+        });
         nueva.padecimiento_actual = toStr(previous.padecimiento_actual);
         nueva.diagnostico = toStr(previous.diagnostico);
         nueva.medicamentos = toStr(previous.medicamentos);
@@ -1242,5 +1255,3 @@ const Modify = () => {
 };
 
 export default Modify;
-
-

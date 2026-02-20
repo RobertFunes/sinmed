@@ -13,6 +13,7 @@ const SISTEMA_FIELD_CONFIGS = [
   { key: 'endocrino', desc: 'endocrino_desc', estado: 'endocrino_estado' },
   { key: 'organos de los sentidos', desc: 'organos_sentidos_desc', estado: 'organos_sentidos_estado' },
   { key: 'gastrointestinal', desc: 'gastrointestinal_desc', estado: 'gastrointestinal_estado' },
+  { key: 'respiratorio', desc: 'respiratorio_desc', estado: 'respiratorio_estado' },
   { key: 'cardiopulmonar', desc: 'cardiopulmonar_desc', estado: 'cardiopulmonar_estado' },
   { key: 'genitourinario', desc: 'genitourinario_desc', estado: 'genitourinario_estado' },
   { key: 'genital femenino', desc: 'genital_femenino_desc', estado: 'genital_femenino_estado' },
@@ -221,6 +222,8 @@ const modify = async (req, res) => {
     efPayload.abdomen = pick('abdomen');
     efPayload.genitales = pick('genitales');
     efPayload.extremidades = pick('extremidades');
+    // Pulso se captura desde inspección_general (selector) y se guarda en columna dedicada.
+    efPayload.pulso = clean(pick('pulso') ?? efRaw.pulso);
 
     const parseNum = (v) => (v == null || v === '' ? NaN : Number(v));
     const w = parseNum(efPayload.peso_actual);
@@ -246,6 +249,7 @@ const modify = async (req, res) => {
 	        fecha_consulta: clean(toYMD(entry?.fecha_consulta)),
 	        recordatorio: clean(toYMD(entry?.recordatorio)),
 	        fum: clean(norm(entry?.fum)),
+	        historia_clinica: clean(entry?.historia_clinica),
 	        padecimiento_actual: clean(entry?.padecimiento_actual),
 	        diagnostico: clean(entry?.diagnostico),
 	        medicamentos: clean(entry?.medicamentos),
@@ -258,6 +262,9 @@ const modify = async (req, res) => {
         presion: clean(entry?.presion),
         glucosa: clean(entry?.glucosa),
         pam: clean(entry?.pam),
+        peso: clean(entry?.peso),
+        ejercicio: clean(entry?.ejercicio),
+        desparacitacion: clean(entry?.desparacitacion),
       };
       const interrogatorio = Array.isArray(entry?.interrogatorio_aparatos)
         ? entry.interrogatorio_aparatos
@@ -759,6 +766,8 @@ const add = async (req, res) => {
     efPayload.abdomen = pick('abdomen');
     efPayload.genitales = pick('genitales');
     efPayload.extremidades = pick('extremidades');
+    // Pulso se captura desde inspección_general (selector) y se guarda en columna dedicada.
+    efPayload.pulso = clean(pick('pulso') ?? efRaw.pulso);
 
     // Autocálculo de IMC si viene peso y talla (si no se calculó en front)
     const parseNum = (v) => (v == null || v === '' ? NaN : Number(v));
@@ -783,6 +792,7 @@ const add = async (req, res) => {
       fecha_consulta: clean(toYMD(consRaw.fecha_consulta)),
       recordatorio: clean(toYMD(consRaw.recordatorio)),
       fum: clean(norm(consRaw.fum)),
+      historia_clinica: clean(consRaw.historia_clinica),
       padecimiento_actual: clean(consRaw.padecimiento_actual),
       diagnostico: clean(consRaw.diagnostico),
       medicamentos: clean(consRaw.medicamentos),
@@ -794,6 +804,9 @@ const add = async (req, res) => {
       presion: clean(consRaw.presion),
       glucosa: clean(consRaw.glucosa),
       pam: clean(consRaw.pam),
+      peso: clean(consRaw.peso),
+      ejercicio: clean(consRaw.ejercicio),
+      desparacitacion: clean(consRaw.desparacitacion),
     };
     const arr = Array.isArray(consRaw.interrogatorio_aparatos)
       ? consRaw.interrogatorio_aparatos
@@ -930,6 +943,41 @@ const clearProfileReminder = async (req, res) => {
   }
 };
 
+// POST /profile/:id/consultas/latest/historia-clinica
+const saveLatestConsultaHistoriaClinica = async (req, res) => {
+  try {
+    const id = Number(req.params?.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ ok: false, error: 'ID de perfil inválido' });
+    }
+
+    const raw = req.body?.historia_clinica;
+    const historia = typeof raw === 'string' ? raw.trim() : '';
+    if (!historia) {
+      return res.status(400).json({ ok: false, error: 'historia_clinica es obligatoria' });
+    }
+
+    const existing = await bd.getById(id);
+    if (!existing || existing.ok === false) {
+      return res.status(404).json({ ok: false, error: 'Perfil no encontrado' });
+    }
+
+    const result = await bd.updateLatestConsultaHistoriaClinica(id, historia);
+    if (!result?.id_consulta) {
+      return res.status(404).json({ ok: false, error: 'No hay consultas para actualizar' });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      id_consulta: result.id_consulta,
+      historia_clinica: historia,
+    });
+  } catch (err) {
+    console.error('Error guardando historia clínica desde IA:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+};
+
 // GET /limits - devuelve uso actual de IA
 const getLimits = (req, res) => {
   try {
@@ -978,11 +1026,7 @@ module.exports = {
   updateCalendar,
   listCalendar,
   deleteCalendar,
+  saveLatestConsultaHistoriaClinica,
   getLimits,
   cloneDay
 };
-
-
-
-
-
