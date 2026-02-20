@@ -1,3 +1,3 @@
-
-//export const url = "http://localhost:5003"http://192.168.0.103:5003; 
-export const url = "";
+// URL base relativa.
+// En desarrollo funciona con proxy de Vite; en producción funciona en mismo dominio.
+export const url = ''
