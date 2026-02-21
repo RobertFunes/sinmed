@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { url } from '../../helpers/url';
+import { apiFetch } from '../../helpers/apiFetch';
 import {
   ANTECEDENTES_OPCIONES,
   HABITOS_OPCIONES,
@@ -438,7 +439,7 @@ export const usePerfilModify = (id) => {
     setIsLoading(true);
     (async () => {
       try {
-        const res = await fetch(`${url}/api/profile/${id}`, {
+        const res = await apiFetch(`${url}/api/profile/${id}`, {
           credentials: 'include',
           signal: controller.signal,
         });

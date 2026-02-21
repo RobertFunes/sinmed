@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa';
 // Recupera la URL base desde helper/url.js
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 // Estilos
 import {
   Container,
@@ -51,7 +52,7 @@ export default function MessageGenerator({ profile = {}, profileId, onHistoriaCl
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${url}/api/limits`, { credentials: 'include' });
+        const res = await apiFetch(`${url}/api/limits`, { credentials: 'include' });
         if (!res.ok) return;
         const json = await res.json();
         setLimits(json);
@@ -123,7 +124,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
 
     setSavingHistoriaClinica(true);
     try {
-      const res = await fetch(`${url}/api/profile/${targetProfileId}/consultas/latest/historia-clinica`, {
+      const res = await apiFetch(`${url}/api/profile/${targetProfileId}/consultas/latest/historia-clinica`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -155,7 +156,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     setSummaryLoading(true);
     setSummaryResult('');
     try {
-      const res = await fetch(`${url}/ia/gemini`, {
+      const res = await apiFetch(`${url}/ia/gemini`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -262,7 +263,7 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     setLoading(true);
     setGenerated('');
     try {
-      const res  = await fetch(`${url}/ia/gemini`, {
+      const res  = await apiFetch(`${url}/ia/gemini`, {
         method : 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

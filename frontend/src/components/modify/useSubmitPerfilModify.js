@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../../helpers/url';
+import { apiFetch } from '../../helpers/apiFetch';
 import { buildNestedPayload } from '../../helpers/add/buildPayload';
 
 // Helpers usados solo al enviar
@@ -133,7 +134,7 @@ export const useSubmitPerfilModify = (id) => {
     setIsSubmitting(true);
     const payload = buildPayloadWithConsultas(formData, id);
     try {
-      const res = await fetch(`${url}/api/profile/${id}`, {
+      const res = await apiFetch(`${url}/api/profile/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

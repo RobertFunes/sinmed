@@ -7,23 +7,31 @@ const cookieParser = require('cookie-parser');
 const iaRoutes = require('./routes/ia');
 const userRoutes = require('./routes/user');
 const searchRoutes = require('./routes/search');
+const authRoutes = require('./routes/auth');
 const citasCleanup = require('./jobs/citasCleanup');
 const app = express();
 // Trust first proxy (e.g., Nginx/Heroku). Needed so req.ip is the real client IP
 // and not the proxy address, which is important for rate limiting.
 app.set('trust proxy', 1);
-const dev = process.env.NODE_ENV !== 'production';
-console.log('ENV DEBUG:', process.env.USER_NAME, process.env.PASS, process.env.PIN);
+const allowedOrigins = new Set([
+  'http://localhost:5003',
+  'https://sinmed.mx',
+  'https://www.sinmed.mx',
+].filter(Boolean));
 
 app.use(cors({
-  origin: dev 
-    ? true                                // en dev: allow all origins 🌍
-    : 'https://delvalleconecta.com',           // en prod: solo tu dominio 🔒
-  credentials: true                      // habilita cookies
+  origin(origin, callback) {
+    // Permite requests server-to-server, curl y health checks sin Origin
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error('CORS_NOT_ALLOWED'));
+  },
+  credentials: true,
 }));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser()); 
+app.use('/auth', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', searchRoutes);
 app.use('/ia', iaRoutes);

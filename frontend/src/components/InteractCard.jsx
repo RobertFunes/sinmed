@@ -19,6 +19,7 @@ import {
 
 } from 'react-icons/fa';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 /* ---------- Helpers ---------- */
 
 const isValidBirthDate = (dateStr) => {
@@ -109,7 +110,7 @@ export default function IneractCard({
   const effectiveConsultaId = consultaId ?? id;
   const handlePostpone = async () => {
     try {
-      const res = await fetch(`${url}/api/postpone`, {
+      const res = await apiFetch(`${url}/api/postpone`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

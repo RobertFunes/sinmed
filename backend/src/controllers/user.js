@@ -2,6 +2,8 @@
 
 const bd = require('../models/profile');
 const iaLimiter = require('../utils/iaLimiter');
+const { signAccessToken, signRefreshToken } = require('../helpers/jwt');
+const { setAuthCookies } = require('../helpers/authCookies');
 
 const toInt = (v) => {
   const n = Number(v);
@@ -47,17 +49,6 @@ const postpone = async (req, res) => {
   }
 };
 
-// controllers/auth.js
-const checkAuth = (req, res, next) => {
-  const { auth } = req.cookies;
-  if (auth === '1') {
-    // ✅ Permite el paso a la siguiente función
-    return next();
-  } else {
-    // 🚫 Detiene y responde error
-    return res.status(401).json({ ok: false, error: '🚫 No autenticado' });
-  }
-};
 const modify = async (req, res) => {
   try {
     const body = req.body || {};
@@ -498,7 +489,7 @@ const CLEANUP_MS = 5 * 60 * 1000; // cada cuánto limpiar entradas viejas
 
 function keyFromReq(req) {
   const ip = req.ip || req.connection?.remoteAddress || 'unknown';
-  const user = String(req.body?.usuario || '').toLowerCase() || '-';
+  const user = String(req.body?.username || req.body?.usuario || '').toLowerCase() || '-';
   return `${ip}|${user}`;
 }
 
@@ -521,9 +512,11 @@ try {
 }
 
 // POST /login
-// Body: { usuario, contrasena, pin }
+// Body: { username, password, pin } (compat: { usuario, contrasena, pin })
 const login = (req, res) => {
-  const { usuario, contrasena, pin } = req.body || {};
+  const username = req.body?.username ?? req.body?.usuario;
+  const password = req.body?.password ?? req.body?.contrasena;
+  const pin = req.body?.pin;
 
   const now = Date.now();
   const key = keyFromReq(req);
@@ -537,25 +530,33 @@ const login = (req, res) => {
       .json({ ok: false, error: 'Demasiados intentos. Intenta más tarde.', retryAfterSeconds: retryAfter });
   }
 
+  if (!process.env.USER_NAME || !process.env.PASS || !process.env.PIN) {
+    return res.status(500).json({ ok: false, error: 'Servidor mal configurado' });
+  }
+
   // Validación de credenciales desde .env
   const ok = (
-    usuario === process.env.USER_NAME &&
-    contrasena === process.env.PASS &&
+    username === process.env.USER_NAME &&
+    password === process.env.PASS &&
     pin === process.env.PIN
   );
 
   if (ok) {
     // ✅ Éxito: resetea el historial de intentos
     loginAttempts.delete(key);
+    try {
+      const sub = username || 'admin';
+      const accessToken = signAccessToken(sub);
+      const refreshToken = signRefreshToken(sub);
 
-    return res
-      .cookie('auth', '1', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 4 * 30 * 24 * 60 * 60 * 1000 // ~4 meses
-      })
-      .json({ ok: true, message: '✅ Autenticado!' });
+      setAuthCookies(res, accessToken, refreshToken);
+      return res.status(200).json({ ok: true, message: 'Inicio de sesión exitoso' });
+    } catch (err) {
+      if (err?.message === 'JWT_SECRET_MISSING') {
+        return res.status(500).json({ ok: false, error: 'JWT_SECRET_MISSING' });
+      }
+      return res.status(500).json({ ok: false, error: 'Error al generar autenticación' });
+    }
   }
 
   // ❌ Fallo: incrementa contador dentro de la ventana y aplica bloqueo si corresponde
@@ -572,7 +573,7 @@ const login = (req, res) => {
   }
   loginAttempts.set(key, next);
 
-  return res.status(401).json({ ok: false, error: '❌ Usuario o PIN incorrectos' });
+  return res.status(401).json({ ok: false, error: 'Usuario o contraseña incorrectos' });
 };
 const getById = async (req, res) => {
   try {
@@ -1022,7 +1023,6 @@ module.exports = {
   getById,
   removeById,
   postpone,
-  checkAuth,
   modify,
   createCalendar,
   updateCalendar,

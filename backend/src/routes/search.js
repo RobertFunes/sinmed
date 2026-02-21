@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { search } = require('../controllers/search');
-const { checkAuth } = require('../controllers/user');
+const { userAuth } = require('../middlewares/userAuth');
 
 // Simple in-memory rate limiter por IP
 const limiter = (() => {
@@ -26,6 +26,6 @@ const limiter = (() => {
   };
 })();
 
-router.get('/search', checkAuth, limiter, search);
+router.get('/search', userAuth, limiter, search);
 
 module.exports = router;

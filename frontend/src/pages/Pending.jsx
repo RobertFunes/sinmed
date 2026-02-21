@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import Header from '../components/Header';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 
 // 🆕 Componente reutilizable
 import InteractCard from '../components/InteractCard.jsx';
@@ -20,7 +21,7 @@ function Pending() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${url}/api/pending`, {
+        const res = await apiFetch(`${url}/api/pending`, {
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Error al obtener los datos 😢');
@@ -28,7 +29,7 @@ function Pending() {
 
         let profileReminders = [];
         try {
-          const resProfiles = await fetch(`${url}/api/profilepending`, {
+          const resProfiles = await apiFetch(`${url}/api/profilepending`, {
             credentials: 'include',
           });
           if (resProfiles.ok) {

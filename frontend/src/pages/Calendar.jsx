@@ -5,6 +5,7 @@ import CloneDayModal from '../components/CloneDayModal.jsx';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 import { Page, HeaderRow, Title, NewButtonLink,CalendarContainer } from './Calendar.styles.js';
 import { scheduleBuilder } from '../helpers/adminSqueduleBuilder.js';
 import { Calendar as BigCalendar, momentLocalizer, Navigate } from 'react-big-calendar';
@@ -299,7 +300,7 @@ export default function Calendar() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${url}/api/calendar`, { credentials: 'include' });
+        const res = await apiFetch(`${url}/api/calendar`, { credentials: 'include' });
         if (!res.ok) {
           const txt = await res.text().catch(() => '');
           throw new Error(`HTTP ${res.status} ${res.statusText}${txt ? ` - ${txt}` : ''}`);

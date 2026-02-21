@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { url } from '../helpers/url';
+import { apiFetch } from '../helpers/apiFetch';
 
 export default function RequireAuth({ children }) {
   const [auth, setAuth] = useState(null);  // null = cargando, true/false = estado
   const location = useLocation();
 
   useEffect(() => {
-    fetch(`${url}/api/status`, {
+    apiFetch(`${url}/api/status`, {
       credentials: 'include'           // para enviar la cookie de sesión
     })
       .then(res => res.json())

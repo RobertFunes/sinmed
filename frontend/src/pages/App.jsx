@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PendingTitle, ContactListContainer, PaginationContainer } from './App.styles.jsx';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 import ContactCard from '../components/ContactCard.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import Header from '../components/Header.jsx';
@@ -31,7 +32,7 @@ export default function Nav() {
   const confirmDelete = async () => {
     const { id, nombre } = deleteStage;
     try {
-      const res = await fetch(`${url}/api/profile/${id}`, {
+      const res = await apiFetch(`${url}/api/profile/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -50,7 +51,7 @@ export default function Nav() {
 
   /* ---------- Carga de perfiles ---------- */
   useEffect(() => {
-    fetch(`${url}/api/summary?page=${page}&limit=${limit}` , {
+    apiFetch(`${url}/api/summary?page=${page}&limit=${limit}` , {
       credentials: 'include', // 👈 Así incluyes cookies/sesión
     })
       .then(res => res.json())

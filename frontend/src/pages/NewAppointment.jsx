@@ -3,6 +3,7 @@ import Header from '../components/Header.jsx';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 import { Page, Title, Form, Field, Input, Actions, PrimaryButton, GhostButton } from './NewAppointment.styles.jsx';
 
 export default function NewAppointment() {
@@ -107,7 +108,7 @@ export default function NewAppointment() {
         alert('Faltan campos obligatorios: nombre, fecha u horas');
         return;
       }
-      const res = await fetch(`${url}/api/calendar`, {
+      const res = await apiFetch(`${url}/api/calendar`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

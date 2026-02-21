@@ -4,6 +4,7 @@ import { useNavigate, useBeforeUnload, useBlocker } from 'react-router-dom';
 import Header from '../components/Header';
 import { AddContainer, FormCard, Title, Form, ButtonRow, SubmitButton } from './Add.styles';
 import { url } from '../helpers/url';
+import { apiFetch } from '../helpers/apiFetch';
 import { SISTEMAS_OPCIONES, INSPECCION_OPCIONES } from '../helpers/add/catalogos';
 import { initialState } from '../helpers/add/initialState';
 import { buildNestedPayload } from '../helpers/add/buildPayload';
@@ -189,7 +190,7 @@ const Add = () => {
     console.log(payload);
 
     try {
-      const res = await fetch(`${url}/api/add`, {
+      const res = await apiFetch(`${url}/api/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

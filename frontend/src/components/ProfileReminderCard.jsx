@@ -13,6 +13,7 @@ import {
 import { BsChatSquareText } from 'react-icons/bs';
 import { FaRegCalendarAlt, FaStickyNote, FaTrashAlt } from 'react-icons/fa';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 
 const formatReminder = (dateStr) => {
   if (!dateStr) return null;
@@ -57,7 +58,7 @@ export default function ProfileReminderCard({
   const handleClear = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${url}/api/profile/postpone`, {
+      const res = await apiFetch(`${url}/api/profile/postpone`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

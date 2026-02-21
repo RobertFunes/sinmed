@@ -14,6 +14,7 @@ import {
 import ContactCard from '../components/ContactCard.jsx';
 import Header from '../components/Header.jsx';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 import { FaSearch } from 'react-icons/fa';
 import { FcSearch } from 'react-icons/fc';
 
@@ -50,7 +51,7 @@ export default function Search() {
     const controller = new AbortController();
     setIsLoading(true);
     try {
-      const r = await fetch(`${url}/api/search?${params.toString()}`, {
+      const r = await apiFetch(`${url}/api/search?${params.toString()}`, {
         signal: controller.signal,
         credentials: 'include',
       });

@@ -5,6 +5,7 @@ import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Header from '../components/Header';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url.js';
+import { apiFetch } from '../helpers/apiFetch';
 import MessageGenerator from '../components/MessageGenerator.jsx';
 import { Container, Title } from './Profile.styles.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
@@ -23,7 +24,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${url}/api/profile/${id}`, {
+        const res = await apiFetch(`${url}/api/profile/${id}`, {
           credentials: 'include',
         });
         if (!res.ok) throw new Error('No se pudo cargar el perfil');
@@ -58,7 +59,7 @@ export default function Profile() {
   const confirmDelete = async () => {
     if (!toDelete) return;
     try {
-      const res = await fetch(`${url}/api/profile/${toDelete.id}`, {
+      const res = await apiFetch(`${url}/api/profile/${toDelete.id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

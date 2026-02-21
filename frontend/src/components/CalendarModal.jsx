@@ -17,6 +17,7 @@ import {
   ActionButton,
 } from "./CalendarModal.styles";
 import { url } from "../helpers/url.js";
+import { apiFetch } from "../helpers/apiFetch";
 
 const COLOR_HEX = {
   blue: "#1976D2",
@@ -86,7 +87,7 @@ export default function CalendarModal({
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`${url}/api/calendar/${eventId}`, {
+      const response = await apiFetch(`${url}/api/calendar/${eventId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -160,7 +161,7 @@ export default function CalendarModal({
     }
     try {
       setIsUpdating(true);
-      const response = await fetch(`${url}/api/calendar`, {
+      const response = await apiFetch(`${url}/api/calendar`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

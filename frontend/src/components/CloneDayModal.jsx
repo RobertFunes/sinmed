@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
+import { apiFetch } from '../helpers/apiFetch';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -237,7 +238,7 @@ export default function CloneDayModal({ visible, onClose, events, sourceDate }) 
 
     try {
       setIsSubmitting(true);
-      const res = await fetch(`${url}/api/cloneday`, {
+      const res = await apiFetch(`${url}/api/cloneday`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -19,6 +19,7 @@ import {
 } from './Add.styles';
 import { Palette } from '../helpers/theme';
 import { url } from '../helpers/url';
+import { apiFetch } from '../helpers/apiFetch';
 import { useParams } from 'react-router-dom';
 
 // Icons
@@ -187,7 +188,7 @@ export default function ModifyContract() {
 
     setResolvingId(true);
     try {
-      const res = await fetch(`${url}/api/profile/${idn}/min`, { credentials: 'include' });
+      const res = await apiFetch(`${url}/api/profile/${idn}/min`, { credentials: 'include' });
       if (!res.ok) {
         if (res.status === 404) throw new Error('ID no encontrado');
         throw new Error(`Error ${res.status}`);
@@ -207,7 +208,7 @@ export default function ModifyContract() {
     (async () => {
       try {
         setLoadingData(true);
-        const res = await fetch(`${url}/api/getone/${id}`, { credentials: 'include' });
+        const res = await apiFetch(`${url}/api/getone/${id}`, { credentials: 'include' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
@@ -423,7 +424,7 @@ export default function ModifyContract() {
 
       console.log('🚚 Enviando BUNDLE ->', body);
 
-      const res = await fetch(endpoint, {
+      const res = await apiFetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

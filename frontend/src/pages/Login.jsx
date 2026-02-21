@@ -48,7 +48,13 @@ export default function Login() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // 👈 enviamos cookie
-        body: JSON.stringify({ usuario, contrasena, pin })
+        body: JSON.stringify({
+          username: usuario,
+          password: contrasena,
+          usuario,
+          contrasena,
+          pin,
+        })
       });
 
       const data = await res.json();

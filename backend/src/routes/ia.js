@@ -2,13 +2,13 @@
 require('dotenv').config(); // 🗝️ Carga tu API Key de Gemini
 const express = require('express');
 const axios   = require('axios');
-const { checkAuth } = require('../controllers/user');
+const { userAuth } = require('../middlewares/userAuth');
 const { canUse, consume, getInfo } = require('../utils/iaLimiter');
 
 const router = express.Router();
 
 // 🌟 Ruta existente para Gemini (solo texto)
-router.post('/gemini',checkAuth, async (req, res) => {
+router.post('/gemini', userAuth, async (req, res) => {
   const { prompt } = req.body;
   try {
     if (!canUse()) {
