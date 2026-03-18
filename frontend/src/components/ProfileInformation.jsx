@@ -121,7 +121,7 @@ const normalize = (text) =>
 const displaySistemaLabel = (name) => {
   const raw = toStr(name);
   const norm = normalize(raw);
-  if (norm === 'cardiopulmonar') return 'Cardiocircular';
+  if (norm === 'cardiopulmonar') return 'Cardiocirculatorio';
   if (norm === 'psiquiatrico') return 'Psicoemocional';
   if (norm === 'reumatologico' || norm === 'reumatologo') return 'Musculoesquelético';
   return raw;

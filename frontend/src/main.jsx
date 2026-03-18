@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -34,7 +34,8 @@ const router = createBrowserRouter([
   {
     element: <ProtectedOutlet />,
     children: [
-      { path: '/', element: <App /> },
+      { path: '/', element: <Navigate to="/profiles" replace /> },
+      { path: '/profiles', element: <App /> },
       { path: '/add', element: <Add /> },
       { path: '/profile/:id', element: <Profile /> },
       { path: '/pending', element: <Interact /> },

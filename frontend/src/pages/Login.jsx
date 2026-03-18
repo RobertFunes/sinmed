@@ -29,8 +29,8 @@ export default function Login() {
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
-          // Si ya tiene cookie válida, lo llevamos al root
-          navigate('/', { replace: true });
+          // Si ya tiene cookie válida, lo llevamos al listado privado
+          navigate('/profiles', { replace: true });
         }
       })
       .catch(() => {
@@ -60,8 +60,8 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error en login');
 
-      // 🚀 Éxito: redirigimos al root
-      navigate('/', { replace: true });
+      // 🚀 Éxito: redirigimos al listado privado
+      navigate('/profiles', { replace: true });
 
     } catch (err) {
       setError(err.message);

@@ -13,7 +13,7 @@ const Header = () => {
           <FaComments /> Pendientes
         </NavButton>
 
-        <NavButton as={Link} to="/" className="agenda">
+        <NavButton as={Link} to="/profiles" className="agenda">
           <FaUser  /> Perfiles
         </NavButton>
         <NavButton as={Link} to="/calendar" className="agenda">

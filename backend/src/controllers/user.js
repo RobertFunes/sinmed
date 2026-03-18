@@ -2,8 +2,8 @@
 
 const bd = require('../models/profile');
 const iaLimiter = require('../utils/iaLimiter');
-const { signAccessToken, signRefreshToken } = require('../helpers/jwt');
-const { setAuthCookies } = require('../helpers/authCookies');
+const { signAccessToken } = require('../helpers/jwt');
+const { setAccessCookie } = require('../helpers/authCookies');
 
 const toInt = (v) => {
   const n = Number(v);
@@ -547,9 +547,8 @@ const login = (req, res) => {
     try {
       const sub = username || 'admin';
       const accessToken = signAccessToken(sub);
-      const refreshToken = signRefreshToken(sub);
 
-      setAuthCookies(res, accessToken, refreshToken);
+      setAccessCookie(res, accessToken);
       return res.status(200).json({ ok: true, message: 'Inicio de sesión exitoso' });
     } catch (err) {
       if (err?.message === 'JWT_SECRET_MISSING') {

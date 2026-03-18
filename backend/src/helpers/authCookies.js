@@ -1,4 +1,4 @@
-const { getAccessTtlSeconds, getRefreshTtlSeconds } = require('./jwt');
+const { getAccessTtlSeconds } = require('./jwt');
 
 function baseCookieOptions() {
   return {
@@ -16,32 +16,15 @@ function accessCookieOptions() {
   };
 }
 
-function refreshCookieOptions() {
-  return {
-    ...baseCookieOptions(),
-    path: '/auth/refresh',
-    maxAge: getRefreshTtlSeconds() * 1000,
-  };
-}
-
-function setAuthCookies(res, accessToken, refreshToken) {
-  return res
-    .cookie('access_token', accessToken, accessCookieOptions())
-    .cookie('refresh_token', refreshToken, refreshCookieOptions());
-}
-
 function setAccessCookie(res, accessToken) {
   return res.cookie('access_token', accessToken, accessCookieOptions());
 }
 
 function clearAuthCookies(res) {
-  return res
-    .clearCookie('access_token', { ...baseCookieOptions(), path: '/' })
-    .clearCookie('refresh_token', { ...baseCookieOptions(), path: '/auth/refresh' });
+  return res.clearCookie('access_token', { ...baseCookieOptions(), path: '/' });
 }
 
 module.exports = {
-  setAuthCookies,
   setAccessCookie,
   clearAuthCookies,
 };

@@ -42,7 +42,7 @@ const displaySistemaLabel = (name) => {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  if (norm === 'cardiopulmonar') return 'Cardiocircular';
+  if (norm === 'cardiopulmonar') return 'Cardiocirculatorio';
   if (name === 'Psiquiátrico' || name === 'Psiquiatrico') return 'Psicoemocional';
   if (name === 'Reumatológico' || name === 'Reumatologico' || name === 'Reumatólogo' || name === 'Reumatologo') return 'Musculoesquelético';
   return name;

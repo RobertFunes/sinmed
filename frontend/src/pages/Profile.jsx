@@ -63,7 +63,7 @@ export default function Profile() {
         method: 'DELETE',
         credentials: 'include',
       });
-      if (res.ok) navigate('/');
+      if (res.ok) navigate('/profiles');
     } catch (e) {
       console.error('Error al eliminar:', e);
     } finally {
@@ -178,4 +178,3 @@ export default function Profile() {
     </>
   );
 } 
-
