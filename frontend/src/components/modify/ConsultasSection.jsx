@@ -56,6 +56,178 @@ const NotesJumpButton = styled(DangerButton)`
   color: ${Palette.primary};
 `;
 
+const SistemaCard = styled(ItemCard)`
+  border: 1px solid rgba(65, 94, 114, 0.22);
+  border-left: 6px solid ${Palette.primary};
+  border-radius: 8px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(32, 87, 129, 0.08);
+`;
+
+const SistemaHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(65, 94, 114, 0.16);
+
+  @media (max-width: 760px) {
+    flex-direction: column;
+  }
+`;
+
+const SistemaIdentity = styled.div`
+  min-width: 0;
+`;
+
+const SistemaEyebrow = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: ${Palette.secondary};
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
+`;
+
+const SistemaName = styled.div`
+  margin-top: 0.3rem;
+  color: ${Palette.title};
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+`;
+
+const SistemaInitialNote = styled.div`
+  color: ${Palette.title};
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+`;
+
+const SistemaActions = styled(ItemActions)`
+  margin-top: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 760px) {
+    width: 100%;
+    justify-content: flex-start;
+  }
+`;
+
+const SistemaActionButton = styled(DangerButton)`
+  margin-left: 0;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  white-space: nowrap;
+
+  ${ButtonLabel} {
+    margin-left: 0;
+  }
+`;
+
+const SistemaNotesButton = styled(SistemaActionButton)`
+  background: rgba(79, 149, 157, 0.1);
+  border-color: rgba(79, 149, 157, 0.35);
+  color: ${Palette.dark};
+`;
+
+const SistemaDeleteButton = styled(SistemaActionButton)`
+  background: rgba(84, 18, 18, 0.08);
+  border-color: rgba(84, 18, 18, 0.28);
+  color: ${Palette.primary};
+`;
+
+const SistemaBody = styled.div`
+  display: grid;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(0, 1.28fr);
+  gap: 1rem;
+  align-items: stretch;
+  margin-top: 1rem;
+
+  @media (max-width: 980px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SistemaPanel = styled.div`
+  min-width: 0;
+  border: 1px solid rgba(65, 94, 114, 0.14);
+  border-radius: 8px;
+  padding: 0.85rem;
+  background: ${({ $soft }) => ($soft ? 'rgba(79, 183, 179, 0.08)' : '#fbfdff')};
+`;
+
+const CompactLabel = styled(Label)`
+  margin: 0 0 0.55rem;
+  color: ${Palette.title};
+  font-size: 0.95rem;
+  line-height: 1.2;
+`;
+
+const SistemaTextArea = styled(TextArea)`
+  min-height: 118px;
+`;
+
+const SistemaEstadoChecklist = styled(EstadoChecklist)`
+  border-radius: 8px;
+  padding: 0.65rem;
+  gap: 0.5rem;
+  background: #ffffff;
+
+  ${EstadoOptionLabel} {
+    padding: 0.38rem 0.65rem;
+  }
+`;
+
+const SistemaAddPanel = styled.div`
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px dashed rgba(65, 94, 114, 0.34);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+`;
+
+const SistemaAddRow = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: end;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SistemaSelect = styled(Select)`
+  width: 100%;
+  min-width: 0;
+`;
+
+const SistemaAddButton = styled(SubmitButton)`
+  width: auto;
+  min-width: 132px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 760px) {
+    width: 100%;
+  }
+`;
+
 const toStr = (value) => (value == null ? '' : String(value));
 const toArr = (value) => (Array.isArray(value) ? value : []);
 const normalize = (text) =>
@@ -623,78 +795,82 @@ const ConsultasSection = ({
                     const isOldestConsulta = String(uid) === String(oldestConsultaUid ?? '');
                     const showEstadoChecklist = !isOldestConsulta && Boolean(config?.estadoKey);
                     return (
-                      <ItemCard key={`${uid}-sistema-${sistemaIdx}`}>
-                        <TwoColumnRow>
-                          <FieldGroup>
-                            <Label>
-                              <FaClipboardCheck style={{ marginRight: '0.5rem' }} />Sistema
-                            </Label>
-                            <Input value={displaySistemaLabel(s.nombre)} disabled />
-                            {showEstadoChecklist && (
-                              <FieldGroup>
-                                <Label>Seguimiento</Label>
-                                <EstadoChecklist>
-                                  {SISTEMA_ESTADO_OPTIONS.map((option) => {
-                                    const optionId = `${uid}-sistema-${sistemaIdx}-${option.value}`;
-                                    const checked = estadoValue === option.value;
-                                    return (
-                                      <EstadoOptionLabel key={option.value} htmlFor={optionId}>
-                                        <EstadoCheckbox id={optionId} type="checkbox" checked={checked} onChange={() => handleToggleSistemaEstado(uid, sistemaIdx, option.value)} />
-                                        <span>{option.label}</span>
-                                      </EstadoOptionLabel>
-                                    );
-                                  })}
-                                </EstadoChecklist>
-                              </FieldGroup>
+                      <SistemaCard key={`${uid}-sistema-${sistemaIdx}`}>
+                        <SistemaHeader>
+                          <SistemaIdentity>
+                            <SistemaEyebrow>
+                              <FaClipboardCheck />
+                              Sistema
+                            </SistemaEyebrow>
+                            <SistemaName>{displaySistemaLabel(s.nombre)}</SistemaName>
+                          </SistemaIdentity>
+                          <SistemaActions>
+                            <SistemaNotesButton type="button" onClick={() => scrollToConsultaNotes(uid, displayNumber, sistemaIdx)} disabled={isLoading}>
+                              <FaStickyNote />
+                              <ButtonLabel>{displayNumber < 2 ? 'Ir a notas' : 'Ir a notas de ev.'}</ButtonLabel>
+                            </SistemaNotesButton>
+                            <SistemaDeleteButton type="button" onClick={() => requestDeleteSistema(uid, sistemaIdx)} disabled={isLoading}>
+                              <FaTrash />
+                              <ButtonLabel>Eliminar</ButtonLabel>
+                            </SistemaDeleteButton>
+                          </SistemaActions>
+                        </SistemaHeader>
+
+                        <SistemaBody>
+                          <SistemaPanel $soft>
+                            <CompactLabel>Seguimiento</CompactLabel>
+                            {showEstadoChecklist ? (
+                              <SistemaEstadoChecklist>
+                                {SISTEMA_ESTADO_OPTIONS.map((option) => {
+                                  const optionId = `${uid}-sistema-${sistemaIdx}-${option.value}`;
+                                  const checked = estadoValue === option.value;
+                                  return (
+                                    <EstadoOptionLabel key={option.value} htmlFor={optionId}>
+                                      <EstadoCheckbox id={optionId} type="checkbox" checked={checked} onChange={() => handleToggleSistemaEstado(uid, sistemaIdx, option.value)} />
+                                      <span>{option.label}</span>
+                                    </EstadoOptionLabel>
+                                  );
+                                })}
+                              </SistemaEstadoChecklist>
+                            ) : (
+                              <SistemaInitialNote>Consulta inicial</SistemaInitialNote>
                             )}
-                          </FieldGroup>
-                          <FieldGroup>
-                            <Label>{`Descripción de aparato ${displaySistemaLabel(s.nombre)?.toLowerCase?.() || ''}`}</Label>
-                            <TextArea
+                          </SistemaPanel>
+                          <SistemaPanel>
+                            <CompactLabel>{`Descripción de ${displaySistemaLabel(s.nombre)?.toLowerCase?.() || 'sistema'}`}</CompactLabel>
+                            <SistemaTextArea
                               value={s.descripcion}
                               onChange={(e) => handleActualizarSistemaDesc(uid, sistemaIdx, e.target.value)}
-                              rows={3}
+                              rows={4}
                               placeholder={`Detalle de ${displaySistemaLabel(s.nombre)?.toLowerCase?.() || ''}`}
                               ref={registerFieldRef(uid, `interrogatorio_desc_${sistemaIdx}`)}
                             />
-                          </FieldGroup>
-                        </TwoColumnRow>
-
-                        <ItemActions>
-                          <NotesJumpButton type="button" onClick={() => scrollToConsultaNotes(uid, displayNumber, sistemaIdx)} disabled={isLoading}>
-                            <FaStickyNote />
-                            <ButtonLabel>{displayNumber < 2 ? 'Ir a notas' : 'Ir a notas de ev.'}</ButtonLabel>
-                          </NotesJumpButton>
-                          <DangerButton type="button" onClick={() => requestDeleteSistema(uid, sistemaIdx)} disabled={isLoading}>
-                            <FaTrash />
-                            <ButtonLabel>Eliminar sistema</ButtonLabel>
-                          </DangerButton>
-                        </ItemActions>
-                      </ItemCard>
+                          </SistemaPanel>
+                        </SistemaBody>
+                      </SistemaCard>
                     );
                   })}
                 </ListContainer>
               )}
-              <TwoColumnRow>
-                <FieldGroup>
-                  <Label htmlFor={selectId}>Selecciona un sistema</Label>
-                  <Select id={selectId} value={selectValue} onChange={handleSistemaSelectChange(uid)}>
-                    <option value="">-- Selecciona --</option>
-                    {opcionesDisponibles.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {displaySistemaLabel(opt)}
-                      </option>
-                    ))}
-                  </Select>
-                </FieldGroup>
-                <FieldGroup>
-                  <Label>&nbsp;</Label>
-                  <SubmitButton type="button" onClick={() => handleAgregarSistema(uid)} disabled={!selectValue || isLoading}>
+              <SistemaAddPanel>
+                <SistemaAddRow>
+                  <FieldGroup>
+                    <CompactLabel htmlFor={selectId}>Agregar sistema</CompactLabel>
+                    <SistemaSelect id={selectId} value={selectValue} onChange={handleSistemaSelectChange(uid)}>
+                      <option value="">-- Selecciona --</option>
+                      {opcionesDisponibles.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {displaySistemaLabel(opt)}
+                        </option>
+                      ))}
+                    </SistemaSelect>
+                  </FieldGroup>
+                  <SistemaAddButton type="button" onClick={() => handleAgregarSistema(uid)} disabled={!selectValue || isLoading}>
                     <FaPlusCircle style={{ marginRight: '0.5rem' }} />
                     Agregar
-                  </SubmitButton>
-                </FieldGroup>
-              </TwoColumnRow>
+                  </SistemaAddButton>
+                </SistemaAddRow>
+              </SistemaAddPanel>
               {toArr(consulta.personalizados).length > 0 && (
                 <ListContainer>
                   {toArr(consulta.personalizados).map((p, pIdx) => {
