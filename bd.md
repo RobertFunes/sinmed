@@ -2,21 +2,21 @@
 
 Fuente: phpMyAdmin `5.2.2` en `auth-db938.hstgr.io` (servidor `127.0.0.1:3306`).
 
-Fecha de verificación: `2026-02-20`.
+Fecha de verificación: `2026-06-14`.
 
 ## Resumen de tablas
 
 | Tabla | Engine | Collation | Filas |
 |---|---|---|---:|
-| `antecedentes_familiares` | InnoDB | `utf8mb4_unicode_ci` | 250 |
-| `antecedentes_personales` | InnoDB | `utf8mb4_unicode_ci` | 25 |
-| `antecedentes_personales_patologicos` | InnoDB | `utf8mb4_unicode_ci` | 246 |
-| `citas` | InnoDB | `utf8mb4_unicode_ci` | 1043 |
-| `consultas` | InnoDB | `utf8mb4_uca1400_ai_ci` | 554 |
-| `exploracion_fisica` | InnoDB | `utf8mb4_unicode_ci` | 428 |
-| `gineco_obstetricos` | InnoDB | `utf8mb4_unicode_ci` | 19 |
-| `perfil` | InnoDB | `utf8mb4_general_ci` | 88 |
-| `personalizados` | InnoDB | `utf8mb4_uca1400_ai_ci` | 344 |
+| `antecedentes_familiares` | InnoDB | `utf8mb4_unicode_ci` | 497 |
+| `antecedentes_personales` | InnoDB | `utf8mb4_unicode_ci` | 50 |
+| `antecedentes_personales_patologicos` | InnoDB | `utf8mb4_unicode_ci` | 466 |
+| `citas` | InnoDB | `utf8mb4_unicode_ci` | 1467 |
+| `consultas` | InnoDB | `utf8mb4_uca1400_ai_ci` | 1237 |
+| `exploracion_fisica` | InnoDB | `utf8mb4_unicode_ci` | 1123 |
+| `gineco_obstetricos` | InnoDB | `utf8mb4_unicode_ci` | 35 |
+| `perfil` | InnoDB | `utf8mb4_general_ci` | 112 |
+| `personalizados` | InnoDB | `utf8mb4_uca1400_ai_ci` | 880 |
 
 ## `antecedentes_familiares`
 
@@ -159,8 +159,8 @@ Fecha de verificación: `2026-02-20`.
 | `recordatorio` | `date` | Si | `NULL` |  |
 | `medicamentos` | `varchar(500)` | Si | `NULL` |  |
 | `agua` | `varchar(50)` | Si | `NULL` |  |
-| `laboratorios` | `varchar(500)` | Si | `NULL` |  |
-| `presion` | `varchar(200)` | Si | `NULL` |  |
+| `laboratorios` | `text` | Si | `NULL` |  |
+| `presion` | `varchar(4000)` | Si | `NULL` |  |
 | `glucosa` | `varchar(500)` | Si | `NULL` |  |
 | `pam` | `varchar(25)` | Si | `NULL` |  |
 | `peso` | `varchar(100)` | Si | `NULL` |  |
@@ -259,10 +259,10 @@ Fecha de verificación: `2026-02-20`.
 | `alergico` | `varchar(25)` | Si | `''` |  |
 | `actualizado` | `date` | No | `curdate()` |  |
 | `creado` | `date` | No | `curdate()` |  |
-| `id_legado` | `int(11)` | Si | `NULL` | `Id opcional heredado/relacion` |
+| `id_legado` | `int(11)` | Si | `NULL` | `Id opcional heredado/relación` |
 | `fecha_legado` | `date` | Si | `NULL` | `Fecha de legado` |
 | `recordatorio` | `date` | Si | `NULL` | `Fecha del recordatorio (sin hora)` |
-| `recordatorio_desc` | `text` | Si | `NULL` | `Descripcion del recordatorio` |
+| `recordatorio_desc` | `text` | Si | `NULL` | `Descripción del recordatorio` |
 
 ### Indices
 | Indice | Unico | Columnas |
@@ -308,6 +308,6 @@ Fecha de verificación: `2026-02-20`.
 - `antecedentes_personales` ahora incluye: `tiempo_inactivo_alc`, `tiempo_inactivo_tab`, `tiempo_inactivo_tox`, `alimentos_que_le_caen_mal`, `componentes_habituales_dieta`, `vacunas`, `desayuno`, `comida`, `cena`.
 - `gineco_obstetricos` maneja `fecha_ultima_menstruacion`, `fecha_ultimo_parto`, `fecha_menopausia` como `varchar(100)` (no `date`).
 - `exploracion_fisica`: `peso_ideal` es `varchar(100)`, existe `pam` (`varchar(20)`), no aparece `rtg`, y ahora existen `pulso` (`varchar(20)`) y `lengua` (`text`) como columnas independientes.
-- `consultas` agrega: `oreja`, `notas_evolucion`, `medicamentos`, `agua`, `laboratorios`, `presion`, `glucosa`, `pam`, `peso`, `ejercicio`, `desparacitacion`, `fum`, `respiratorio_desc`/`respiratorio_estado`, y `historia_clinica`.
+- `consultas` agrega: `oreja`, `notas_evolucion`, `medicamentos`, `agua`, `laboratorios`, `presion`, `glucosa`, `pam`, `peso`, `ejercicio`, `desparacitacion`, `fum`, `respiratorio_desc`/`respiratorio_estado`, y `historia_clinica`; actualmente `laboratorios` es `text` y `presion` es `varchar(4000)`.
 - `perfil.alergico` es `varchar(25)`.
 - `personalizados` agrega `estado` (`varchar(50)`, nullable).

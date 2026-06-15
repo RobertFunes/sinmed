@@ -30,6 +30,10 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
   server: {
     proxy: {
       '/api': {

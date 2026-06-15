@@ -15,6 +15,10 @@ const popIn    = keyframes`
   from { transform: scale(0.85); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
 `;
+const dangerPulse = keyframes`
+  0%, 100% { box-shadow: 0 0 0 0 rgba(214, 40, 40, 0.45); }
+  50% { box-shadow: 0 0 0 7px rgba(214, 40, 40, 0); }
+`;
 
 /* 🌑 Fondeo oscuro translúcido */
 const Backdrop = styled.div`
@@ -64,6 +68,17 @@ const BtnRow = styled.div`
     color: ${colors.white};
     &:hover { filter: brightness(0.92); }
   }
+  .confirm.danger-final {
+    background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+    color: #fff;
+    border-color: #7f1d1d;
+    animation: ${dangerPulse} 1.15s ease-in-out infinite;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    &:hover {
+      filter: brightness(1.05) saturate(1.1);
+      transform: translateY(-2px) scale(1.03);
+    }
+  }
 `;
 
 export default function ConfirmModal({
@@ -72,7 +87,8 @@ export default function ConfirmModal({
   onCancel,
   onConfirm,
   title = '🟥 ¿Confirmar? 🟥',
-  confirmLabel = 'Eliminar'
+  confirmLabel = 'Eliminar',
+  dangerFinal = false
 }) {
   if (!open) return null;
   return (
@@ -83,7 +99,7 @@ export default function ConfirmModal({
 
         <BtnRow>
           <button className="cancel"  onClick={onCancel}>Cancelar</button>
-          <button className="confirm" onClick={onConfirm}>{confirmLabel}</button>
+          <button className={`confirm${dangerFinal ? ' danger-final' : ''}`} onClick={onConfirm}>{confirmLabel}</button>
         </BtnRow>
       </Box>
     </Backdrop>

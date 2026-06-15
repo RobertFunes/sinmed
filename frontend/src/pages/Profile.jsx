@@ -17,7 +17,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [toDelete, setToDelete] = useState(null);
+  const [deleteStage, setDeleteStage] = useState({ step: 0, id: null, label: '' });
   const [view, setView] = useState('perfil');
 
   // Carga del perfil
@@ -53,13 +53,15 @@ export default function Profile() {
       navigate(`/modify/${id}`);
     }
   };
-  const askDeleteProfile = () => setToDelete({ id, label: data.nombre });
-  const cancelDelete = () => setToDelete(null);
+  const resetDelete = () => setDeleteStage({ step: 0, id: null, label: '' });
+  const askDeleteProfile = () => setDeleteStage({ step: 1, id, label: data.nombre });
+  const cancelDelete = () => resetDelete();
+  const handleFirstDeleteConfirm = () => setDeleteStage((prev) => ({ ...prev, step: 2 }));
 
   const confirmDelete = async () => {
-    if (!toDelete) return;
+    if (!deleteStage.id) return;
     try {
-      const res = await apiFetch(`${url}/api/profile/${toDelete.id}`, {
+      const res = await apiFetch(`${url}/api/profile/${deleteStage.id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -67,7 +69,7 @@ export default function Profile() {
     } catch (e) {
       console.error('Error al eliminar:', e);
     } finally {
-      setToDelete(null);
+      resetDelete();
     }
   };
 
@@ -170,10 +172,20 @@ export default function Profile() {
       ) : null}
 
       <ConfirmModal
-        open={!!toDelete}
-        text={toDelete ? `Eliminar el perfil de "${data.nombre}"? ¡Esta acción no se puede deshacer!` : ''}
+        open={deleteStage.step === 1}
+        text={`¿Eliminar el perfil de "${deleteStage.label}"? Esta acción no se puede deshacer.`}
+        onCancel={cancelDelete}
+        onConfirm={handleFirstDeleteConfirm}
+        confirmLabel="Continuar"
+      />
+      <ConfirmModal
+        open={deleteStage.step === 2}
+        title="🚨 🔴 Confirmación final 🔴 🚨"
+        text={`🟥 Última oportunidad 🟥 ¿Eliminar definitivamente a "${deleteStage.label}"?`}
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
+        confirmLabel="Eliminar definitivamente"
+        dangerFinal
       />
     </>
   );

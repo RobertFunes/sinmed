@@ -13,6 +13,8 @@ const app = express();
 // and not the proxy address, which is important for rate limiting.
 app.set('trust proxy', 1);
 const allowedOrigins = new Set([
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'http://localhost:5003',
   'https://sinmed.mx',
   'https://www.sinmed.mx',

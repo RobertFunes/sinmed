@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Summary,
   TwoColumnRow,
@@ -65,7 +65,17 @@ const ConsultasSection = ({
   toggleAlergico,
 }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [activeNotesJump, setActiveNotesJump] = useState(null);
+  const fieldRefs = useRef({});
   const isMujer = (formData.genero || '').trim() === 'Mujer';
+
+  const registerFieldRef = (field) => (el) => {
+    if (el) {
+      fieldRefs.current[field] = el;
+    } else {
+      delete fieldRefs.current[field];
+    }
+  };
 
   const selectedItem = (() => {
     if (!deleteTarget) return null;
@@ -78,6 +88,20 @@ const ConsultasSection = ({
 
   const requestDeletePersonalizado = (idx) => setDeleteTarget({ type: 'personalizado', index: idx });
   const requestDeleteSistema = (idx) => setDeleteTarget({ type: 'sistema', index: idx });
+  const scrollToConsultaNotes = (sistemaIdx) => {
+    const target = fieldRefs.current.notas;
+    if (!target) return;
+    setActiveNotesJump({ sistemaIdx, field: 'notas' });
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => target.focus?.({ preventScroll: true }), 350);
+  };
+  const scrollBackToSistema = () => {
+    if (!activeNotesJump) return;
+    const target = fieldRefs.current[`interrogatorio_desc_${activeNotesJump.sistemaIdx}`];
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => target.focus?.({ preventScroll: true }), 350);
+  };
   const cancelDelete = () => setDeleteTarget(null);
   const confirmDelete = () => {
     if (!deleteTarget) return;
@@ -201,7 +225,16 @@ const ConsultasSection = ({
           onChange={handleChange}
           rows={3}
           placeholder="Notas adicionales"
+          ref={registerFieldRef('notas')}
         />
+        {activeNotesJump?.field === 'notas' && (
+          <ItemActions>
+            <DangerButton type="button" onClick={scrollBackToSistema}>
+              <FaClipboardCheck />
+              <ButtonLabel>Regresar a sistema</ButtonLabel>
+            </DangerButton>
+          </ItemActions>
+        )}
       </FieldGroup>
       <TwoColumnRow>
         <FieldGroup>
@@ -353,10 +386,20 @@ const ConsultasSection = ({
                 </FieldGroup>
                 <FieldGroup>
                   <Label>{`Descripción de aparato ${sistemaNombreLower}`}</Label>
-                  <TextArea value={s.descripcion} onChange={(e) => updateSistemaDesc(idx, e.target.value)} rows={3} placeholder={`Detalle de ${sistemaNombreLower}`} />
+                  <TextArea
+                    value={s.descripcion}
+                    onChange={(e) => updateSistemaDesc(idx, e.target.value)}
+                    rows={3}
+                    placeholder={`Detalle de ${sistemaNombreLower}`}
+                    ref={registerFieldRef(`interrogatorio_desc_${idx}`)}
+                  />
                 </FieldGroup>
               </TwoColumnRow>
               <ItemActions>
+                <DangerButton type="button" onClick={() => scrollToConsultaNotes(idx)}>
+                  <FaStickyNote />
+                  <ButtonLabel>Ir a notas</ButtonLabel>
+                </DangerButton>
                 <DangerButton type="button" onClick={() => requestDeleteSistema(idx)}>
                   <FaTrash />
                   <ButtonLabel>Eliminar</ButtonLabel>

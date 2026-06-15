@@ -1,4 +1,5 @@
 // add.styles.jsx
+import { forwardRef } from 'react';
 import styled from 'styled-components';
 
 /* 🎨 Paleta centralizada para poder reutilizarla fácilmente */
@@ -92,17 +93,291 @@ const inputStyles = `
   }
 `;
 
-/* Campos de texto */
-export const Input = styled.input`
-  ${inputStyles}
+const VARCHAR_LIMITS = {
+  nombre: 100,
+  telefono: 20,
+  telefono_movil: 20,
+  correo_electronico: 100,
+  residencia: 255,
+  ocupacion: 50,
+  escolaridad: 100,
+  tipo_sangre: 10,
+  referido_por: 100,
+  alergico: 25,
+  antecedente: 100,
+  cigarrillos_por_dia: 10,
+  tiempo_activo_alc: 50,
+  tiempo_inactivo_alc: 50,
+  tiempo_activo_tab: 50,
+  tiempo_inactivo_tab: 50,
+  tipo_toxicomania: 100,
+  tiempo_activo_tox: 50,
+  tiempo_inactivo_tox: 50,
+  cambio_tipo: 120,
+  cambio_causa: 120,
+  cambio_tiempo: 60,
+  peso_ideal: 100,
+  ta_mmhg: 15,
+  pulso: 20,
+  pam: 25,
+  cantidad: 50,
+  dolor: 50,
+  fecha_ultima_menstruacion: 100,
+  fecha_ultimo_parto: 100,
+  fecha_menopausia: 100,
+  tipo_anticonceptivo: 100,
+  gineco_cantidad: 50,
+  gineco_dolor: 50,
+  gineco_fecha_ultima_menstruacion: 100,
+  gineco_fecha_ultimo_parto: 100,
+  gineco_fecha_menopausia: 100,
+  gineco_tipo_anticonceptivo: 100,
+  oreja: 20,
+  notas_evolucion: 1000,
+  sintomas_generales_estado: 15,
+  endocrino_estado: 15,
+  organos_sentidos_estado: 15,
+  gastrointestinal_estado: 15,
+  respiratorio_estado: 15,
+  cardiopulmonar_estado: 15,
+  genitourinario_estado: 15,
+  genital_femenino_estado: 15,
+  sexualidad_estado: 15,
+  dermatologico_estado: 15,
+  neurologico_estado: 15,
+  hematologico_estado: 15,
+  reumatologico_estado: 15,
+  psiquiatrico_estado: 15,
+  medicamentos_estado: 15,
+  medicamentos: 500,
+  agua: 50,
+  presion: 4000,
+  glucosa: 500,
+  peso: 100,
+  ejercicio: 255,
+  desparacitacion: 255,
+  fum: 500,
+  estado: 50,
+  color: 50,
+};
+
+const resolveInputLimit = ({ maxLength, name, id }) => {
+  const explicit = Number(maxLength);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+
+  const fieldName = String(name || id || '').trim();
+  if (!fieldName) return undefined;
+
+  return VARCHAR_LIMITS[fieldName];
+};
+
+export const InputLimitWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
 `;
 
-/* Área de texto */
-export const TextArea = styled.textarea`
+export const CharacterLimitRing = styled.span`
+  --size: 1.35rem;
+  position: absolute;
+  right: 0.75rem;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #fff 53%, transparent 55%),
+    conic-gradient(
+      ${({ $isFull, $isNearLimit }) => ($isFull ? '#d32f2f' : $isNearLimit ? '#f57c00' : Palette.primary)}
+        ${({ $progress }) => `${$progress * 360}deg`},
+      ${Palette.lightGray} 0deg
+    );
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  transition: background 0.15s ease-in-out;
+
+  &::after {
+    content: ${({ $remaining, $isNearLimit }) => ($isNearLimit ? `'${$remaining}'` : "''")};
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: ${({ $isFull, $isNearLimit }) => ($isFull ? '#d32f2f' : $isNearLimit ? '#7a4a00' : Palette.secondary)};
+  }
+`;
+
+export const TextAreaLimitWrapper = styled(InputLimitWrapper)`
+  align-items: flex-start;
+`;
+
+/* Campos de texto */
+const StyledInput = styled.input`
   ${inputStyles}
+  width: 100%;
+  ${({ $hasCharLimit }) => ($hasCharLimit ? 'padding-right: 2.75rem;' : '')}
+`;
+
+const getLimitState = ({ maxLength, name, id, value, defaultValue }) => {
+  const resolvedMaxLength = resolveInputLimit({ maxLength, name, id });
+  const numericMaxLength = Number(resolvedMaxLength);
+  const rawValue = value ?? defaultValue ?? '';
+  const currentLength = String(rawValue).length;
+  const remaining = Math.max(numericMaxLength - currentLength, 0);
+  const progress = Math.min(currentLength / numericMaxLength, 1);
+
+  return {
+    currentLength,
+    hasCharacterLimit: Number.isFinite(numericMaxLength) && numericMaxLength > 0,
+    isFull: remaining === 0,
+    isNearLimit: progress >= 0.8,
+    progress,
+    remaining,
+    resolvedMaxLength,
+  };
+};
+
+const clampInputEventValue = (event, maxLength) => {
+  const value = event?.target?.value;
+  if (typeof value !== 'string' || !Number.isFinite(maxLength) || maxLength <= 0) return;
+  if (value.length > maxLength) {
+    event.target.value = value.slice(0, maxLength);
+  }
+};
+
+export const Input = forwardRef(function Input(
+  { maxLength, value, defaultValue, type, name, id, disabled, readOnly, onChange, ...props },
+  ref
+) {
+  const {
+    hasCharacterLimit,
+    isFull,
+    isNearLimit,
+    progress,
+    remaining,
+    resolvedMaxLength,
+  } = getLimitState({ maxLength, name, id, value, defaultValue });
+  const shouldShowCharacterLimit = hasCharacterLimit && !disabled && !readOnly && type !== 'hidden';
+  const handleChange = (event) => {
+    clampInputEventValue(event, Number(resolvedMaxLength));
+    onChange?.(event);
+  };
+
+  if (!shouldShowCharacterLimit) {
+    return (
+      <StyledInput
+        ref={ref}
+        type={type}
+        name={name}
+        id={id}
+        maxLength={resolvedMaxLength}
+        value={value}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        onChange={handleChange}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <InputLimitWrapper>
+      <StyledInput
+        ref={ref}
+        type={type}
+        name={name}
+        id={id}
+        maxLength={resolvedMaxLength}
+        value={value}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        onChange={handleChange}
+        $hasCharLimit
+        {...props}
+      />
+      <CharacterLimitRing
+        aria-hidden="true"
+        $progress={progress}
+        $remaining={remaining}
+        $isNearLimit={isNearLimit}
+        $isFull={isFull}
+      />
+    </InputLimitWrapper>
+  );
+});
+
+/* Área de texto */
+const StyledTextArea = styled.textarea`
+  ${inputStyles}
+  width: 100%;
   resize: vertical;
   min-height: 60px;
+  ${({ $hasCharLimit }) => ($hasCharLimit ? 'padding-right: 2.75rem;' : '')}
 `;
+
+export const TextArea = forwardRef(function TextArea(
+  { maxLength, value, defaultValue, name, id, disabled, readOnly, onChange, ...props },
+  ref
+) {
+  const {
+    hasCharacterLimit,
+    isFull,
+    isNearLimit,
+    progress,
+    remaining,
+    resolvedMaxLength,
+  } = getLimitState({ maxLength, name, id, value, defaultValue });
+  const shouldShowCharacterLimit = hasCharacterLimit && !disabled && !readOnly;
+  const handleChange = (event) => {
+    clampInputEventValue(event, Number(resolvedMaxLength));
+    onChange?.(event);
+  };
+
+  if (!shouldShowCharacterLimit) {
+    return (
+      <StyledTextArea
+        ref={ref}
+        name={name}
+        id={id}
+        maxLength={resolvedMaxLength}
+        value={value}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        onChange={handleChange}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <TextAreaLimitWrapper>
+      <StyledTextArea
+        ref={ref}
+        name={name}
+        id={id}
+        maxLength={resolvedMaxLength}
+        value={value}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        onChange={handleChange}
+        $hasCharLimit
+        {...props}
+      />
+      <CharacterLimitRing
+        aria-hidden="true"
+        $progress={progress}
+        $remaining={remaining}
+        $isNearLimit={isNearLimit}
+        $isFull={isFull}
+      />
+    </TextAreaLimitWrapper>
+  );
+});
 
 /* Select personalizado */
 export const Select = styled.select`

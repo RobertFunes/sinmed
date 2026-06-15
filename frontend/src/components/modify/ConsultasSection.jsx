@@ -51,6 +51,11 @@ const InnerSummary = styled(Summary)`
   color: ${({ $isLatest }) => ($isLatest ? '#fff' : Palette.primary)};
 `;
 
+const NotesJumpButton = styled(DangerButton)`
+  background: #f7fbff;
+  color: ${Palette.primary};
+`;
+
 const toStr = (value) => (value == null ? '' : String(value));
 const toArr = (value) => (Array.isArray(value) ? value : []);
 const normalize = (text) =>
@@ -101,6 +106,7 @@ const ConsultasSection = ({
   onAutoFocusHandled,
 }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [activeNotesJump, setActiveNotesJump] = useState(null);
   const fieldRefs = useRef({});
   const isMujer = (genero || '').trim() === 'Mujer';
 
@@ -140,6 +146,23 @@ const ConsultasSection = ({
   const requestDeleteConsulta = (uid) => {
     if (isLoading) return;
     setDeleteTarget({ type: 'consulta', uid });
+  };
+
+  const scrollToConsultaNotes = (uid, displayNumber, sistemaIdx) => {
+    const field = displayNumber < 2 ? 'notas' : 'notas_evolucion';
+    const target = fieldRefs.current[uid]?.[field];
+    if (!target) return;
+    setActiveNotesJump({ uid, sistemaIdx, field });
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => target.focus?.({ preventScroll: true }), 350);
+  };
+
+  const scrollBackToSistema = () => {
+    if (!activeNotesJump) return;
+    const target = fieldRefs.current[activeNotesJump.uid]?.[`interrogatorio_desc_${activeNotesJump.sistemaIdx}`];
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => target.focus?.({ preventScroll: true }), 350);
   };
   const cancelDelete = () => setDeleteTarget(null);
   const confirmDelete = () => {
@@ -407,6 +430,14 @@ const ConsultasSection = ({
                     placeholder="Notas adicionales"
                     ref={registerFieldRef(uid, 'notas')}
                   />
+                  {activeNotesJump?.uid === uid && activeNotesJump.field === 'notas' && (
+                    <ItemActions>
+                      <NotesJumpButton type="button" onClick={scrollBackToSistema} disabled={isLoading}>
+                        <FaClipboardCheck />
+                        <ButtonLabel>Regresar a sistema</ButtonLabel>
+                      </NotesJumpButton>
+                    </ItemActions>
+                  )}
                 </FieldGroup>
               )}
               {displayNumber >= 2 && (
@@ -423,6 +454,14 @@ const ConsultasSection = ({
                       placeholder="Notas de evolución a partir de esta consulta"
                       ref={registerFieldRef(uid, 'notas_evolucion')}
                     />
+                    {activeNotesJump?.uid === uid && activeNotesJump.field === 'notas_evolucion' && (
+                      <ItemActions>
+                        <NotesJumpButton type="button" onClick={scrollBackToSistema} disabled={isLoading}>
+                          <FaClipboardCheck />
+                          <ButtonLabel>Regresar a sistema</ButtonLabel>
+                        </NotesJumpButton>
+                      </ItemActions>
+                    )}
                   </FieldGroup>
                   <FieldGroup>
                     <Label htmlFor={notasId}>
@@ -622,6 +661,10 @@ const ConsultasSection = ({
                         </TwoColumnRow>
 
                         <ItemActions>
+                          <NotesJumpButton type="button" onClick={() => scrollToConsultaNotes(uid, displayNumber, sistemaIdx)} disabled={isLoading}>
+                            <FaStickyNote />
+                            <ButtonLabel>{displayNumber < 2 ? 'Ir a notas' : 'Ir a notas de ev.'}</ButtonLabel>
+                          </NotesJumpButton>
                           <DangerButton type="button" onClick={() => requestDeleteSistema(uid, sistemaIdx)} disabled={isLoading}>
                             <FaTrash />
                             <ButtonLabel>Eliminar sistema</ButtonLabel>

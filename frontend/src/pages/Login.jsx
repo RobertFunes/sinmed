@@ -1,14 +1,20 @@
 // src/components/Login.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // 👈 import de navegación
+import { FaEye, FaLock, FaShieldAlt, FaUser } from 'react-icons/fa';
 import { url } from '../helpers/url';
 import {
   Container,
   Form,
   Title,
+  BrandMark,
+  Header,
   Field,
   Label,
   Input,
+  InputShell,
+  FieldIcon,
+  RevealButton,
   Button,
   ErrorText,
 } from './Login.styles';
@@ -19,7 +25,11 @@ export default function Login() {
   const [pin, setPin]             = useState('');
   const [error, setError]         = useState('');
   const [loading, setLoading]     = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate(); // 👈 hook para redirigir
+
+  const revealPassword = () => setShowPassword(true);
+  const hidePassword = () => setShowPassword(false);
 
   // 🔍 Al montar, checamos si ya estamos auth
   useEffect(() => {
@@ -73,40 +83,74 @@ export default function Login() {
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-        <Title>Iniciar Sesión 🔒</Title>
+        <Header>
+          <BrandMark>
+            <FaShieldAlt />
+          </BrandMark>
+          <Title>SINMED</Title>
+        </Header>
 
         <Field>
           <Label>Usuario</Label>
-          <Input
-            type="text"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
-            required
-            placeholder="Tu usuario"
-          />
+          <InputShell>
+            <FieldIcon>
+              <FaUser />
+            </FieldIcon>
+            <Input
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              required
+              placeholder="Tu usuario"
+            />
+          </InputShell>
         </Field>
 
         <Field>
           <Label>Contraseña</Label>
-          <Input
-            type="password"
-            value={contrasena}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="Tu contraseña"
-          />
+          <InputShell>
+            <FieldIcon>
+              <FaLock />
+            </FieldIcon>
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              value={contrasena}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Tu contraseña"
+              $hasReveal
+            />
+            <RevealButton
+              type="button"
+              aria-label="Mantener presionado para revelar contraseña"
+              title="Mantener presionado para revelar"
+              onMouseDown={revealPassword}
+              onMouseUp={hidePassword}
+              onMouseLeave={hidePassword}
+              onTouchStart={revealPassword}
+              onTouchEnd={hidePassword}
+              onTouchCancel={hidePassword}
+            >
+              <FaEye />
+            </RevealButton>
+          </InputShell>
         </Field>
 
         <Field>
           <Label>PIN</Label>
-          <Input
-            type="password"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            required
-            placeholder="1234"
-            maxLength={6}
-          />
+          <InputShell>
+            <FieldIcon>
+              <FaShieldAlt />
+            </FieldIcon>
+            <Input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              required
+              placeholder="1234"
+              maxLength={6}
+            />
+          </InputShell>
         </Field>
 
         {error && <ErrorText>❌ {error}</ErrorText>}
