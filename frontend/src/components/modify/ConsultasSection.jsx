@@ -188,7 +188,7 @@ const SistemaDeleteButton = styled(SistemaActionButton)`
 
 const SistemaBody = styled.div`
   display: grid;
-  grid-template-columns: minmax(180px, 25%) minmax(0, 75%);
+  grid-template-columns: minmax(150px, 15%) minmax(0, 85%);
   gap: 1rem;
   align-items: stretch;
   margin-top: 1rem;
