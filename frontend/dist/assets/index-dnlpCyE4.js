@@ -1635,6 +1635,8 @@ ${se}`;E(!0),O("");try{const ce=await tn(`${Vr}/ia/gemini`,{method:"POST",creden
     grid-template-columns: 1fr;
   }
 `,O0=be.div`
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   border: 1px solid rgba(65, 94, 114, 0.14);
   border-radius: 8px;
@@ -1646,7 +1648,9 @@ ${se}`;E(!0),O("");try{const ce=await tn(`${Vr}/ia/gemini`,{method:"POST",creden
   font-size: 0.95rem;
   line-height: 1.2;
 `,dR=be(Nt)`
+  flex: 1;
   min-height: 118px;
+  height: 100%;
 `,fR=be(sK)`
   border-radius: 8px;
   padding: 0.65rem;

@@ -199,6 +199,8 @@ const SistemaBody = styled.div`
 `;
 
 const SistemaPanel = styled.div`
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   border: 1px solid rgba(65, 94, 114, 0.14);
   border-radius: 8px;
@@ -214,7 +216,9 @@ const CompactLabel = styled(Label)`
 `;
 
 const SistemaTextArea = styled(TextArea)`
+  flex: 1;
   min-height: 118px;
+  height: 100%;
 `;
 
 const SistemaEstadoChecklist = styled(EstadoChecklist)`
