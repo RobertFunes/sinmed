@@ -356,22 +356,28 @@ const ConsultasSection = ({
     setDeleteTarget({ type: 'consulta', uid });
   };
 
-  const scrollToConsultaNotes = (uid, displayNumber, sistemaIdx) => {
+  const scrollToConsultaNotes = (uid, displayNumber, source) => {
     const field = displayNumber < 2 ? 'notas' : 'notas_evolucion';
     const target = fieldRefs.current[uid]?.[field];
     if (!target) return;
-    setActiveNotesJump({ uid, sistemaIdx, field });
+    setActiveNotesJump({ uid, source, field });
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     window.setTimeout(() => target.focus?.({ preventScroll: true }), 350);
   };
 
   const scrollBackToSistema = () => {
     if (!activeNotesJump) return;
-    const target = fieldRefs.current[activeNotesJump.uid]?.[`interrogatorio_desc_${activeNotesJump.sistemaIdx}`];
+    const source = activeNotesJump.source || {};
+    const field =
+      source.type === 'personalizado'
+        ? `personalizado_${source.index}`
+        : `interrogatorio_desc_${source.index}`;
+    const target = fieldRefs.current[activeNotesJump.uid]?.[field];
     if (!target) return;
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     window.setTimeout(() => target.focus?.({ preventScroll: true }), 350);
   };
+  const backToSourceLabel = activeNotesJump?.source?.type === 'personalizado' ? 'Regresar a personalizado' : 'Regresar a sistema';
   const cancelDelete = () => setDeleteTarget(null);
   const confirmDelete = () => {
     if (!deleteTarget || isLoading) return;
@@ -642,7 +648,7 @@ const ConsultasSection = ({
                     <ItemActions>
                       <NotesJumpButton type="button" onClick={scrollBackToSistema} disabled={isLoading}>
                         <FaClipboardCheck />
-                        <ButtonLabel>Regresar a sistema</ButtonLabel>
+                        <ButtonLabel>{backToSourceLabel}</ButtonLabel>
                       </NotesJumpButton>
                     </ItemActions>
                   )}
@@ -666,7 +672,7 @@ const ConsultasSection = ({
                       <ItemActions>
                         <NotesJumpButton type="button" onClick={scrollBackToSistema} disabled={isLoading}>
                           <FaClipboardCheck />
-                          <ButtonLabel>Regresar a sistema</ButtonLabel>
+                          <ButtonLabel>{backToSourceLabel}</ButtonLabel>
                         </NotesJumpButton>
                       </ItemActions>
                     )}
@@ -841,7 +847,7 @@ const ConsultasSection = ({
                             <SistemaName>{displaySistemaLabel(s.nombre)}</SistemaName>
                           </SistemaIdentity>
                           <SistemaActions>
-                            <SistemaNotesButton type="button" onClick={() => scrollToConsultaNotes(uid, displayNumber, sistemaIdx)} disabled={isLoading}>
+                            <SistemaNotesButton type="button" onClick={() => scrollToConsultaNotes(uid, displayNumber, { type: 'sistema', index: sistemaIdx })} disabled={isLoading}>
                               <FaStickyNote />
                               <ButtonLabel>{displayNumber < 2 ? 'Ir a notas' : 'Ir a notas de ev.'}</ButtonLabel>
                             </SistemaNotesButton>
@@ -913,32 +919,41 @@ const ConsultasSection = ({
                     const isOldestConsulta = String(uid) === String(oldestConsultaUid ?? '');
                     const estadoValue = toStr(p.estado);
                     const showEstadoChecklist = !isOldestConsulta;
+                    const personalizadoTitle = p.nombre?.trim() || 'Personalizado sin título';
                     return (
-                      <ItemCard key={`${uid}-pers-${pIdx}`}>
-                        <TwoColumnRow>
-                          <FieldGroup>
-                            <Label>Título</Label>
+                      <SistemaCard key={`${uid}-pers-${pIdx}`}>
+                        <SistemaHeader>
+                          <SistemaIdentity>
+                            <SistemaEyebrow>
+                              <FaClipboardCheck />
+                              Personalizado
+                            </SistemaEyebrow>
+                            <SistemaName>{personalizadoTitle}</SistemaName>
+                          </SistemaIdentity>
+                          <SistemaActions>
+                            <SistemaNotesButton type="button" onClick={() => scrollToConsultaNotes(uid, displayNumber, { type: 'personalizado', index: pIdx })} disabled={isLoading}>
+                              <FaStickyNote />
+                              <ButtonLabel>{displayNumber < 2 ? 'Ir a notas' : 'Ir a notas de ev.'}</ButtonLabel>
+                            </SistemaNotesButton>
+                            <SistemaDeleteButton type="button" onClick={() => requestDeletePersonalizado(uid, pIdx)} disabled={isLoading}>
+                              <FaTrash />
+                              <ButtonLabel>Eliminar</ButtonLabel>
+                            </SistemaDeleteButton>
+                          </SistemaActions>
+                        </SistemaHeader>
+
+                        <SistemaBody>
+                          <SistemaPanel $soft>
+                            <CompactLabel>Título</CompactLabel>
                             <Input
                               value={p.nombre}
                               onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'nombre', e.target.value)}
                               placeholder="Escribe el título"
                               maxLength={100}
                             />
-                          </FieldGroup>
-                          <FieldGroup>
-                            <Label>Descripción</Label>
-                            <TextArea
-                              value={p.descripcion}
-                              onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)}
-                              rows={3}
-                              placeholder="Describe el contenido"
-                              ref={registerFieldRef(uid, `personalizado_${pIdx}`)}
-                            />
-                          </FieldGroup>
-                          {showEstadoChecklist && (
-                            <FieldGroup>
-                              <Label>Seguimiento</Label>
-                              <EstadoChecklist>
+                            <CompactLabel style={{ marginTop: '0.85rem' }}>Seguimiento</CompactLabel>
+                            {showEstadoChecklist ? (
+                              <SistemaEstadoChecklist>
                                 {SISTEMA_ESTADO_OPTIONS.map((option) => {
                                   const optionId = `${uid}-pers-${pIdx}-${option.value}`;
                                   const checked = estadoValue === option.value;
@@ -954,17 +969,23 @@ const ConsultasSection = ({
                                     </EstadoOptionLabel>
                                   );
                                 })}
-                              </EstadoChecklist>
-                            </FieldGroup>
-                          )}
-                        </TwoColumnRow>
-                        <ItemActions>
-                          <DangerButton type="button" onClick={() => requestDeletePersonalizado(uid, pIdx)} disabled={isLoading}>
-                            <FaTrash />
-                            <ButtonLabel>Eliminar</ButtonLabel>
-                          </DangerButton>
-                        </ItemActions>
-                      </ItemCard>
+                              </SistemaEstadoChecklist>
+                            ) : (
+                              <SistemaInitialNote>Consulta inicial</SistemaInitialNote>
+                            )}
+                          </SistemaPanel>
+                          <SistemaPanel>
+                            <CompactLabel>Descripción</CompactLabel>
+                            <SistemaTextArea
+                              value={p.descripcion}
+                              onChange={(e) => handleActualizarPersonalizado(uid, pIdx, 'descripcion', e.target.value)}
+                              rows={4}
+                              placeholder="Describe el contenido"
+                              ref={registerFieldRef(uid, `personalizado_${pIdx}`)}
+                            />
+                          </SistemaPanel>
+                        </SistemaBody>
+                      </SistemaCard>
                     );
                   })}
                 </ListContainer>
