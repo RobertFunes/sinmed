@@ -70,4 +70,20 @@ export const FloatingSave = styled.div`
     font-size: 2.5rem;
     color: #2aa198;
   }
+
+  @media (max-width: 1200px) {
+    right: 12px;
+    bottom: 12px;
+    gap: 8px;
+
+    button {
+      width: 56px;
+      height: 56px;
+      padding: 10px;
+    }
+
+    svg {
+      font-size: 1.9rem;
+    }
+  }
 `;

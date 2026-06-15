@@ -12,15 +12,23 @@ export const AddContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
+  width: 100%;
   padding: 2rem;
   min-height: 100vh;
   background-image: url('/bg3.png');
   background-repeat: repeat;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 /* Tarjeta que contiene el formulario */
 export const FormCard = styled.div`
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: rgba(240, 240, 240, 0.75); /* 85% opaco, 15% transparente */
 
 
@@ -48,14 +56,22 @@ export const Title = styled.h1`
 /* ---------- ESTRUCTURA DEL FORMULARIO ---------- */
 
 export const Form = styled.form`
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 4rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    margin-top: 2rem;
+    padding: 0 1rem;
+  }
 `;
 
 export const FieldGroup = styled.div`
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -69,12 +85,16 @@ export const Label = styled.label`
   display: flex;
   align-items: center;
   font-size: 1.5rem;
+  line-height: 1.2;
   color: ${Palette.secondary};
+  min-width: 0;
+  overflow-wrap: anywhere;
 `;
 
 /* Mixin con estilos compartidos para inputs/selects/textarea */
 const inputStyles = `
-  
+  box-sizing: border-box;
+  min-width: 0;
   padding: 0.75rem 1rem;
   border: 1px solid ${Palette.darkGray};
   background: #fff;
@@ -174,6 +194,9 @@ const resolveInputLimit = ({ maxLength, name, id }) => {
 export const InputLimitWrapper = styled.div`
   position: relative;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
 `;
@@ -216,6 +239,7 @@ export const TextAreaLimitWrapper = styled(InputLimitWrapper)`
 const StyledInput = styled.input`
   ${inputStyles}
   width: 100%;
+  max-width: 100%;
   ${({ $hasCharLimit }) => ($hasCharLimit ? 'padding-right: 2.75rem;' : '')}
 `;
 
@@ -313,6 +337,7 @@ export const Input = forwardRef(function Input(
 const StyledTextArea = styled.textarea`
   ${inputStyles}
   width: 100%;
+  max-width: 100%;
   resize: vertical;
   min-height: 60px;
   ${({ $hasCharLimit }) => ($hasCharLimit ? 'padding-right: 2.75rem;' : '')}
@@ -382,6 +407,8 @@ export const TextArea = forwardRef(function TextArea(
 /* Select personalizado */
 export const Select = styled.select`
   ${inputStyles}
+  width: 100%;
+  max-width: 100%;
   appearance: none;
   
 `;
@@ -435,14 +462,32 @@ export const CancelButton = styled.button`
 `;
 export const TwoColumnRow = styled.div`
   display: grid;
-  grid-template-columns: ${({ $cols }) => `repeat(${Number($cols) || 2}, 1fr)`};
+  grid-template-columns: ${({ $cols }) => `repeat(${Number($cols) || 2}, minmax(0, 1fr))`};
   gap: 1.25rem;
   align-items: end;
+  min-width: 0;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: ${({ $cols }) => (Number($cols) > 2 ? 'repeat(2, minmax(0, 1fr))' : `repeat(${Number($cols) || 2}, minmax(0, 1fr))`)};
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
 `;
 export const ThreeColumnRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
+  min-width: 0;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
 `;
 export const FullWidthSelect = styled(Select)`
   width: 100%;
@@ -465,6 +510,10 @@ export const Summary = styled.summary`
 
 /* Contenedor de cada ítem agregado (familiares, hábitos, patológicos, inspección, sistemas) */
 export const ItemCard = styled.div`
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
   border: 4px solid ${Palette.secondary};
   border-radius: 6px;
   padding: 0.75rem;
@@ -486,6 +535,8 @@ export const ItemActions = styled.div`
   margin-top: 0.5rem;
   display: flex;
   justify-content: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 `;
 
 /* Botón de eliminar dentro de las tarjetas */
@@ -496,7 +547,7 @@ export const DangerButton = styled.button`
   padding: 0.45rem 0.45rem;
   cursor: pointer;
   color: inherit;
-  margin-left:25px;
+  margin-left: 0;
 `;
 
 /* Texto al lado del icono dentro de botones */
@@ -508,7 +559,8 @@ export const ButtonLabel = styled.span`
 export const AlergicoContainer = styled.div`
 margin-top: 20px;
   border: 1px solid ${Palette.darkGray};
-  width: 20%;
+  width: min(100%, 320px);
+  box-sizing: border-box;
   border-radius: 10px;
   background: #ffffff;
   padding: 0.9rem 1.1rem;
