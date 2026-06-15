@@ -558,7 +558,7 @@ const ConsultasSection = ({
                   id={padecimientoId}
                   value={consulta.padecimiento_actual || ''}
                   onChange={handleConsultaFieldChange(uid, 'padecimiento_actual')}
-                  rows={2}
+                  rows={4}
                   placeholder="Describe el padecimiento actual"
                   ref={registerFieldRef(uid, 'padecimiento_actual')}
                 />
