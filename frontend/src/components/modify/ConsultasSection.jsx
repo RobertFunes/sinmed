@@ -52,8 +52,44 @@ const InnerSummary = styled(Summary)`
 `;
 
 const NotesJumpButton = styled(DangerButton)`
-  background: #f7fbff;
-  color: ${Palette.primary};
+  margin-left: 0;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid rgba(79, 149, 157, 0.45);
+  border-radius: 6px;
+  background: rgba(79, 149, 157, 0.1);
+  color: ${Palette.dark};
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(32, 87, 129, 0.08);
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.08s ease, box-shadow 0.16s ease;
+
+  ${ButtonLabel} {
+    margin-left: 0;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(79, 149, 157, 0.18);
+    border-color: ${Palette.secondary};
+    box-shadow: 0 8px 18px rgba(32, 87, 129, 0.12);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(84, 18, 18, 0.28);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+  }
 `;
 
 const SistemaCard = styled(ItemCard)`
