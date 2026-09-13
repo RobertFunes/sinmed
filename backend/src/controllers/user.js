@@ -1,9 +1,12 @@
 // controllers/user.js
 
 const bd = require('../models/profile');
+const db = require('../models/db');
 const iaLimiter = require('../utils/iaLimiter');
+const aiSettings = require('../services/aiSettings');
 const { signAccessToken } = require('../helpers/jwt');
 const { setAccessCookie } = require('../helpers/authCookies');
+const telegram = require('../services/telegram');
 
 const toInt = (v) => {
   const n = Number(v);
@@ -103,7 +106,8 @@ const modify = async (req, res) => {
       return res.status(status).json({ error: message });
     }
 
-    const clean = (v) => (v === '' || v == null ? null : v);
+    const operation = async (executor) => {
+      const clean = (v) => (v === '' || v == null ? null : v);
     const toYMD = (v) => (typeof v === 'string' && v.length >= 10 ? v.slice(0, 10) : null);
     const norm = (v) => (typeof v === 'string' ? v.trim() : v);
 
@@ -126,7 +130,7 @@ const modify = async (req, res) => {
       recordatorio: clean(toYMD(dp.recordatorio)),
       recordatorio_desc: clean(dp.recordatorio_desc),
     };
-    const perfil_result = await bd.updatePerfil(id, perfil);
+    const perfil_result = await bd.updatePerfil(id, perfil, executor);
 
     const afRaw = Array.isArray(body.antecedentes_familiares) ? body.antecedentes_familiares : [];
     const afItems = afRaw.map((it) => ({
@@ -134,7 +138,7 @@ const modify = async (req, res) => {
       nombre: norm(it?.nombre) || null,
       descripcion: norm(it?.descripcion) || null,
     }));
-    const af_replaced = await bd.replaceAntecedentesFamiliares(id, afItems);
+    const af_replaced = await bd.replaceAntecedentesFamiliares(id, afItems, executor);
 
     const apRaw = body.antecedentes_personales || {};
     // Incluye todos los campos para que al quitar un hábito o un cambio de
@@ -179,7 +183,7 @@ const modify = async (req, res) => {
       apPayload.cambio_causa = clean(alim.causa);
       apPayload.cambio_tiempo = clean(alim.tiempo);
     }
-    const ap_result = await bd.upsertAntecedentesPersonales(id, apPayload);
+    const ap_result = await bd.upsertAntecedentesPersonales(id, apPayload, executor);
 
     const goRaw = body.gineco_obstetricos || {};
     const goPayload = {
@@ -198,7 +202,7 @@ const modify = async (req, res) => {
       fecha_ultimo_parto: clean(goRaw.fecha_ultimo_parto),
       fecha_menopausia: clean(goRaw.fecha_menopausia),
     };
-    const go_result = await bd.upsertGinecoObstetricos(id, goPayload);
+    const go_result = await bd.upsertGinecoObstetricos(id, goPayload, executor);
 
     const appRaw = Array.isArray(body.antecedentes_personales_patologicos)
       ? body.antecedentes_personales_patologicos
@@ -208,7 +212,7 @@ const modify = async (req, res) => {
       antecedente: norm(it?.antecedente) || null,
       descripcion: norm(it?.descripcion) || null,
     }));
-    const app_replaced = await bd.replaceAntecedentesPersonalesPatologicos(id, appItems);
+    const app_replaced = await bd.replaceAntecedentesPersonalesPatologicos(id, appItems, executor);
 
     const efRaw = body.exploracion_fisica || {};
     const efPayload = {
@@ -253,7 +257,7 @@ const modify = async (req, res) => {
       const bmi = w / (hm * hm);
       efPayload.imc = Number.isFinite(bmi) ? bmi.toFixed(2) : null;
     }
-    const ef_result = await bd.upsertExploracionFisica(id, efPayload);
+    const ef_result = await bd.upsertExploracionFisica(id, efPayload, executor);
 
     const consRaw = Array.isArray(body.consultas) ? body.consultas : [];
     const strip = (s) => (typeof s === 'string' ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '');
@@ -332,17 +336,17 @@ const modify = async (req, res) => {
     const consItems = filtered.map(({ row }) => row);
     const persLists = filtered.map(({ pers }) => pers.filter((p) => p.nombre && p.nombre.trim().length > 0));
 
-    const cons_result = await bd.replaceConsultas(id, consItems);
+    const cons_result = await bd.replaceConsultas(id, consItems, executor);
 
     const insertIds = Array.isArray(cons_result?.insertIds) ? cons_result.insertIds : [];
     const personalGroups = insertIds.map((id_consulta, index) => ({
       id_consulta,
       items: Array.isArray(persLists[index]) ? persLists[index] : [],
     })).filter((group) => group.id_consulta);
-    const pers_result = await bd.syncPersonalizados(id, personalGroups);
+    const pers_result = await bd.syncPersonalizados(id, personalGroups, executor);
     const pers_total = pers_result?.changed ?? 0;
 
-    return res.status(200).json({
+    return {
       ok: true,
       id_perfil: id,
       perfil_actualizado: perfil_result?.affectedRows ?? 0,
@@ -353,8 +357,25 @@ const modify = async (req, res) => {
       consultas_reemplazadas: cons_result?.inserted ?? 0,
       personalizados_reemplazados: pers_total,
       app_reemplazados: app_replaced,
-    });
+    };
+    };
+
+    const notificationName = body?.datos_personales?.nombre && String(body.datos_personales.nombre).trim()
+      ? String(body.datos_personales.nombre).trim()
+      : 'Sin nombre';
+    const response = telegram.isNotificationEnabled('profile_update')
+      ? await db.withTransaction(async (executor) => {
+        const result = await operation(executor);
+        await telegram.notify('profile_update', telegram.profileMessage('modificado', notificationName, id));
+        return result;
+      })
+      : await operation();
+
+    return res.status(200).json(response);
   } catch (err) {
+    if (err?.code === 'TELEGRAM_NOTIFICATION_FAILED') {
+      return res.status(503).json({ ok: false, error: 'TELEGRAM_NOTIFICATION_FAILED' });
+    }
     console.error('Error al modificar perfil:', err);
     return res.status(500).json({ error: err.message });
   }
@@ -369,9 +390,18 @@ const createCalendar = async (req, res) => {
       return res.status(400).json({ ok: false, error: 'inicio_utc, fin_utc y nombre son obligatorios' });
     }
 
-    const result = await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono, color });
+    const result = telegram.isNotificationEnabled('appointment_create')
+      ? await db.withTransaction(async (executor) => {
+        const created = await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }, executor);
+        await telegram.notify('appointment_create', telegram.appointmentMessage('agregada', nombre, created.id_cita));
+        return created;
+      })
+      : await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono, color });
     return res.status(201).json({ ok: true, id_cita: result.id_cita });
   } catch (err) {
+    if (err?.code === 'TELEGRAM_NOTIFICATION_FAILED') {
+      return res.status(503).json({ ok: false, error: 'TELEGRAM_NOTIFICATION_FAILED' });
+    }
     console.error('Error al crear cita:', err);
     return res.status(500).json({ ok: false, error: err.message });
   }
@@ -464,23 +494,42 @@ const cloneDay = async (req, res) => {
       return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
     };
 
-    let created = 0;
-    for (const ev of events) {
-      const startShifted = addDaysKeepingTime(ev.inicio_utc || ev.start);
-      const endShifted = addDaysKeepingTime(ev.fin_utc || ev.end || ev.inicio_utc);
-      if (!startShifted || !endShifted) continue;
-      const inicio_utc = toNaiveLocal(startShifted);
-      const fin_utc = toNaiveLocal(endShifted);
-      if (!inicio_utc || !fin_utc) continue;
-      const nombre = ev.nombre || ev.title || 'Sin título';
-      const telefono = ev.telefono || null;
-      const color = ev.color || null;
-      const r = await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono, color });
-      if (r && r.id_cita) created += 1;
-    }
+    const operation = async (executor) => {
+      let created = 0;
+      for (const ev of events) {
+        const startShifted = addDaysKeepingTime(ev.inicio_utc || ev.start);
+        const endShifted = addDaysKeepingTime(ev.fin_utc || ev.end || ev.inicio_utc);
+        if (!startShifted || !endShifted) continue;
+        const inicio_utc = toNaiveLocal(startShifted);
+        const fin_utc = toNaiveLocal(endShifted);
+        if (!inicio_utc || !fin_utc) continue;
+        const nombre = ev.nombre || ev.title || 'Sin título';
+        const telefono = ev.telefono || null;
+        const color = ev.color || null;
+        const r = await bd.addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }, executor);
+        if (r && r.id_cita) created += 1;
+      }
+      return created;
+    };
+
+    const created = telegram.isNotificationEnabled('appointment_create')
+      ? await db.withTransaction(async (executor) => {
+        const count = await operation(executor);
+        if (count > 0) {
+          await telegram.notify(
+            'appointment_create',
+            telegram.cloneAppointmentsMessage(count, source_date, target_date),
+          );
+        }
+        return count;
+      })
+      : await operation();
 
     return res.status(201).json({ ok: true, created });
   } catch (err) {
+    if (err?.code === 'TELEGRAM_NOTIFICATION_FAILED') {
+      return res.status(503).json({ ok: false, error: 'TELEGRAM_NOTIFICATION_FAILED' });
+    }
     console.error('Error al clonar día:', err);
     return res.status(500).json({ ok: false, error: err.message });
   }
@@ -493,13 +542,28 @@ const deleteCalendar = async (req, res) => {
       return res.status(400).json({ ok: false, error: 'ID de cita inválido' });
     }
 
-    const result = await bd.deleteAppointment(id);
+    const appointment = await bd.getAppointmentById(id);
+    if (!appointment) {
+      return res.status(404).json({ ok: false, error: 'Cita no encontrada' });
+    }
+
+    const result = telegram.isNotificationEnabled('appointment_delete')
+      ? await db.withTransaction(async (executor) => {
+        const deleted = await bd.deleteAppointment(id, executor);
+        if (!deleted || deleted.affectedRows === 0) return deleted;
+        await telegram.notify('appointment_delete', telegram.appointmentMessage('eliminada', appointment.nombre, id));
+        return deleted;
+      })
+      : await bd.deleteAppointment(id);
     if (!result || result.affectedRows === 0) {
       return res.status(404).json({ ok: false, error: 'Cita no encontrada' });
     }
 
     return res.status(200).json({ ok: true });
   } catch (err) {
+    if (err?.code === 'TELEGRAM_NOTIFICATION_FAILED') {
+      return res.status(503).json({ ok: false, error: 'TELEGRAM_NOTIFICATION_FAILED' });
+    }
     console.error('Error al eliminar cita:', err);
     return res.status(500).json({ ok: false, error: err.message });
   }
@@ -576,6 +640,7 @@ const login = (req, res) => {
       const accessToken = signAccessToken(sub);
 
       setAccessCookie(res, accessToken);
+      telegram.notifyBestEffort('login', `Inicio de sesión exitoso\nUsuario: ${sub}\nFecha: ${telegram.formatMexicoDate()}`);
       return res.status(200).json({ ok: true, message: 'Inicio de sesión exitoso' });
     } catch (err) {
       if (err?.message === 'JWT_SECRET_MISSING') {
@@ -631,6 +696,7 @@ const add = async (req, res) => {
     // - antecedentes_familiares
     // - antecedentes_personales
     const body = req.body || {};
+    const operation = async (executor) => {
 
     // Utilidades de normalización
     const clean = (v) => (v === '' || v == null ? null : v);
@@ -661,7 +727,7 @@ const add = async (req, res) => {
       recordatorio: clean(toYMD(dp.recordatorio)),
       recordatorio_desc: clean(dp.recordatorio_desc),
     };
-    const id_perfil = await bd.add(perfil); // id del perfil recién creado
+    const id_perfil = await bd.add(perfil, executor); // id del perfil recién creado
 
     // ==================================================================
     // 2) antecedentes_familiares -> INSERT 1:N en `antecedentes_familiares`
@@ -672,7 +738,7 @@ const add = async (req, res) => {
       nombre: norm(it?.nombre) || null,
       descripcion: norm(it?.descripcion) || null,
     }));
-    const af_inserted = await bd.addAntecedentesFamiliares(id_perfil, afItems);
+    const af_inserted = await bd.addAntecedentesFamiliares(id_perfil, afItems, executor);
 
     // ============================================================================
     // 3) antecedentes_personales -> UPSERT 1:1 en `antecedentes_personales`
@@ -717,7 +783,7 @@ const add = async (req, res) => {
       apPayload.cambio_causa = clean(alim.causa);
       apPayload.cambio_tiempo = clean(alim.tiempo);
     }
-    const ap_result = await bd.upsertAntecedentesPersonales(id_perfil, apPayload);
+    const ap_result = await bd.upsertAntecedentesPersonales(id_perfil, apPayload, executor);
 
     const goRaw = body.gineco_obstetricos || {};
     // ============================================================================
@@ -740,7 +806,7 @@ const add = async (req, res) => {
       fecha_ultimo_parto: clean(goRaw.fecha_ultimo_parto),
       fecha_menopausia: clean(goRaw.fecha_menopausia),
     };
-    const go_result = await bd.upsertGinecoObstetricos(id_perfil, goPayload);
+    const go_result = await bd.upsertGinecoObstetricos(id_perfil, goPayload, executor);
 
     // ============================================================================
     // 5) antecedentes_personales_patologicos -> INSERT 1:N
@@ -753,7 +819,7 @@ const add = async (req, res) => {
       antecedente: norm(it?.antecedente) || null,
       descripcion: norm(it?.descripcion) || null,
     }));
-    const app_inserted = await bd.addAntecedentesPersonalesPatologicos(id_perfil, appItems);
+    const app_inserted = await bd.addAntecedentesPersonalesPatologicos(id_perfil, appItems, executor);
 
     // ============================================================================
     // 6) exploracion_fisica -> UPSERT 1:1 en `exploracion_fisica`
@@ -808,7 +874,7 @@ const add = async (req, res) => {
       efPayload.imc = Number.isFinite(bmi) ? bmi.toFixed(2) : null;
     }
 
-    const ef_result = await bd.upsertExploracionFisica(id_perfil, efPayload);
+    const ef_result = await bd.upsertExploracionFisica(id_perfil, efPayload, executor);
 
     // ============================================================================
     // 7) consultas -> UPSERT 1:1 en `consultas`
@@ -866,7 +932,7 @@ const add = async (req, res) => {
         consPayload[cfg.estado] = clean(consRaw[cfg.estado]);
       }
     }
-    const cons_result = await bd.upsertConsultas(id_perfil, consPayload);
+    const cons_result = await bd.upsertConsultas(id_perfil, consPayload, executor);
     const id_consulta = cons_result?.insertId;
 
     // 7) personalizados (1:N) -> INSERT en `personalizados`
@@ -883,11 +949,11 @@ const add = async (req, res) => {
       .filter((it) => it.nombre.length > 0);
     let personalizados_inserted = 0;
     if (id_consulta) {
-      personalizados_inserted = await bd.addPersonalizados(id_perfil, id_consulta, persItems);
+      personalizados_inserted = await bd.addPersonalizados(id_perfil, id_consulta, persItems, executor);
     }
 
     // Respuesta minimal con los ids/efectos clave para continuar el flujo
-    return res.status(201).json({
+    return {
       ok: true,
       id_perfil,
       af_inserted,
@@ -898,8 +964,25 @@ const add = async (req, res) => {
       id_consulta,
       personalizados_inserted,
       app_inserted,
-    });
+    };
+    };
+
+    const profileName = body?.datos_personales?.nombre && String(body.datos_personales.nombre).trim()
+      ? String(body.datos_personales.nombre).trim()
+      : 'Sin nombre';
+    const response = telegram.isNotificationEnabled('profile_create')
+      ? await db.withTransaction(async (executor) => {
+        const result = await operation(executor);
+        await telegram.notify('profile_create', telegram.profileMessage('agregado', profileName, result.id_perfil));
+        return result;
+      })
+      : await operation();
+
+    return res.status(201).json(response);
   } catch (err) {
+    if (err?.code === 'TELEGRAM_NOTIFICATION_FAILED') {
+      return res.status(503).json({ ok: false, error: 'TELEGRAM_NOTIFICATION_FAILED' });
+    }
     console.error('Error al agregar perfil:', err);
     return res.status(500).json({ error: err.message });
   }
@@ -1011,7 +1094,14 @@ const saveLatestConsultaHistoriaClinica = async (req, res) => {
 const getLimits = (req, res) => {
   try {
     const gemini = iaLimiter.getInfo('gemini');
-    return res.status(200).json({ ok: true, month: gemini.month, gemini });
+    const ai = aiSettings.getState();
+    return res.status(200).json({
+      ok: true,
+      month: gemini.month,
+      mode: ai.mode,
+      usageMultiplier: ai.usageMultiplier,
+      gemini,
+    });
   } catch (err) {
     console.error('[limits] error:', err);
     return res.status(500).json({ ok: false, error: 'No se pudo obtener limites' });
@@ -1030,9 +1120,22 @@ const removeById = async (req, res) => {
       return res.status(404).json({ error: 'Cliente no encontrado' });
     }
 
-    await bd.removeById(id);
-      res.status(200).json({ msg: `Cliente con ID ${id} eliminado` });
+    const result = telegram.isNotificationEnabled('profile_delete')
+      ? await db.withTransaction(async (executor) => {
+        const deleted = await bd.removeById(id, executor);
+        if (!deleted || deleted.affectedRows === 0) return deleted;
+        await telegram.notify('profile_delete', telegram.profileMessage('eliminado', cliente.nombre, id));
+        return deleted;
+      })
+      : await bd.removeById(id);
+    if (!result || result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+    res.status(200).json({ msg: `Cliente con ID ${id} eliminado` });
   } catch (err) {
+      if (err?.code === 'TELEGRAM_NOTIFICATION_FAILED') {
+        return res.status(503).json({ ok: false, error: 'TELEGRAM_NOTIFICATION_FAILED' });
+      }
       console.error('Error al eliminar cliente:', err);
       res.status(500).json({ error: err.message });
   }

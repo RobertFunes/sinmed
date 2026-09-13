@@ -18,8 +18,6 @@ import {
   FaTrashAlt,
 
 } from 'react-icons/fa';
-import { url } from '../helpers/url.js';
-import { apiFetch } from '../helpers/apiFetch';
 /* ---------- Helpers ---------- */
 
 const isValidBirthDate = (dateStr) => {
@@ -94,8 +92,6 @@ export default function IneractCard({
   consultaId,
   name,
   lastContact,
-  ultima_fecha_contacto,
-  ultimaFechaContacto,
   reminderDate,
   birthDate,
   showPostpone = true,
@@ -108,22 +104,6 @@ export default function IneractCard({
     navigate(`/profile/${id}`);
   };
   const effectiveConsultaId = consultaId ?? id;
-  const handlePostpone = async () => {
-    try {
-      const res = await apiFetch(`${url}/api/postpone`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_consulta: effectiveConsultaId })
-      });
-      onPostpone?.(id);
-      if (!res.ok) throw new Error('Error al posponer');
-      alert('✅ Contacto pospuesto 45 días');
-    } catch (err) {
-      console.error('Error al posponer:', err);
-      alert('❌ No se pudo posponer');
-    }
-  };
   const askPostpone = () => setConfirmPostpone(true);
   const cancelPostpone = () => setConfirmPostpone(false);
   const confirmPostponeAction = () => {

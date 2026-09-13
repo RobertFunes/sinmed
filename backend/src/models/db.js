@@ -11,4 +11,25 @@ const connection = mysql.createPool({
   keepAliveInitialDelay: 10000
 });
 
+async function withTransaction(work) {
+  const transaction = await connection.getConnection();
+  try {
+    await transaction.beginTransaction();
+    const result = await work(transaction);
+    await transaction.commit();
+    return result;
+  } catch (error) {
+    try {
+      await transaction.rollback();
+    } catch (rollbackError) {
+      console.error('Error al revertir transacción:', rollbackError);
+    }
+    throw error;
+  } finally {
+    transaction.release();
+  }
+}
+
+connection.withTransaction = withTransaction;
+
 module.exports = connection;

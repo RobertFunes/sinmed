@@ -4,11 +4,11 @@ const path = require('path');
 
 // Persist usage file under models directory instead of data
 const DATA_DIR = path.join(__dirname, '../models');
-const FILE = path.join(DATA_DIR, 'ia-usage.json');
+const FILE = process.env.SINMED_IA_USAGE_FILE || path.join(DATA_DIR, 'ia-usage.json');
 
 const DEFAULTS = {
   month: null, // YYYY-MM
-  gemini: { used: 0, limit: 350 }, // mensajes
+  gemini: { used: 0, limit: 400 }, // mensajes
 };
 
 let state = null;
@@ -70,16 +70,24 @@ function ensureMonth() {
   }
 }
 
-function canUse() {
-  ensureMonth();
-  const used = state.gemini.used;
-  const limit = state.gemini.limit;
-  return used < limit;
+function normalizeUnits(value) {
+  const units = Number(value);
+  if (!Number.isFinite(units) || units <= 0) throw new Error('INVALID_IA_USAGE_UNITS');
+  return units;
 }
 
-function consume(n = 1) {
+function canUse(units = 1) {
   ensureMonth();
-  state.gemini.used = Math.max(0, (state.gemini.used || 0)) + n;
+  const requested = normalizeUnits(units);
+  const used = state.gemini.used;
+  const limit = state.gemini.limit;
+  return used + requested <= limit;
+}
+
+function consume(units = 1) {
+  ensureMonth();
+  const requested = normalizeUnits(units);
+  state.gemini.used = Number((Math.max(0, (state.gemini.used || 0)) + requested).toFixed(2));
   save();
 }
 

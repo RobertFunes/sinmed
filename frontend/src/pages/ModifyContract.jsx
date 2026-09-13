@@ -1,5 +1,5 @@
 // ModifyContract.jsx
-import { useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import Header from '../components/Header';
 import {
   AddContainer,
@@ -70,6 +70,8 @@ export default function ModifyContract() {
   const [asegurados, setAsegurados] = useState([]);       // [{cliente_id, nombre?}]
   const [beneficiarios, setBeneficiarios] = useState([]); // [{cliente_id, nombre?, porcentaje}]
   const [clientCache, setClientCache] = useState({});     // { [id]: { id, nombre } }
+  const clientCacheRef = useRef(clientCache);
+  clientCacheRef.current = clientCache;
 
   // UI flags
   const [savingAll, setSavingAll] = useState(false);
@@ -180,11 +182,11 @@ export default function ModifyContract() {
   };
 
   // Resolver ID -> nombre con caché
-  const resolveClient = async (idRaw) => {
+  const resolveClient = useCallback(async (idRaw) => {
     const idn = Number(String(idRaw).trim());
     if (!Number.isInteger(idn) || idn <= 0) throw new Error('ID inválido');
 
-    if (clientCache[idn]) return clientCache[idn];
+    if (clientCacheRef.current[idn]) return clientCacheRef.current[idn];
 
     setResolvingId(true);
     try {
@@ -199,7 +201,7 @@ export default function ModifyContract() {
     } finally {
       setResolvingId(false);
     }
-  };
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Prefill desde backend usando el :id de la URL
@@ -269,7 +271,7 @@ export default function ModifyContract() {
       }
     })();
     return () => { alive = false; };
-  }, [id]); // solo al cambiar el id de la ruta
+  }, [id, resolveClient]); // solo al cambiar el id de la ruta
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Acciones de listas (sin cambios)
@@ -491,7 +493,7 @@ export default function ModifyContract() {
       }
     }, 350);
     return () => clearTimeout(t);
-  }, [policy.titular_id_cliente, clientCache]);
+  }, [policy.titular_id_cliente, clientCache, resolveClient]);
 
   // Debug preview
   useEffect(() => {
@@ -524,7 +526,7 @@ export default function ModifyContract() {
       }
     }, 350);
     return () => clearTimeout(t);
-  }, [aseguradoInput, clientCache]);
+  }, [aseguradoInput, clientCache, resolveClient]);
 
   useEffect(() => {
     const raw = benefInputId;
@@ -544,7 +546,7 @@ export default function ModifyContract() {
       }
     }, 350);
     return () => clearTimeout(t);
-  }, [benefInputId, clientCache]);
+  }, [benefInputId, clientCache, resolveClient]);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Render

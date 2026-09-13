@@ -55,4 +55,12 @@ export const NavButton = styled.button`
       color: #222831;
     }
   }
+
+  &.settings-button {
+    padding: 10px;
+    justify-content: center;
+    min-width: 42px;
+    font-size: 1.5rem;
+  }
+
 `;

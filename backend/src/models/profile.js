@@ -137,15 +137,15 @@ const valuesEqual = (left, right) => {
 };
 const buildAssignments = (columns) => columns.map((column) => `\`${column}\` = ?`).join(', ');
 
-async function add(data) {
+async function add(data, executor = db) {
   if (!data || typeof data !== 'object') {
     throw new Error('Payload inválido para add(perfil)');
   }
-  const [result] = await db.query('INSERT INTO perfil SET ?', [data]);
+  const [result] = await executor.query('INSERT INTO perfil SET ?', [data]);
   return result?.insertId;
 }
 
-async function updatePerfil(id_perfil, data = {}) {
+async function updatePerfil(id_perfil, data = {}, executor = db) {
   const id = Number(id_perfil);
   if (!Number.isInteger(id) || id <= 0) {
     throw new Error('id_perfil inválido');
@@ -155,7 +155,7 @@ async function updatePerfil(id_perfil, data = {}) {
   if (columns.length === 0) return { affectedRows: 0 };
   const assignments = buildAssignments(columns);
   const values = columns.map((column) => payload[column]);
-  const [result] = await db.query(
+  const [result] = await executor.query(
     `UPDATE perfil SET ${assignments}, actualizado = CURDATE() WHERE id_perfil = ?`,
     [...values, id]
   );
@@ -164,14 +164,14 @@ async function updatePerfil(id_perfil, data = {}) {
 
 // Inserta N filas en antecedentes_familiares para un perfil dado
 // items: array de objetos { nombre, descripcion? } ya normalizados ('' -> null)
-async function addAntecedentesFamiliares(id_perfil, items = []) {
+async function addAntecedentesFamiliares(id_perfil, items = [], executor = db) {
   if (!Array.isArray(items) || items.length === 0) return 0;
   let inserted = 0;
   for (const it of items) {
     const nombre = it?.nombre;
     if (!nombre) continue; // requiere nombre NOT NULL
     const descripcion = it?.descripcion ?? null;
-    await db.query(
+    await executor.query(
       'INSERT INTO antecedentes_familiares (id_perfil, nombre, descripcion) VALUES (?, ?, ?)',
       [id_perfil, nombre, descripcion]
     );
@@ -180,9 +180,9 @@ async function addAntecedentesFamiliares(id_perfil, items = []) {
   return inserted;
 }
 
-async function replaceAntecedentesFamiliares(id_perfil, items = []) {
+async function replaceAntecedentesFamiliares(id_perfil, items = [], executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
-  const [existingRows] = await db.query(
+  const [existingRows] = await executor.query(
     'SELECT id_antecedente_familiar, nombre, descripcion FROM antecedentes_familiares WHERE id_perfil = ?',
     [id_perfil]
   );
@@ -217,7 +217,7 @@ async function replaceAntecedentesFamiliares(id_perfil, items = []) {
       const existingId = Number(existing.id_antecedente_familiar);
       matchedIds.add(existingId);
       if (!valuesEqual(existing.nombre, nombre) || !valuesEqual(existing.descripcion, descripcion)) {
-        await db.query(
+        await executor.query(
           `UPDATE antecedentes_familiares
            SET nombre = ?, descripcion = ?, actualizado = CURDATE()
            WHERE id_antecedente_familiar = ? AND id_perfil = ?`,
@@ -228,7 +228,7 @@ async function replaceAntecedentesFamiliares(id_perfil, items = []) {
       continue;
     }
 
-    const [result] = await db.query(
+    const [result] = await executor.query(
       'INSERT INTO antecedentes_familiares (id_perfil, nombre, descripcion) VALUES (?, ?, ?)',
       [id_perfil, nombre, descripcion]
     );
@@ -239,7 +239,7 @@ async function replaceAntecedentesFamiliares(id_perfil, items = []) {
   for (const row of existingRows) {
     const existingId = Number(row.id_antecedente_familiar);
     if (matchedIds.has(existingId)) continue;
-    await db.query(
+    await executor.query(
       'DELETE FROM antecedentes_familiares WHERE id_antecedente_familiar = ? AND id_perfil = ?',
       [existingId, id_perfil]
     );
@@ -251,13 +251,13 @@ async function replaceAntecedentesFamiliares(id_perfil, items = []) {
 
 // Inserta/actualiza (1:1) antecedentes_personales por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
-async function upsertAntecedentesPersonales(id_perfil, data = {}) {
+async function upsertAntecedentesPersonales(id_perfil, data = {}, executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
   const cols = ANTECEDENTES_PERSONALES_COLUMNS.filter((column) => hasOwn(payload, column) && payload[column] !== undefined);
   if (cols.length === 0) return { affectedRows: 0 };
 
-  const [existingRows] = await db.query(
+  const [existingRows] = await executor.query(
     'SELECT id_ap FROM antecedentes_personales WHERE id_perfil = ? LIMIT 1',
     [id_perfil]
   );
@@ -266,7 +266,7 @@ async function upsertAntecedentesPersonales(id_perfil, data = {}) {
   const values = cols.map((column) => payload[column]);
 
   if (existing?.id_ap) {
-    const [result] = await db.query(
+    const [result] = await executor.query(
       `UPDATE antecedentes_personales
        SET ${assignments}, actualizado = CURDATE()
        WHERE id_ap = ? AND id_perfil = ?`,
@@ -280,14 +280,14 @@ async function upsertAntecedentesPersonales(id_perfil, data = {}) {
 
   const fields = ['id_perfil', ...cols];
   const placeholders = fields.map(() => '?').join(', ');
-  const [result] = await db.query(
+  const [result] = await executor.query(
     `INSERT INTO antecedentes_personales (${fields.join(', ')}) VALUES (${placeholders})`,
     [id_perfil, ...values]
   );
   return result;
 }
 
-async function upsertGinecoObstetricos(id_perfil, data = {}) {
+async function upsertGinecoObstetricos(id_perfil, data = {}, executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
   const cols = Object.keys(payload).filter((k) => payload[k] != null);
@@ -298,20 +298,20 @@ async function upsertGinecoObstetricos(id_perfil, data = {}) {
   const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
   const sql = `INSERT INTO gineco_obstetricos (${fields.join(', ')}) VALUES (${placeholders})
                ON DUPLICATE KEY UPDATE ${updates}`;
-  const [result] = await db.query(sql, values);
+  const [result] = await executor.query(sql, values);
   return result;
 }
 
 // Inserta N filas en antecedentes_personales_patologicos para un perfil dado
 // items: array de objetos { antecedente, descripcion? } ya normalizados ('' -> null)
-async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
+async function addAntecedentesPersonalesPatologicos(id_perfil, items = [], executor = db) {
   if (!Array.isArray(items) || items.length === 0) return 0;
   let inserted = 0;
   for (const it of items) {
     const antecedente = it?.antecedente;
     if (!antecedente) continue; // requiere antecedente NOT NULL
     const descripcion = it?.descripcion ?? null;
-    await db.query(
+    await executor.query(
       'INSERT INTO antecedentes_personales_patologicos (id_perfil, antecedente, descripcion) VALUES (?, ?, ?)',
       [id_perfil, antecedente, descripcion]
     );
@@ -320,9 +320,9 @@ async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
   return inserted;
 }
 
-async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
+async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = [], executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
-  const [existingRows] = await db.query(
+  const [existingRows] = await executor.query(
     'SELECT id_app, antecedente, descripcion FROM antecedentes_personales_patologicos WHERE id_perfil = ?',
     [id_perfil]
   );
@@ -357,7 +357,7 @@ async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
       const existingId = Number(existing.id_app);
       matchedIds.add(existingId);
       if (!valuesEqual(existing.antecedente, antecedente) || !valuesEqual(existing.descripcion, descripcion)) {
-        await db.query(
+        await executor.query(
           `UPDATE antecedentes_personales_patologicos
            SET antecedente = ?, descripcion = ?, actualizado = CURDATE()
            WHERE id_app = ? AND id_perfil = ?`,
@@ -368,7 +368,7 @@ async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
       continue;
     }
 
-    const [result] = await db.query(
+    const [result] = await executor.query(
       'INSERT INTO antecedentes_personales_patologicos (id_perfil, antecedente, descripcion) VALUES (?, ?, ?)',
       [id_perfil, antecedente, descripcion]
     );
@@ -379,7 +379,7 @@ async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
   for (const row of existingRows) {
     const existingId = Number(row.id_app);
     if (matchedIds.has(existingId)) continue;
-    await db.query(
+    await executor.query(
       'DELETE FROM antecedentes_personales_patologicos WHERE id_app = ? AND id_perfil = ?',
       [existingId, id_perfil]
     );
@@ -391,7 +391,7 @@ async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
 
 // Inserta/actualiza (1:1) exploracion_fisica por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
-async function upsertExploracionFisica(id_perfil, data = {}) {
+async function upsertExploracionFisica(id_perfil, data = {}, executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
   const cols = EXPLORACION_COLUMNS.filter((column) => hasOwn(payload, column) && payload[column] !== undefined);
@@ -399,7 +399,7 @@ async function upsertExploracionFisica(id_perfil, data = {}) {
 
   // La BD actual no garantiza UNIQUE(id_perfil) en esta tabla. Buscar primero
   // la fila evita que un "upsert" se convierta en un INSERT en cada edición.
-  const [existingRows] = await db.query(
+  const [existingRows] = await executor.query(
     `SELECT id_exploracion
      FROM exploracion_fisica
      WHERE id_perfil = ?
@@ -412,7 +412,7 @@ async function upsertExploracionFisica(id_perfil, data = {}) {
   const values = cols.map((column) => payload[column]);
 
   if (existing?.id_exploracion) {
-    const [result] = await db.query(
+    const [result] = await executor.query(
       `UPDATE exploracion_fisica
        SET ${assignments}, actualizado = CURDATE()
        WHERE id_exploracion = ? AND id_perfil = ?`,
@@ -426,7 +426,7 @@ async function upsertExploracionFisica(id_perfil, data = {}) {
 
   const fields = ['id_perfil', ...cols];
   const placeholders = fields.map(() => '?').join(', ');
-  const [result] = await db.query(
+  const [result] = await executor.query(
     `INSERT INTO exploracion_fisica (${fields.join(', ')}) VALUES (${placeholders})`,
     [id_perfil, ...values]
   );
@@ -437,7 +437,7 @@ async function upsertExploracionFisica(id_perfil, data = {}) {
 // Para ADD: garantizamos 1 sola consulta por perfil eliminando previas y
 // devolvemos el id_consulta recién creado para enlazar personalizados.
 // data: objeto parcial con columnas válidas (sin id_perfil)
-async function upsertConsultas(id_perfil, data = {}) {
+async function upsertConsultas(id_perfil, data = {}, executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
 
@@ -446,16 +446,16 @@ async function upsertConsultas(id_perfil, data = {}) {
 
   // En "add" sólo puede haber una consulta. Eliminamos cualquier previa
   // para asegurar unicidad y luego insertamos, recuperando insertId.
-  await db.query('DELETE FROM consultas WHERE id_perfil = ?', [id_perfil]);
+  await executor.query('DELETE FROM consultas WHERE id_perfil = ?', [id_perfil]);
   const row = { id_perfil, ...Object.fromEntries(cols.map((k) => [k, payload[k]])) };
-  const [result] = await db.query('INSERT INTO consultas SET ?', [row]);
+  const [result] = await executor.query('INSERT INTO consultas SET ?', [row]);
   return { affectedRows: result?.affectedRows ?? 0, insertId: result?.insertId };
 }
 
-async function replaceConsultas(id_perfil, items = []) {
+async function replaceConsultas(id_perfil, items = [], executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const incoming = Array.isArray(items) ? items : [];
-  const [existingRows] = await db.query(
+  const [existingRows] = await executor.query(
     'SELECT * FROM consultas WHERE id_perfil = ? ORDER BY fecha_consulta ASC, id_consulta ASC',
     [id_perfil]
   );
@@ -490,7 +490,7 @@ async function replaceConsultas(id_perfil, items = []) {
     const values = columns.map((column) => raw[column]);
 
     if (existing) {
-      await db.query(
+      await executor.query(
         `UPDATE consultas
          SET ${buildAssignments(columns)}
          WHERE id_consulta = ? AND id_perfil = ?`,
@@ -504,7 +504,7 @@ async function replaceConsultas(id_perfil, items = []) {
 
     const fields = ['id_perfil', ...columns];
     const placeholders = fields.map(() => '?').join(', ');
-    const [result] = await db.query(
+    const [result] = await executor.query(
       `INSERT INTO consultas (${fields.join(', ')}) VALUES (${placeholders})`,
       [id_perfil, ...values]
     );
@@ -517,7 +517,7 @@ async function replaceConsultas(id_perfil, items = []) {
   for (const row of existingRows) {
     const existingId = Number(row.id_consulta);
     if (matchedIds.has(existingId)) continue;
-    await db.query(
+    await executor.query(
       'DELETE FROM consultas WHERE id_consulta = ? AND id_perfil = ?',
       [existingId, id_perfil]
     );
@@ -527,13 +527,13 @@ async function replaceConsultas(id_perfil, items = []) {
   return { inserted, updated, deleted, insertIds };
 }
 
-async function updateLatestConsultaHistoriaClinica(id_perfil, historia_clinica) {
+async function updateLatestConsultaHistoriaClinica(id_perfil, historia_clinica, executor = db) {
   const id = Number(id_perfil);
   if (!Number.isInteger(id) || id <= 0) {
     throw new Error('id_perfil inválido');
   }
 
-  const [latestRows] = await db.query(
+  const [latestRows] = await executor.query(
     'SELECT id_consulta FROM consultas WHERE id_perfil = ? ORDER BY fecha_consulta DESC, id_consulta DESC LIMIT 1',
     [id],
   );
@@ -543,7 +543,7 @@ async function updateLatestConsultaHistoriaClinica(id_perfil, historia_clinica) 
   }
 
   const texto = typeof historia_clinica === 'string' ? historia_clinica : String(historia_clinica ?? '');
-  const [result] = await db.query(
+  const [result] = await executor.query(
     'UPDATE consultas SET historia_clinica = ? WHERE id_consulta = ?',
     [texto, latest.id_consulta],
   );
@@ -555,7 +555,7 @@ async function updateLatestConsultaHistoriaClinica(id_perfil, historia_clinica) 
 
 // Inserta N filas en tabla `personalizados` para un perfil/consulta dado
 // items: array de objetos { nombre, descripcion, estado? } (strings no nulos)
-async function addPersonalizados(id_perfil, id_consulta, items = []) {
+async function addPersonalizados(id_perfil, id_consulta, items = [], executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   if (!id_consulta) throw new Error('id_consulta requerido');
   if (!Array.isArray(items) || items.length === 0) return 0;
@@ -565,7 +565,7 @@ async function addPersonalizados(id_perfil, id_consulta, items = []) {
     const descripcion = (it?.descripcion ?? '').toString().trim();
     const estado = (it?.estado ?? '').toString().trim();
     if (!nombre) continue; // requiere al menos nombre
-    await db.query(
+    await executor.query(
       'INSERT INTO personalizados (id_perfil, id_consulta, nombre, descripcion, estado) VALUES (?, ?, ?, ?, ?)',
       [id_perfil, id_consulta, nombre, descripcion, estado]
     );
@@ -575,19 +575,19 @@ async function addPersonalizados(id_perfil, id_consulta, items = []) {
 }
 
 // Elimina todos los personalizados de un perfil
-async function deletePersonalizadosByPerfil(id_perfil) {
+async function deletePersonalizadosByPerfil(id_perfil, executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
-  const [result] = await db.query('DELETE FROM personalizados WHERE id_perfil = ?', [id_perfil]);
+  const [result] = await executor.query('DELETE FROM personalizados WHERE id_perfil = ?', [id_perfil]);
   return result;
 }
 
 // Sincroniza personalizados sin borrarlos y recrearlos en cada edición.
 // Así se conservan sus IDs y sus fechas `creado`; solo `actualizado` cambia
 // cuando realmente cambian sus datos.
-async function syncPersonalizados(id_perfil, groups = []) {
+async function syncPersonalizados(id_perfil, groups = [], executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
 
-  const [existingRows] = await db.query(
+  const [existingRows] = await executor.query(
     'SELECT id_personalizado, id_consulta, nombre, descripcion, estado FROM personalizados WHERE id_perfil = ?',
     [id_perfil]
   );
@@ -629,7 +629,7 @@ async function syncPersonalizados(id_perfil, groups = []) {
           || !valuesEqual(existing.descripcion, descripcion)
           || !valuesEqual(existing.estado, estado)
         ) {
-          await db.query(
+          await executor.query(
             `UPDATE personalizados
              SET nombre = ?, descripcion = ?, estado = ?, actualizado = CURDATE()
              WHERE id_personalizado = ? AND id_perfil = ?`,
@@ -640,7 +640,7 @@ async function syncPersonalizados(id_perfil, groups = []) {
         continue;
       }
 
-      const [result] = await db.query(
+      const [result] = await executor.query(
         `INSERT INTO personalizados (id_perfil, id_consulta, nombre, descripcion, estado)
          VALUES (?, ?, ?, ?, ?)`,
         [id_perfil, id_consulta, nombre, descripcion, estado]
@@ -653,7 +653,7 @@ async function syncPersonalizados(id_perfil, groups = []) {
   for (const row of existingRows) {
     const existingId = Number(row.id_personalizado);
     if (matchedIds.has(existingId)) continue;
-    await db.query(
+    await executor.query(
       'DELETE FROM personalizados WHERE id_personalizado = ? AND id_perfil = ?',
       [existingId, id_perfil]
     );
@@ -665,7 +665,7 @@ async function syncPersonalizados(id_perfil, groups = []) {
 
 // Inserta/actualiza (1:1) diagnostico_tratamiento por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
-async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
+async function upsertDiagnosticoTratamiento(id_perfil, data = {}, executor = db) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
 
@@ -679,7 +679,7 @@ async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
   const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
   const sql = `INSERT INTO diagnostico_tratamiento (${fields.join(', ')}) VALUES (${placeholders})
                ON DUPLICATE KEY UPDATE ${updates}`;
-  const [result] = await db.query(sql, values);
+  const [result] = await executor.query(sql, values);
   return result;
 }
 
@@ -998,8 +998,8 @@ async function clearPerfilReminder(id_perfil) {
   );
   return result;
 }
-async function removeById(id) {
-  const [result] = await db.query(
+async function removeById(id, executor = db) {
+  const [result] = await executor.query(
     'DELETE FROM perfil WHERE id_perfil = ?',
     [id]
   );
@@ -1047,12 +1047,12 @@ function normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, co
   };
 }
 
-async function addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }) {
+async function addAppointment({ inicio_utc, fin_utc, nombre, telefono, color }, executor = db) {
   if (!inicio_utc || !fin_utc || !nombre) {
     throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
   }
   const payload = normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, color });
-  const [r] = await db.query('INSERT INTO citas SET ?', [payload]);
+  const [r] = await executor.query('INSERT INTO citas SET ?', [payload]);
   return { id_cita: r.insertId };
 }
 
@@ -1072,7 +1072,7 @@ async function listAppointments() {
   return rows;
 }
 
-async function updateAppointment({ id_cita, inicio_utc, fin_utc, nombre, telefono, color }) {
+async function updateAppointment({ id_cita, inicio_utc, fin_utc, nombre, telefono, color }, executor = db) {
   const id = Number(id_cita);
   if (!id || Number.isNaN(id)) {
     throw new Error('ID de cita invalido');
@@ -1081,16 +1081,26 @@ async function updateAppointment({ id_cita, inicio_utc, fin_utc, nombre, telefon
     throw new Error('inicio_utc, fin_utc y nombre son obligatorios');
   }
   const payload = normalizeAppointmentPayload({ inicio_utc, fin_utc, nombre, telefono, color });
-  const [result] = await db.query('UPDATE citas SET ? WHERE id_cita = ?', [payload, id]);
+  const [result] = await executor.query('UPDATE citas SET ? WHERE id_cita = ?', [payload, id]);
   return result;
 }
 
-async function deleteAppointment(id) {
+async function deleteAppointment(id, executor = db) {
   if (!id || Number.isNaN(Number(id))) {
     throw new Error('ID de cita inválido');
   }
-  const [result] = await db.query('DELETE FROM citas WHERE id_cita = ?', [id]);
+  const [result] = await executor.query('DELETE FROM citas WHERE id_cita = ?', [id]);
   return result;
+}
+
+async function getAppointmentById(id, executor = db) {
+  const targetId = Number(id);
+  if (!Number.isInteger(targetId) || targetId <= 0) return null;
+  const [rows] = await executor.query(
+    'SELECT id_cita, nombre FROM citas WHERE id_cita = ? LIMIT 1',
+    [targetId],
+  );
+  return rows?.[0] || null;
 }
 
 module.exports = {
@@ -1120,6 +1130,7 @@ module.exports = {
   addAppointment,
   listAppointments,
   updateAppointment,
-  deleteAppointment
+  deleteAppointment,
+  getAppointmentById
 };
   

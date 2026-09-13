@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const iaRoutes = require('./routes/ia');
 const userRoutes = require('./routes/user');
 const searchRoutes = require('./routes/search');
+const settingsRoutes = require('./routes/settings');
 const citasCleanup = require('./jobs/citasCleanup');
 const app = express();
 // Trust first proxy (e.g., Nginx/Heroku). Needed so req.ip is the real client IP
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser()); 
 app.use('/api', userRoutes);
 app.use('/api', searchRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/ia', iaRoutes);
 
 
@@ -48,7 +50,7 @@ app.get('/', (req, res) => {
 // Sirve el index.html para rutas del SPA privado y login
 const indexFile = path.join(frontendPath, 'index.html');
 
-app.get(['/profiles', '/add', '/pending', '/login', '/profile/:id', '/calendar', '/calendar/new', '/calendar/modify', '/search', '/polizas/:id/edit'], (req, res) => {
+app.get(['/profiles', '/add', '/pending', '/login', '/profile/:id', '/calendar', '/calendar/new', '/calendar/modify', '/search', '/settings', '/polizas/:id/edit'], (req, res) => {
   res.sendFile(indexFile);
 });
 

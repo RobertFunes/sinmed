@@ -171,6 +171,8 @@ const Modify = () => {
 
   const { formData, setFormData, isLoading, original } = usePerfilModify(id);
   const { isSubmitting, submit } = useSubmitPerfilModify(id);
+  const consultasRef = useRef(formData.consultas);
+  consultasRef.current = formData.consultas;
   const initialPayloadStringRef = useRef('');
   const allowNavigationRef = useRef(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -507,7 +509,7 @@ const Modify = () => {
     } else if (target && target.section === 'consultas') {
       setOpenSection('consultas');
       // Buscar consulta por id_consulta o por índice (orden UI)
-      const allConsultas = toArr(formData.consultas);
+      const allConsultas = toArr(consultasRef.current);
       let targetConsulta = null;
       if (target.id_consulta != null) {
         const cid = Number(target.id_consulta);
@@ -578,7 +580,7 @@ const Modify = () => {
       ? (w / Math.pow(hcm / 100, 2)).toFixed(2)
       : '';
     setFormData((prev) => (prev.imc === newImc ? prev : { ...prev, imc: newImc }));
-  }, [formData.peso_actual, formData.talla_cm, isLoading]);
+  }, [formData.peso_actual, formData.talla_cm, isLoading, setFormData]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -594,7 +596,7 @@ const Modify = () => {
       }
     }
     setFormData((prev) => (prev.pam === pamValue ? prev : { ...prev, pam: pamValue }));
-  }, [formData.ta_mmhg, isLoading]);
+  }, [formData.ta_mmhg, isLoading, setFormData]);
 
   const handleSubmit = async e => {
     e.preventDefault();

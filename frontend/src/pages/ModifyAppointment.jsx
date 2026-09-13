@@ -6,76 +6,76 @@ import { url } from '../helpers/url.js';
 import { apiFetch } from '../helpers/apiFetch';
 import { Page, Title, Form, Field, Input, Actions, PrimaryButton, GhostButton } from './NewAppointment.styles.jsx';
 
+const COLOR_OPTIONS = [
+  { name: 'Blue', hex: '#1976D2' },
+  { name: 'Green', hex: '#2E7D32' },
+  { name: 'Red', hex: '#D32F2F' },
+  { name: 'Orange', hex: '#F57C00' },
+  { name: 'Purple', hex: '#6A1B9A' },
+];
+
+const parseDateValue = (value) => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value === 'string') {
+    const base = value.replace(' ', 'T');
+    const attempts = [value, base, `${base}Z`];
+    for (const attempt of attempts) {
+      const parsedAttempt = new Date(attempt);
+      if (!Number.isNaN(parsedAttempt.getTime())) return parsedAttempt;
+    }
+    return null;
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const pad = (value) => String(value).padStart(2, '0');
+const toDateInput = (date) => (date ? `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` : '');
+const toTimeInput = (date) => (date ? `${pad(date.getHours())}:${pad(date.getMinutes())}` : '');
+
+const computeOffset = (startDate, endDate) => {
+  if (!startDate || !endDate) return 0;
+  const startMidnight = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const endMidnight = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+  const diff = Math.round((endMidnight - startMidnight) / 86400000);
+  return diff > 0 ? diff : 0;
+};
+
+const normalizeColor = (raw) => {
+  if (typeof raw !== 'string') return COLOR_OPTIONS[0].name;
+  const trimmed = raw.trim();
+  if (!trimmed) return COLOR_OPTIONS[0].name;
+  const nameMatch = COLOR_OPTIONS.find((option) => option.name.toLowerCase() === trimmed.toLowerCase());
+  if (nameMatch) return nameMatch.name;
+  const hexMatch = COLOR_OPTIONS.find((option) => option.hex.toLowerCase() === trimmed.toLowerCase());
+  if (hexMatch) return hexMatch.name;
+  return trimmed;
+};
+
+const deriveFormValues = (appointment) => {
+  const startValue = appointment?.inicio_utc ?? appointment?.start ?? null;
+  const endValue = appointment?.fin_utc ?? appointment?.end ?? null;
+  const startDate = parseDateValue(startValue);
+  const endDate = parseDateValue(endValue);
+
+  return {
+    date: toDateInput(startDate),
+    time: toTimeInput(startDate),
+    endTime: toTimeInput(endDate),
+    endOffset: computeOffset(startDate, endDate),
+    name: appointment?.nombre ?? appointment?.title ?? '',
+    phone: appointment?.telefono ?? appointment?.phone ?? '',
+    color: normalizeColor(appointment?.color),
+    id: appointment?.id ?? null,
+  };
+};
+
 export default function ModifyAppointment() {
   const navigate = useNavigate();
   const location = useLocation();
-  const COLOR_OPTIONS = [
-    { name: 'Blue', hex: '#1976D2' },
-    { name: 'Green', hex: '#2E7D32' },
-    { name: 'Red', hex: '#D32F2F' },
-    { name: 'Orange', hex: '#F57C00' },
-    { name: 'Purple', hex: '#6A1B9A' },
-  ];
 
   const initialAppointment = location.state?.appointment ?? null;
-
-  const parseDateValue = (value) => {
-    if (!value) return null;
-    if (value instanceof Date) return value;
-    if (typeof value === 'string') {
-      const base = value.replace(' ', 'T');
-      const attempts = [value, base, `${base}Z`];
-      for (const attempt of attempts) {
-        const parsedAttempt = new Date(attempt);
-        if (!Number.isNaN(parsedAttempt.getTime())) return parsedAttempt;
-      }
-      return null;
-    }
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-  };
-
-  const pad = (value) => String(value).padStart(2, '0');
-
-  const toDateInput = (date) => (date ? `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` : '');
-  const toTimeInput = (date) => (date ? `${pad(date.getHours())}:${pad(date.getMinutes())}` : '');
-
-  const computeOffset = (startDate, endDate) => {
-    if (!startDate || !endDate) return 0;
-    const startMidnight = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-    const endMidnight = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-    const diff = Math.round((endMidnight - startMidnight) / 86400000);
-    return diff > 0 ? diff : 0;
-  };
-
-  const normalizeColor = (raw) => {
-    if (typeof raw !== 'string') return COLOR_OPTIONS[0].name;
-    const trimmed = raw.trim();
-    if (!trimmed) return COLOR_OPTIONS[0].name;
-    const nameMatch = COLOR_OPTIONS.find((option) => option.name.toLowerCase() === trimmed.toLowerCase());
-    if (nameMatch) return nameMatch.name;
-    const hexMatch = COLOR_OPTIONS.find((option) => option.hex.toLowerCase() === trimmed.toLowerCase());
-    if (hexMatch) return hexMatch.name;
-    return trimmed;
-  };
-
-  const deriveFormValues = (appointment) => {
-    const startValue = appointment?.inicio_utc ?? appointment?.start ?? null;
-    const endValue = appointment?.fin_utc ?? appointment?.end ?? null;
-    const startDate = parseDateValue(startValue);
-    const endDate = parseDateValue(endValue);
-
-    return {
-      date: toDateInput(startDate),
-      time: toTimeInput(startDate),
-      endTime: toTimeInput(endDate),
-      endOffset: computeOffset(startDate, endDate),
-      name: appointment?.nombre ?? appointment?.title ?? '',
-      phone: appointment?.telefono ?? appointment?.phone ?? '',
-      color: normalizeColor(appointment?.color),
-      id: appointment?.id ?? null,
-    };
-  };
 
   const initialForm = deriveFormValues(initialAppointment ?? {});
 
@@ -210,7 +210,7 @@ export default function ModifyAppointment() {
         const map = JSON.parse(localStorage.getItem(key) || '{}');
         map[String(targetId)] = color;
         localStorage.setItem(key, JSON.stringify(map));
-      } catch (_) { /* noop */ }
+      } catch { /* noop */ }
       alert('Cita modificada correctamente');
       navigate('/calendar');
     } catch (err) {

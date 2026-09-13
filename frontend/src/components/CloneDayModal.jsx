@@ -189,10 +189,10 @@ const toNaive = (value) => {
 };
 
 export default function CloneDayModal({ visible, onClose, events, sourceDate }) {
-  if (!visible) return null;
-
   const [targetDate, setTargetDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!visible) return null;
 
   const handleBackdropClick = (event) => {
     if (event.target === event.currentTarget) {

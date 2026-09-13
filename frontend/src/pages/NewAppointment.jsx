@@ -126,7 +126,7 @@ export default function NewAppointment() {
           map[String(data.id_cita)] = color;
           localStorage.setItem(key, JSON.stringify(map));
         }
-      } catch (_) { /* noop */ }
+      } catch { /* noop */ }
       alert(`Cita guardada correctamente${data?.id_cita ? ` (ID ${data.id_cita})` : ''}`);
       navigate('/calendar');
     } catch (err) {

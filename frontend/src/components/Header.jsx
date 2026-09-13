@@ -1,5 +1,5 @@
 // Header.jsx
-import { FaUserPlus, FaComments, FaUser, FaSearch, FaCalendarAlt } from 'react-icons/fa';
+import { FaUserPlus, FaComments, FaUser, FaSearch, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { NavBar, NavButton } from './Header.styles.jsx';
 const Header = () => {
@@ -21,6 +21,15 @@ const Header = () => {
         </NavButton>
         <NavButton as={Link} to="/search" className="agenda">
           <FaSearch style={{ fontSize: '1.5rem' }} /> Buscar
+        </NavButton>
+        <NavButton
+          as={Link}
+          to="/settings"
+          className="agenda settings-button"
+          aria-label="Configuración"
+          title="Configuración"
+        >
+          <FaCog aria-hidden="true" focusable="false" />
         </NavButton>
       </NavBar>
     </header>

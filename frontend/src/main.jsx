@@ -18,6 +18,7 @@ import Search from './pages/Search.jsx';
 import Calendar from './pages/Calendar.jsx';
 import NewAppointment from './pages/NewAppointment.jsx';
 import ModifyAppointment from './pages/ModifyAppointment.jsx';
+import Settings from './pages/Settings.jsx';
 
 export function NotFound() {           // ← agrega "export" y se acabó el drama
   return <h2>Página no encontrada 🚫</h2>;
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
       { path: '/calendar/modify', element: <ModifyAppointment /> },
       { path: '/polizas/:id/edit', element: <ModifyContract /> },
       { path: '/search', element: <Search /> },
+      { path: '/settings', element: <Settings /> },
     ],
   },
   { path: '*', element: <NotFound /> },

@@ -44,8 +44,6 @@ export default function CalendarModal({
   onDelete,
   onModify,
 }) {
-  if (!visible) return null;
-
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -59,6 +57,8 @@ export default function CalendarModal({
       setPendingDelay(null);
     }
   }, [visible, appointment]);
+
+  if (!visible) return null;
 
   const eventId = appointment?.id ?? appointment?.raw?.id_cita ?? null;
 

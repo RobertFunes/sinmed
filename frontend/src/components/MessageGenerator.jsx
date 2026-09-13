@@ -110,6 +110,19 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
     setLatestIaSource(source);
   };
 
+  const syncAiUsage = (data) => {
+    if (!data?.gemini) return;
+    setLimits((previous) => {
+      if (!previous) return previous;
+      return {
+        ...previous,
+        ...(data.mode ? { mode: data.mode } : {}),
+        ...(data.usageMultiplier ? { usageMultiplier: data.usageMultiplier } : {}),
+        gemini: data.gemini,
+      };
+    });
+  };
+
   const handleAutocopyToHistoriaClinica = async () => {
     const targetProfileId = profileId ?? profile?.id_perfil;
     if (!targetProfileId) {
@@ -162,24 +175,13 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: fullPrompt }),
       });
-      if (!res.ok) throw new Error('Error al invocar la IA');
-      const { respuesta } = await res.json();
+      const data = await res.json().catch(() => ({}));
+      syncAiUsage(data);
+      if (!res.ok) throw new Error(data.error || 'Error al invocar la IA');
+      const { respuesta } = data;
       const output = respuesta || '';
       setSummaryResult(output);
       registerLatestOutput(output, 'resumen');
-      setLimits((prev) => {
-        if (!prev || !prev.gemini) return prev;
-        const used = (prev.gemini.used || 0) + 1;
-        const limit = prev.gemini.limit || 0;
-        return {
-          ...prev,
-          gemini: {
-            ...prev.gemini,
-            used,
-            remaining: Math.max(0, limit - used),
-          },
-        };
-      });
     } catch (err) {
       alert(err.message || 'Error inesperado');
     } finally {
@@ -269,24 +271,13 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
         headers: { 'Content-Type': 'application/json' },
         body   : JSON.stringify({ prompt }),
       });
-      if (!res.ok) throw new Error('Error al invocar la IA');
-      const { respuesta } = await res.json();
+      const data = await res.json().catch(() => ({}));
+      syncAiUsage(data);
+      if (!res.ok) throw new Error(data.error || 'Error al invocar la IA');
+      const { respuesta } = data;
       const output = respuesta || 'Sin respuesta de la IA';
       setGenerated(output);
       registerLatestOutput(output, 'mensaje');
-      setLimits((prev) => {
-        if (!prev || !prev.gemini) return prev;
-        const used = (prev.gemini.used || 0) + 1;
-        const limit = prev.gemini.limit || 0;
-        return {
-          ...prev,
-          gemini: {
-            ...prev.gemini,
-            used,
-            remaining: Math.max(0, limit - used),
-          },
-        };
-      });
     } catch (err) {
       alert(err.message || 'Error inesperado');
     } finally {
@@ -306,6 +297,8 @@ Instrucción: Escribe el mensaje final en tono ${tono}, sin formato Markdown ni 
             {!limitsLoading && limits && limits.ok && (
               <InfoBar>
                 <span>IA texto: {limits.gemini.used}/{limits.gemini.limit}</span>
+                <span>Restantes: {limits.gemini.remaining}</span>
+                <span>Uso: {limits.usageMultiplier === 1.25 ? '1.25X' : '1X'}</span>
                 <span>Reseteo: {String(limits.gemini.resetAt || '').slice(0, 10)}</span>
               </InfoBar>
             )}
