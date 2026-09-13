@@ -10,6 +10,10 @@ const trimValue = (value) => {
   if (typeof value === 'string') return value.trim();
   return value ?? '';
 };
+const positiveId = (value) => {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : null;
+};
 
 const parseDateValue = (value) => {
   if (!value) return Number.NaN;
@@ -74,7 +78,9 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
   const base = buildNestedPayload(data);
   const isMujer = trimValue(data?.genero) === 'Mujer';
   const consultas = sortConsultasAsc(toArr(data?.consultas)).map((consulta) => {
+    const idConsulta = positiveId(consulta?.id_consulta);
     const payload = {
+      ...(idConsulta ? { id_consulta: idConsulta } : {}),
       fecha_consulta: trimValue(consulta?.fecha_consulta),
       recordatorio: trimValue(consulta?.recordatorio),
       fum: isMujer ? trimValue(consulta?.fum) : '',
@@ -108,11 +114,15 @@ export const buildPayloadWithConsultas = (data, idPerfil) => {
     });
 
     const personalizados = toArr(consulta?.personalizados)
-      .map((p) => ({
-        nombre: trimValue(p?.nombre),
-        descripcion: trimValue(p?.descripcion),
-        estado: trimValue(p?.estado),
-      }))
+      .map((p) => {
+        const idPersonalizado = positiveId(p?.id_personalizado);
+        return {
+          ...(idPersonalizado ? { id_personalizado: idPersonalizado } : {}),
+          nombre: trimValue(p?.nombre),
+          descripcion: trimValue(p?.descripcion),
+          estado: trimValue(p?.estado),
+        };
+      })
       .filter((p) => p.nombre !== '' || p.descripcion !== '' || p.estado !== '');
 
     return { ...payload, interrogatorio_aparatos, personalizados };
@@ -145,7 +155,9 @@ export const useSubmitPerfilModify = (id) => {
         try {
           const errJson = await res.json();
           if (errJson?.error) message = errJson.error;
-        } catch {}
+        } catch {
+          // Algunas respuestas de error no traen un cuerpo JSON.
+        }
         alert(`❌🔴 ${message}`);
         return false;
       }

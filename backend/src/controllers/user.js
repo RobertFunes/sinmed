@@ -28,6 +28,29 @@ const SISTEMA_FIELD_CONFIGS = [
   { key: 'medicamentos', desc: 'medicamentos_desc', estado: 'medicamentos_estado' },
 ];
 
+const ANTECEDENTES_PERSONALES_FIELDS = [
+  'bebidas_por_dia',
+  'tiempo_activo_alc',
+  'tiempo_inactivo_alc',
+  'cigarrillos_por_dia',
+  'tiempo_activo_tab',
+  'tiempo_inactivo_tab',
+  'tipo_toxicomania',
+  'tiempo_activo_tox',
+  'tiempo_inactivo_tox',
+  'calidad',
+  'alimentos_que_le_caen_mal',
+  'componentes_habituales_dieta',
+  'desayuno',
+  'comida',
+  'cena',
+  'hay_cambios',
+  'vacunas',
+  'cambio_tipo',
+  'cambio_causa',
+  'cambio_tiempo',
+];
+
 // POST /postpone { id_consulta }
 const postpone = async (req, res) => {
   try {
@@ -107,13 +130,17 @@ const modify = async (req, res) => {
 
     const afRaw = Array.isArray(body.antecedentes_familiares) ? body.antecedentes_familiares : [];
     const afItems = afRaw.map((it) => ({
+      id_antecedente_familiar: toInt(it?.id_antecedente_familiar),
       nombre: norm(it?.nombre) || null,
       descripcion: norm(it?.descripcion) || null,
     }));
     const af_replaced = await bd.replaceAntecedentesFamiliares(id, afItems);
 
     const apRaw = body.antecedentes_personales || {};
-    const apPayload = {};
+    // Incluye todos los campos para que al quitar un hábito o un cambio de
+    // alimentación también se borre su valor anterior, en vez de dejarlo
+    // persistido silenciosamente.
+    const apPayload = Object.fromEntries(ANTECEDENTES_PERSONALES_FIELDS.map((field) => [field, null]));
     const habitos = Array.isArray(apRaw.habitos) ? apRaw.habitos : [];
     for (const h of habitos) {
       const tipo = (h?.tipo || '').trim().toLowerCase();
@@ -177,6 +204,7 @@ const modify = async (req, res) => {
       ? body.antecedentes_personales_patologicos
       : [];
     const appItems = appRaw.map((it) => ({
+      id_app: toInt(it?.id_app),
       antecedente: norm(it?.antecedente) || null,
       descripcion: norm(it?.descripcion) || null,
     }));
@@ -237,7 +265,9 @@ const modify = async (req, res) => {
 
     // Construye pares { row, pers } por cada entrada cruda
 	    const consPairs = consRaw.map((entry) => {
+	      const consultaId = toInt(entry?.id_consulta);
 	      const row = {
+	        ...(consultaId && consultaId > 0 ? { id_consulta: consultaId } : {}),
 	        fecha_consulta: clean(toYMD(entry?.fecha_consulta)),
 	        recordatorio: clean(toYMD(entry?.recordatorio)),
 	        fum: clean(norm(entry?.fum)),
@@ -285,6 +315,7 @@ const modify = async (req, res) => {
       const persRaw = Array.isArray(entry?.personalizados) ? entry.personalizados : [];
       const pers = persRaw
         .map((it) => ({
+          id_personalizado: toInt(it?.id_personalizado),
           nombre: (it?.nombre ?? '').toString().trim(),
           descripcion: (it?.descripcion ?? '').toString().trim(),
           estado: (it?.estado ?? '').toString().trim(),
@@ -296,24 +327,20 @@ const modify = async (req, res) => {
 
     // Filtra entradas vacías (según lógica ya existente)
     const filtered = consPairs.filter(({ row }) =>
-      Object.values(row).some((value) => value != null && value !== '')
+      Object.entries(row).some(([key, value]) => key !== 'id_consulta' && value != null && value !== '')
     );
     const consItems = filtered.map(({ row }) => row);
     const persLists = filtered.map(({ pers }) => pers.filter((p) => p.nombre && p.nombre.trim().length > 0));
 
     const cons_result = await bd.replaceConsultas(id, consItems);
 
-    // Reemplaza todos los personalizados del perfil y re-inserta por consulta recién creada
-    await bd.deletePersonalizadosByPerfil(id);
-    let pers_total = 0;
     const insertIds = Array.isArray(cons_result?.insertIds) ? cons_result.insertIds : [];
-    for (let i = 0; i < insertIds.length; i++) {
-      const cid = insertIds[i];
-      const list = Array.isArray(persLists[i]) ? persLists[i] : [];
-      if (!cid || list.length === 0) continue;
-      const n = await bd.addPersonalizados(id, cid, list);
-      pers_total += n;
-    }
+    const personalGroups = insertIds.map((id_consulta, index) => ({
+      id_consulta,
+      items: Array.isArray(persLists[index]) ? persLists[index] : [],
+    })).filter((group) => group.id_consulta);
+    const pers_result = await bd.syncPersonalizados(id, personalGroups);
+    const pers_total = pers_result?.changed ?? 0;
 
     return res.status(200).json({
       ok: true,
@@ -692,11 +719,11 @@ const add = async (req, res) => {
     }
     const ap_result = await bd.upsertAntecedentesPersonales(id_perfil, apPayload);
 
+    const goRaw = body.gineco_obstetricos || {};
     // ============================================================================
     // 4) gineco_obstetricos -> UPSERT 1:1 en `gineco_obstetricos`
     //     - Solo fechas a YYYY-MM-DD; vacíos -> NULL
     // ============================================================================
-    const goRaw = body.gineco_obstetricos || {};
     const goPayload = {
       edad_primera_menstruacion: clean(goRaw.edad_primera_menstruacion),
       ciclo_dias: clean(goRaw.ciclo_dias),

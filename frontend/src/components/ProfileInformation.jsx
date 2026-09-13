@@ -483,18 +483,13 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     'alergico', 'creado', 'actualizado', 'id_legado', 'fecha_legado', 'recordatorio', 'recordatorio_desc',
   ];
 
-  const computeMaxDates = () => {
-    let creadoSrc = data.creado || null;
-    let creadoVal = parseDateValue(creadoSrc);
+  const computeDisplayDates = () => {
     let actualizadoSrc = data.actualizado || null;
     let actualizadoVal = parseDateValue(actualizadoSrc);
 
     if (data.antecedentes_personales && typeof data.antecedentes_personales === 'object') {
-      const cSrc = data.antecedentes_personales.creado;
       const aSrc = data.antecedentes_personales.actualizado;
-      const cVal = parseDateValue(cSrc);
       const aVal = parseDateValue(aSrc);
-      if (cVal > creadoVal) { creadoVal = cVal; creadoSrc = cSrc; }
       if (aVal > actualizadoVal) { actualizadoVal = aVal; actualizadoSrc = aSrc; }
     }
 
@@ -510,11 +505,8 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     for (const arr of arrays) {
       if (!Array.isArray(arr)) continue;
       for (const it of arr) {
-        const cSrc = it?.creado;
         const aSrc = it?.actualizado;
-        const cVal = parseDateValue(cSrc);
         const aVal = parseDateValue(aSrc);
-        if (cVal > creadoVal) { creadoVal = cVal; creadoSrc = cSrc; }
         if (aVal > actualizadoVal) { actualizadoVal = aVal; actualizadoSrc = aSrc; }
       }
     }
@@ -523,16 +515,21 @@ export default function ProfileInformation({ data, onEditProfile, onDeleteProfil
     const aMaxVal = parseDateValue(aMaxSrc);
     if (aMaxVal > actualizadoVal) { actualizadoVal = aMaxVal; actualizadoSrc = aMaxSrc; }
 
-    return { creadoMax: formatDate(creadoSrc), actualizadoMax: formatDate(actualizadoSrc) };
+    return {
+      // `creado` pertenece al perfil base y nunca debe derivarse de sus hijos:
+      // los hijos pueden nacer durante una edición del perfil.
+      creadoDate: formatDate(data.creado),
+      actualizadoDate: formatDate(actualizadoSrc),
+    };
   };
 
-  const { creadoMax, actualizadoMax } = computeMaxDates();
+  const { creadoDate, actualizadoDate } = computeDisplayDates();
   const ageDisplay = calculateAge(data.fecha_nacimiento);
   const personalData = {
     ...data,
     fecha_nacimiento: formatDate(data.fecha_nacimiento),
-    creado: creadoMax || formatDate(data.creado),
-    actualizado: actualizadoMax || formatDate(data.actualizado),
+    creado: creadoDate || formatDate(data.creado),
+    actualizado: actualizadoDate || formatDate(data.actualizado),
     fecha_legado: formatDate(data.fecha_legado),
     recordatorio: formatDate(data.recordatorio),
   };

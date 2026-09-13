@@ -8,6 +8,7 @@ import {
   INSPECCION_OPCIONES,
 } from '../../helpers/add/catalogos';
 import { initialState } from '../../helpers/add/initialState';
+import { mapPersonalizadoToForm } from '../../helpers/modify/personalizados';
 
 // Utilidades locales (duplicadas desde Modify.jsx para evitar acoplar UI)
 const todayISO = () => {
@@ -32,6 +33,10 @@ const normalize = (text) =>
 
 const toStr = (value) => (value == null ? '' : String(value));
 const toArr = (value) => (Array.isArray(value) ? value : []);
+const positiveId = (value) => {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : undefined;
+};
 
 let consultaUidCounter = 0;
 const generateConsultaUid = () => {
@@ -163,7 +168,13 @@ const mapApiToForm = (api) => {
     const nombre = toStr(item?.nombre);
     const descripcion = toStr(item?.descripcion);
     const esCatalogo = ANTECEDENTES_OPCIONES.some((opt) => normalize(opt) === normalize(nombre));
-    return { nombre, descripcion, esOtro: !nombre || !esCatalogo || item?.esOtro === true };
+    const id = positiveId(item?.id_antecedente_familiar);
+    return {
+      ...(id ? { id_antecedente_familiar: id } : {}),
+      nombre,
+      descripcion,
+      esOtro: !nombre || !esCatalogo || item?.esOtro === true,
+    };
   });
 
   const ap = api.antecedentes_personales || {};
@@ -231,10 +242,14 @@ const mapApiToForm = (api) => {
   assign('gineco_fecha_ultimo_parto', goSource.fecha_ultimo_parto);
   assign('gineco_fecha_menopausia', goSource.fecha_menopausia);
 
-  next.antecedentes_personales_patologicos = toArr(api.antecedentes_personales_patologicos).map((item) => ({
-    antecedente: toStr(item?.antecedente),
-    descripcion: toStr(item?.descripcion),
-  }));
+  next.antecedentes_personales_patologicos = toArr(api.antecedentes_personales_patologicos).map((item) => {
+    const id = positiveId(item?.id_app);
+    return {
+      ...(id ? { id_app: id } : {}),
+      antecedente: toStr(item?.antecedente),
+      descripcion: toStr(item?.descripcion),
+    };
+  });
 
   const consRows = toArr(api.consultas);
   const legacyRows = toArr(api.padecimiento_actual_interrogatorio);
@@ -251,13 +266,13 @@ const mapApiToForm = (api) => {
     const estado = toStr(it?.estado);
     if (!nombre && !descripcion && !estado) return;
     const list = personalizadosByConsulta.get(cid) || [];
-    list.push({ nombre, descripcion, estado });
+    list.push(mapPersonalizadoToForm(it));
     personalizadosByConsulta.set(cid, list);
   });
 
   const consultasFromApi = consRows.map((row) => ({
     uid: row?.uid || row?.id || generateConsultaUid(),
-    id_consulta: Number(row?.id_consulta) || undefined,
+    id_consulta: positiveId(row?.id_consulta),
     fecha_consulta: toStr(row?.fecha_consulta),
     recordatorio: toStr(row?.recordatorio),
     fum: toStr(row?.fum),
@@ -282,11 +297,7 @@ const mapApiToForm = (api) => {
       descripcion: toStr(item?.descripcion),
       estado: toStr(item?.estado),
     })),
-    personalizados: (personalizadosByConsulta.get(Number(row?.id_consulta)) || []).map((p) => ({
-      nombre: toStr(p?.nombre),
-      descripcion: toStr(p?.descripcion),
-      estado: toStr(p?.estado),
-    })),
+    personalizados: (personalizadosByConsulta.get(Number(row?.id_consulta)) || []).map(mapPersonalizadoToForm),
   }));
 
   let consultas = consultasFromApi;
@@ -331,11 +342,7 @@ const mapApiToForm = (api) => {
         descripcion: toStr(item?.descripcion),
         estado: toStr(item?.estado),
       })),
-      personalizados: toArr(consulta.personalizados).map((p) => ({
-        nombre: toStr(p?.nombre),
-        descripcion: toStr(p?.descripcion),
-        estado: toStr(p?.estado),
-      })),
+      personalizados: toArr(consulta.personalizados).map(mapPersonalizadoToForm),
     })),
   );
 

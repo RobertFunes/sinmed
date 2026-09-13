@@ -1,4 +1,9 @@
 // Construye el payload anidado tal como se envía al backend
+const positiveId = (value) => {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : null;
+};
+
 export const buildNestedPayload = (data) => {
   const trim = (v) => (typeof v === 'string' ? v.trim() : v);
 
@@ -23,11 +28,15 @@ export const buildNestedPayload = (data) => {
   };
 
   // Antecedentes familiares
-  const antecedentes_familiares = (data.antecedentes_familiares || []).map((a) => ({
-    nombre: trim(a.nombre),
-    descripcion: trim(a.descripcion),
-    ...(a.esOtro ? { esOtro: true } : {}),
-  }));
+  const antecedentes_familiares = (data.antecedentes_familiares || []).map((a) => {
+    const id = positiveId(a?.id_antecedente_familiar);
+    return {
+      ...(id ? { id_antecedente_familiar: id } : {}),
+      nombre: trim(a.nombre),
+      descripcion: trim(a.descripcion),
+      ...(a.esOtro ? { esOtro: true } : {}),
+    };
+  });
 
   // Antecedentes personales: hábitos
   const habitos = (data.antecedentes_personales_habitos || []).map((h) => ({
@@ -38,10 +47,14 @@ export const buildNestedPayload = (data) => {
   }));
 
   // Antecedentes personales: patológicos
-  const patologicos = (data.antecedentes_personales_patologicos || []).map((p) => ({
-    antecedente: trim(p.antecedente),
-    descripcion: trim(p.descripcion),
-  }));
+  const patologicos = (data.antecedentes_personales_patologicos || []).map((p) => {
+    const id = positiveId(p?.id_app);
+    return {
+      ...(id ? { id_app: id } : {}),
+      antecedente: trim(p.antecedente),
+      descripcion: trim(p.descripcion),
+    };
+  });
 
   // Alimentación
   const hayCambios = trim(data.hay_cambios);

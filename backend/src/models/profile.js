@@ -1,4 +1,141 @@
 const db = require('./db'); // 👈 Aquí importas la conexión
+const PROFILE_EDITABLE_COLUMNS = [
+  'nombre',
+  'fecha_nacimiento',
+  'genero',
+  'telefono_movil',
+  'correo_electronico',
+  'residencia',
+  'ocupacion',
+  'escolaridad',
+  'estado_civil',
+  'tipo_sangre',
+  'referido_por',
+  'alergico',
+  'id_legado',
+  'fecha_legado',
+  'recordatorio',
+  'recordatorio_desc',
+];
+
+const ANTECEDENTES_PERSONALES_COLUMNS = [
+  'bebidas_por_dia',
+  'tiempo_activo_alc',
+  'tiempo_inactivo_alc',
+  'cigarrillos_por_dia',
+  'tiempo_activo_tab',
+  'tiempo_inactivo_tab',
+  'tipo_toxicomania',
+  'tiempo_activo_tox',
+  'tiempo_inactivo_tox',
+  'calidad',
+  'alimentos_que_le_caen_mal',
+  'componentes_habituales_dieta',
+  'desayuno',
+  'comida',
+  'cena',
+  'hay_cambios',
+  'vacunas',
+  'cambio_tipo',
+  'cambio_causa',
+  'cambio_tiempo',
+];
+
+const EXPLORACION_COLUMNS = [
+  'peso_actual',
+  'peso_anterior',
+  'peso_deseado',
+  'peso_ideal',
+  'talla_cm',
+  'imc',
+  'ta_mmhg',
+  'pam',
+  'frecuencia_cardiaca',
+  'pulso',
+  'frecuencia_respiratoria',
+  'temperatura_c',
+  'cadera_cm',
+  'cintura_cm',
+  'cabeza',
+  'lengua',
+  'cuello',
+  'torax',
+  'abdomen',
+  'genitales',
+  'extremidades',
+];
+
+const CONSULTA_COLUMNS = [
+  'fecha_consulta',
+  'recordatorio',
+  'fum',
+  'historia_clinica',
+  'padecimiento_actual',
+  'diagnostico',
+  'medicamentos',
+  'tratamiento',
+  'notas',
+  'notas_evolucion',
+  'oreja',
+  'agua',
+  'laboratorios',
+  'presion',
+  'glucosa',
+  'pam',
+  'peso',
+  'ejercicio',
+  'desparacitacion',
+  'sintomas_generales_desc',
+  'sintomas_generales_estado',
+  'endocrino_desc',
+  'endocrino_estado',
+  'organos_sentidos_desc',
+  'organos_sentidos_estado',
+  'gastrointestinal_desc',
+  'gastrointestinal_estado',
+  'respiratorio_desc',
+  'respiratorio_estado',
+  'cardiopulmonar_desc',
+  'cardiopulmonar_estado',
+  'genitourinario_desc',
+  'genitourinario_estado',
+  'genital_femenino_desc',
+  'genital_femenino_estado',
+  'sexualidad_desc',
+  'sexualidad_estado',
+  'dermatologico_desc',
+  'dermatologico_estado',
+  'neurologico_desc',
+  'neurologico_estado',
+  'hematologico_desc',
+  'hematologico_estado',
+  'reumatologico_desc',
+  'reumatologico_estado',
+  'psiquiatrico_desc',
+  'psiquiatrico_estado',
+  'medicamentos_desc',
+  'medicamentos_estado',
+];
+
+const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+const toPositiveInt = (value) => {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : null;
+};
+const normalizeKey = (value) => String(value ?? '')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .trim()
+  .toLowerCase();
+const normalizeOptionalText = (value) => {
+  if (value == null || value === '') return null;
+  return String(value).trim();
+};
+const valuesEqual = (left, right) => {
+  if (left == null && right == null) return true;
+  return String(left ?? '') === String(right ?? '');
+};
+const buildAssignments = (columns) => columns.map((column) => `\`${column}\` = ?`).join(', ');
 
 async function add(data) {
   if (!data || typeof data !== 'object') {
@@ -14,7 +151,14 @@ async function updatePerfil(id_perfil, data = {}) {
     throw new Error('id_perfil inválido');
   }
   const payload = { ...data };
-  const [result] = await db.query('UPDATE perfil SET ? WHERE id_perfil = ?', [payload, id]);
+  const columns = PROFILE_EDITABLE_COLUMNS.filter((column) => hasOwn(payload, column) && payload[column] !== undefined);
+  if (columns.length === 0) return { affectedRows: 0 };
+  const assignments = buildAssignments(columns);
+  const values = columns.map((column) => payload[column]);
+  const [result] = await db.query(
+    `UPDATE perfil SET ${assignments}, actualizado = CURDATE() WHERE id_perfil = ?`,
+    [...values, id]
+  );
   return result;
 }
 
@@ -38,8 +182,71 @@ async function addAntecedentesFamiliares(id_perfil, items = []) {
 
 async function replaceAntecedentesFamiliares(id_perfil, items = []) {
   if (!id_perfil) throw new Error('id_perfil requerido');
-  await db.query('DELETE FROM antecedentes_familiares WHERE id_perfil = ?', [id_perfil]);
-  return addAntecedentesFamiliares(id_perfil, items);
+  const [existingRows] = await db.query(
+    'SELECT id_antecedente_familiar, nombre, descripcion FROM antecedentes_familiares WHERE id_perfil = ?',
+    [id_perfil]
+  );
+  const existingById = new Map(existingRows.map((row) => [Number(row.id_antecedente_familiar), row]));
+  const existingByName = new Map();
+  for (const row of existingRows) {
+    const key = normalizeKey(row.nombre);
+    if (key && !existingByName.has(key)) existingByName.set(key, row);
+  }
+
+  const matchedIds = new Set();
+  const seenNames = new Set();
+  let changed = 0;
+
+  for (const item of Array.isArray(items) ? items : []) {
+    const nombre = normalizeOptionalText(item?.nombre);
+    if (!nombre) continue;
+
+    const nameKey = normalizeKey(nombre);
+    if (seenNames.has(nameKey)) continue;
+    seenNames.add(nameKey);
+
+    const descripcion = normalizeOptionalText(item?.descripcion);
+    const requestedId = toPositiveInt(item?.id_antecedente_familiar);
+    let existing = requestedId ? existingById.get(requestedId) : null;
+    if (!existing || matchedIds.has(Number(existing.id_antecedente_familiar))) {
+      existing = existingByName.get(nameKey) || null;
+    }
+    if (existing && matchedIds.has(Number(existing.id_antecedente_familiar))) existing = null;
+
+    if (existing) {
+      const existingId = Number(existing.id_antecedente_familiar);
+      matchedIds.add(existingId);
+      if (!valuesEqual(existing.nombre, nombre) || !valuesEqual(existing.descripcion, descripcion)) {
+        await db.query(
+          `UPDATE antecedentes_familiares
+           SET nombre = ?, descripcion = ?, actualizado = CURDATE()
+           WHERE id_antecedente_familiar = ? AND id_perfil = ?`,
+          [nombre, descripcion, existingId, id_perfil]
+        );
+        changed++;
+      }
+      continue;
+    }
+
+    const [result] = await db.query(
+      'INSERT INTO antecedentes_familiares (id_perfil, nombre, descripcion) VALUES (?, ?, ?)',
+      [id_perfil, nombre, descripcion]
+    );
+    if (result?.insertId) matchedIds.add(Number(result.insertId));
+    changed++;
+  }
+
+  for (const row of existingRows) {
+    const existingId = Number(row.id_antecedente_familiar);
+    if (matchedIds.has(existingId)) continue;
+    await db.query(
+      'DELETE FROM antecedentes_familiares WHERE id_antecedente_familiar = ? AND id_perfil = ?',
+      [existingId, id_perfil]
+    );
+    changed++;
+  }
+
+  return changed;
 }
 
 // Inserta/actualiza (1:1) antecedentes_personales por id_perfil
@@ -47,41 +254,36 @@ async function replaceAntecedentesFamiliares(id_perfil, items = []) {
 async function upsertAntecedentesPersonales(id_perfil, data = {}) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
-  const updateColumns = [
-    'bebidas_por_dia',
-    'tiempo_activo_alc',
-    'tiempo_inactivo_alc',
-    'cigarrillos_por_dia',
-    'tiempo_activo_tab',
-    'tiempo_inactivo_tab',
-    'tipo_toxicomania',
-    'tiempo_activo_tox',
-    'tiempo_inactivo_tox',
-    'calidad',
-    'alimentos_que_le_caen_mal',
-    'componentes_habituales_dieta',
-    'desayuno',
-    'comida',
-    'cena',
-    'hay_cambios',
-    'vacunas',
-    'cambio_tipo',
-    'cambio_causa',
-    'cambio_tiempo',
-  ];
-
-  // Filtra null/undefined para no sobrescribir con null innecesariamente
-  const cols = updateColumns.filter((k) => payload[k] != null);
+  const cols = ANTECEDENTES_PERSONALES_COLUMNS.filter((column) => hasOwn(payload, column) && payload[column] !== undefined);
   if (cols.length === 0) return { affectedRows: 0 };
+
+  const [existingRows] = await db.query(
+    'SELECT id_ap FROM antecedentes_personales WHERE id_perfil = ? LIMIT 1',
+    [id_perfil]
+  );
+  const existing = existingRows?.[0];
+  const assignments = buildAssignments(cols);
+  const values = cols.map((column) => payload[column]);
+
+  if (existing?.id_ap) {
+    const [result] = await db.query(
+      `UPDATE antecedentes_personales
+       SET ${assignments}, actualizado = CURDATE()
+       WHERE id_ap = ? AND id_perfil = ?`,
+      [...values, existing.id_ap, id_perfil]
+    );
+    return result;
+  }
+
+  const hasContent = cols.some((column) => payload[column] != null && payload[column] !== '');
+  if (!hasContent) return { affectedRows: 0 };
 
   const fields = ['id_perfil', ...cols];
   const placeholders = fields.map(() => '?').join(', ');
-  const values = [id_perfil, ...cols.map((k) => payload[k])];
-
-  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
-  const sql = `INSERT INTO antecedentes_personales (${fields.join(', ')}) VALUES (${placeholders})
-               ON DUPLICATE KEY UPDATE ${updates}`;
-  const [result] = await db.query(sql, values);
+  const [result] = await db.query(
+    `INSERT INTO antecedentes_personales (${fields.join(', ')}) VALUES (${placeholders})`,
+    [id_perfil, ...values]
+  );
   return result;
 }
 
@@ -120,8 +322,71 @@ async function addAntecedentesPersonalesPatologicos(id_perfil, items = []) {
 
 async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
   if (!id_perfil) throw new Error('id_perfil requerido');
-  await db.query('DELETE FROM antecedentes_personales_patologicos WHERE id_perfil = ?', [id_perfil]);
-  return addAntecedentesPersonalesPatologicos(id_perfil, items);
+  const [existingRows] = await db.query(
+    'SELECT id_app, antecedente, descripcion FROM antecedentes_personales_patologicos WHERE id_perfil = ?',
+    [id_perfil]
+  );
+  const existingById = new Map(existingRows.map((row) => [Number(row.id_app), row]));
+  const existingByName = new Map();
+  for (const row of existingRows) {
+    const key = normalizeKey(row.antecedente);
+    if (key && !existingByName.has(key)) existingByName.set(key, row);
+  }
+
+  const matchedIds = new Set();
+  const seenNames = new Set();
+  let changed = 0;
+
+  for (const item of Array.isArray(items) ? items : []) {
+    const antecedente = normalizeOptionalText(item?.antecedente);
+    if (!antecedente) continue;
+
+    const nameKey = normalizeKey(antecedente);
+    if (seenNames.has(nameKey)) continue;
+    seenNames.add(nameKey);
+
+    const descripcion = normalizeOptionalText(item?.descripcion);
+    const requestedId = toPositiveInt(item?.id_app);
+    let existing = requestedId ? existingById.get(requestedId) : null;
+    if (!existing || matchedIds.has(Number(existing.id_app))) {
+      existing = existingByName.get(nameKey) || null;
+    }
+    if (existing && matchedIds.has(Number(existing.id_app))) existing = null;
+
+    if (existing) {
+      const existingId = Number(existing.id_app);
+      matchedIds.add(existingId);
+      if (!valuesEqual(existing.antecedente, antecedente) || !valuesEqual(existing.descripcion, descripcion)) {
+        await db.query(
+          `UPDATE antecedentes_personales_patologicos
+           SET antecedente = ?, descripcion = ?, actualizado = CURDATE()
+           WHERE id_app = ? AND id_perfil = ?`,
+          [antecedente, descripcion, existingId, id_perfil]
+        );
+        changed++;
+      }
+      continue;
+    }
+
+    const [result] = await db.query(
+      'INSERT INTO antecedentes_personales_patologicos (id_perfil, antecedente, descripcion) VALUES (?, ?, ?)',
+      [id_perfil, antecedente, descripcion]
+    );
+    if (result?.insertId) matchedIds.add(Number(result.insertId));
+    changed++;
+  }
+
+  for (const row of existingRows) {
+    const existingId = Number(row.id_app);
+    if (matchedIds.has(existingId)) continue;
+    await db.query(
+      'DELETE FROM antecedentes_personales_patologicos WHERE id_app = ? AND id_perfil = ?',
+      [existingId, id_perfil]
+    );
+    changed++;
+  }
+
+  return changed;
 }
 
 // Inserta/actualiza (1:1) exploracion_fisica por id_perfil
@@ -129,18 +394,42 @@ async function replaceAntecedentesPersonalesPatologicos(id_perfil, items = []) {
 async function upsertExploracionFisica(id_perfil, data = {}) {
   if (!id_perfil) throw new Error('id_perfil requerido');
   const payload = { ...data };
-
-  const cols = Object.keys(payload).filter((k) => payload[k] != null);
+  const cols = EXPLORACION_COLUMNS.filter((column) => hasOwn(payload, column) && payload[column] !== undefined);
   if (cols.length === 0) return { affectedRows: 0 };
+
+  // La BD actual no garantiza UNIQUE(id_perfil) en esta tabla. Buscar primero
+  // la fila evita que un "upsert" se convierta en un INSERT en cada edición.
+  const [existingRows] = await db.query(
+    `SELECT id_exploracion
+     FROM exploracion_fisica
+     WHERE id_perfil = ?
+     ORDER BY actualizado DESC, id_exploracion DESC
+     LIMIT 1`,
+    [id_perfil]
+  );
+  const existing = existingRows?.[0];
+  const assignments = buildAssignments(cols);
+  const values = cols.map((column) => payload[column]);
+
+  if (existing?.id_exploracion) {
+    const [result] = await db.query(
+      `UPDATE exploracion_fisica
+       SET ${assignments}, actualizado = CURDATE()
+       WHERE id_exploracion = ? AND id_perfil = ?`,
+      [...values, existing.id_exploracion, id_perfil]
+    );
+    return result;
+  }
+
+  const hasContent = cols.some((column) => payload[column] != null && payload[column] !== '');
+  if (!hasContent) return { affectedRows: 0 };
 
   const fields = ['id_perfil', ...cols];
   const placeholders = fields.map(() => '?').join(', ');
-  const values = [id_perfil, ...cols.map((k) => payload[k])];
-
-  const updates = cols.map((k) => `${k}=VALUES(${k})`).join(', ');
-  const sql = `INSERT INTO exploracion_fisica (${fields.join(', ')}) VALUES (${placeholders})
-               ON DUPLICATE KEY UPDATE ${updates}`;
-  const [result] = await db.query(sql, values);
+  const [result] = await db.query(
+    `INSERT INTO exploracion_fisica (${fields.join(', ')}) VALUES (${placeholders})`,
+    [id_perfil, ...values]
+  );
   return result;
 }
 
@@ -165,26 +454,77 @@ async function upsertConsultas(id_perfil, data = {}) {
 
 async function replaceConsultas(id_perfil, items = []) {
   if (!id_perfil) throw new Error('id_perfil requerido');
-  await db.query('DELETE FROM consultas WHERE id_perfil = ?', [id_perfil]);
-  if (!Array.isArray(items) || items.length === 0) {
-    return { inserted: 0, insertIds: [] };
-  }
+  const incoming = Array.isArray(items) ? items : [];
+  const [existingRows] = await db.query(
+    'SELECT * FROM consultas WHERE id_perfil = ? ORDER BY fecha_consulta ASC, id_consulta ASC',
+    [id_perfil]
+  );
+  const existingById = new Map(existingRows.map((row) => [Number(row.id_consulta), row]));
+  const matchedIds = new Set();
 
   let inserted = 0;
+  let updated = 0;
+  let deleted = 0;
   const insertIds = [];
-  for (const raw of items) {
-    if (!raw || typeof raw !== 'object') continue;
-    const payload = { id_perfil, ...raw };
-    const hasContent = Object.entries(payload).some(([key, value]) => (
-      key !== 'id_perfil' && value != null && value !== ''
-    ));
-    if (!hasContent) continue;
-    const [result] = await db.query('INSERT INTO consultas SET ?', [payload]);
+
+  for (const raw of incoming) {
+    if (!raw || typeof raw !== 'object') {
+      insertIds.push(null);
+      continue;
+    }
+
+    const columns = CONSULTA_COLUMNS.filter((column) => hasOwn(raw, column) && raw[column] !== undefined);
+    const hasContent = columns.some((column) => raw[column] != null && raw[column] !== '');
+    if (!hasContent) {
+      insertIds.push(null);
+      continue;
+    }
+    if (raw.fecha_consulta == null || raw.fecha_consulta === '') {
+      throw new Error('fecha_consulta es obligatoria para cada consulta');
+    }
+
+    const requestedId = toPositiveInt(raw.id_consulta);
+    const existing = requestedId && !matchedIds.has(requestedId)
+      ? existingById.get(requestedId)
+      : null;
+    const values = columns.map((column) => raw[column]);
+
+    if (existing) {
+      await db.query(
+        `UPDATE consultas
+         SET ${buildAssignments(columns)}
+         WHERE id_consulta = ? AND id_perfil = ?`,
+        [...values, requestedId, id_perfil]
+      );
+      matchedIds.add(requestedId);
+      updated++;
+      insertIds.push(requestedId);
+      continue;
+    }
+
+    const fields = ['id_perfil', ...columns];
+    const placeholders = fields.map(() => '?').join(', ');
+    const [result] = await db.query(
+      `INSERT INTO consultas (${fields.join(', ')}) VALUES (${placeholders})`,
+      [id_perfil, ...values]
+    );
+    const newId = Number(result?.insertId) || null;
+    if (newId) insertIds.push(newId);
+    else insertIds.push(null);
     inserted += result?.affectedRows ?? 0;
-    if (result?.insertId) insertIds.push(result.insertId);
   }
 
-  return { inserted, insertIds };
+  for (const row of existingRows) {
+    const existingId = Number(row.id_consulta);
+    if (matchedIds.has(existingId)) continue;
+    await db.query(
+      'DELETE FROM consultas WHERE id_consulta = ? AND id_perfil = ?',
+      [existingId, id_perfil]
+    );
+    deleted++;
+  }
+
+  return { inserted, updated, deleted, insertIds };
 }
 
 async function updateLatestConsultaHistoriaClinica(id_perfil, historia_clinica) {
@@ -240,6 +580,89 @@ async function deletePersonalizadosByPerfil(id_perfil) {
   const [result] = await db.query('DELETE FROM personalizados WHERE id_perfil = ?', [id_perfil]);
   return result;
 }
+
+// Sincroniza personalizados sin borrarlos y recrearlos en cada edición.
+// Así se conservan sus IDs y sus fechas `creado`; solo `actualizado` cambia
+// cuando realmente cambian sus datos.
+async function syncPersonalizados(id_perfil, groups = []) {
+  if (!id_perfil) throw new Error('id_perfil requerido');
+
+  const [existingRows] = await db.query(
+    'SELECT id_personalizado, id_consulta, nombre, descripcion, estado FROM personalizados WHERE id_perfil = ?',
+    [id_perfil]
+  );
+  const existingById = new Map(existingRows.map((row) => [Number(row.id_personalizado), row]));
+  const existingByConsultaName = new Map();
+  for (const row of existingRows) {
+    const key = `${Number(row.id_consulta)}:${normalizeKey(row.nombre)}`;
+    if (!existingByConsultaName.has(key)) existingByConsultaName.set(key, row);
+  }
+
+  const matchedIds = new Set();
+  let inserted = 0;
+  let updated = 0;
+  let deleted = 0;
+
+  for (const group of Array.isArray(groups) ? groups : []) {
+    const id_consulta = toPositiveInt(group?.id_consulta);
+    if (!id_consulta) continue;
+
+    for (const item of Array.isArray(group?.items) ? group.items : []) {
+      const nombre = String(item?.nombre ?? '').trim();
+      if (!nombre) continue;
+      const descripcion = String(item?.descripcion ?? '').trim();
+      const estado = String(item?.estado ?? '').trim();
+      const requestedId = toPositiveInt(item?.id_personalizado);
+
+      let existing = requestedId ? existingById.get(requestedId) : null;
+      if (existing && Number(existing.id_consulta) !== id_consulta) existing = null;
+      if (!existing || matchedIds.has(Number(existing.id_personalizado))) {
+        existing = existingByConsultaName.get(`${id_consulta}:${normalizeKey(nombre)}`) || null;
+      }
+      if (existing && matchedIds.has(Number(existing.id_personalizado))) existing = null;
+
+      if (existing) {
+        const existingId = Number(existing.id_personalizado);
+        matchedIds.add(existingId);
+        if (
+          !valuesEqual(existing.nombre, nombre)
+          || !valuesEqual(existing.descripcion, descripcion)
+          || !valuesEqual(existing.estado, estado)
+        ) {
+          await db.query(
+            `UPDATE personalizados
+             SET nombre = ?, descripcion = ?, estado = ?, actualizado = CURDATE()
+             WHERE id_personalizado = ? AND id_perfil = ?`,
+            [nombre, descripcion, estado, existingId, id_perfil]
+          );
+          updated++;
+        }
+        continue;
+      }
+
+      const [result] = await db.query(
+        `INSERT INTO personalizados (id_perfil, id_consulta, nombre, descripcion, estado)
+         VALUES (?, ?, ?, ?, ?)`,
+        [id_perfil, id_consulta, nombre, descripcion, estado]
+      );
+      if (result?.insertId) matchedIds.add(Number(result.insertId));
+      inserted++;
+    }
+  }
+
+  for (const row of existingRows) {
+    const existingId = Number(row.id_personalizado);
+    if (matchedIds.has(existingId)) continue;
+    await db.query(
+      'DELETE FROM personalizados WHERE id_personalizado = ? AND id_perfil = ?',
+      [existingId, id_perfil]
+    );
+    deleted++;
+  }
+
+  return { inserted, updated, deleted, changed: inserted + updated + deleted };
+}
+
 // Inserta/actualiza (1:1) diagnostico_tratamiento por id_perfil
 // data: objeto parcial con columnas válidas (sin id_perfil)
 async function upsertDiagnosticoTratamiento(id_perfil, data = {}) {
@@ -357,6 +780,7 @@ async function getById(id_perfil) {
     antecedentes_personales: new Set(['creado', 'actualizado']),
     antecedentes_personales_patologicos: new Set(['creado', 'actualizado']),
     exploracion_fisica: new Set(['creado', 'actualizado']),
+    personalizados: new Set(['creado', 'actualizado']),
     // gineco no tiene timestamps, pero SÍ fechas clínicas
     gineco_obstetricos: new Set([
       'fecha_ultima_menstruacion',
@@ -407,6 +831,12 @@ async function getById(id_perfil) {
   // 1:N
   const includedDates = [];
   if (result.actualizado) includedDates.push(result.actualizado);
+  if (result.antecedentes_personales?.actualizado) {
+    includedDates.push(result.antecedentes_personales.actualizado);
+  }
+  if (result.exploracion_fisica?.actualizado) {
+    includedDates.push(result.exploracion_fisica.actualizado);
+  }
 
   const load1N = async (table, scope, orderBy) => {
     const [rows] = await db.query(
@@ -453,6 +883,9 @@ async function getById(id_perfil) {
       const items = rows.map(r => compactRow(r, 'personalizados'));
       if (items.length) {
         result.personalizados = items;
+        for (const it of items) {
+          if (it.actualizado) includedDates.push(it.actualizado);
+        }
       }
     }
   }
@@ -560,7 +993,7 @@ async function getProfilesWithReminder() {
 // Limpia recordatorio y recordatorio_desc de un perfil
 async function clearPerfilReminder(id_perfil) {
   const [result] = await db.query(
-    'UPDATE perfil SET recordatorio = NULL, recordatorio_desc = NULL WHERE id_perfil = ?',
+    'UPDATE perfil SET recordatorio = NULL, recordatorio_desc = NULL, actualizado = CURDATE() WHERE id_perfil = ?',
     [id_perfil]
   );
   return result;
@@ -683,6 +1116,7 @@ module.exports = {
   updateLatestConsultaHistoriaClinica,
   addPersonalizados,
   deletePersonalizadosByPerfil,
+  syncPersonalizados,
   addAppointment,
   listAppointments,
   updateAppointment,
